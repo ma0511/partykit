@@ -1,170 +1,175 @@
 
-setClassUnion("integer_OR_NULL", c("integer", "NULL"))
+## Basic idea:
+## A split is a function that maps data (specifying the partitioning variables)
+## to a set of integers (specifying the daughter nodes).
+## 
+## Extensions:
+##   - The function does not need to go all the way itself,
+##     we can help in doing the splitting of some numeric score of the data.
+##   - The function might be very simple: the identity of a single variable
+##     from the data.
+##
+## Arguments:
+##  - fun: Either an R function computing some splitting score from the data,
+##    or an integer specifying the column in the data.
+##    The resulting splitting score must be
+##  - breaks: A numeric vector of breaks for splitting the score via cut().
+##    Needs to be double for numeric scores and integer for factor scores.
+##    
 
-setClass("CatSplit", 
-    representation = representation(
-        node_ids = "integer_OR_NULL"),
-    prototype = list(node_ids = NULL)
-)
+newsplit <- function(fun, breaks = NULL, ids = NULL, right = TRUE) {
 
-setClass("SimCatSplit", 
-    contains = "CatSplit",
-    representation = representation(
-        var_id = "integer")
-)
+    ### informal class for splits
+    split <- vector(mode = "list", length = 4)
+    names(split) <- c("fun", "breaks", "ids", "right")
 
-setClass("FunCatSplit", 
-    contains = "CatSplit",
-    representation = representation(
-        fun = "function")
-)
-
-setClass("SimNumSplit", 
-    contains = "SimCatSplit",
-    representation = representation(
-        partition = "numeric", 
-        right     = "logical"),
-        prototype(right = TRUE),
-)
-
-setClass("FunNumSplit", 
-    contains = "FunCatSplit",
-    representation = representation(
-        partition = "numeric",
-        right     = "logical"),
-    prototype(right = TRUE),
-    validity = function(object) {
-        if (!is.null(object@node_ids))
-            length(object@node_ids) == length(object@partition) + 1
+    ### split is either a function or an id referring to a variable
+    if (is.function(fun) || is.integer(fun)) {
+        split$fun <- fun
+    } else {
+        stop(sQuote("fun"), " ", "should be a function or an integer")
     }
-)
 
-
-split <- function(data, splits, NAprob = NULL) {
-
-    if (!is.list(splits))
-        splits <- list(splits)
-
-    Fun2Sim <- function(split) {
-
-        if (extends(class(split), "FunCatSplit") ||
-            extends(class(split), "FunNumSplit")) {
-
-            p <- ncol(data)
-            data[[p + 1]] <<- split@fun(data)
-            if (is.factor(data[[p + 1]]))
-                split <- new("SimCatSplit", var_id = as.integer(p + 1),
-                             node_ids = split@node_ids)
-            if (is.numeric(data[[p + 1]]))
-                split <- new("SimNumSplit", var_id =  as.integer(p + 1),
-                             partition = split@partition, node_ids = split@node_ids)
-            split@var_id <- as.integer(p + 1)
+    ### vec
+    if (!is.null(breaks)) {
+        if (is.double(breaks) && (length(breaks) >= 1)) {
+            split$breaks <- breaks
+        } else {
+            stop(sQuote("break"), " ",
+                 "should be a double with at least one element")
         }
-        return(split)
-   }
+    }
 
-   splits <- lapply(splits, Fun2Sim)
+    if (!is.null(ids)) {
+        if (is.integer(ids)) {
+            if (!(length(ids) >= 2)) 
+                stop(sQuote("ids"), " ", "has less than two elements")
+            if (!(min(ids) == 1))
+                stop("minimum of", " ", sQuote("ids"), " ", "is not equal to 1")
+            if (!all.equal(diff(sort(unique(ids))), rep(1, max(ids)-1)))
+                stop(sQuote("ids"), " ", "is not a contiguous sequence")
+            split$ids <- ids
+        } else {
+            stop(sQuote("ids"), " ", "is not a class", " ", sQuote("integer"))
+        }
+        if (!is.null(breaks)) {
+            if (length(breaks) != (length(ids) - 1))
+                stop("length of", " ", sQuote("breaks"), " ", 
+                     "does not match length of", " ", sQuote("ids"))
+        }
+    }
 
-   x <- simsplit(data, splits[[1]])
-   i <- 2
+    if (!isTRUE(right))
+        split$right <- FALSE
 
-   for (i in 2:length(splits)) {
-       if (!any(is.na(x))) break;
-       x[is.na(x)] <- simsplit(data[is.na(x),], splits[[i]])
-   }
-
-   if (any(is.na(x))) {
-       if (is.null(NAprob)) {
-           x[is.na(x)] <- 1
-       } else {
-           x[is.na(x)] <- sample(1:nmax, sum(is.na(x)), FALSE, prob = NAprob)
-       }
-   }
-   return(x)
+    return(split)
 }
 
-simsplit <- function(data, split) {
+split <- function(data, split) {
 
-    x <- data[[split@var_id]]
-    if (extends(class(split), "SimNumSplit"))
-        x <- cut(x, breaks = c(-Inf, split@partition, Inf), right = split@right)
+    if (is.function(split$fun))
+        stop("")
 
-    x <- as.integer(x)
-    node_ids <- split@node_ids
-    if (!is.null(node_ids))
-        x <- node_ids[x]
+    x <- data[[split$fun]]
+
+    if (is.null(split$breaks)) {
+        stopifnot(storage.mode(x) == "integer")
+    } else {
+        stopifnot(storage.mode(x) == "double")
+        x <- as.integer(cut(x, breaks = c(-Inf, split$breaks, Inf), 
+                            right = is.null(split$right)))
+    }
+    if (!is.null(split$ids))
+        x <- split$ids[x]
     return(x)
 }
 
-NumSplit2char <- function(split) {
+metadata <- function(data) {
 
-    partition <- split@partition
-    node_ids <- split@node_ids
-
-    if (is.null(node_ids)) 
-        node_ids <- 1:(length(partition) + 1)
-
-    r <- split@right
-    if (length(partition) == 1) {
-        if (node_ids[1] < node_ids[2]) {
-            nodetxt <- c(paste(ifelse(r, "<=", "<"), partition), 
-                         paste(ifelse(r, ">", ">="), partition))
-        } else {
-            nodetxt <- c(paste(ifelse(r, ">", ">="), partition), 
-                         paste(ifelse("r", "<=", "<"), partition))
-        }
-    } else {
-        txt <- cbind(c(-Inf, partition), c(partition, Inf))
-        txt <- apply(txt, 1, function(x) 
-            paste("(", paste(as.vector(x), collapse = ", "), "]", sep = ""))
-        nodetxt <- paste("%in%", txt[node_ids])
-    }
-    nodetxt
-}   
-
-CatSplit2char <- function(split, levels = NULL) {
-
-    node_ids <- split@node_ids
-
-    if (is.null(levels)) 
-        levels <- paste("c", 1:length(node_ids), sep = "")
-
-    sapply(sort(unique(node_ids)), function(n) 
-        paste("%in%", paste("{", 
-              paste(levels[node_ids == n], collapse = ", "), "}", sep = ""))
-    )
+    list(varnames = colnames(data),
+         class = sapply(data, function(x) class(x)[1]),
+         levels = lapply(data, levels))
 }
 
+nodelabels <- function(split, meta) {
+
+    ## determine type
+    type <- ifelse(is.function(split$fun), 
+                   "function", meta$class[split$fun])
+    type[!(type %in% c("function", "factor", "ordered"))] <- "numeric"
+
+    ## process defaults for breaks and ids
+    breaks <- split$breaks
+    ids <- split$ids
+    if (is.null(breaks) && is.null(ids)) {
+        if (type %in% c("factor", "ordered")) {
+            ids <- seq_along(meta$levels[[split$fun]])
+        } else {
+            stop("")
+        }
+    }
+    if (is.null(breaks)) breaks <- 1:(length(ids) - 1)
+    if (is.null(ids)) ids <- 1:(length(breaks) + 1)
+
+    right <- is.null(split$right)
+
+    ## check whether ordered are really ordered
+    if (type == "ordered") {
+        if (length(breaks) > 1)
+            type <- "factor"
+    }
+    ### <FIXME> format ordered multiway splits? </FIXME>
+
+    switch(type, 
+        "factor" = {
+            lev <- meta$levels[[split$fun]]
+            nids <- as.integer(as.character(cut(seq_along(lev), c(-Inf, breaks, Inf),
+                labels = ids, right = right)))
+            dlab <- as.vector(tapply(lev, nids, paste, collapse = ", "))
+            mlab <- meta$varnames[split$fun]
+        },
+        "ordered" = {
+            lev <- meta$levels[[split$fun]]
+            if (length(breaks) == 1) {
+                if (right)
+                    dlab <- paste(c("<=", ">"), lev[breaks], sep = " ")
+                else
+                    dlab <- paste(c("<", ">="), lev[breaks], sep = " ")
+            } else {
+                stop("") ### see above
+            }
+            dlab <- dlab[ids]
+            mlab <- meta$varnames[split$fun]
+        },
+        "numeric" = {
+            if (length(breaks) == 1) {
+                if (right)
+                    dlab <- paste(c("<=", ">"), breaks, sep = " ")
+                else
+                    dlab <- paste(c("<", ">="), breaks, sep = " ")
+            } else {
+                dlab <- levels(cut(0, breaks = c(-Inf, breaks, Inf), right = right))
+            }
+            dlab <- as.vector(tapply(dlab, ids, paste, collapse = " | "))
+            mlab <- meta$varnames[split$fun]
+        }
+    )
+
+    return(list(dlab = dlab, mlab = mlab))
+} 
 
 
-dat <- data.frame(x = rnorm(100), y = gl(4, 25), z = ordered(gl(4, 25)))
+dat <- data.frame(x = gl(3, 30, labels = LETTERS[1:3]), y = rnorm(90), 
+                  z = gl(9, 10, labels = LETTERS[1:9], ordered = TRUE))
+csp <- newsplit(as.integer(1), ids = as.integer(c(1, 2, 1)))
+split(dat, csp)
 
-### categorical split
-cs <- new("SimCatSplit", var_id = as.integer(2), 
-          node_ids = as.integer(c(1, 2, 2, 1)))
-split(dat, cs)
+nsp <- newsplit(as.integer(2), breaks = c(-1, 0, 1), ids = as.integer(c(1, 2, 1, 3)))
+split(dat, nsp)
 
-### binary numeric split
-ns <- new("SimNumSplit", var_id = as.integer(1),
-          partition = as.numeric(1.2))
+osp <- newsplit(as.integer(3), breaks = c(3, 6), ids = as.integer(c(2, 1, 2)))
 
-split(dat, ns)
-
-### binary split with direction
-ns <- new("SimNumSplit", var_id = as.integer(1),
-          partition = as.numeric(1.2), 
-          node_ids = as.integer(c(2, 1)))
-
-split(dat, ns)
-
-### multiway split
-ns <- new("SimNumSplit", var_id = as.integer(1),
-          partition = as.numeric(c(0, 1.2)),
-          node_ids = as.integer(c(1, 3, 2)))
-split(dat, ns)
-
-### functional split
-fs <- new("FunNumSplit", fun = function(data) data[[1]]^2,
-          partition = as.numeric(2))
-split(dat, fs)
+nodelabels(csp, metadata(dat))
+nodelabels(nsp, metadata(dat))
+nodelabels(osp, metadata(dat))
 
