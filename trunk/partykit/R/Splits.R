@@ -17,11 +17,12 @@
 ##    Needs to be double for numeric scores and integer for factor scores.
 ##    
 
-newsplit <- function(fun, breaks = NULL, ids = NULL, right = TRUE) {
+new_split <- function(fun, breaks = NULL, index = NULL, right = TRUE, 
+                     prob = NULL, ...) {
 
     ### informal class for splits
-    split <- vector(mode = "list", length = 4)
-    names(split) <- c("fun", "breaks", "ids", "right")
+    split <- vector(mode = "list", length = 6)
+    names(split) <- c("fun", "breaks", "index", "right", "prob", "info")
 
     ### split is either a function or an id referring to a variable
     if (is.function(fun) || is.integer(fun)) {
@@ -30,44 +31,63 @@ newsplit <- function(fun, breaks = NULL, ids = NULL, right = TRUE) {
         stop(sQuote("fun"), " ", "should be a function or an integer")
     }
 
+    if (is.null(breaks) && is.null(index))
+        stop("either", " ", sQuote("breaks"), " ", "or", " ",
+             sQuote("index"), " ", "must be given")
+
     ### vec
     if (!is.null(breaks)) {
-        if (is.double(breaks) && (length(breaks) >= 1)) {
+        if (is.numeric(breaks) && (length(breaks) >= 1)) {
             split$breaks <- breaks
         } else {
             stop(sQuote("break"), " ",
-                 "should be a double with at least one element")
+                 "should be a numeric vector with at least one element")
         }
     }
 
-    if (!is.null(ids)) {
-        if (is.integer(ids)) {
-            if (!(length(ids) >= 2)) 
-                stop(sQuote("ids"), " ", "has less than two elements")
-            if (!(min(ids) == 1))
-                stop("minimum of", " ", sQuote("ids"), " ", "is not equal to 1")
-            if (!all.equal(diff(sort(unique(ids))), rep(1, max(ids)-1)))
-                stop(sQuote("ids"), " ", "is not a contiguous sequence")
-            split$ids <- ids
+    if (!is.null(index)) {
+        if (is.integer(index)) {
+            if (!(length(index) >= 2)) 
+                stop(sQuote("index"), " ", "has less than two elements")
+            if (!(min(index) == 1))
+                stop("minimum of", " ", sQuote("index"), " ", "is not equal to 1")
+            if (!all.equal(diff(sort(unique(index))), rep(1, max(index) - 1)))
+                stop(sQuote("index"), " ", "is not a contiguous sequence")
+            split$index <- index
         } else {
-            stop(sQuote("ids"), " ", "is not a class", " ", sQuote("integer"))
+            stop(sQuote("index"), " ", "is not a class", " ", sQuote("integer"))
         }
         if (!is.null(breaks)) {
-            if (length(breaks) != (length(ids) - 1))
+            if (length(breaks) != (length(index) - 1))
                 stop("length of", " ", sQuote("breaks"), " ", 
-                     "does not match length of", " ", sQuote("ids"))
+                     "does not match length of", " ", sQuote("index"))
         }
     }
 
     if (!isTRUE(right))
         split$right <- FALSE
 
+    if (!is.null(prob)) {
+        if (!is.double(prob) || 
+            (any(prob < 0) | any(prob > 1) | !isTRUE(all.equal(sum(prob), 1))))
+            stop(sQuote("prob"), " ", "is not a vector of probabilities")
+        if (!is.null(index))
+            stopifnot(max(index) == length(prob))
+        if (!is.null(breaks) && is.null(index))
+            stopifnot(length(breaks) == (length(prob) - 1))
+        split$prob <- prob
+    }
+
+    split$info <- list(...)
+
+    class(split) <- "split"
+
     return(split)
 }
 
-split <- function(data, split) {
+do_split <- function(data, split) {
 
-    if (is.function(split$fun))
+    if (!inherits(split, "split") || is.function(split$fun))
         stop("")
 
     x <- data[[split$fun]]
@@ -75,13 +95,62 @@ split <- function(data, split) {
     if (is.null(split$breaks)) {
         stopifnot(storage.mode(x) == "integer")
     } else {
-        stopifnot(storage.mode(x) == "double")
-        x <- as.integer(cut(x, breaks = c(-Inf, split$breaks, Inf), 
+        stopifnot(storage.mode(x) == storage.mode(split$breaks))
+        x <- as.integer(cut(as.numeric(x), breaks = c(-Inf, split$breaks, Inf), 
                             right = is.null(split$right)))
     }
-    if (!is.null(split$ids))
-        x <- split$ids[x]
+    if (!is.null(split$index))
+        x <- split$index[x]
     return(x)
+}
+
+do_splitlist <- function(data, splitlist) {
+
+    data <- data
+    p <- ncol(data)
+    ### replace functional splits by splitting score id
+    for (i in 1:length(splitlist)) {
+        if (is.function(splitlist[[i]]$fun)) {
+            p <- p + 1
+            data[p] <- splitlist[[i]]$fun(data)
+            splitlist[[i]]$fun <- as.integer(p)
+        }
+    }
+    primary <- splitlist[[1]]
+    surrogates <- splitlist[-1]
+
+    ### perform primary split
+    x <- do_split(data, primary)
+
+    ### surrogate / random splits if needed
+    if (any(is.na(x))) {
+        ### surrogate splits
+        if (length(surrogates) >= 1) {
+            for (surr in surrogates) {
+                nax <- is.na(x)
+                if (!any(nax)) break;
+                x[nax] <- do_split(data[nax,, drop = FALSE], surr)
+            }
+        }
+        nax <- is.na(x)
+        ### random splits
+        if (any(nax)) {
+            index <- primary$index
+            if (is.null(index)) {
+                if (!is.null(primary$breaks))
+                    nd <- length(primary$breaks) + 1
+                else
+                    nd <- length(levels(data[[primary$id]]))
+            } else {
+                nd <- max(index)
+            }
+            prob <- primary$split
+            if (is.null(prob))
+                prob <- rep(1, nd) / nd
+            x[nax] <- sample(1:nd, sum(nax), prob = prob)
+        }
+    }
+    x
 }
 
 metadata <- function(data) {
@@ -98,18 +167,11 @@ nodelabels <- function(split, meta) {
                    "function", meta$class[split$fun])
     type[!(type %in% c("function", "factor", "ordered"))] <- "numeric"
 
-    ## process defaults for breaks and ids
+    ## process defaults for breaks and index
     breaks <- split$breaks
-    ids <- split$ids
-    if (is.null(breaks) && is.null(ids)) {
-        if (type %in% c("factor", "ordered")) {
-            ids <- seq_along(meta$levels[[split$fun]])
-        } else {
-            stop("")
-        }
-    }
-    if (is.null(breaks)) breaks <- 1:(length(ids) - 1)
-    if (is.null(ids)) ids <- 1:(length(breaks) + 1)
+    index <- split$index
+    if (is.null(breaks)) breaks <- 1:(length(index) - 1)
+    if (is.null(index)) index <- 1:(length(breaks) + 1)
 
     right <- is.null(split$right)
 
@@ -123,9 +185,9 @@ nodelabels <- function(split, meta) {
     switch(type, 
         "factor" = {
             lev <- meta$levels[[split$fun]]
-            nids <- as.integer(as.character(cut(seq_along(lev), c(-Inf, breaks, Inf),
-                labels = ids, right = right)))
-            dlab <- as.vector(tapply(lev, nids, paste, collapse = ", "))
+            nindex <- as.integer(as.character(cut(seq_along(lev), c(-Inf, breaks, Inf),
+                labels = index, right = right)))
+            dlab <- as.vector(tapply(lev, nindex, paste, collapse = ", "))
             mlab <- meta$varnames[split$fun]
         },
         "ordered" = {
@@ -138,7 +200,7 @@ nodelabels <- function(split, meta) {
             } else {
                 stop("") ### see above
             }
-            dlab <- dlab[ids]
+            dlab <- dlab[index]
             mlab <- meta$varnames[split$fun]
         },
         "numeric" = {
@@ -150,26 +212,35 @@ nodelabels <- function(split, meta) {
             } else {
                 dlab <- levels(cut(0, breaks = c(-Inf, breaks, Inf), right = right))
             }
-            dlab <- as.vector(tapply(dlab, ids, paste, collapse = " | "))
+            dlab <- as.vector(tapply(dlab, index, paste, collapse = " | "))
             mlab <- meta$varnames[split$fun]
+        },
+        "function" = {
+            ### FIXME: use possible names attribute for split$fun
+            mlab <- "functional split"
+            if (!is.integer(breaks)) {
+                if (length(breaks) == 1) {
+                     if (right)  
+                         dlab <- paste(c("<=", ">"), breaks, sep = " ")
+                    else
+                        dlab <- paste(c("<", ">="), breaks, sep = " ")
+                } else {
+                    dlab <- levels(cut(0, breaks = c(-Inf, breaks, Inf), right = right))
+                }
+                dlab <- as.vector(tapply(dlab, index, paste, collapse = " | "))
+            } else if (length(breaks) == 1 && length(index) > 2) {
+                if (right)  
+                    dlab <- paste(c("<=", ">"), breaks, sep = " ")
+                else
+                    dlab <- paste(c("<", ">="), breaks, sep = " ")
+            } else {
+                lev <- 1:max(index)
+                nindex <- as.integer(as.character(cut(seq_along(lev), c(-Inf, breaks, Inf),
+                    labels = index, right = right)))
+                dlab <- as.vector(tapply(lev, nindex, paste, collapse = ", "))
+            }
         }
     )
 
     return(list(dlab = dlab, mlab = mlab))
 } 
-
-
-dat <- data.frame(x = gl(3, 30, labels = LETTERS[1:3]), y = rnorm(90), 
-                  z = gl(9, 10, labels = LETTERS[1:9], ordered = TRUE))
-csp <- newsplit(as.integer(1), ids = as.integer(c(1, 2, 1)))
-split(dat, csp)
-
-nsp <- newsplit(as.integer(2), breaks = c(-1, 0, 1), ids = as.integer(c(1, 2, 1, 3)))
-split(dat, nsp)
-
-osp <- newsplit(as.integer(3), breaks = c(3, 6), ids = as.integer(c(2, 1, 2)))
-
-nodelabels(csp, metadata(dat))
-nodelabels(nsp, metadata(dat))
-nodelabels(osp, metadata(dat))
-
