@@ -83,3 +83,15 @@ rec2flat <- function(node) {
     new_flatnode(node)
     return(obj)
 }
+
+length.node <- function(x)
+    length(x$kids)
+
+
+"[.node" <- "[[.node" <- function(x, i, ...) {
+    stopifnot(length(i) == 1 & is.numeric(i))
+    rval <- x$kids[[i]]
+    if (!inherits(rval, "node"))
+        warning(sQuote("x"), " ", "is not a recursive node")
+    return(rval)
+}

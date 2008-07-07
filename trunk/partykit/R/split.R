@@ -160,7 +160,7 @@ metadata <- function(data) {
          levels = lapply(data, levels))
 }
 
-nodelabels <- function(split, meta) {
+nodelabels <- function(split, meta, digits = getOption("digits") - 2) {
 
     ## determine type
     type <- ifelse(is.function(split$fun), 
@@ -204,13 +204,15 @@ nodelabels <- function(split, meta) {
             mlab <- meta$varnames[split$fun]
         },
         "numeric" = {
+            breaks <- round(breaks, digits)
             if (length(breaks) == 1) {
                 if (right)
                     dlab <- paste(c("<=", ">"), breaks, sep = " ")
                 else
                     dlab <- paste(c("<", ">="), breaks, sep = " ")
             } else {
-                dlab <- levels(cut(0, breaks = c(-Inf, breaks, Inf), right = right))
+                dlab <- levels(cut(0, breaks = c(-Inf, breaks, Inf), 
+                                   right = right))
             }
             dlab <- as.vector(tapply(dlab, index, paste, collapse = " | "))
             mlab <- meta$varnames[split$fun]
@@ -219,6 +221,7 @@ nodelabels <- function(split, meta) {
             ### FIXME: use possible names attribute for split$fun
             mlab <- "functional split"
             if (!is.integer(breaks)) {
+                breaks <- round(breaks, digits)
                 if (length(breaks) == 1) {
                      if (right)  
                          dlab <- paste(c("<=", ">"), breaks, sep = " ")
@@ -242,5 +245,5 @@ nodelabels <- function(split, meta) {
         }
     )
 
-    return(list(dlab = dlab, mlab = mlab))
+    return(list(splitname = mlab, splitlevels = dlab))
 } 
