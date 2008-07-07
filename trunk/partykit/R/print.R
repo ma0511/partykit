@@ -27,5 +27,5 @@ print.node <- function(x, metadata, prefix = "", first = TRUE, ...) {
     }
 }
 
-#print.party <- function(x, ...)
-#    print(x$node, x$metadata, ...)
+print.party <- function(x, ...)
+    print(x$node, x$metadata, ...)

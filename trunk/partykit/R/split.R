@@ -153,11 +153,16 @@ do_splitlist <- function(data, splitlist) {
     x
 }
 
-metadata <- function(data) {
+metadata <- function(x, ...)
+    UseMethod("metadata")
 
-    list(varnames = colnames(data),
-         class = sapply(data, function(x) class(x)[1]),
-         levels = lapply(data, levels))
+metadata.data.frame <- function(x, ...) {
+
+    rval <- list(varnames = colnames(x),
+         class = sapply(x, function(z) class(z)[1]),
+         levels = lapply(x, levels))
+    class(rval) <- "metadata"
+    rval
 }
 
 nodelabels <- function(split, meta, digits = getOption("digits") - 2) {

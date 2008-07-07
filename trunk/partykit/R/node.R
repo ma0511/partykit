@@ -95,3 +95,4 @@ length.node <- function(x)
         warning(sQuote("x"), " ", "is not a recursive node")
     return(rval)
 }
+
