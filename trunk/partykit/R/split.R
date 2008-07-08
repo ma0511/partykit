@@ -50,9 +50,9 @@ new_split <- function(fun, breaks = NULL, index = NULL, right = TRUE,
         if (is.integer(index)) {
             if (!(length(index) >= 2)) 
                 stop(sQuote("index"), " ", "has less than two elements")
-            if (!(min(index) == 1))
+            if (!(min(index, na.rm = TRUE) == 1))
                 stop("minimum of", " ", sQuote("index"), " ", "is not equal to 1")
-            if (!all.equal(diff(sort(unique(index))), rep(1, max(index) - 1)))
+            if (!all.equal(diff(sort(unique(index))), rep(1, max(index, na.rm = TRUE) - 1)))
                 stop(sQuote("index"), " ", "is not a contiguous sequence")
             split$index <- index
         } else {
@@ -73,7 +73,7 @@ new_split <- function(fun, breaks = NULL, index = NULL, right = TRUE,
             (any(prob < 0) | any(prob > 1) | !isTRUE(all.equal(sum(prob), 1))))
             stop(sQuote("prob"), " ", "is not a vector of probabilities")
         if (!is.null(index))
-            stopifnot(max(index) == length(prob))
+            stopifnot(max(index, na.rm = TRUE) == length(prob))
         if (!is.null(breaks) && is.null(index))
             stopifnot(length(breaks) == (length(prob) - 1))
         split$prob <- prob
@@ -143,7 +143,7 @@ do_splitlist <- function(data, splitlist) {
                 else
                     nd <- length(levels(data[[primary$id]]))
             } else {
-                nd <- max(index)
+                nd <- max(index, na.rm = TRUE)
             }
             prob <- primary$split
             if (is.null(prob))
@@ -243,7 +243,7 @@ nodelabels <- function(split, meta, digits = getOption("digits") - 2) {
                 else
                     dlab <- paste(c("<", ">="), breaks, sep = " ")
             } else {
-                lev <- 1:max(index)
+                lev <- 1:max(index, na.rm = TRUE)
                 nindex <- as.integer(as.character(cut(seq_along(lev), c(-Inf, breaks, Inf),
                     labels = index, right = right)))
                 dlab <- as.vector(tapply(lev, nindex, paste, collapse = ", "))

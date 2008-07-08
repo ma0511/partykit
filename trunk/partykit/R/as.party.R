@@ -53,7 +53,7 @@ as.party.rpart <- function(obj, ...) {
             index[index == 2] <- NA
             index[index == 3] <- 2
             ret <- new_split(fun = which(rownames(obj$split)[j] == objmeta$varnames),
-                      index = index)
+                      index = as.integer(index))
         }
         ret
     }
