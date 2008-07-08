@@ -45,6 +45,7 @@ new_split <- function(fun, breaks = NULL, index = NULL, right = TRUE,
         }
     }
 
+    ### FIXME: index for factors may contain NA
     if (!is.null(index)) {
         if (is.integer(index)) {
             if (!(length(index) >= 2)) 
