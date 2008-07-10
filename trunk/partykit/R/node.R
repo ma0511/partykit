@@ -52,16 +52,15 @@ flat2rec <- function(obj) {
     return(node)
 }
 
-get_node_id <- function(data, node) {
+get_node_id <- function(node, data) {
 
     if (is.null(node$split))
         return(rep(node$id, nrow(data)))
-    nextid <- do_splitlist(data, node$split)
+    retid <- nextid <- do_splitlist(node$split, data)
     for (i in unique(nextid)) {
-        nextid[nextid == i] <- get_node_id(data[nextid == i, , drop = FALSE], 
-                                           node$kids[[i]])
+        retid[nextid == i] <- get_node_id(node$kids[[i]], data[nextid == i, , drop = FALSE])
     }
-    return(nextid)
+    return(retid)
 }
 
 rec2flat <- function(node) {

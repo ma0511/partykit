@@ -86,7 +86,7 @@ new_split <- function(fun, breaks = NULL, index = NULL, right = TRUE,
     return(split)
 }
 
-do_split <- function(data, split) {
+do_split <- function(split, data) {
 
     if (!inherits(split, "split") || is.function(split$fun))
         stop("")
@@ -105,9 +105,8 @@ do_split <- function(data, split) {
     return(x)
 }
 
-do_splitlist <- function(data, splitlist) {
+do_splitlist <- function(splitlist, data) {
 
-    data <- data
     p <- ncol(data)
     ### replace functional splits by splitting score id
     for (i in 1:length(splitlist)) {
@@ -121,7 +120,7 @@ do_splitlist <- function(data, splitlist) {
     surrogates <- splitlist[-1]
 
     ### perform primary split
-    x <- do_split(data, primary)
+    x <- do_split(primary, data)
 
     ### surrogate / random splits if needed
     if (any(is.na(x))) {
@@ -130,7 +129,7 @@ do_splitlist <- function(data, splitlist) {
             for (surr in surrogates) {
                 nax <- is.na(x)
                 if (!any(nax)) break;
-                x[nax] <- do_split(data[nax,, drop = FALSE], surr)
+                x[nax] <- do_split(surr, data[nax,, drop = FALSE])
             }
         }
         nax <- is.na(x)
@@ -151,7 +150,7 @@ do_splitlist <- function(data, splitlist) {
             x[nax] <- sample(1:nd, sum(nax), prob = prob)
         }
     }
-    x
+    return(x)
 }
 
 metadata <- function(x, ...)

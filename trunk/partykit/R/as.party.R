@@ -1,4 +1,3 @@
-
 as.party <- function(obj, ...)
     UseMethod("as.party")
 
@@ -71,3 +70,79 @@ as.party.rpart <- function(obj, ...) {
 
     new_party(node = node, metadata = objmeta)
 }
+
+## FIXME: put into RWeka
+model.frame.Weka_classifier <- function(formula, ...) {
+  mf <- formula$call
+  mf <- mf[c(1, match(c("formula", "data", "subset", "na.action"), names(mf), 0))]
+  mf$drop.unused.levels <- TRUE
+  mf[[1]] <- as.name("model.frame")
+  mf <- eval(mf, environment(formula))
+  return(mf)
+}
+
+as.party.J48 <- function(obj, ...) {
+
+  ## construct metadata
+  meta <- metadata(model.frame(obj))
+
+  x <- .jcall(obj$classifier, "S", "graph")
+  x <- RWeka:::parse_Weka_digraph(x, plainleaf = TRUE)
+  nodes <- x$nodes
+  edges <- x$edges
+  is.leaf <- x$nodes[, "splitvar"] == ""
+
+  j48_kids <- function(i) {
+    if (is.leaf[i]) return(NULL)
+      else return(which(nodes[,"name"] %in% edges[nodes[i,"name"] == edges[,"from"], "to"]))
+  }
+
+  j48_split <- function(i) {
+    if(is.leaf[i]) return(NULL)
+    
+    var_id <- which(nodes[i, "splitvar"] == meta$varnames)
+    split <- strsplit(edges[nodes[i,"name"] == edges[,"from"], "label"], " ")
+
+    if(meta$class[var_id] %in% c("ordered", "factor")) { ## FIXME: ordered splits should be handled differently
+      stopifnot(all(sapply(split, head, 1) == "="))
+      stopifnot(all(sapply(split, tail, 1) %in% meta$levels[[var_id]]))
+      
+      split <- new_split(fun = as.integer(var_id), index = match(meta$levels[[var_id]], sapply(split, tail, 1)))
+    } else {
+      breaks <- unique(as.numeric(sapply(split, tail, 1)))
+      breaks <- if(meta$class[var_id] == "integer") as.integer(breaks) else as.double(breaks) ## FIXME: check
+      
+      stopifnot(length(breaks) == 1 && !is.na(breaks))
+      stopifnot(all(sapply(split, head, 1) %in% c("<=", ">")))
+      
+      split <- new_split(fun = as.integer(var_id), breaks = breaks, right = TRUE, index = if(split[[1]][1] == ">") 2:1)
+    }
+    return(split)
+  }
+
+  j48_node <- function(i) {
+    if(is.null(j48_kids(i))) return(new_node(as.integer(i)))
+    new_node(as.integer(i), split = list(j48_split(i)), kids = lapply(j48_kids(i), j48_node))
+  }
+
+  node <- j48_node(1)
+
+  ## FIXME: new_party(node = node, metadata = meta)
+  ## FIXME: node IDs
+  j48 <- list(node = node, metadata = meta)
+  class(j48) <- "party"
+  return(j48)
+}
+
+## FIXME: small convenience function (just temporary)
+j48fit <- function(fit) {
+  mf <- model.frame(fit)
+  fit <- as.party(fit)
+
+  j48summary <- function(x)
+    paste(levels(x)[which.max(table(x))], " (", length(x), "/", length(x) - max(table(x)), ")", sep = "")
+
+  tapply(mf[,1], get_node_id(fit$node, mf), j48summary)
+}
+
+

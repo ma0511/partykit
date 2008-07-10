@@ -1,5 +1,3 @@
-
-    
 foo <- function(x) list(new_split(as.integer(1), breaks = as.double(x)))
 x <- vector(mode = "list", length = 3)
 x[[1]] <- new_node(id = 1:1, split = foo(1 / 3), kids = 2:3, info = "one")
@@ -12,5 +10,4 @@ rx <- flat2rec(x)
 stopifnot(identical(rec2flat(rx), x))
 
 dat <- data.frame(x = runif(100))
-get_node_id(dat, rx)
-
+get_node_id(rx, dat)

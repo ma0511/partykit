@@ -1,6 +1,4 @@
-
-
-print.node <- function(x, metadata, prefix = "", first = TRUE, ...) {
+print.node <- function(x, metadata, prefix = "", leaf = " *", first = TRUE, ...) {
 
     ### FIXME: process info slot
     if (first)
@@ -15,13 +13,13 @@ print.node <- function(x, metadata, prefix = "", first = TRUE, ...) {
 
         ### FIXME: use id labels instead of raw ids
         terminal <- sapply(1:length(x), function(z) length(x[[z]]) < 1)
-        labs <- paste("  ", prefix, "[", sapply(1:length(x), 
+        labs <- paste("|   ", prefix, "[", sapply(1:length(x), 
            function(z) x[[z]]$id), "] ", labs, 
-           ifelse(terminal, " *", ""), "\n", sep = "")
+           ifelse(terminal, leaf, ""), "\n", sep = "")
                   
         for (i in 1:length(x)) {
             cat(labs[i])
-            print(x[i], metadata, prefix = paste(prefix, "  ", sep = ""), 
+            print(x[i], metadata, prefix = paste(prefix, "|   ", sep = ""), leaf = leaf,
                   first = FALSE, ...)
         }
     }
