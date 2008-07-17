@@ -2,11 +2,11 @@ print.node <- function(x, metadata, prefix = "", leaf = " *", first = TRUE, ...)
 
     ### FIXME: process info slot
     if (first)
-        cat(paste(prefix, "[", x$id, "] root\n", sep = ""))
+        cat(paste(prefix, "[", get_id(x), "] root\n", sep = ""))
 
     if (length(x) > 0) {
 
-        labs <- nodelabels(x$split[[1]], metadata, ...)
+        labs <- nodelabels(get_primary(get_split(x)), metadata, ...)
         labs <- ifelse(substr(labs$splitlevels, 1, 1) %in% c("<", ">"),
                        paste(labs$splitname, labs$splitlevels), 
                        paste(labs$splitname, "in", labs$splitlevels))
@@ -14,13 +14,13 @@ print.node <- function(x, metadata, prefix = "", leaf = " *", first = TRUE, ...)
         ### FIXME: use id labels instead of raw ids
         terminal <- sapply(1:length(x), function(z) length(x[[z]]) < 1)
         labs <- paste("|   ", prefix, "[", sapply(1:length(x), 
-           function(z) x[[z]]$id), "] ", labs, 
+           function(z) get_id(x[[z]])), "] ", labs, 
            ifelse(terminal, leaf, ""), "\n", sep = "")
                   
         for (i in 1:length(x)) {
             cat(labs[i])
-            print(x[i], metadata, prefix = paste(prefix, "|   ", sep = ""), leaf = leaf,
-                  first = FALSE, ...)
+            print(x[i], metadata, prefix = paste(prefix, "|   ", sep = ""), 
+                  leaf = leaf, first = FALSE, ...)
         }
     }
 }

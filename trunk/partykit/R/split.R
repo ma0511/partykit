@@ -18,7 +18,7 @@
 ##    
 
 new_split <- function(fun, breaks = NULL, index = NULL, right = TRUE, 
-                     prob = NULL, ...) {
+                      prob = NULL, ...) {
 
     ### informal class for splits
     split <- vector(mode = "list", length = 6)
@@ -41,7 +41,7 @@ new_split <- function(fun, breaks = NULL, index = NULL, right = TRUE,
             split$breaks <- breaks
         } else {
             stop(sQuote("break"), " ",
-                 "should be a numeric vector with at least one element")
+                 "should be a numeric vector containing at least one element")
         }
     }
 
@@ -65,8 +65,10 @@ new_split <- function(fun, breaks = NULL, index = NULL, right = TRUE,
         }
     }
 
-    if (!isTRUE(right))
-        split$right <- FALSE
+    if (is.logical(right) & !is.na(right))
+        split$right <- right
+    else
+        stop(sQuote("right"), " ", "is not a logical")
 
     if (!is.null(prob)) {
         if (!is.double(prob) || 
@@ -86,22 +88,63 @@ new_split <- function(fun, breaks = NULL, index = NULL, right = TRUE,
     return(split)
 }
 
+get_fun <- function(split) {
+    stopifnot(inherits(split, "split"))
+    split$fun
+}
+
+get_varid <- function(split) {
+    if (is.functional(split))
+        stop(sQuote("split"), " ", "is a functional split")
+    get_fun(split)
+}
+
+get_breaks <- function(split) {
+    stopifnot(inherits(split, "split"))
+    split$breaks
+}
+
+get_index <- function(split) {
+    stopifnot(inherits(split, "split"))
+    split$index
+}
+
+get_right <- function(split) {
+    stopifnot(inherits(split, "split"))
+    split$right
+}
+
+is.functional <- function(split) {
+    stopifnot(inherits(split, "split"))
+    is.function(get_fun(split))
+}
+
+get_primary <- function(splitlist) {
+    stopifnot(all(sapply(splitlist, inherits, "split")))
+    splitlist[[1]]
+}
+
+get_surrogates <- function(splitlist) {
+    stopifnot(all(sapply(splitlist, inherits, "split")))
+    splitlist[-1]
+}
+
 do_split <- function(split, data) {
 
-    if (!inherits(split, "split") || is.function(split$fun))
-        stop("")
+    id <- get_varid(split)
+    x <- data[[id]]
 
-    x <- data[[split$fun]]
-
-    if (is.null(split$breaks)) {
+    if (is.null(get_breaks(split))) {
         stopifnot(storage.mode(x) == "integer")
     } else {
-        stopifnot(storage.mode(x) == storage.mode(split$breaks))
-        x <- as.integer(cut(as.numeric(x), breaks = c(-Inf, split$breaks, Inf), 
-                            right = is.null(split$right)))
+        ### FIXME: rpart may have double splits for integer variables
+        # stopifnot(storage.mode(x) == storage.mode(split$breaks))
+        x <- as.integer(cut(as.numeric(x), breaks = c(-Inf, get_breaks(split), Inf), 
+                            right = get_right(split)))
     }
-    if (!is.null(split$index))
-        x <- split$index[x]
+    index <- get_index(split)
+    if (!is.null(index))
+        x <- index[x]
     return(x)
 }
 
@@ -110,14 +153,14 @@ do_splitlist <- function(splitlist, data) {
     p <- ncol(data)
     ### replace functional splits by splitting score id
     for (i in 1:length(splitlist)) {
-        if (is.function(splitlist[[i]]$fun)) {
+        if (is.functional(splitlist[[i]])) {
             p <- p + 1
             data[p] <- splitlist[[i]]$fun(data)
             splitlist[[i]]$fun <- as.integer(p)
         }
     }
-    primary <- splitlist[[1]]
-    surrogates <- splitlist[-1]
+    primary <- get_primary(splitlist)
+    surrogates <- get_surrogates(splitlist)
 
     ### perform primary split
     x <- do_split(primary, data)
@@ -135,16 +178,13 @@ do_splitlist <- function(splitlist, data) {
         nax <- is.na(x)
         ### random splits
         if (any(nax)) {
-            index <- primary$index
+            index <- get_index(primary)
             if (is.null(index)) {
-                if (!is.null(primary$breaks))
-                    nd <- length(primary$breaks) + 1
-                else
-                    nd <- length(levels(data[[primary$id]]))
+                nd <- length(levels(data[[get_varid(primary)]]))
             } else {
                 nd <- max(index, na.rm = TRUE)
             }
-            prob <- primary$split
+            prob <- get_prob(primary)
             if (is.null(prob))
                 prob <- rep(1, nd) / nd
             x[nax] <- sample(1:nd, sum(nax), prob = prob)
@@ -173,12 +213,11 @@ nodelabels <- function(split, meta, digits = getOption("digits") - 2) {
     type[!(type %in% c("function", "factor", "ordered"))] <- "numeric"
 
     ## process defaults for breaks and index
-    breaks <- split$breaks
-    index <- split$index
+    breaks <- get_breaks(split)
+    index <- get_index(split)
+    right <- get_right(split)
     if (is.null(breaks)) breaks <- 1:(length(index) - 1)
     if (is.null(index)) index <- 1:(length(breaks) + 1)
-
-    right <- is.null(split$right)
 
     ## check whether ordered are really ordered
     if (type == "ordered") {
@@ -189,14 +228,14 @@ nodelabels <- function(split, meta, digits = getOption("digits") - 2) {
 
     switch(type, 
         "factor" = {
-            lev <- meta$levels[[split$fun]]
+            lev <- meta$levels[[get_varid(split)]]
             nindex <- as.integer(as.character(cut(seq_along(lev), c(-Inf, breaks, Inf),
                 labels = index, right = right)))
             dlab <- as.vector(tapply(lev, nindex, paste, collapse = ", "))
             mlab <- meta$varnames[split$fun]
         },
         "ordered" = {
-            lev <- meta$levels[[split$fun]]
+            lev <- meta$levels[[get_varid(split)]]
             if (length(breaks) == 1) {
                 if (right)
                     dlab <- paste(c("<=", ">"), lev[breaks], sep = " ")
@@ -206,7 +245,7 @@ nodelabels <- function(split, meta, digits = getOption("digits") - 2) {
                 stop("") ### see above
             }
             dlab <- dlab[index]
-            mlab <- meta$varnames[split$fun]
+            mlab <- meta$varnames[get_varid(split)]
         },
         "numeric" = {
             breaks <- round(breaks, digits)
@@ -220,7 +259,7 @@ nodelabels <- function(split, meta, digits = getOption("digits") - 2) {
                                    right = right))
             }
             dlab <- as.vector(tapply(dlab, index, paste, collapse = " | "))
-            mlab <- meta$varnames[split$fun]
+            mlab <- meta$varnames[get_varid(split)]
         },
         "function" = {
             ### FIXME: use possible names attribute for split$fun
@@ -230,8 +269,8 @@ nodelabels <- function(split, meta, digits = getOption("digits") - 2) {
                 if (length(breaks) == 1) {
                      if (right)  
                          dlab <- paste(c("<=", ">"), breaks, sep = " ")
-                    else
-                        dlab <- paste(c("<", ">="), breaks, sep = " ")
+                     else
+                         dlab <- paste(c("<", ">="), breaks, sep = " ")
                 } else {
                     dlab <- levels(cut(0, breaks = c(-Inf, breaks, Inf), right = right))
                 }

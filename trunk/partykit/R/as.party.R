@@ -127,10 +127,8 @@ as.party.J48 <- function(obj, ...) {
 
   node <- j48_node(1)
 
-  ## FIXME: new_party(node = node, metadata = meta)
   ## FIXME: node IDs
-  j48 <- list(node = node, metadata = meta)
-  class(j48) <- "party"
+  j48 <- new_party(node = node, metadata = meta)
   return(j48)
 }
 
