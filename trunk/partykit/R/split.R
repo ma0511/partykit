@@ -18,7 +18,7 @@
 ##    
 
 new_split <- function(fun, breaks = NULL, index = NULL, right = TRUE, 
-                      prob = NULL, ...) {
+                      prob = NULL, info = NULL) {
 
     ### informal class for splits
     split <- vector(mode = "list", length = 6)
@@ -81,7 +81,8 @@ new_split <- function(fun, breaks = NULL, index = NULL, right = TRUE,
         split$prob <- prob
     }
 
-    split$info <- list(...)
+    if (!is.null(info))
+        split$info <- info
 
     class(split) <- "split"
 
