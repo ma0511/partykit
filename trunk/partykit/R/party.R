@@ -1,4 +1,3 @@
-
 new_party <- function(node, metadata, names = NULL, info = NULL) {
 
     stopifnot(inherits(node, "node"))
@@ -58,28 +57,50 @@ nodeids <- function(party, from = 1, terminal = TRUE) {
         else
             sapply(kids, get_id) == from
         return(c(myid,
-            unlist(lapply(1:length(kids), function(i) rid(kids[[i]], record = kids_record[i], terminal = terminal)))
+            unlist(lapply(1:length(kids), function(i)
+	        rid(kids[[i]], record = kids_record[i], terminal = terminal)))
         ))
     }
 
     return(rid(party$node, from == 1, terminal))
 }
 
-        
-
-
-nodeapply <- function(party, ids, FUN = NULL, by_node = TRUE, ...) {
+nodeapply <- function(party, ids = 1, FUN = NULL, by_node = TRUE, ...) {
 
     stopifnot(inherits(party, "party"))
-    stopifnot(isTRUE(all.equal(ids - round(ids))))
+    stopifnot(isTRUE(all.equal(ids, round(ids))))
     ids <- as.integer(ids)
+
+    if(is.null(FUN)) FUN <- function(x, ...) x
 
     if (length(ids) == 0)
         return(NULL)
 
     if (!by_node) {
-        ret <- lapply(ids, function(i) FUN(party, i, ...))
+        rval <- lapply(ids, function(i) FUN(party, i, ...))
     } else {
-        ret <- vector(mode = "list", length = length(ids))
+        rval <- vector(mode = "list", length = length(ids))
+	rval_id <- rep(0, length(ids))
+	i <- 1
+	
+	recFUN <- function(node, ...) {
+	    if(get_id(node) %in% ids) {
+	        rval_id[i] <<- get_id(node)
+	        rval[[i]] <<- FUN(node, ...)
+	        i <<- i + 1
+	    }
+	    kids <- get_kids(node)
+	    if(length(kids) > 0) {
+	        for(j in 1:length(kids)) recFUN(kids[[j]])
+	    }
+	    	  
+	    invisible(TRUE)
+	}
+	foo <- recFUN(party$node)
+	
+        rval <- rval[match(rval_id, ids)]
     }
+
+    names(rval) <- get_names(party)[ids]
+    return(rval)
 }

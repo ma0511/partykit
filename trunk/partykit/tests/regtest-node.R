@@ -13,4 +13,4 @@ rx <- flat2rec(x)
 stopifnot(identical(rec2flat(rx), x))
 
 dat <- data.frame(x = runif(100))
-get_node_id(rx, dat)
+do_nodeid(rx, dat)

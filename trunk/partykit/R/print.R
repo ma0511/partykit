@@ -1,4 +1,6 @@
-print.node <- function(x, metadata, names, prefix = "", leaf = " *", first = TRUE, ...) {
+## FIXME: think about whether this should be visible or not,
+## or maybe an S3 method or not.
+print_node <- function(x, metadata, names, prefix = "", leaf = " *", first = TRUE, ...) {
 
     ### FIXME: process info slot
     if (first)
@@ -19,11 +21,11 @@ print.node <- function(x, metadata, names, prefix = "", leaf = " *", first = TRU
                   
         for (i in 1:length(x)) {
             cat(labs[i])
-            print(x[i], metadata, names = names, prefix = paste(prefix, "|   ", sep = ""), 
+            print_node(x[i], metadata, names = names, prefix = paste(prefix, "|   ", sep = ""), 
                   leaf = leaf, first = FALSE, ...)
         }
     }
 }
 
 print.party <- function(x, ...)
-    print(x$node, x$metadata, names = get_names(x), ...)
+    print_node(x$node, x$metadata, names = get_names(x), ...)

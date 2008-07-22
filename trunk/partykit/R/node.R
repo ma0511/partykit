@@ -43,6 +43,11 @@ get_kids <- function(node) {
     node$kids
 }
 
+get_info <- function(obj) {
+    stopifnot(inherits(obj, "node") | inherits(obj, "party"))
+    obj$info
+}
+
 is.terminal <- function(node) {
     kids <- is.null(get_kids(node))
     split <- is.null(get_split(node))

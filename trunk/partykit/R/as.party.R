@@ -84,7 +84,8 @@ model.frame.Weka_classifier <- function(formula, ...) {
 as.party.J48 <- function(obj, ...) {
 
   ## construct metadata
-  meta <- metadata(model.frame(obj))
+  mf <- model.frame(obj)
+  meta <- metadata(mf)
 
   x <- .jcall(obj$classifier, "S", "graph")
   x <- RWeka:::parse_Weka_digraph(x, plainleaf = TRUE)
@@ -103,11 +104,12 @@ as.party.J48 <- function(obj, ...) {
     var_id <- which(nodes[i, "splitvar"] == meta$varnames)
     split <- strsplit(edges[nodes[i,"name"] == edges[,"from"], "label"], " ")
 
-    if(meta$class[var_id] %in% c("ordered", "factor")) { ## FIXME: ordered splits should be handled differently
+    if(meta$class[var_id] %in% c("ordered", "factor")) {
       stopifnot(all(sapply(split, head, 1) == "="))
       stopifnot(all(sapply(split, tail, 1) %in% meta$levels[[var_id]]))
       
-      split <- new_split(fun = as.integer(var_id), index = match(meta$levels[[var_id]], sapply(split, tail, 1)))
+      split <- new_split(fun = as.integer(var_id),
+        index = match(meta$levels[[var_id]], sapply(split, tail, 1)))
     } else {
       breaks <- unique(as.numeric(sapply(split, tail, 1)))
       breaks <- if(meta$class[var_id] == "integer") as.integer(breaks) else as.double(breaks) ## FIXME: check
@@ -115,7 +117,9 @@ as.party.J48 <- function(obj, ...) {
       stopifnot(length(breaks) == 1 && !is.na(breaks))
       stopifnot(all(sapply(split, head, 1) %in% c("<=", ">")))
       
-      split <- new_split(fun = as.integer(var_id), breaks = breaks, right = TRUE, index = if(split[[1]][1] == ">") 2:1)
+      split <- new_split(fun = as.integer(var_id),
+        breaks = breaks, right = TRUE,
+	index = if(split[[1]][1] == ">") 2:1)
     }
     return(split)
   }
@@ -127,20 +131,68 @@ as.party.J48 <- function(obj, ...) {
 
   node <- j48_node(1)
 
-  ## FIXME: node IDs
-  j48 <- new_party(node = node, metadata = meta)
+  j48 <- new_party(node = node, metadata = meta,
+      info = list(y = model.response(mf), fitted = do_nodeid(node, mf)))
+
+  class(j48) <- c("R48", class(j48))
   return(j48)
 }
 
 ## FIXME: small convenience function (just temporary)
-j48fit <- function(fit) {
-  mf <- model.frame(fit)
-  fit <- as.party(fit)
-
+summary.R48 <- function(object) {
   j48summary <- function(x)
     paste(levels(x)[which.max(table(x))], " (", length(x), "/", length(x) - max(table(x)), ")", sep = "")
 
-  tapply(mf[,1], get_node_id(fit$node, mf), j48summary)
+  info <- get_info(object)
+  tapply(info$y, info$fitted, j48summary)
 }
 
+predict.R48 <- function(object, newdata = NULL,
+    type = c("response", "prob", "node"), ...)
+{
+  ## match type
+  type <- match.arg(type)
+  
+  ## extract info slot (response and fitted node ids)
+  info <- get_info(object)
+  
+  ## special case: fitted ids
+  if(is.null(newdata) & type == "node")
+    return(structure(info$fitted, .Names = names(info$y)))
+  
+  ## empirical distribution in each leaf
+  tab <- tapply(info$y, info$fitted, function(x) prop.table(table(x)))
+  tab <- t(structure(as.vector(unlist(tab)),
+    .Dim = c(length(tab[[1]]), length(tab)),
+    .Dimnames = list(names(tab[[1]]), names(tab))))
 
+  ## get predicted leaf
+  if(!is.null(newdata)) {
+    ## FIXME: Does this handle functional splits correctly?
+    stopifnot(all(object$metadata$varnames[-1] %in% names(newdata)))
+    ## FIXME: Is there a better way for this?
+    newdata[[object$metadata$varnames[1]]] <- FALSE
+    newdata <- newdata[, object$metadata$varnames, drop = FALSE]
+    pred <- do_nodeid(object$node, newdata)
+    nam <- rownames(newdata)
+  } else {
+    pred <- info$fitted
+    nam <- names(info$y)
+  }
+
+  ## handle different types
+  pred <- switch(type,
+    "node" = pred,
+    "prob" = tab[as.character(pred),],
+    "response" = factor(apply(tab, 1, which.max)[as.character(pred)],
+      levels = 1:ncol(tab), labels = colnames(tab))
+  )  
+  
+  ## observation names
+  if(NCOL(pred) > 1)
+    rownames(pred) <- nam
+  else
+    names(pred) <- nam
+  
+  return(pred)
+}
