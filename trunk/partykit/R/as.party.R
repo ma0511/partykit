@@ -132,7 +132,7 @@ as.party.J48 <- function(obj, ...) {
   node <- j48_node(1)
 
   j48 <- new_party(node = node, metadata = meta,
-      info = list(y = model.response(mf), fitted = do_nodeid(node, mf)))
+      info = list(y = model.response(mf), fitted = do_nodeid(node, mf), terms = terms(obj)))
 
   class(j48) <- c("R48", class(j48))
   return(j48)
@@ -171,6 +171,7 @@ predict.R48 <- function(object, newdata = NULL,
     ## FIXME: Does this handle functional splits correctly?
     stopifnot(all(object$metadata$varnames[-1] %in% names(newdata)))
     ## FIXME: Is there a better way for this?
+    newdata <- model.frame(delete.response(info$terms), newdata)
     newdata[[object$metadata$varnames[1]]] <- FALSE
     newdata <- newdata[, object$metadata$varnames, drop = FALSE]
     pred <- do_nodeid(object$node, newdata)
