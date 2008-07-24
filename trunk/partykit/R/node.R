@@ -90,7 +90,7 @@ do_nodeid <- function(node, data) {
     retid <- nextid <- do_splitlist(get_split(node), data)
     for (i in unique(nextid))
         retid[nextid == i] <- do_nodeid(get_kids(node)[[i]], 
-                                          data[nextid == i, , drop = FALSE])
+                                        data[nextid == i, , drop = FALSE])
     return(retid)
 }
 
@@ -120,6 +120,15 @@ rec2flat <- function(node) {
 length.node <- function(x)
     length(get_kids(x))
 
+depth <- function(node) {
+    if (is.terminal(node)) return(1)
+    max(sapply(get_kids(node), depth)) + 1
+}
+
+nterminal <- function(node) {
+    if (is.terminal(node)) return(1)
+    sum(sapply(get_kids(node), nterminal))
+}
 
 "[.node" <- "[[.node" <- function(x, i, ...) {
     if (is.flat(x))
