@@ -83,14 +83,14 @@ flat2rec <- function(obj) {
     return(node)
 }
 
-do_nodeid <- function(node, data) {
+do_nodeid <- function(node, data, vmatch = 1:ncol(data)) {
 
     if (is.terminal(node))
         return(rep(get_id(node), nrow(data)))
-    retid <- nextid <- do_splitlist(get_split(node), data)
+    retid <- nextid <- do_splitlist(get_split(node), data, vmatch)
     for (i in unique(nextid))
         retid[nextid == i] <- do_nodeid(get_kids(node)[[i]], 
-                                        data[nextid == i, , drop = FALSE])
+                                        data[nextid == i, , drop = FALSE], vmatch)
     return(retid)
 }
 

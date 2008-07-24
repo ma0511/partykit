@@ -168,13 +168,36 @@ predict.R48 <- function(object, newdata = NULL,
 
   ## get predicted leaf
   if(!is.null(newdata)) {
+
+    ### get all relevant variables
+    terminal <- nodeids(object, terminal = TRUE)
+    inner <- 1:max(terminal)
+    inner <- inner[-terminal]
+    fun <- function(node)
+        sapply(get_split(node), is.functional)
+
+    ### we can't handle functional splits this way
+    if (!any(unlist(nodeapply(object, ids = inner, FUN = fun)))) {
+
+        used_vars <- nodeapply(object, ids = inner, FUN = function(node) {
+            sapply(get_split(node), get_fun)
+        })
+        vnames <- object$metadata$varnames[unique(unlist(used_vars))]
+    } else {
+        vnames <- object$metadata$varnames[-1]
+    }
+        
     ## FIXME: Does this handle functional splits correctly?
-    stopifnot(all(object$metadata$varnames[-1] %in% names(newdata)))
+    stopifnot(all(vnames %in% names(newdata)))
+
+    ### determine correct matching (passed to do_nodeid)
+    vmatch <- match(object$metadata$varnames, names(newdata))
+
     ## FIXME: Is there a better way for this?
-    newdata <- model.frame(delete.response(info$terms), newdata)
-    newdata[[object$metadata$varnames[1]]] <- FALSE
-    newdata <- newdata[, object$metadata$varnames, drop = FALSE]
-    pred <- do_nodeid(object$node, newdata)
+    # newdata <- model.frame(delete.response(info$terms), newdata)
+    # newdata[[object$metadata$varnames[1]]] <- FALSE
+    # newdata <- newdata[, object$metadata$varnames, drop = FALSE]
+    pred <- do_nodeid(object$node, newdata, vmatch)
     nam <- rownames(newdata)
   } else {
     pred <- info$fitted

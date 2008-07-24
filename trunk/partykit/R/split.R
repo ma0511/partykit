@@ -130,10 +130,10 @@ get_surrogates <- function(splitlist) {
     splitlist[-1]
 }
 
-do_split <- function(split, data) {
+do_split <- function(split, data, vmatch = 1:ncol(data)) {
 
     id <- get_varid(split)
-    x <- data[[id]]
+    x <- data[[vmatch[id]]]
 
     if (is.null(get_breaks(split))) {
         stopifnot(storage.mode(x) == "integer")
@@ -149,13 +149,14 @@ do_split <- function(split, data) {
     return(x)
 }
 
-do_splitlist <- function(splitlist, data) {
+do_splitlist <- function(splitlist, data, vmatch = 1:ncol(data)) {
 
     p <- ncol(data)
     ### replace functional splits by splitting score id
     for (i in 1:length(splitlist)) {
         if (is.functional(splitlist[[i]])) {
             p <- p + 1
+            vmatch <- c(vmatch, p)
             data[p] <- splitlist[[i]]$fun(data)
             splitlist[[i]]$fun <- as.integer(p)
         }
@@ -164,7 +165,7 @@ do_splitlist <- function(splitlist, data) {
     surrogates <- get_surrogates(splitlist)
 
     ### perform primary split
-    x <- do_split(primary, data)
+    x <- do_split(primary, data, vmatch)
 
     ### surrogate / random splits if needed
     if (any(is.na(x))) {
@@ -173,7 +174,7 @@ do_splitlist <- function(splitlist, data) {
             for (surr in surrogates) {
                 nax <- is.na(x)
                 if (!any(nax)) break;
-                x[nax] <- do_split(surr, data[nax,, drop = FALSE])
+                x[nax] <- do_split(surr, data[nax,, drop = FALSE], vmatch)
             }
         }
         nax <- is.na(x)
