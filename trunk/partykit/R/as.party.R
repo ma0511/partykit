@@ -85,19 +85,23 @@ as.party.rpart <- function(obj, ...) {
 ## FIXME: put into RWeka
 model.frame.Weka_classifier <- function(formula, ...) {
   mf <- formula$call
-  mf <- mf[c(1, match(c("formula", "data", "subset", "na.action"), names(mf), 0))]
+  mf <- mf[c(1L, match(c("formula", "data", "subset", "na.action"), names(mf), 0L))]
   mf$drop.unused.levels <- TRUE
-  mf[[1]] <- as.name("model.frame")
-  mf <- eval(mf, environment(formula))
+  mf[[1L]] <- as.name("model.frame")
+  env <- if (is.null(environment(formula$terms))) environment(formula$terms) 
+             else parent.frame()
+  mf <- eval(mf, env)
   return(mf)
 }
 
 model.frame.rpart <- function(formula, ...) {
   mf <- formula$call
-  mf <- mf[c(1, match(c("formula", "data", "subset", "na.action"), names(mf), 0))]
+  mf <- mf[c(1L, match(c("formula", "data", "subset", "na.action"), names(mf), 0L))]
   mf$drop.unused.levels <- TRUE
-  mf[[1]] <- as.name("model.frame")
-  mf <- eval(mf, environment(formula))
+  mf[[1L]] <- as.name("model.frame")
+  env <- if (is.null(environment(formula$terms))) environment(formula$terms) 
+             else parent.frame()
+  mf <- eval(mf, env)
   return(mf)
 }
 
