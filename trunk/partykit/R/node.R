@@ -83,14 +83,15 @@ flat2rec <- function(obj) {
     return(node)
 }
 
-do_nodeid <- function(node, data, vmatch = 1:ncol(data)) {
+### FIXME: provide dim method for data
+do_nodeid <- function(node, data, vmatch = 1:ncol(data), obs = 1:nrow(data)) {
 
     if (is.terminal(node))
-        return(rep(get_id(node), nrow(data)))
-    retid <- nextid <- do_splitlist(get_split(node), data, vmatch)
+        return(rep(get_id(node), length(obs)))
+    retid <- nextid <- do_splitlist(get_split(node), data, vmatch, obs)
     for (i in unique(nextid))
-        retid[nextid == i] <- do_nodeid(get_kids(node)[[i]], 
-                                        data[nextid == i, , drop = FALSE], vmatch)
+        retid[nextid == i] <- do_nodeid(get_kids(node)[[i]], data,
+                                        vmatch, obs[nextid == i])
     return(retid)
 }
 

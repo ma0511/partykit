@@ -130,10 +130,11 @@ get_surrogates <- function(splitlist) {
     splitlist[-1]
 }
 
-do_split <- function(split, data, vmatch = 1:ncol(data)) {
+do_split <- function(split, data, vmatch = 1:ncol(data), obs = NULL) {
 
     id <- get_varid(split)
     x <- data[[vmatch[id]]]
+    if (!is.null(obs)) x <- x[obs]
 
     if (is.null(get_breaks(split))) {
         stopifnot(storage.mode(x) == "integer")
@@ -149,15 +150,16 @@ do_split <- function(split, data, vmatch = 1:ncol(data)) {
     return(x)
 }
 
-do_splitlist <- function(splitlist, data, vmatch = 1:ncol(data)) {
+do_splitlist <- function(splitlist, data, vmatch = 1:ncol(data), obs = NULL) {
 
     p <- ncol(data)
     ### replace functional splits by splitting score id
+    ### move to appropriate place
     for (i in 1:length(splitlist)) {
         if (is.functional(splitlist[[i]])) {
             p <- p + 1
             vmatch <- c(vmatch, p)
-            data[p] <- splitlist[[i]]$fun(data)
+            data[[p]] <- splitlist[[i]]$fun(data)
             splitlist[[i]]$fun <- as.integer(p)
         }
     }
@@ -165,7 +167,7 @@ do_splitlist <- function(splitlist, data, vmatch = 1:ncol(data)) {
     surrogates <- get_surrogates(splitlist)
 
     ### perform primary split
-    x <- do_split(primary, data, vmatch)
+    x <- do_split(primary, data, vmatch, obs)
 
     ### surrogate / random splits if needed
     if (any(is.na(x))) {
@@ -174,7 +176,7 @@ do_splitlist <- function(splitlist, data, vmatch = 1:ncol(data)) {
             for (surr in surrogates) {
                 nax <- is.na(x)
                 if (!any(nax)) break;
-                x[nax] <- do_split(surr, data[nax,, drop = FALSE], vmatch)
+                x[nax] <- do_split(surr, data, vmatch, obs = obs[nax])
             }
         }
         nax <- is.na(x)
@@ -182,7 +184,8 @@ do_splitlist <- function(splitlist, data, vmatch = 1:ncol(data)) {
         if (any(nax)) {
             index <- get_index(primary)
             if (is.null(index)) {
-                nd <- length(levels(data[[get_varid(primary)]]))
+                ### FIXME: use metadata here!
+                nd <- length(levels(data[[vmatch[get_varid(primary)]]]))
             } else {
                 nd <- max(index, na.rm = TRUE)
             }

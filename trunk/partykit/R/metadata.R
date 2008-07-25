@@ -1,25 +1,9 @@
 
-new_metadata <- function(varnames, class, levels, responses = 1,
-                         inputs = 2:length(varnames)) {
-
-    stopifnot(is.character(varnames))
-    stopifnot(is.character(class))
-    stopifnot(length(varnames) == length(class))
-    stopifnot(length(varnames) == length(levels))
-    indx <- 1:length(varnames)
-
-    if (is.character(responses))
-        responses <- indx[varnames %in% responses]
-    if (is.character(inputs))
-        inputs <- indx[varnames %in% inputs]
-    stopifnot((all(responses %in% indx) & all(inputs %in% indx)))
-    stopifnot(!any(responses %in% inputs))
+new_metadata <- function(varnames, class, levels) {
 
     rval <- list(varnames = varnames,
                  class = class,
-                 levels = levels,
-                 responses = as.integer(responses),
-                 inputs = as.integer(inputs))
+                 levels = levels)
     class(rval) <- "metadata"
     rval
 }
