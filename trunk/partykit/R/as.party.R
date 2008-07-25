@@ -22,14 +22,13 @@ as.party.rpart <- function(obj, ...) {
     
     rpart_metadata <- function() {
         ### extract metadata from terms
-        metadata <- list(varnames = names(attr(obj$terms, "dataClasses")),
-                         class = as.vector(attr(obj$terms, "dataClasses")))
+        varnames <- names(attr(obj$terms, "dataClasses"))
+        class <- as.vector(attr(obj$terms, "dataClasses"))
         ylev <- list(attr(obj, "ylevels"))
         names(ylev) <- metadata$varnames[1]
         lev <- c(attr(obj, "xlevels"), ylev)
-        metadata$levels <- lapply(metadata$varnames, function(var) lev[[var]])
-        class(metadata) <- "metadata"
-        metadata
+        levels <- lapply(varnames, function(var) lev[[var]])
+        new_metadata(varnames = varnames, class = class, levels = levels)
     }
     objmeta <- rpart_metadata()
 
@@ -184,7 +183,7 @@ predict.R48 <- function(object, newdata = NULL,
         })
         vnames <- object$metadata$varnames[unique(unlist(used_vars))]
     } else {
-        vnames <- object$metadata$varnames[-1]
+        vnames <- object$metadata$varnames[-object$metadata$responses]
     }
         
     ## FIXME: Does this handle functional splits correctly?
