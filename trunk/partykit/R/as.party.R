@@ -34,18 +34,13 @@ as.party.rpart <- function(obj, ...) {
 
     rpart_info <- function() {
         if (is.null(obj$y)) {
-            mf <- obj$call
-            mf <- mf[c(1, match(c("formula", "data", "subset", "na.action"), names(mf), 0))]   
-            mf$drop.unused.levels <- TRUE
-            mf[[1]] <- as.name("model.frame")
-            mf <- eval(mf, environment(formula))
-            y <- model.response(mf)
+            y <- model.response(model.frame(obj))
         } else {
             y <- obj$y
             if (!is.null(attr(obj, "ylevels")))
                 y <- factor(y, levels = attr(obj, "ylevels"))
         }
-        list(responses = y, fitted = obj$where)
+        list(responses = y, fitted = obj$where, terms = obj$terms)
     }
     objinfo <- rpart_info()
 
@@ -89,6 +84,15 @@ as.party.rpart <- function(obj, ...) {
 
 ## FIXME: put into RWeka
 model.frame.Weka_classifier <- function(formula, ...) {
+  mf <- formula$call
+  mf <- mf[c(1, match(c("formula", "data", "subset", "na.action"), names(mf), 0))]
+  mf$drop.unused.levels <- TRUE
+  mf[[1]] <- as.name("model.frame")
+  mf <- eval(mf, environment(formula))
+  return(mf)
+}
+
+model.frame.rpart <- function(formula, ...) {
   mf <- formula$call
   mf <- mf[c(1, match(c("formula", "data", "subset", "na.action"), names(mf), 0))]
   mf$drop.unused.levels <- TRUE
@@ -148,7 +152,7 @@ as.party.J48 <- function(obj, ...) {
   node <- j48_node(1)
 
   j48 <- new_party(node = node, metadata = meta,
-      info = list(responses = model.response(mf), fitted = do_nodeid(node, mf)))
+      info = list(responses = model.response(mf), fitted = do_nodeid(node, mf), terms = terms(obj)))
 
   class(j48) <- c("R48", class(j48))
   return(j48)
@@ -200,7 +204,7 @@ predict.R48 <- function(object, newdata = NULL,
         })
         vnames <- object$metadata$varnames[unique(unlist(used_vars))]
     } else {
-        vnames <- object$metadata$varnames[-object$metadata$responses]
+        vnames <- object$metadata$varnames[-1]
     }
         
     ## FIXME: Does this handle functional splits correctly?
