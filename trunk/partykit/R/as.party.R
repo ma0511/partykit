@@ -32,6 +32,23 @@ as.party.rpart <- function(obj, ...) {
     }
     objmeta <- rpart_metadata()
 
+    rpart_info <- function() {
+        if (is.null(obj$y)) {
+            mf <- obj$call
+            mf <- mf[c(1, match(c("formula", "data", "subset", "na.action"), names(mf), 0))]   
+            mf$drop.unused.levels <- TRUE
+            mf[[1]] <- as.name("model.frame")
+            mf <- eval(mf, environment(formula))
+            y <- model.response(mf)
+        } else {
+            y <- obj$y
+            if (!is.null(attr(obj, "ylevels")))
+                y <- factor(y, levels = attr(obj, "ylevels"))
+        }
+        list(responses = y, fitted = obj$where)
+    }
+    objinfo <- rpart_info()
+
     rpart_kids <- function(i) {
         if (is.leaf[i]) return(NULL)
         else return(c(i + 1, 
@@ -67,7 +84,7 @@ as.party.rpart <- function(obj, ...) {
 
     node <- rpart_node(1)
 
-    new_party(node = node, metadata = objmeta)
+    new_party(node = node, metadata = objmeta, info = objinfo)
 }
 
 ## FIXME: put into RWeka
@@ -131,7 +148,7 @@ as.party.J48 <- function(obj, ...) {
   node <- j48_node(1)
 
   j48 <- new_party(node = node, metadata = meta,
-      info = list(y = model.response(mf), fitted = do_nodeid(node, mf), terms = terms(obj)))
+      info = list(responses = model.response(mf), fitted = do_nodeid(node, mf)))
 
   class(j48) <- c("R48", class(j48))
   return(j48)
@@ -143,7 +160,7 @@ summary.R48 <- function(object) {
     paste(levels(x)[which.max(table(x))], " (", length(x), "/", length(x) - max(table(x)), ")", sep = "")
 
   info <- get_info(object)
-  tapply(info$y, info$fitted, j48summary)
+  tapply(info$responses, info$fitted, j48summary)
 }
 
 predict.R48 <- function(object, newdata = NULL,
@@ -157,10 +174,10 @@ predict.R48 <- function(object, newdata = NULL,
   
   ## special case: fitted ids
   if(is.null(newdata) & type == "node")
-    return(structure(info$fitted, .Names = names(info$y)))
+    return(structure(info$fitted, .Names = names(info$responses)))
   
   ## empirical distribution in each leaf
-  tab <- tapply(info$y, info$fitted, function(x) prop.table(table(x)))
+  tab <- tapply(info$responses, info$fitted, function(x) prop.table(table(x)))
   tab <- t(structure(as.vector(unlist(tab)),
     .Dim = c(length(tab[[1]]), length(tab)),
     .Dimnames = list(names(tab[[1]]), names(tab))))
@@ -200,7 +217,7 @@ predict.R48 <- function(object, newdata = NULL,
     nam <- rownames(newdata)
   } else {
     pred <- info$fitted
-    nam <- names(info$y)
+    nam <- names(info$responses)
   }
 
   ## handle different types
