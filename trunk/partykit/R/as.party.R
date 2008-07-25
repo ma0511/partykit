@@ -82,17 +82,6 @@ as.party.rpart <- function(obj, ...) {
     new_party(node = node, metadata = objmeta, info = objinfo)
 }
 
-## FIXME: put into RWeka
-model.frame.Weka_classifier <- function(formula, ...) {
-  mf <- formula$call
-  mf <- mf[c(1L, match(c("formula", "data", "subset", "na.action"), names(mf), 0L))]
-  mf$drop.unused.levels <- TRUE
-  mf[[1L]] <- as.name("model.frame")
-  env <- if (is.null(environment(formula$terms))) environment(formula$terms) 
-             else parent.frame()
-  mf <- eval(mf, env)
-  return(mf)
-}
 
 model.frame.rpart <- function(formula, ...) {
   mf <- formula$call
@@ -104,6 +93,9 @@ model.frame.rpart <- function(formula, ...) {
   mf <- eval(mf, env)
   return(mf)
 }
+
+## FIXME: put into RWeka
+model.frame.Weka_classifier <- model.frame.rpart
 
 as.party.J48 <- function(obj, ...) {
 
