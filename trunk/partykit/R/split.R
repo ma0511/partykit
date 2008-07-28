@@ -1,4 +1,3 @@
-
 ## Basic idea:
 ## A split is a function that maps data (specifying the partitioning variables)
 ## to a set of integers (specifying the daughter nodes).

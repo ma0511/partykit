@@ -7,7 +7,6 @@ print_node <- function(x, metadata, names, prefix = "", leaf = " *", first = TRU
         cat(paste(prefix, "[", names[get_id(x)], "] root\n", sep = ""))
 
     if (length(x) > 0) {
-
         labs <- nodelabels(get_primary(get_split(x)), metadata, ...)
         labs <- ifelse(substr(labs$splitlevels, 1, 1) %in% c("<", ">"),
                        paste(labs$splitname, labs$splitlevels), 

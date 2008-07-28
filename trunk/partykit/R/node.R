@@ -1,4 +1,3 @@
-
 new_node <- function(id, split = NULL, kids = NULL, info = NULL) {
 
     if (!is.integer(id) || length(id) != 1)
@@ -33,6 +32,8 @@ get_id <- function(node) {
     node$id
 }
 
+## FIXME: Is it really intuitive that get_split()
+## returns something that is not of class "split"?
 get_split <- function(node) {
     stopifnot(inherits(node, "node"))
     node$split

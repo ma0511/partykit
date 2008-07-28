@@ -38,6 +38,11 @@ get_names <- function(party) {
     names
 }
 
+get_node <- function(party) {
+    stopifnot(inherits(party, "party"))
+    party$node
+}
+
 nodeids <- function(party, from = 1, terminal = TRUE) {
 
     id <- function(node, record = TRUE, terminal = FALSE) {
