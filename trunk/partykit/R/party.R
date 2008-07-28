@@ -48,19 +48,19 @@ nodeids <- function(party, from = 1, terminal = TRUE) {
     id <- function(node, record = TRUE, terminal = FALSE) {
       if(!record) return(NULL)
       if(!terminal)
-          return(get_id(node))
+          return(id_node(node))
       else
-          if(is.terminal(node)) return(get_id(node)) else return(NULL)
+          if(is.terminal(node)) return(id_node(node)) else return(NULL)
     }
 
     rid <- function(node, record = TRUE, terminal = FALSE) {
         myid <- id(node, record = record, terminal = terminal)
         if(is.terminal(node)) return(myid)
-        kids <- get_kids(node)
+        kids <- kids_node(node)
         kids_record <- if(record)
             rep(TRUE, length(kids))
         else
-            sapply(kids, get_id) == from
+            sapply(kids, id_node) == from
         return(c(myid,
             unlist(lapply(1:length(kids), function(i)
 	        rid(kids[[i]], record = kids_record[i], terminal = terminal)))
@@ -89,12 +89,12 @@ nodeapply <- function(party, ids = 1, FUN = NULL, by_node = TRUE, ...) {
 	i <- 1
 	
 	recFUN <- function(node, ...) {
-	    if(get_id(node) %in% ids) {
-	        rval_id[i] <<- get_id(node)
+	    if(id_node(node) %in% ids) {
+	        rval_id[i] <<- id_node(node)
 	        rval[[i]] <<- FUN(node, ...)
 	        i <<- i + 1
 	    }
-	    kids <- get_kids(node)
+	    kids <- kids_node(node)
 	    if(length(kids) > 0) {
 	        for(j in 1:length(kids)) recFUN(kids[[j]])
 	    }

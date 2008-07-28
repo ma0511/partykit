@@ -147,8 +147,7 @@ as.party.J48 <- function(obj, ...) {
   node <- j48_node(1)
 
   j48 <- new_party(node = node, metadata = meta,
-      info = list(responses = model.response(mf),
-                  fitted = do_nodeid(node, mf), terms = terms(obj)))
+      info = list(responses = model.response(mf), fitted = fitted_node(node, mf), terms = terms(obj)))
 
   class(j48) <- c("R48", class(j48))
   return(j48)
@@ -159,7 +158,7 @@ summary.R48 <- function(object) {
   j48summary <- function(x)
     paste(levels(x)[which.max(table(x))], " (", length(x), "/", length(x) - max(table(x)), ")", sep = "")
 
-  info <- get_info(object)
+  info <- info_node(object)
   tapply(info$responses, info$fitted, j48summary)
 }
 
@@ -170,7 +169,7 @@ predict.R48 <- function(object, newdata = NULL,
   type <- match.arg(type)
   
   ## extract info slot (response and fitted node ids)
-  info <- get_info(object)
+  info <- info_node(object)
   
   ## special case: fitted ids
   if(is.null(newdata) & type == "node")
@@ -190,13 +189,13 @@ predict.R48 <- function(object, newdata = NULL,
     inner <- 1:max(terminal)
     inner <- inner[-terminal]
     fun <- function(node)
-        sapply(get_split(node), is.functional)
+        sapply(split_node(node), is.functional)
 
     ### we can't handle functional splits this way
     if (!any(unlist(nodeapply(object, ids = inner, FUN = fun)))) {
 
         used_vars <- nodeapply(object, ids = inner, FUN = function(node) {
-            sapply(get_split(node), get_fun)
+            sapply(split_node(node), get_fun)
         })
         vnames <- object$metadata$varnames[unique(unlist(used_vars))]
     } else {
@@ -206,14 +205,14 @@ predict.R48 <- function(object, newdata = NULL,
     ## FIXME: Does this handle functional splits correctly?
     stopifnot(all(vnames %in% names(newdata)))
 
-    ### determine correct matching (passed to do_nodeid)
+    ### determine correct matching (passed to fitted_node)
     vmatch <- match(object$metadata$varnames, names(newdata))
 
     ## FIXME: Is there a better way for this?
     # newdata <- model.frame(delete.response(info$terms), newdata)
     # newdata[[object$metadata$varnames[1]]] <- FALSE
     # newdata <- newdata[, object$metadata$varnames, drop = FALSE]
-    pred <- do_nodeid(object$node, newdata, vmatch)
+    pred <- fitted_node(object$node, newdata, vmatch)
     nam <- rownames(newdata)
   } else {
     pred <- info$fitted

@@ -5,7 +5,7 @@ node_inner <- function(obj, id = TRUE, abbreviate = FALSE, fill = "white")
   extract_label <- function(node) {
     if(is.terminal(node)) return(rep.int("", 2))
 
-    varlab <- nodelabels(get_primary(get_split(node)), meta)$splitname
+    varlab <- nodelabels(split_node(node), meta)$splitname
     if(abbreviate > 0) varlab <- abbreviate(varlab, as.numeric(abbreviate))
 
     if(FALSE) { ## FIXME: p-value processing
@@ -21,7 +21,7 @@ node_inner <- function(obj, id = TRUE, abbreviate = FALSE, fill = "white")
 
   maxstr <- function(node) {
       lab <- extract_label(node)
-      klab <- if(is.terminal(node)) "" else unlist(lapply(get_kids(node), maxstr))
+      klab <- if(is.terminal(node)) "" else unlist(lapply(kids_node(node), maxstr))
       lab <- c(lab, klab)
       return(lab[which.max(nchar(lab))]) ## FIXME: nchar?
   }
@@ -35,7 +35,7 @@ node_inner <- function(obj, id = TRUE, abbreviate = FALSE, fill = "white")
       y = unit(0.5, "npc"),
       width = unit(1, "strwidth", nstr) * 1.3, 
       height = unit(3, "lines"),
-      name = paste("node_inner", get_id(node), sep = "")
+      name = paste("node_inner", id_node(node), sep = "")
     )
     pushViewport(node_vp)
 
@@ -57,11 +57,11 @@ node_inner <- function(obj, id = TRUE, abbreviate = FALSE, fill = "white")
 
     if(id) {
       nodeIDvp <- viewport(x = unit(0.5, "npc"), y = unit(1, "npc"),
-        width = max(unit(1, "lines"), unit(1.3, "strwidth", as.character(get_id(node)))),
-        height = max(unit(1, "lines"), unit(1.3, "strheight", as.character(get_id(node)))))
+        width = max(unit(1, "lines"), unit(1.3, "strwidth", as.character(id_node(node)))),
+        height = max(unit(1, "lines"), unit(1.3, "strheight", as.character(id_node(node)))))
       pushViewport(nodeIDvp)
       grid.rect(gp = gpar(fill = fill[2]))
-      grid.text(get_id(node))
+      grid.text(id_node(node))
       popViewport()
     }
     upViewport()
@@ -92,7 +92,7 @@ node_terminal <- function(obj,
 
   maxstr <- function(node) {
       lab <- extract_label(node)
-      klab <- if(is.terminal(node)) "" else unlist(lapply(get_kids(node), maxstr))
+      klab <- if(is.terminal(node)) "" else unlist(lapply(kids_node(node), maxstr))
       lab <- c(lab, klab)
       return(lab[which.max(nchar(lab))]) ## FIXME: nchar?
   }
@@ -107,7 +107,7 @@ node_terminal <- function(obj,
       y = unit(0.5, "npc"),   
       width = unit(1, "strwidth", nstr) * 1.1,
       height = unit(3, "lines"),
-      name = paste("node_terminal", get_id(node), sep = "")
+      name = paste("node_terminal", id_node(node), sep = "")
     )
     pushViewport(node_vp)
 
@@ -119,11 +119,11 @@ node_terminal <- function(obj,
 
     if(id) {
       nodeIDvp <- viewport(x = unit(0.5, "npc"), y = unit(1, "npc"),
-        width = max(unit(1, "lines"), unit(1.3, "strwidth", as.character(get_id(node)))),
-        height = max(unit(1, "lines"), unit(1.3, "strheight", as.character(get_id(node)))))
+        width = max(unit(1, "lines"), unit(1.3, "strwidth", as.character(id_node(node)))),
+        height = max(unit(1, "lines"), unit(1.3, "strheight", as.character(id_node(node)))))
       pushViewport(nodeIDvp)
       grid.rect(gp = gpar(fill = fill[2], lty = "solid"))
-      grid.text(get_id(node))
+      grid.text(id_node(node))
       popViewport()
     }
     upViewport()
@@ -138,7 +138,7 @@ edge_simple <- function(obj, digits = 3, abbreviate = FALSE)
 
   ### panel function for simple edge labelling
   function(node, i) {
-    split <- nodelabels(get_primary(get_split(node)), meta)$splitlevels[i]
+    split <- nodelabels(split_node(node), meta)$splitlevels[i]
 
 	### <FIXME> phantom and . functions cannot be found by
 	###	    codetools
@@ -168,7 +168,7 @@ plot_party <- function(node, xlim, ylim, nx, ny,
                           width = unit(1, "native"), 
                           height = unit(tnex, "native") - unit(1, "lines"),
 			  just = c("center", "top"),
-                          name = paste("Node", get_id(node), sep = ""))
+                          name = paste("Node", id_node(node), sep = ""))
         pushViewport(tn_vp)
         if (debug)
             grid.rect(gp = gpar(lty = "dotted", col = 4))
@@ -178,10 +178,10 @@ plot_party <- function(node, xlim, ylim, nx, ny,
     }    
 
     ### number of left leafs
-    nl <- nterminal(node$left)
+    nl <- width(node$left)
 
     ### number of right leafs
-    nr <- nterminal(node$right)
+    nr <- width(node$right)
 
     ### position of inner node
     x0 <- xlim[1] + (nl / (nl + nr)) * diff(xlim)
@@ -191,16 +191,16 @@ plot_party <- function(node, xlim, ylim, nx, ny,
     if (node$left$terminal) {
         lf <- 1/2
     } else {
-        lf <- nterminal(node$left$left) / (nterminal(node$left$left) + 
-                                           nterminal(node$left$right))
+        lf <- width(node$left$left) / (width(node$left$left) + 
+                                           width(node$left$right))
     }
 
     ### proportion of left terminal nodes in right node
     if (node$right$terminal) {
         rf <- 1/2
     } else {
-        rf <- nterminal(node$right$left) / (nterminal(node$right$left) + 
-                                            nterminal(node$right$right))
+        rf <- width(node$right$left) / (width(node$right$left) + 
+                                            width(node$right$right))
     }
 
     ### position of left and right daugher node
@@ -225,7 +225,7 @@ plot_party <- function(node, xlim, ylim, nx, ny,
                       y = unit(y0, "native"),
                       width = unit(1, "native"),
                       height = unit(1, "native") - unit(1, "lines"), 
-                      name = paste("Node", get_id(node), sep = ""))
+                      name = paste("Node", id_node(node), sep = ""))
     pushViewport(in_vp)
     if (debug)
         grid.rect(gp = gpar(lty = "dotted"))
@@ -256,7 +256,7 @@ plot_party <- function(node, xlim, ylim, nx, ny,
                        y = unit(ypos, "native"),
                        width = unit(xlpos - xrpos, "native"),
                        height = unit(1, "lines"), 
-                       name =  paste("lEdge", get_id(node), sep = ""))
+                       name =  paste("lEdge", id_node(node), sep = ""))
     pushViewport(lsp_vp)
     if (debug)
         grid.rect(gp = gpar(lty = "dotted", col = 2))
@@ -278,7 +278,7 @@ plot_party <- function(node, xlim, ylim, nx, ny,
                        y = unit(ypos, "native"),
                        width = unit(xlpos - xrpos, "native"),
                        height = unit(1, "lines"),
-                       name =  paste("rEdge", get_id(node), sep = ""))
+                       name =  paste("rEdge", id_node(node), sep = ""))
     pushViewport(rsp_vp) 
     if (debug)
         grid.rect(gp = gpar(lty = "dotted", col = 2))
@@ -309,7 +309,7 @@ plot.party <- function(x, main = NULL, type = c("extended", "simple"),
     ### extract tree
     ptr <- x@tree
     ### total number of terminal nodes
-    nx <- nterminal(ptr)
+    nx <- width(ptr)
     ### maximal depth of the tree
     ny <- maxdepth(ptr)
 
