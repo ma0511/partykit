@@ -26,7 +26,7 @@ node_inner <- function(obj, id = TRUE, abbreviate = FALSE, fill = "white")
       return(lab[which.max(nchar(lab))]) ## FIXME: nchar?
   }
 
-  nstr <- maxstr(get_node(obj))
+  nstr <- maxstr(node_party(obj))
 
   ### panel function for the inner nodes
   rval <- function(node) {  
@@ -97,7 +97,7 @@ node_terminal <- function(obj,
       return(lab[which.max(nchar(lab))]) ## FIXME: nchar?
   }
 
-  nstr <- maxstr(get_node(obj))
+  nstr <- maxstr(node_party(obj))
 
   ### panel function for simple n, Y terminal node labeling
   rval <- function(node) {

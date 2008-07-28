@@ -27,4 +27,4 @@ print_node <- function(x, metadata, names, prefix = "", leaf = " *", first = TRU
 }
 
 print.party <- function(x, ...)
-    print_node(x$node, x$metadata, names = get_names(x), ...)
+    print_node(x$node, x$metadata, names = names_party(x), ...)

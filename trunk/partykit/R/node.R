@@ -88,8 +88,6 @@ length.node <- function(x)
     length(kids_node(x))
 
 "[.node" <- "[[.node" <- function(x, i, ...) {
-    if (is.flat(x))
-        warning(sQuote("x"), " ", "is not a recursive node")
     stopifnot(length(i) == 1 & is.numeric(i))
     kids_node(x)[[i]]
 }

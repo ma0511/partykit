@@ -79,7 +79,7 @@ as.party.rpart <- function(obj, ...) {
 
     node <- rpart_node(1)
 
-    new_party(node = node, metadata = objmeta, info = objinfo)
+    party(node = node, metadata = objmeta, info = objinfo)
 }
 
 model.frame.rpart <- function(formula, ...) {
@@ -100,7 +100,8 @@ as.party.J48 <- function(obj, ...) {
 
   ## construct metadata
   mf <- model.frame(obj)
-  meta <- metadata(mf)
+  mf_class <- sapply(mf, class)
+  mf_class <- lapply(mf, levels)
 
   x <- .jcall(obj$classifier, "S", "graph")
   x <- RWeka:::parse_Weka_digraph(x, plainleaf = TRUE)
@@ -116,18 +117,18 @@ as.party.J48 <- function(obj, ...) {
   j48_split <- function(i) {
     if(is.leaf[i]) return(NULL)
     
-    var_id <- which(nodes[i, "splitvar"] == meta$varnames)
+    var_id <- which(nodes[i, "splitvar"] == names(mf))
     split <- strsplit(edges[nodes[i,"name"] == edges[,"from"], "label"], " ")
 
-    if(meta$class[var_id] %in% c("ordered", "factor")) {
+    if(mf_class[var_id] %in% c("ordered", "factor")) {
       stopifnot(all(sapply(split, head, 1) == "="))
-      stopifnot(all(sapply(split, tail, 1) %in% meta$levels[[var_id]]))
+      stopifnot(all(sapply(split, tail, 1) %in% mf_levels[[var_id]]))
       
       split <- new_split(fun = as.integer(var_id),
-        index = match(meta$levels[[var_id]], sapply(split, tail, 1)))
+        index = match(mf_levels[[var_id]], sapply(split, tail, 1)))
     } else {
       breaks <- unique(as.numeric(sapply(split, tail, 1)))
-      breaks <- if(meta$class[var_id] == "integer") as.integer(breaks) else as.double(breaks) ## FIXME: check
+      breaks <- if(mf_class[var_id] == "integer") as.integer(breaks) else as.double(breaks) ## FIXME: check
       
       stopifnot(length(breaks) == 1 && !is.na(breaks))
       stopifnot(all(sapply(split, head, 1) %in% c("<=", ">")))
@@ -146,8 +147,12 @@ as.party.J48 <- function(obj, ...) {
 
   node <- j48_node(1)
 
-  j48 <- new_party(node = node, metadata = meta,
-      info = list(responses = model.response(mf), fitted = fitted_node(node, mf), terms = terms(obj)))
+  j48 <- party(node = node,
+               data = mf[0,],
+               fitted = data.frame("(fitted)" = fitted_node(node, mf),
+	                           "(response)" = model.response(mf),
+				   check.names = FALSE),
+               terms = terms(obj))
 
   class(j48) <- c("R48", class(j48))
   return(j48)

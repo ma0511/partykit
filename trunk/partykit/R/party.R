@@ -1,14 +1,18 @@
-new_party <- function(node, metadata, names = NULL, info = NULL) {
+party <- function(node, data, fitted, terms = NULL, names = NULL) {
 
     stopifnot(inherits(node, "node"))
-    stopifnot(inherits(metadata, "metadata"))
+    stopifnot(inherits(data, "data.frame"))
+    stopifnot(inherits(fitted, "data.frame"))
+    stopifnot("(fitted)" %in% names(fitted))
 
-    if (is.flat(node))
-        stop(sQuote("node"), " ", "is not a recursive node")
-
-    party <- list(node = node, metadata = metadata, 
-                  names = NULL, info = info)
+    party <- list(node = node, data = data, fitted = fitted, 
+                  terms = NULL, names = NULL)
     class(party) <- "party"
+
+    if(!is.null(terms)) {
+        stopifnot(inherits(terms, "terms"))
+	party$terms <- terms
+    }
 
     if (!is.null(names)) {
         n <- length(nodeids(party, terminal = FALSE))
@@ -19,6 +23,9 @@ new_party <- function(node, metadata, names = NULL, info = NULL) {
 
     party
 }
+
+length.party <- function(x)
+    length(nodeids(x))
 
 names.party <- function(x)
     x$names
@@ -31,19 +38,28 @@ names.party <- function(x)
      x
 }
 
-get_names <- function(party) {
+names_party <- function(party) {
     names <- party$names
     if (is.null(names))
         names <- as.character(nodeids(party, terminal = FALSE))
     names
 }
 
-get_node <- function(party) {
+node_party <- function(party) {
     stopifnot(inherits(party, "party"))
     party$node
 }
 
-nodeids <- function(party, from = 1, terminal = TRUE) {
+"[.party" <- "[[.party" <- function(x, i, ...) {
+    stopifnot(length(i) == 1 & is.numeric(i))
+    ## FIXME: extract subtree, subset fitted, relabel fitted$"(fitted)"
+    x
+}
+
+
+nodeids <- function(party, from = NULL, terminal = TRUE) {
+
+    if(is.null(from)) from <- id_node(node_party(party))
 
     id <- function(node, record = TRUE, terminal = FALSE) {
       if(!record) return(NULL)
@@ -67,9 +83,10 @@ nodeids <- function(party, from = 1, terminal = TRUE) {
         ))
     }
 
-    return(rid(party$node, from == 1, terminal))
+    return(rid(node_party(party), from == id_node(node_party(party)), terminal))
 }
 
+## FIXME: remove when [[.party is available
 nodeapply <- function(party, ids = 1, FUN = NULL, by_node = TRUE, ...) {
 
     stopifnot(inherits(party, "party"))
@@ -101,11 +118,34 @@ nodeapply <- function(party, ids = 1, FUN = NULL, by_node = TRUE, ...) {
 	    	  
 	    invisible(TRUE)
 	}
-	foo <- recFUN(party$node)
+	foo <- recFUN(node_party(party))
 	
         rval <- rval[match(rval_id, ids)]
     }
 
-    names(rval) <- get_names(party)[ids]
+    names(rval) <- names_party(party)[ids]
     return(rval)
 }
+
+predict_party <- function(party, id, newdata = NULL)
+    UseMethod("predict_party")
+
+print_party <- function(party, id, ...)
+    UseMethod("print_party")
+
+data_party <- function(party, id)
+    UseMethod("data_party")
+
+predict_party.default <- function(party, id, newdata = NULL) {
+
+}
+
+print_party.default <- function(party, id, newdata = NULL) {
+
+}
+
+data_party.default <- function(party, id) {
+    ## FIXME: merge "data" and "fitted" (if possible)
+    ## extract data/fitted for node "id"
+}
+
