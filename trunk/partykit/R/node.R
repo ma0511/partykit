@@ -84,6 +84,36 @@ flat2rec <- function(obj) {
     return(node)
 }
 
+
+fitted_node <- function(node, data, vmatch = 1:ncol(data), obs = NULL) {
+
+    primary <- primary_node(node)
+    surrogates <- surrogates_node(node)
+
+    ### perform primary split
+    x <- do_split(primary, data, vmatch, obs)
+
+    ### surrogate / random splits if needed
+    if (any(is.na(x))) {
+        ### surrogate splits
+        if (length(surrogates) >= 1) {
+            for (surr in surrogates) {
+                nax <- is.na(x)
+                if (!any(nax)) break;
+                x[nax] <- do_split(surr, data, vmatch, obs = obs[nax])
+            }
+        }
+        nax <- is.na(x)
+        ### random splits
+        if (any(nax)) {
+            prob <- prob_split(primary)
+            x[nax] <- sample(1:length(prob), sum(nax), prob = prob)
+        }
+    }
+    return(x)
+}
+
+
 ### FIXME: provide dim method for data
 do_nodeid <- function(node, data, vmatch = 1:ncol(data), obs = 1:nrow(data)) {
 
