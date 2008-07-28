@@ -1,3 +1,4 @@
+
 new_metadata <- function(varnames, class, levels) {
 
     rval <- list(varnames = varnames,
@@ -19,3 +20,4 @@ metadata.data.frame <- function(x, ...) {
 metadata.party <- function(x, ...) {
     x$metadata
 }
+

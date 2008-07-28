@@ -82,7 +82,6 @@ as.party.rpart <- function(obj, ...) {
     new_party(node = node, metadata = objmeta, info = objinfo)
 }
 
-
 model.frame.rpart <- function(formula, ...) {
   mf <- formula$call
   mf <- mf[c(1L, match(c("formula", "data", "subset", "na.action"), names(mf), 0L))]
@@ -148,7 +147,8 @@ as.party.J48 <- function(obj, ...) {
   node <- j48_node(1)
 
   j48 <- new_party(node = node, metadata = meta,
-      info = list(responses = model.response(mf), fitted = do_nodeid(node, mf), terms = terms(obj)))
+      info = list(responses = model.response(mf),
+                  fitted = do_nodeid(node, mf), terms = terms(obj)))
 
   class(j48) <- c("R48", class(j48))
   return(j48)
