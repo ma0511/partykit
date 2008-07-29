@@ -5,7 +5,7 @@ as.party.rpart <- function(obj, ...) {
 
     ff <- obj$frame
     n  <- nrow(ff)
-    if (n==1) return(new_node(as.integer(1)))  # special case of no splits
+    if (n==1) return(node(as.integer(1)))  # special case of no splits
 
     is.leaf <- (ff$var == "<leaf>")
     vnames <- ff$var[!is.leaf]  #the variable names for the primary splits
@@ -20,19 +20,7 @@ as.party.rpart <- function(obj, ...) {
         else return(prim + ff[i, "ncompete"] + 1:ff[i, "nsurrogate"])
     })
     
-    rpart_metadata <- function() {
-        ### extract metadata from terms
-        varnames <- names(attr(obj$terms, "dataClasses"))
-        class <- as.vector(attr(obj$terms, "dataClasses"))
-        ylev <- list(attr(obj, "ylevels"))
-        names(ylev) <- metadata$varnames[1]
-        lev <- c(attr(obj, "xlevels"), ylev)
-        levels <- lapply(varnames, function(var) lev[[var]])
-        new_metadata(varnames = varnames, class = class, levels = levels)
-    }
-    objmeta <- rpart_metadata()
-
-    rpart_info <- function() {
+    rpart_fitted <- function() {
         if (is.null(obj$y)) {
             y <- model.response(model.frame(obj))
         } else {
@@ -40,9 +28,46 @@ as.party.rpart <- function(obj, ...) {
             if (!is.null(attr(obj, "ylevels")))
                 y <- factor(y, levels = attr(obj, "ylevels"))
         }
-        list(responses = y, fitted = obj$where, terms = obj$terms)
+        data.frame("(fitted)" = obj$where, "(response)" = y, check.names = FALSE)
     }
-    objinfo <- rpart_info()
+    fitted <- rpart_fitted()
+
+    rpart_modelframe0 <- function() {
+        ### extract metadata from terms
+        varnames <- names(attr(obj$terms, "dataClasses"))
+        classes <- as.vector(attr(obj$terms, "dataClasses"))
+        ylev <- list(attr(obj, "ylevels"))
+        names(ylev) <- metadata$varnames[1]
+        lev <- c(attr(obj, "xlevels"), ylev)
+        levels <- lapply(varnames, function(var) lev[[var]])
+
+        ### create data frame without obs from description
+	## FIXME: currently we handle
+	stopifnot(all(classes %in% c("numeric", "integer", "factor", "ordered", "Surv")))
+        
+	mf <- rep(list(numeric(0)), length(varnames))
+	names(mf) <- varnames
+	wi <- which(classes %in% "integer")
+	mf[wi] <- rep(list(integer(0)), length(wi))
+	wi <- which(classes %in% "factor")
+	mf[wi] <- lapply(wi, function(i) factor(integer(0),
+	    levels = seq_along(levels[[i]]), labels = levels[[i]]))
+	wi <- which(classes %in% "ordered")
+	mf[wi] <- lapply(wi, function(i) factor(integer(0),
+	    levels = seq_along(levels[[i]]), labels = levels[[i]], ordered = TRUE))
+	wi <- which(classes %in% "Surv")
+        ## FIXME: like this?
+	surv <- function(length = 0)
+	  structure(numeric(length), .Dim = c(0L, 2L), .Dimnames = list(NULL, c("time", "status")),
+	            class = "Surv", type = "right")
+        ## FIXME: or should we get fitted[["(response)"]][0]?
+	mf[wi] <- rep(list(surv(0)), length(wi))
+	mf <- structure(mf, row.names = integer(0), class = "data.frame")
+	mf
+    }
+    mf <- rpart_modelframe0()
+    ## FIXME: alternatively
+    ## mf <- model.frame(obj)[0,]
 
     rpart_kids <- function(i) {
         if (is.leaf[i]) return(NULL)
@@ -54,7 +79,7 @@ as.party.rpart <- function(obj, ...) {
         if (j < 1) return(NULL)
         ### numeric
         if (abs(obj$split[j, "ncat"]) == 1) {
-            ret <- new_split(fun = which(rownames(obj$split)[j] == objmeta$varnames),
+            ret <- split(varid = which(rownames(obj$split)[j] == names(mf)),
                       breaks = as.double(obj$split[j, "index"]),
                       right = FALSE,
                       index = if(obj$split[j, "ncat"] > 0) 2:1)
@@ -62,24 +87,30 @@ as.party.rpart <- function(obj, ...) {
             index <- obj$csplit[obj$split[j, "index"],]
             index[index == 2] <- NA
             index[index == 3] <- 2
-            ret <- new_split(fun = which(rownames(obj$split)[j] == objmeta$varnames),
+            ret <- split(varid = which(rownames(obj$split)[j] == names(mf)),
                       index = as.integer(index))
         }
         ret
     }
                       
-    rpart_splits <- function(i)
-        lapply(c(splitindex$primary[i], splitindex$surrogate[[i]]), rpart_onesplit)
+    rpart_split <- function(i)
+        rpart_onesplit(splitindex$primary[i])
     
+    rpart_surrogates <- function(i)
+        lapply(splitindex$surrogate[[i]], rpart_onesplit)
+
     rpart_node <- function(i) {
-        if (is.null(rpart_kids(i))) return(new_node(as.integer(i)))
-        new_node(as.integer(i), split = rpart_splits(i), kids = 
-            lapply(rpart_kids(i), rpart_node))
+        if (is.null(rpart_kids(i))) return(node(as.integer(i)))
+        node(as.integer(i), split = rpart_split(i),
+	     kids = lapply(rpart_kids(i), rpart_node),
+	     surrogates = rpart_surrogates(i))
     }
 
     node <- rpart_node(1)
 
-    party(node = node, metadata = objmeta, info = objinfo)
+    rval <- party(node = node, data = mf, fitted = fitted, terms = obj$terms)
+    class(rval) <- c("cparty", class(rval))
+    return(rval)
 }
 
 model.frame.rpart <- function(formula, ...) {
@@ -124,7 +155,7 @@ as.party.J48 <- function(obj, ...) {
       stopifnot(all(sapply(split, head, 1) == "="))
       stopifnot(all(sapply(split, tail, 1) %in% mf_levels[[var_id]]))
       
-      split <- new_split(fun = as.integer(var_id),
+      split <- split(varid = as.integer(var_id),
         index = match(mf_levels[[var_id]], sapply(split, tail, 1)))
     } else {
       breaks <- unique(as.numeric(sapply(split, tail, 1)))
@@ -133,7 +164,7 @@ as.party.J48 <- function(obj, ...) {
       stopifnot(length(breaks) == 1 && !is.na(breaks))
       stopifnot(all(sapply(split, head, 1) %in% c("<=", ">")))
       
-      split <- new_split(fun = as.integer(var_id),
+      split <- split(varid = as.integer(var_id),
         breaks = breaks, right = TRUE,
 	index = if(split[[1]][1] == ">") 2:1)
     }
@@ -141,8 +172,8 @@ as.party.J48 <- function(obj, ...) {
   }
 
   j48_node <- function(i) {
-    if(is.null(j48_kids(i))) return(new_node(as.integer(i)))
-    new_node(as.integer(i), split = list(j48_split(i)), kids = lapply(j48_kids(i), j48_node))
+    if(is.null(j48_kids(i))) return(node(as.integer(i)))
+    node(as.integer(i), split = j48_split(i), kids = lapply(j48_kids(i), j48_node))
   }
 
   node <- j48_node(1)
@@ -152,14 +183,14 @@ as.party.J48 <- function(obj, ...) {
                fitted = data.frame("(fitted)" = fitted_node(node, mf),
 	                           "(response)" = model.response(mf),
 				   check.names = FALSE),
-               terms = terms(obj))
+               terms = obj$terms)
 
-  class(j48) <- c("R48", class(j48))
+  class(j48) <- c("cparty", class(j48))
   return(j48)
 }
 
 ## FIXME: small convenience function (just temporary)
-summary.R48 <- function(object) {
+summary.cparty <- function(object) {
   j48summary <- function(x)
     paste(levels(x)[which.max(table(x))], " (", length(x), "/", length(x) - max(table(x)), ")", sep = "")
 
@@ -167,7 +198,7 @@ summary.R48 <- function(object) {
   tapply(info$responses, info$fitted, j48summary)
 }
 
-predict.R48 <- function(object, newdata = NULL,
+predict.cparty <- function(object, newdata = NULL,
     type = c("response", "prob", "node"), ...)
 {
   ## match type
