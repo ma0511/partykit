@@ -27,6 +27,34 @@ node <- function(id, split = NULL, kids = NULL, surrogates = NULL, info = NULL) 
     return(node)
 }
 
+is.node <- function(x) {
+    if (!inherits(x, "node")) return(FALSE)
+    rval <- diff(nodeids(x, terminal = FALSE))
+    isTRUE(all.equal(unique(rval), 1))
+}
+
+as.node <- function(x, ...)
+    UseMethod("as.node")
+
+as.node.node <- function(x, from = NULL, ...) {
+    if(is.null(from)) from <- id_node(x)
+    from <- as.integer(from)
+    if(is.node(x) & id_node(x) == from) return(x)
+    id <- from - 1L
+     
+    new_node <- function(x) {
+        id <<- id + 1L
+        if(is.terminal(x)) return(node(id, info = info_node(x)))
+        node(id,
+             split = split_node(x),
+             kids = lapply(kids_node(x), new_node),
+             surrogates = surrogates_node(x),
+             info = info_node(x))
+    }
+    
+    return(new_node(x))    
+}
+
 id_node <- function(node) {
     stopifnot(inherits(node, "node"))
     node$id

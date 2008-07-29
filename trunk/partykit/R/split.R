@@ -144,11 +144,10 @@ kidids_split <- function(split, data, vmatch = 1:ncol(data), obs = NULL) {
     return(x)
 }
 
-### FIXME: function name + meta
-nodelabels <- function(split, meta, digits = getOption("digits") - 2) {
+character_split <- function(split, data, digits = getOption("digits") - 2) {
 
     ## determine type
-    type <- meta$class[varid_split(split)]
+    type <- sapply(data, class)[varid_split(split)]
     type[!(type %in% c("factor", "ordered"))] <- "numeric"
 
     ## process defaults for breaks and index
@@ -157,9 +156,8 @@ nodelabels <- function(split, meta, digits = getOption("digits") - 2) {
     right <- right_split(split)
     varid <- varid_split(split)
     
-    ### FIXME: so???
-    lev <- levels(meta)[[varid]]
-    mlab <- names(meta)[varid]
+    lev <- lapply(data, levels)[[varid]]
+    mlab <- names(data)[varid]
 
     if (is.null(breaks)) breaks <- 1:(length(index) - 1)
     if (is.null(index)) index <- 1:(length(breaks) + 1)
@@ -203,5 +201,5 @@ nodelabels <- function(split, meta, digits = getOption("digits") - 2) {
         }
     )
 
-    return(list(splitname = mlab, splitlevels = dlab))
-} 
+    return(list(name = mlab, levels = dlab))
+}

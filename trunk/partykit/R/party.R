@@ -14,7 +14,7 @@ party <- function(node, data, fitted, terms = NULL, names = NULL) {
     stopifnot(inherits(fitted, "data.frame"))
     stopifnot("(fitted)" %in% names(fitted))
 
-    party <- list(node = node, data = data, fitted = fitted, 
+    party <- list(node = as.node(node, from = 1L), data = data, fitted = fitted, 
                   terms = NULL, names = NULL)
     class(party) <- "party"
 
@@ -65,10 +65,12 @@ node_party <- function(party) {
     x
 }
 
+nodeids <- function(obj, ...)
+    UseMethod("nodeids")
 
-nodeids <- function(party, from = NULL, terminal = TRUE) {
+nodeids.node <- function(obj, from = NULL, terminal = FALSE, ...) {
 
-    if(is.null(from)) from <- id_node(node_party(party))
+    if(is.null(from)) from <- id_node(obj)
 
     id <- function(node, record = TRUE, terminal = FALSE) {
       if(!record) return(NULL)
@@ -78,24 +80,27 @@ nodeids <- function(party, from = NULL, terminal = TRUE) {
           if(is.terminal(node)) return(id_node(node)) else return(NULL)
     }
 
-    rid <- function(node, record = TRUE, terminal = FALSE) {
+    rid <- function(node, record = TRUE, terminal = FALSE) {  
         myid <- id(node, record = record, terminal = terminal)
         if(is.terminal(node)) return(myid)
-        kids <- kids_node(node)
-        kids_record <- if(record)
+        kids <- kids_node(node)    
+        kids_record <- if(record)  
             rep(TRUE, length(kids))
         else
             sapply(kids, id_node) == from
         return(c(myid,
             unlist(lapply(1:length(kids), function(i)
-	        rid(kids[[i]], record = kids_record[i], terminal = terminal)))
+                rid(kids[[i]], record = kids_record[i], terminal = terminal)))
         ))
     }
 
-    return(rid(node_party(party), from == id_node(node_party(party)), terminal))
+    return(rid(obj, from == id_node(obj), terminal))
 }
 
-## FIXME: remove when [[.party is available
+nodeids.party <- function(obj, from = NULL, terminal = FALSE, ...)
+    nodeids(node_party(obj), from = from, terminal = terminal, ...)
+
+
 nodeapply <- function(party, ids = 1, FUN = NULL, by_node = TRUE, ...) {
 
     stopifnot(inherits(party, "party"))
@@ -108,7 +113,7 @@ nodeapply <- function(party, ids = 1, FUN = NULL, by_node = TRUE, ...) {
         return(NULL)
 
     if (!by_node) {
-        rval <- lapply(ids, function(i) FUN(party, i, ...))
+        rval <- lapply(ids, function(i) FUN(party[[i]], ...))
     } else {
         rval <- vector(mode = "list", length = length(ids))
 	rval_id <- rep(0, length(ids))

@@ -4,7 +4,7 @@ flat2rec <- function(obj) {
         stop(sQuote("obj"), " ", "is not a list of flat", " ", 
              sQuote("node"), " ", "objects")
     
-    obj <- obj[order(sapply(obj, function(node) get_id(node)))]
+    obj <- obj[order(sapply(obj, function(node) id_node(node)))]
     if (length(obj) == 1) return(obj)
 
     new_recnode <- function(id) {
@@ -36,10 +36,10 @@ rec2flat <- function(node) {
     
     new_flatnode <- function(node) {
         if (is.terminal(node))
-            obj[[node$id]] <<- node(id = get_id(node), info = node$info)
+            obj[[node$id]] <<- node(id = id_node(node), info = node$info)
         else {
-            obj[[node$id]] <<- node(id = get_id(node), split = split_node(node),
-                 kids = sapply(kids_node(node), function(k) get_id(k)), 
+            obj[[node$id]] <<- node(id = id_node(node), split = split_node(node),
+                 kids = sapply(kids_node(node), function(k) id_node(k)), 
 		 surrogates = surrogates_node(node),
 		 info = node$info)
             lapply(kids_node(node), new_flatnode)

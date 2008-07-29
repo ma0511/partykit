@@ -42,7 +42,7 @@ as.party.rpart <- function(obj, ...) {
         levels <- lapply(varnames, function(var) lev[[var]])
 
         ### create data frame without obs from description
-	## FIXME: currently we handle
+	## currently we handle
 	stopifnot(all(classes %in% c("numeric", "integer", "factor", "ordered", "Surv")))
         
 	mf <- rep(list(numeric(0)), length(varnames))
@@ -56,18 +56,15 @@ as.party.rpart <- function(obj, ...) {
 	mf[wi] <- lapply(wi, function(i) factor(integer(0),
 	    levels = seq_along(levels[[i]]), labels = levels[[i]], ordered = TRUE))
 	wi <- which(classes %in% "Surv")
-        ## FIXME: like this?
-	surv <- function(length = 0)
-	  structure(numeric(length), .Dim = c(0L, 2L), .Dimnames = list(NULL, c("time", "status")),
-	            class = "Surv", type = "right")
-        ## FIXME: or should we get fitted[["(response)"]][0]?
-	mf[wi] <- rep(list(surv(0)), length(wi))
+        ## blank Surv object
+	surv <- structure(numeric(0), .Dim = c(0L, 2L), .Dimnames = list(NULL, c("time", "status")),
+	                  class = "Surv", type = "right")
+	mf[wi] <- rep(list(surv), length(wi))
 	mf <- structure(mf, row.names = integer(0), class = "data.frame")
 	mf
     }
     mf <- rpart_modelframe0()
-    ## FIXME: alternatively
-    ## mf <- model.frame(obj)[0,]
+    ## simpler: mf <- model.frame(obj)[0,]
 
     rpart_kids <- function(i) {
         if (is.leaf[i]) return(NULL)
@@ -198,12 +195,52 @@ summary.cparty <- function(object) {
   tapply(info$responses, info$fitted, j48summary)
 }
 
-predict.cparty <- function(object, newdata = NULL,
+predict.party <- function(object, newdata = NULL, ...)
+{
+    fitted <- if(is.null(newdata)) object$fitted[["(fitted)"]] else {
+
+        terminal <- nodeids(object, terminal = TRUE)
+        inner <- 1:max(terminal)
+        inner <- inner[-terminal]
+
+        primary_vars <- nodeapply(object, ids = inner, by_node = TRUE, FUN = function(node) {
+            varid_split(split_node(node))
+        })
+        surrogate_vars <- nodeapply(object, ids = inner, by_node = TRUE, FUN = function(node) {
+            surr <- surrogates_node(node)
+            if(is.null(surr)) return(NULL) else return(sapply(surr, varid_split))
+        })
+        vnames <- names(object$data)
+        unames <- if(any(sapply(newdata, is.na))) vnames[unique(unlist(c(primary_vars, surrogate_vars)))]
+            else vnames[unique(unlist(primary_vars))]
+        vclass <- structure(lapply(object$data, class), .Names = vnames)
+        ndnames <- names(newdata)
+        ndclass <- structure(lapply(newdata, class), .Names = ndnames)
+        if(all(unames %in% ndnames) &&
+           all(unlist(lapply(unames, function(x) vclass[[x]] == ndclass[[x]])))) {
+            vmatch <- match(vnames, ndnames)
+            fitted_node(node_party(object), newdata, vmatch)
+        } else {
+            if (!is.null(object$terms)) {
+                mf <- model.frame(delete.response(object$terms), newdata)
+                fitted_node(node_party(object), mf, match(vnames, names(mf)))
+            } else
+                stop("")
+        }
+    }
+    return(fitted)
+    predict_party(object, fitted, newdata, ...)
+}
+
+predict_party.cparty <- function(object, id, newdata = NULL,
     type = c("response", "prob", "node"), ...)
 {
   ## match type
   type <- match.arg(type)
   
+  fitted <- if(is.null(newdata)) object$fitted[["(fitted)"]]
+      else predict.party(object, newdata)
+
   ## extract info slot (response and fitted node ids)
   info <- info_node(object)
   
