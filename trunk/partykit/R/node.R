@@ -70,10 +70,7 @@ kidids_node <- function(node, data, vmatch = 1:ncol(data), obs = NULL) {
     return(x)
 }
 
-
-### FIXME: provide dim method for data
 fitted_node <- function(node, data, vmatch = 1:ncol(data), obs = 1:nrow(data)) {
-
     if (is.terminal(node))
         return(rep(id_node(node), length(obs)))
     retid <- nextid <- kidids_node(node, data, vmatch, obs)

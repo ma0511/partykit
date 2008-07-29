@@ -1,3 +1,12 @@
+## FIXME: data in party
+##   - currently assumed to be a data.frame
+##   - potentially empty
+##   - the following are all assumed to work:
+##     dim(data), names(data)
+##     sapply(data, class), lapply(data, levels)
+##   - potentially these need to be modified if data/terms
+##     should be able to deal with data bases
+
 party <- function(node, data, fitted, terms = NULL, names = NULL) {
 
     stopifnot(inherits(node, "node"))
