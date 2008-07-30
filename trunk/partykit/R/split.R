@@ -147,7 +147,7 @@ kidids_split <- function(split, data, vmatch = 1:ncol(data), obs = NULL) {
 character_split <- function(split, data, digits = getOption("digits") - 2) {
 
     ## determine type
-    type <- sapply(data, class)[varid_split(split)]
+    type <- sapply(data, function(x) class(x)[1])[varid_split(split)]
     type[!(type %in% c("factor", "ordered"))] <- "numeric"
 
     ## process defaults for breaks and index
