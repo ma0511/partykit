@@ -141,18 +141,133 @@ nodeapply <- function(party, ids = 1, FUN = NULL, by_node = TRUE, ...) {
     return(rval)
 }
 
-predict_party <- function(party, id, newdata = NULL)
+predict_party <- function(party, id, newdata = NULL, ...)
     UseMethod("predict_party")
+
+predict.party <- function(object, newdata = NULL, ...)
+{
+    fitted <- if(is.null(newdata)) object$fitted[["(fitted)"]] else {
+
+        terminal <- nodeids(object, terminal = TRUE)
+        inner <- 1:max(terminal)
+        inner <- inner[-terminal]
+
+        primary_vars <- nodeapply(object, ids = inner, by_node = TRUE, FUN = function(node) {
+            varid_split(split_node(node))
+        })
+        surrogate_vars <- nodeapply(object, ids = inner, by_node = TRUE, FUN = function(node) {
+            surr <- surrogates_node(node)
+            if(is.null(surr)) return(NULL) else return(sapply(surr, varid_split))
+        })
+        vnames <- names(object$data)
+        unames <- if(any(sapply(newdata, is.na))) vnames[unique(unlist(c(primary_vars, surrogate_vars)))]
+            else vnames[unique(unlist(primary_vars))]
+        vclass <- structure(lapply(object$data, class), .Names = vnames)
+        ndnames <- names(newdata)
+        ndclass <- structure(lapply(newdata, class), .Names = ndnames)
+        if(all(unames %in% ndnames) &&
+           all(unlist(lapply(unames, function(x) vclass[[x]] == ndclass[[x]])))) {
+            vmatch <- match(vnames, ndnames)
+            fitted_node(node_party(object), newdata, vmatch)
+        } else {
+            if (!is.null(object$terms)) {
+                mf <- model.frame(delete.response(object$terms), newdata)
+                fitted_node(node_party(object), mf, match(vnames, names(mf)))
+            } else
+                stop("")
+        }
+    }
+    # return(fitted)
+    predict_party(object, fitted, newdata, ...)
+}
+
+predict_party.default <- function(party, id, newdata = NULL) {
+
+}
+
+predict_party.cparty <- function(object, id, newdata = NULL,
+    type = c("response", "prob", "node"), FUN = NULL, ...)
+{
+    ## match type
+    type <- match.arg(type)
+    if (type == "node") {
+         names(id) <- rownames(newdata)
+         return(id)
+    }
+  
+    response <- object$fitted[["(response)"]]
+    rname <- names(object$fitted["(response)"])
+    weights <- object$fitted[["(weights)"]]
+    fitted <- object$fitted[["(fitted)"]]
+    if (is.null(weights)) weights <- rep(1, NROW(response))
+
+    ## special case: fitted ids
+    if(type == "node")
+      return(structure(id, .Names = rname))
+
+    myFUN <- FUN    
+    if (is.null(myFUN)) {
+        myFUN <- switch(class(response)[1],
+                      "Surv" = function(y, w)
+                          survival:::survfit(y, weights = w, subset = w > 0),
+                      "factor" = function(y, w) {
+                          sumw <- tapply(w, y, sum)
+                          sumw[is.na(sumw)] <- 0
+                          sumw / sum(w)
+                      },
+                      ### FIXME: really?
+                      "ordered" = function(y, w) {
+                          sumw <- tapply(w, y, sum)
+                          sumw[is.na(sumw)] <- 0
+                          sumw / sum(w)
+                      },
+                      "numeric" = function(y, w)
+                          weighted.mean(y, w),
+                      "integer" = function(y, w)
+                          weighted.mean(y, w))
+    }
+      
+    ## empirical distribution in each leaf
+    tab <- tapply(1:NROW(response), fitted, function(i) myFUN(response[i], weights[i]))
+    if (!is.null(FUN)) return(tab[as.character(id)])
+
+    if (inherits(response, "Surv")) {
+        ret <- tab[as.character(id)]
+        names(ret) <- rownames(newdata)
+        return(ret)
+    }
+
+    if (is.numeric(response)) {
+        ret <- as.vector(tab[as.character(id)])
+        names(ret) <- rownames(newdata)
+        return(ret)
+    }
+
+    ## handle different types
+    switch(type,
+        "prob" = {
+             ret <- matrix(unlist(tab[as.character(id)]), nrow = length(id), byrow = TRUE)
+             colnames(ret) <- levels(response)
+             rownames(ret) <- rownames(newdata)
+        },
+        "response" = {
+             ret <- sapply(tab, which.max)
+             names(ret) <- names(tab)
+             ret <- factor(ret[as.character(id)],
+                           labels = levels(response))
+             names(ret) <- rownames(newdata)
+        }
+    )  
+
+    return(ret)
+}
+
 
 print_party <- function(party, id, ...)
     UseMethod("print_party")
 
 data_party <- function(party, id)
     UseMethod("data_party")
-
-predict_party.default <- function(party, id, newdata = NULL) {
-
-}
 
 print_party.default <- function(party, id, newdata = NULL) {
 

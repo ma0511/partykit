@@ -21,14 +21,20 @@ as.party.rpart <- function(obj, ...) {
     })
     
     rpart_fitted <- function() {
-        if (is.null(obj$y)) {
-            y <- model.response(model.frame(obj))
+        weights <- NULL
+        dc <- attr(obj$terms, "dataClasses")
+        if (is.null(obj$y) | "(weights)" %in% names(dc)) {
+            mf <- model.frame(obj)
+            y <- model.response(mf)
+            weights <- model.weights(mf)
         } else {
             y <- obj$y
             if (!is.null(attr(obj, "ylevels")))
-                y <- factor(y, levels = attr(obj, "ylevels"))
+                y <- factor(y, labels = attr(obj, "ylevels"))
         }
-        data.frame("(fitted)" = obj$where, "(response)" = y, check.names = FALSE)
+        ret <- data.frame("(fitted)" = obj$where, "(response)" = y, check.names = FALSE)
+        if (!is.null(weights)) ret[["(weights)"]] <- weights
+        ret
     }
     fitted <- rpart_fitted()
 
@@ -63,8 +69,10 @@ as.party.rpart <- function(obj, ...) {
 	mf <- structure(mf, row.names = integer(0), class = "data.frame")
 	mf
     }
-    mf <- rpart_modelframe0()
-    ## simpler: mf <- model.frame(obj)[0,]
+    ### won't work because of dataClass problem in model.frames
+    ### mf <- rpart_modelframe0()
+    
+    mf <- model.frame(obj)[0,]
 
     rpart_kids <- function(i) {
         if (is.leaf[i]) return(NULL)
@@ -112,7 +120,8 @@ as.party.rpart <- function(obj, ...) {
 
 model.frame.rpart <- function(formula, ...) {
   mf <- formula$call
-  mf <- mf[c(1L, match(c("formula", "data", "subset", "na.action"), names(mf), 0L))]
+  mf <- mf[c(1L, match(c("formula", "data", "subset", "na.action", "weights"), names(mf), 0L))]
+  if (is.null(mf$na.action)) mf$na.action <- na.rpart
   mf$drop.unused.levels <- TRUE
   mf[[1L]] <- as.name("model.frame")
   env <- if (is.null(environment(formula$terms))) environment(formula$terms) 
@@ -195,116 +204,3 @@ summary.cparty <- function(object) {
   tapply(info$responses, info$fitted, j48summary)
 }
 
-predict.party <- function(object, newdata = NULL, ...)
-{
-    fitted <- if(is.null(newdata)) object$fitted[["(fitted)"]] else {
-
-        terminal <- nodeids(object, terminal = TRUE)
-        inner <- 1:max(terminal)
-        inner <- inner[-terminal]
-
-        primary_vars <- nodeapply(object, ids = inner, by_node = TRUE, FUN = function(node) {
-            varid_split(split_node(node))
-        })
-        surrogate_vars <- nodeapply(object, ids = inner, by_node = TRUE, FUN = function(node) {
-            surr <- surrogates_node(node)
-            if(is.null(surr)) return(NULL) else return(sapply(surr, varid_split))
-        })
-        vnames <- names(object$data)
-        unames <- if(any(sapply(newdata, is.na))) vnames[unique(unlist(c(primary_vars, surrogate_vars)))]
-            else vnames[unique(unlist(primary_vars))]
-        vclass <- structure(lapply(object$data, class), .Names = vnames)
-        ndnames <- names(newdata)
-        ndclass <- structure(lapply(newdata, class), .Names = ndnames)
-        if(all(unames %in% ndnames) &&
-           all(unlist(lapply(unames, function(x) vclass[[x]] == ndclass[[x]])))) {
-            vmatch <- match(vnames, ndnames)
-            fitted_node(node_party(object), newdata, vmatch)
-        } else {
-            if (!is.null(object$terms)) {
-                mf <- model.frame(delete.response(object$terms), newdata)
-                fitted_node(node_party(object), mf, match(vnames, names(mf)))
-            } else
-                stop("")
-        }
-    }
-    return(fitted)
-    predict_party(object, fitted, newdata, ...)
-}
-
-predict_party.cparty <- function(object, id, newdata = NULL,
-    type = c("response", "prob", "node"), ...)
-{
-  ## match type
-  type <- match.arg(type)
-  
-  fitted <- if(is.null(newdata)) object$fitted[["(fitted)"]]
-      else predict.party(object, newdata)
-
-  ## extract info slot (response and fitted node ids)
-  info <- info_node(object)
-  
-  ## special case: fitted ids
-  if(is.null(newdata) & type == "node")
-    return(structure(info$fitted, .Names = names(info$responses)))
-  
-  ## empirical distribution in each leaf
-  tab <- tapply(info$responses, info$fitted, function(x) prop.table(table(x)))
-  tab <- t(structure(as.vector(unlist(tab)),
-    .Dim = c(length(tab[[1]]), length(tab)),
-    .Dimnames = list(names(tab[[1]]), names(tab))))
-
-  ## get predicted leaf
-  if(!is.null(newdata)) {
-
-    ### get all relevant variables
-    terminal <- nodeids(object, terminal = TRUE)
-    inner <- 1:max(terminal)
-    inner <- inner[-terminal]
-    fun <- function(node)
-        sapply(split_node(node), is.functional)
-
-    ### we can't handle functional splits this way
-    if (!any(unlist(nodeapply(object, ids = inner, FUN = fun)))) {
-
-        used_vars <- nodeapply(object, ids = inner, FUN = function(node) {
-            sapply(split_node(node), get_fun)
-        })
-        vnames <- object$metadata$varnames[unique(unlist(used_vars))]
-    } else {
-        vnames <- object$metadata$varnames[-1]
-    }
-        
-    ## FIXME: Does this handle functional splits correctly?
-    stopifnot(all(vnames %in% names(newdata)))
-
-    ### determine correct matching (passed to fitted_node)
-    vmatch <- match(object$metadata$varnames, names(newdata))
-
-    ## FIXME: Is there a better way for this?
-    # newdata <- model.frame(delete.response(info$terms), newdata)
-    # newdata[[object$metadata$varnames[1]]] <- FALSE
-    # newdata <- newdata[, object$metadata$varnames, drop = FALSE]
-    pred <- fitted_node(object$node, newdata, vmatch)
-    nam <- rownames(newdata)
-  } else {
-    pred <- info$fitted
-    nam <- names(info$responses)
-  }
-
-  ## handle different types
-  pred <- switch(type,
-    "node" = pred,
-    "prob" = tab[as.character(pred),],
-    "response" = factor(apply(tab, 1, which.max)[as.character(pred)],
-      levels = 1:ncol(tab), labels = colnames(tab))
-  )  
-  
-  ## observation names
-  if(NCOL(pred) > 1)
-    rownames(pred) <- nam
-  else
-    names(pred) <- nam
-  
-  return(pred)
-}
