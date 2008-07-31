@@ -20,61 +20,16 @@ as.party.rpart <- function(obj, ...) {
         else return(prim + ff[i, "ncompete"] + 1:ff[i, "nsurrogate"])
     })
     
+    mf <- model.frame(obj)
+
     rpart_fitted <- function() {
-        weights <- NULL
-        dc <- attr(obj$terms, "dataClasses")
-        y <- obj$y
-        if (obj$method == "exp") y <- NULL
-        if (is.null(y) | "(weights)" %in% names(dc)) {
-            mf <- model.frame(obj)
-            y <- model.response(mf)
-            weights <- model.weights(mf)
-        } else {
-            y <- obj$y
-            if (!is.null(attr(obj, "ylevels")))
-                y <- factor(y, labels = attr(obj, "ylevels"))
-        }
+        y <- model.response(mf)
+        weights <- model.weights(mf)
         ret <- data.frame("(fitted)" = obj$where, "(response)" = y, check.names = FALSE)
         if (!is.null(weights)) ret[["(weights)"]] <- weights
         ret
     }
     fitted <- rpart_fitted()
-
-    rpart_modelframe0 <- function() {
-        ### extract metadata from terms
-        varnames <- names(attr(obj$terms, "dataClasses"))
-        classes <- as.vector(attr(obj$terms, "dataClasses"))
-        ylev <- list(attr(obj, "ylevels"))
-        names(ylev) <- metadata$varnames[1]
-        lev <- c(attr(obj, "xlevels"), ylev)
-        levels <- lapply(varnames, function(var) lev[[var]])
-
-        ### create data frame without obs from description
-	## currently we handle
-	stopifnot(all(classes %in% c("numeric", "integer", "factor", "ordered", "Surv")))
-        
-	mf <- rep(list(numeric(0)), length(varnames))
-	names(mf) <- varnames
-	wi <- which(classes %in% "integer")
-	mf[wi] <- rep(list(integer(0)), length(wi))
-	wi <- which(classes %in% "factor")
-	mf[wi] <- lapply(wi, function(i) factor(integer(0),
-	    levels = seq_along(levels[[i]]), labels = levels[[i]]))
-	wi <- which(classes %in% "ordered")
-	mf[wi] <- lapply(wi, function(i) factor(integer(0),
-	    levels = seq_along(levels[[i]]), labels = levels[[i]], ordered = TRUE))
-	wi <- which(classes %in% "Surv")
-        ## blank Surv object
-	surv <- structure(numeric(0), .Dim = c(0L, 2L), .Dimnames = list(NULL, c("time", "status")),
-	                  class = "Surv", type = "right")
-	mf[wi] <- rep(list(surv), length(wi))
-	mf <- structure(mf, row.names = integer(0), class = "data.frame")
-	mf
-    }
-    ### won't work because of dataClass problem in model.frames
-    ### mf <- rpart_modelframe0()
-    
-    mf <- model.frame(obj)[0,]
 
     rpart_kids <- function(i) {
         if (is.leaf[i]) return(NULL)
@@ -115,7 +70,7 @@ as.party.rpart <- function(obj, ...) {
 
     node <- rpart_node(1)
 
-    rval <- party(node = node, data = mf, fitted = fitted, terms = obj$terms)
+    rval <- party(node = node, data = mf[0,], fitted = fitted, terms = obj$terms)
     class(rval) <- c("cparty", class(rval))
     return(rval)
 }
