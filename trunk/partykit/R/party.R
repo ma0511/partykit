@@ -141,8 +141,6 @@ nodeapply <- function(party, ids = 1, FUN = NULL, by_node = TRUE, ...) {
     return(rval)
 }
 
-predict_party <- function(party, id, newdata = NULL, ...)
-    UseMethod("predict_party")
 
 predict.party <- function(object, newdata = NULL, ...)
 {
@@ -181,19 +179,22 @@ predict.party <- function(object, newdata = NULL, ...)
     predict_party(object, fitted, newdata, ...)
 }
 
+predict_party <- function(party, id, newdata = NULL, ...)
+    UseMethod("predict_party")
+
+
 predict_party.default <- function(party, id, newdata = NULL) {
 
 }
 
+### response: at scale of the response
+### prob: discrete densities, KM for survival
 predict_party.cparty <- function(object, id, newdata = NULL,
-    type = c("response", "prob", "node"), FUN = NULL, ...)
+    type = c("response", "prob", "node"), FUN = NULL, simplify = TRUE, ...)
 {
     ## match type
     type <- match.arg(type)
-    if (type == "node") {
-         names(id) <- rownames(newdata)
-         return(id)
-    }
+
   
     response <- object$fitted[["(response)"]]
     rname <- names(object$fitted["(response)"])
@@ -205,60 +206,72 @@ predict_party.cparty <- function(object, id, newdata = NULL,
     if(type == "node")
       return(structure(id, .Names = rname))
 
+
     myFUN <- FUN    
     if (is.null(myFUN)) {
-        myFUN <- switch(class(response)[1],
-                      "Surv" = function(y, w)
-                          survival:::survfit(y, weights = w, subset = w > 0),
+        rtype <- class(response)[1]
+        if (rtype == "ordered") rtype <- "factor"    
+        if (rtype == "integer") rtype <- "numeric"
+
+        myFUN <- switch(rtype,
+                      "Surv" = function(y, w) {
+                          sf <- survival:::survfit(y, weights = w, subset = w > 0)
+                          if (type == "response")
+                              sf <- party:::mst(sf) ### FIXME: Surv(mst)???, copy
+                          sf
+                      },
                       "factor" = function(y, w) {
                           sumw <- tapply(w, y, sum)
                           sumw[is.na(sumw)] <- 0
-                          sumw / sum(w)
+                          prob <- sumw / sum(w)
+                          names(prob) <- levels(response)
+                          if (type == "response")
+                              return(factor(which.max(prob), levels = 1:nlevels(response),
+                                            labels = levels(response), 
+                                            ordered = is.ordered(response)))
+                          return(prob)
                       },
-                      ### FIXME: really?
-                      "ordered" = function(y, w) {
-                          sumw <- tapply(w, y, sum)
-                          sumw[is.na(sumw)] <- 0
-                          sumw / sum(w)
-                      },
-                      "numeric" = function(y, w)
-                          weighted.mean(y, w),
-                      "integer" = function(y, w)
-                          weighted.mean(y, w))
+                      "numeric" = {
+                          if (type == "prob")
+                              stop(sQuote("type = \"prob\""), " ", "is not available")
+                          function(y, w)
+                              weighted.mean(y, w)
+                      })
     }
       
     ## empirical distribution in each leaf
-    tab <- tapply(1:NROW(response), fitted, function(i) myFUN(response[i], weights[i]))
-    if (!is.null(FUN)) return(tab[as.character(id)])
+    tab <- tapply(1:NROW(response), fitted, 
+                  function(i) myFUN(response[i], weights[i]), simplify = FALSE)
+    tn <- names(tab)
+    dim(tab) <- NULL
+    names(tab) <- tn
 
-    if (inherits(response, "Surv")) {
+    if (simplify) {
+        if (all(sapply(tab, length) == 1) & all(sapply(tab, is.atomic))) {
+            ret <- do.call("c", tab)
+            names(ret) <- names(tab)
+            ret <- if (is.factor(tab[[1]]))
+                factor(ret[as.character(id)], labels = levels(tab[[1]]),
+                       ordered = is.ordered(tab[[1]]))
+            else 
+                ret[as.character(id)]
+            names(ret) <- rownames(newdata)
+        } else if (length(unique(sapply(tab, length))) == 1 & 
+                   all(sapply(tab, is.numeric))) {
+            ret <- matrix(unlist(tab), nrow = length(tab), byrow = TRUE)
+            colnames(ret) <- names(tab[[1]])
+            rownames(ret) <- names(tab)
+            ret <- ret[as.character(id),, drop = FALSE]
+            rownames(ret) <- rownames(newdata)
+        } else {
+            ret <- tab[as.character(id)]
+            names(ret) <- rownames(newdata)
+        }
+    } else {
         ret <- tab[as.character(id)]
         names(ret) <- rownames(newdata)
-        return(ret)
     }
-
-    if (is.numeric(response)) {
-        ret <- as.vector(tab[as.character(id)])
-        names(ret) <- rownames(newdata)
-        return(ret)
-    }
-
-    ## handle different types
-    switch(type,
-        "prob" = {
-             ret <- matrix(unlist(tab[as.character(id)]), nrow = length(id), byrow = TRUE)
-             colnames(ret) <- levels(response)
-             rownames(ret) <- rownames(newdata)
-        },
-        "response" = {
-             ret <- sapply(tab, which.max)
-             names(ret) <- names(tab)
-             ret <- factor(ret[as.character(id)],
-                           labels = levels(response))
-             names(ret) <- rownames(newdata)
-        }
-    )  
-
+    
     return(ret)
 }
 
