@@ -41,3 +41,11 @@ aqp <- as.party(aqr)
 
 tmp <- subset(airquality, is.na(Ozone))
 all.equal(predict(aqr, newdata = tmp), predict(aqp, newdata = tmp))
+
+data("GBSG2", package = "ipred")
+library("survival")
+fit <- rpart(Surv(time, cens) ~ ., data = GBSG2)
+pfit <- as.party(fit)
+pfit$fitted
+predict(pfit, newdata = GBSG2[1:100,], type = "prob")
+predict(pfit, newdata = GBSG2[1:100,], type = "response")

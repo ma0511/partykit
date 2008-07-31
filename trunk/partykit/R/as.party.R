@@ -23,7 +23,9 @@ as.party.rpart <- function(obj, ...) {
     rpart_fitted <- function() {
         weights <- NULL
         dc <- attr(obj$terms, "dataClasses")
-        if (is.null(obj$y) | "(weights)" %in% names(dc)) {
+        y <- obj$y
+        if (obj$method == "exp") y <- NULL
+        if (is.null(y) | "(weights)" %in% names(dc)) {
             mf <- model.frame(obj)
             y <- model.response(mf)
             weights <- model.weights(mf)
