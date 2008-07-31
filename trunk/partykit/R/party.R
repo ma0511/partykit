@@ -172,10 +172,9 @@ predict.party <- function(object, newdata = NULL, ...)
                 mf <- model.frame(delete.response(object$terms), newdata)
                 fitted_node(node_party(object), mf, match(vnames, names(mf)))
             } else
-                stop("")
+                stop("") ## FIXME: write error message
         }
     }
-    # return(fitted)
     predict_party(object, fitted, newdata, ...)
 }
 
@@ -183,8 +182,9 @@ predict_party <- function(party, id, newdata = NULL, ...)
     UseMethod("predict_party")
 
 
-predict_party.default <- function(party, id, newdata = NULL) {
-
+predict_party.default <- function(party, id, newdata = NULL, ...) {
+  if(length(as.list(...)) > 0) warning("too many arguments") ## FIXME: improve warning message
+  return(structure(id, .Names = if(is.null(newdata)) rownames(object$fitted) else rownames(newdata)))
 }
 
 ### response: at scale of the response
@@ -192,19 +192,21 @@ predict_party.default <- function(party, id, newdata = NULL) {
 predict_party.cparty <- function(object, id, newdata = NULL,
     type = c("response", "prob", "node"), FUN = NULL, simplify = TRUE, ...)
 {
-    ## match type
-    type <- match.arg(type)
-
-  
+    ## extract fitted information
     response <- object$fitted[["(response)"]]
-    rname <- names(object$fitted["(response)"])
     weights <- object$fitted[["(weights)"]]
     fitted <- object$fitted[["(fitted)"]]
     if (is.null(weights)) weights <- rep(1, NROW(response))
 
+    ## get observation names
+    nam <- if(is.null(newdata)) rownames(object$fitted) else rownames(newdata)
+
+    ## match type
+    type <- match.arg(type)
+
     ## special case: fitted ids
     if(type == "node")
-      return(structure(id, .Names = rname))
+      return(structure(id, .Names = nam))
 
 
     myFUN <- FUN    
@@ -255,21 +257,21 @@ predict_party.cparty <- function(object, id, newdata = NULL,
                        ordered = is.ordered(tab[[1]]))
             else 
                 ret[as.character(id)]
-            names(ret) <- rownames(newdata)
+            names(ret) <- nam
         } else if (length(unique(sapply(tab, length))) == 1 & 
                    all(sapply(tab, is.numeric))) {
             ret <- matrix(unlist(tab), nrow = length(tab), byrow = TRUE)
             colnames(ret) <- names(tab[[1]])
             rownames(ret) <- names(tab)
             ret <- ret[as.character(id),, drop = FALSE]
-            rownames(ret) <- rownames(newdata)
+            rownames(ret) <- nam
         } else {
             ret <- tab[as.character(id)]
-            names(ret) <- rownames(newdata)
+            names(ret) <- nam
         }
     } else {
         ret <- tab[as.character(id)]
-        names(ret) <- rownames(newdata)
+        names(ret) <- nam
     }
     
     return(ret)
