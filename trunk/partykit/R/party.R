@@ -11,17 +11,22 @@ party <- function(node, data, fitted, terms = NULL, names = NULL) {
 
     stopifnot(inherits(node, "node"))
     stopifnot(inherits(data, "data.frame"))
-    stopifnot(inherits(fitted, "data.frame"))
-    stopifnot("(fitted)" == names(fitted)[1])
-    stopifnot(nrow(data) == 0 | nrow(data) == nrow(fitted))
+    
+    if(!is.null(fitted)) {
+       stopifnot(inherits(fitted, "data.frame"))
+        stopifnot("(fitted)" == names(fitted)[1])
+        stopifnot(nrow(data) == 0 | nrow(data) == nrow(fitted))
 
-    nt <- nodeids(node, terminal = TRUE)
-    stopifnot(all(fitted[["(fitted)"]] %in% nt))
+        nt <- nodeids(node, terminal = TRUE)
+        stopifnot(all(fitted[["(fitted)"]] %in% nt))
 
-    node <- as.node(node, from = 1L)
-    nt2 <- nodeids(node, terminal = TRUE)
-    fitted[["(fitted)"]] <- nt2[match(fitted[["(fitted)"]], nt)]
-
+        node <- as.node(node, from = 1L)
+        nt2 <- nodeids(node, terminal = TRUE)
+        fitted[["(fitted)"]] <- nt2[match(fitted[["(fitted)"]], nt)]
+    } else {
+        node <- as.node(node, from = 1L)
+    }
+    
     party <- list(node = node, data = data, fitted = fitted, 
                   terms = NULL, names = NULL)
     class(party) <- "party"
@@ -72,12 +77,18 @@ node_party <- function(party) {
     stopifnot(i <= length(x) & i >= 1)
     i <- as.integer(i)
     dat <- data_party(x, i)
-    findx <- which("(fitted)" == names(dat))[1]
-    fit <- dat[,findx:ncol(dat), drop = FALSE]
-    dat <- dat[,-(findx:ncol(dat)), drop = FALSE]
-    if (ncol(dat) == 0)
+    if (!is.null(x$fitted)) {
+        findx <- which("(fitted)" == names(dat))[1]
+        fit <- dat[,findx:ncol(dat), drop = FALSE]
+        dat <- dat[,-(findx:ncol(dat)), drop = FALSE]
+        if (ncol(dat) == 0)
+            dat <- x$data
+    } else {
+        fit <- NULL
         dat <- x$data
+    }
     nam <- names(x)[nodeids(x, from = i, terminal = FALSE)]
+
     recFun <- function(node) {
         if (id_node(node) == i) return(node)
         kid <- sapply(kids_node(node), id_node)
@@ -312,6 +323,11 @@ print_party.default <- function(party, id, newdata = NULL) {
 data_party.default <- function(party, id) {
     
     extract <- function(id) {
+        if(is.null(party$fitted))
+            if(nrow(party$data) == 0) return(NULL)
+        else
+            stop("cannot subset data without fitted ids")
+
         nt <- nodeids(party, id, terminal = TRUE)
         wi <- party$fitted[["(fitted)"]] %in% nt
         ret <- if (nrow(party$data) == 0)
