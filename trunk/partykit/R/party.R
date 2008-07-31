@@ -12,9 +12,17 @@ party <- function(node, data, fitted, terms = NULL, names = NULL) {
     stopifnot(inherits(node, "node"))
     stopifnot(inherits(data, "data.frame"))
     stopifnot(inherits(fitted, "data.frame"))
-    stopifnot("(fitted)" %in% names(fitted))
+    stopifnot("(fitted)" == names(fitted)[1])
+    stopifnot(nrow(data) == 0 | nrow(data) == nrow(fitted))
 
-    party <- list(node = as.node(node, from = 1L), data = data, fitted = fitted, 
+    nt <- nodeids(node, terminal = TRUE)
+    stopifnot(all(fitted[["(fitted)"]] %in% nt))
+
+    node <- as.node(node, from = 1L)
+    nt2 <- nodeids(node, terminal = TRUE)
+    fitted[["(fitted)"]] <- nt2[match(fitted[["(fitted)"]], nt)]
+
+    party <- list(node = node, data = data, fitted = fitted, 
                   terms = NULL, names = NULL)
     class(party) <- "party"
 
@@ -61,8 +69,23 @@ node_party <- function(party) {
 
 "[.party" <- "[[.party" <- function(x, i, ...) {
     stopifnot(length(i) == 1 & is.numeric(i))
-    ## FIXME: extract subtree, subset fitted, relabel fitted$"(fitted)"
-    x
+    stopifnot(i <= length(x) & i >= 1)
+    i <- as.integer(i)
+    dat <- data_party(x, i)
+    findx <- which("(fitted)" == names(dat))[1]
+    fit <- dat[,findx:ncol(dat), drop = FALSE]
+    dat <- dat[,-(findx:ncol(dat)), drop = FALSE]
+    if (ncol(dat) == 0)
+        dat <- x$data
+    nam <- names(x)[nodeids(x, from = i, terminal = FALSE)]
+    recFun <- function(node) {
+        if (id_node(node) == i) return(node)
+        kid <- sapply(kids_node(node), id_node)
+        return(recFun(node[[max(which(kid <= i))]]))
+    }
+    node <- recFun(node_party(x))
+
+    party(node = node, data = dat, fitted = fit, terms = x$terms, names = nam)
 }
 
 nodeids <- function(obj, ...)
@@ -208,42 +231,40 @@ predict_party.cparty <- function(object, id, newdata = NULL,
     if(type == "node")
       return(structure(id, .Names = nam))
 
-
-    myFUN <- FUN    
-    if (is.null(myFUN)) {
+    if (is.null(FUN)) {
         rtype <- class(response)[1]
         if (rtype == "ordered") rtype <- "factor"    
         if (rtype == "integer") rtype <- "numeric"
 
-        myFUN <- switch(rtype,
-                      "Surv" = function(y, w) {
-                          sf <- survival:::survfit(y, weights = w, subset = w > 0)
-                          if (type == "response")
-                              sf <- party:::mst(sf) ### FIXME: Surv(mst)???, copy
-                          sf
-                      },
-                      "factor" = function(y, w) {
-                          sumw <- tapply(w, y, sum)
-                          sumw[is.na(sumw)] <- 0
-                          prob <- sumw / sum(w)
-                          names(prob) <- levels(response)
-                          if (type == "response")
-                              return(factor(which.max(prob), levels = 1:nlevels(response),
-                                            labels = levels(response), 
-                                            ordered = is.ordered(response)))
-                          return(prob)
-                      },
-                      "numeric" = {
-                          if (type == "prob")
-                              stop(sQuote("type = \"prob\""), " ", "is not available")
-                          function(y, w)
-                              weighted.mean(y, w)
-                      })
+        FUN <- switch(rtype,
+                    "Surv" = function(y, w) {
+                        sf <- survival:::survfit(y, weights = w, subset = w > 0)
+                        if (type == "response")
+                            sf <- party:::mst(sf) ### FIXME: Surv(mst)???, copy
+                        sf
+                    },
+                    "factor" = function(y, w) {
+                        sumw <- tapply(w, y, sum)
+                        sumw[is.na(sumw)] <- 0
+                        prob <- sumw / sum(w)
+                        names(prob) <- levels(response)
+                        if (type == "response")
+                            return(factor(which.max(prob), levels = 1:nlevels(response),
+                                          labels = levels(response), 
+                                          ordered = is.ordered(response)))
+                        return(prob)
+                    },
+                    "numeric" = {
+                        if (type == "prob")
+                            stop(sQuote("type = \"prob\""), " ", "is not available")
+                        function(y, w)
+                            weighted.mean(y, w)
+                    })
     }
       
     ## empirical distribution in each leaf
     tab <- tapply(1:NROW(response), fitted, 
-                  function(i) myFUN(response[i], weights[i]), simplify = FALSE)
+                  function(i) FUN(response[i], weights[i]), simplify = FALSE)
     tn <- names(tab)
     dim(tab) <- NULL
     names(tab) <- tn
@@ -289,7 +310,19 @@ print_party.default <- function(party, id, newdata = NULL) {
 }
 
 data_party.default <- function(party, id) {
-    ## FIXME: merge "data" and "fitted" (if possible)
-    ## extract data/fitted for node "id"
+    
+    extract <- function(id) {
+        nt <- nodeids(party, id, terminal = TRUE)
+        wi <- party$fitted[["(fitted)"]] %in% nt
+        ret <- if (nrow(party$data) == 0)
+            subset(party$fitted, wi)
+        else
+            subset(cbind(party$data, party$fitted), wi)
+        ret
+    }
+    if (length(id) > 1)
+        return(lapply(id, extract))
+    else 
+        return(extract(id))
 }
 
