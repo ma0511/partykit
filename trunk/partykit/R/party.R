@@ -192,8 +192,10 @@ predict.party <- function(object, newdata = NULL, ...)
             if(is.null(surr)) return(NULL) else return(sapply(surr, varid_split))
         })
         vnames <- names(object$data)
-        unames <- if(any(sapply(newdata, is.na))) vnames[unique(unlist(c(primary_vars, surrogate_vars)))]
-            else vnames[unique(unlist(primary_vars))]
+        unames <- if(any(sapply(newdata, is.na))) 
+            vnames[unique(unlist(c(primary_vars, surrogate_vars)))]
+        else 
+            vnames[unique(unlist(primary_vars))]
         vclass <- structure(lapply(object$data, class), .Names = vnames)
         ndnames <- names(newdata)
         ndclass <- structure(lapply(newdata, class), .Names = ndnames)

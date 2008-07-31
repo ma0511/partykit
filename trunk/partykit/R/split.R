@@ -135,8 +135,9 @@ kidids_split <- function(split, data, vmatch = 1:ncol(data), obs = NULL) {
     } else {
         ### FIXME: rpart may have double splits for integer variables
         # stopifnot(storage.mode(x) == storage.mode(split$breaks))
-        x <- as.integer(cut(as.numeric(x), breaks = c(-Inf, breaks_split(split), Inf), 
-                            right = right_split(split)))
+        x <- as.integer(cut.default(as.numeric(x), 
+                 breaks = c(-Inf, breaks_split(split), Inf), 
+                 right = right_split(split)))
     }
     index <- index_split(split)
     if (!is.null(index))

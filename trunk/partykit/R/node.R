@@ -102,9 +102,11 @@ fitted_node <- function(node, data, vmatch = 1:ncol(data), obs = 1:nrow(data)) {
     if (is.terminal(node))
         return(rep(id_node(node), length(obs)))
     retid <- nextid <- kidids_node(node, data, vmatch, obs)
-    for (i in unique(nextid))
-        retid[nextid == i] <- fitted_node(kids_node(node)[[i]], data,
-                                          vmatch, obs[nextid == i])
+    for (i in unique(nextid)) {
+        indx <- nextid == i
+        retid[indx] <- fitted_node(kids_node(node)[[i]], data,
+                                   vmatch, obs[indx])
+    }
     return(retid)
 }
 

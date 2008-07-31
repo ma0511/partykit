@@ -49,3 +49,12 @@ pfit <- as.party(fit)
 pfit$fitted
 predict(pfit, newdata = GBSG2[1:100,], type = "prob")
 predict(pfit, newdata = GBSG2[1:100,], type = "response")
+
+dgp <- function(n)
+    data.frame(y = gl(4, n), x1 = rnorm(4 * n), x2 = rnorm(4 * n))
+
+learn <- dgp(100)
+fit <- as.party(rpart(y ~ ., data = learn))
+test <- dgp(100000)
+system.time(id <- fitted_node(node_party(fit), test))
+system.time(yhat <- predict_party(fit, id = id, newdata = test))
