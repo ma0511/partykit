@@ -192,10 +192,15 @@ predict.party <- function(object, newdata = NULL, ...)
             if(is.null(surr)) return(NULL) else return(sapply(surr, varid_split))
         })
         vnames <- names(object$data)
-        unames <- if(any(sapply(newdata, is.na))) 
-            vnames[unique(unlist(c(primary_vars, surrogate_vars)))]
-        else 
-            vnames[unique(unlist(primary_vars))]
+
+        ## ## FIXME: the is.na() call takes loooong on large data sets
+        ## unames <- if(any(sapply(newdata, is.na))) 
+        ##     vnames[unique(unlist(c(primary_vars, surrogate_vars)))]
+        ## else 
+        ##     vnames[unique(unlist(primary_vars))]
+	## ## FIXME: currently do not check names/class of surrogate vars
+	unames <- vnames[unique(unlist(primary_vars))]
+	
         vclass <- structure(lapply(object$data, class), .Names = vnames)
         ndnames <- names(newdata)
         ndclass <- structure(lapply(newdata, class), .Names = ndnames)
@@ -287,8 +292,8 @@ predict_party.cparty <- function(object, id, newdata = NULL,
             ret <- do.call("c", tab)
             names(ret) <- names(tab)
             ret <- if (is.factor(tab[[1]]))
-                factor(ret[as.character(id)], labels = levels(tab[[1]]),
-                       ordered = is.ordered(tab[[1]]))
+                factor(ret[as.character(id)], levels = 1:length(levels(tab[[1]])),
+		       labels = levels(tab[[1]]), ordered = is.ordered(tab[[1]]))
             else 
                 ret[as.character(id)]
             names(ret) <- nam
