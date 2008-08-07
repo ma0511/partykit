@@ -152,6 +152,6 @@ width <- function(x, ...)
 
 width.node <- function(x) {
     if (is.terminal(x)) return(1)
-    sum(sapply(kids_node(x), nterminal))
+    sum(sapply(kids_node(x), width.node))
 }
 
