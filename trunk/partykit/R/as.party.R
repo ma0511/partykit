@@ -63,9 +63,19 @@ as.party.rpart <- function(obj, ...) {
 
     rpart_node <- function(i) {
         if (is.null(rpart_kids(i))) return(node(as.integer(i)))
-        node(as.integer(i), split = rpart_split(i),
-	     kids = lapply(rpart_kids(i), rpart_node),
-	     surrogates = rpart_surrogates(i))
+        nd <- node(as.integer(i), split = rpart_split(i),
+	           kids = lapply(rpart_kids(i), rpart_node),
+	           surrogates = rpart_surrogates(i))
+
+        ### determine majority for (non-random) splitting
+        left <- nodeids(kids_node(nd)[[1]], terminal = TRUE)
+        right <- nodeids(kids_node(nd)[[2]], terminal = TRUE)
+        nd$split$prob <- c(0, 0)
+        nl <- sum(fitted[["(fitted)"]] %in% left)
+        nr <- sum(fitted[["(fitted)"]] %in% right)
+        nd$split$prob <- if (nl > nr) c(1, 0) else c(0, 1)
+        nd$split$prob <- as.double(nd$split$prob)
+        return(nd)
     }
 
     node <- rpart_node(1)

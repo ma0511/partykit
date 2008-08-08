@@ -92,7 +92,7 @@ kidids_node <- function(node, data, vmatch = 1:ncol(data), obs = NULL) {
         ### random splits
         if (any(nax)) {
             prob <- prob_split(primary)
-            x[nax] <- sample(1:length(prob), sum(nax), prob = prob)
+            x[nax] <- sample(1:length(prob), sum(nax), prob = prob, replace = TRUE)
         }
     }
     return(x)

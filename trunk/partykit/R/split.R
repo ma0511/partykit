@@ -111,12 +111,13 @@ prob_split <- function(split) {
     if (!is.null(prob)) return(prob)
 
     if (is.null(index <- index_split(split))) {
-        stop("neither", " ", sQuote("prob"), " ", "nor", " ", 
-             sQuote("index"), " ", "given for", " ", sQuote("split"))
+        if (is.null(breaks <- breaks_split(split)))
+            stop("neither", " ", sQuote("prob"), " ", "nor", " ", 
+                 sQuote("index"), " ", "or", sQuote("breaks"), " ", "given for", " ", sQuote("split"))
+        index <- 1:(length(breaks) + 1)
     }
-    nd <- max(index, na.rm = TRUE)
-    prob <- rep(1, nd) / nd
-    return(prob)
+    prob <- !is.na(index)
+    return(prob / sum(prob, na.rm = TRUE))
 }
 
 info_split <- function(split) {
