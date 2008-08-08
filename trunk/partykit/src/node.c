@@ -41,7 +41,7 @@ int is_terminal_node(SEXP node) {
 int kidid_node(SEXP node, SEXP data, SEXP vmatch, int obs) {
 
     SEXP primary, surrogates, prob;
-    int ret;
+    int ret = NA_INTEGER;
     int i;
     double *dprob;
 
@@ -62,18 +62,23 @@ int kidid_node(SEXP node, SEXP data, SEXP vmatch, int obs) {
         }
         /* random splits */
         if (ret == NA_INTEGER) {
-            Rprintf("Random: %d \n", obs + 1);
             prob = prob_split(primary);
-            Rprintf("prob: %f\n", REAL(prob)[0]);
+         
+            /* sample(index, 1, prob) */
             dprob = Calloc(LENGTH(prob) - 1, double);
             dprob[0] = REAL(prob)[0];
             for (i = 1; i < LENGTH(prob) - 1; i++)
                 dprob[i] = REAL(prob)[i] + dprob[i - 1];
             ret = cut(unif_rand(), dprob, LENGTH(prob) - 1, 1);
-            Rprintf("cut %d\n", ret);
             Free(dprob);
         }
     }
+
+    /* just in case ... */
+    if (ret == NA_INTEGER)
+        error("failed to predict kidid from node %d for observation %d\n", 
+              id_node(node), obs);
+
     return(ret);
 }
 

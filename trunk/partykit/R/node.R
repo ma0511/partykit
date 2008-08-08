@@ -1,3 +1,6 @@
+
+### dyn.load("../src/partykit.so")
+
 node <- function(id, split = NULL, kids = NULL, surrogates = NULL, info = NULL) {
 
     if (!is.integer(id) || length(id) != 1)
@@ -99,6 +102,9 @@ kidids_node <- function(node, data, vmatch = 1:ncol(data), obs = NULL) {
 }
 
 fitted_node <- function(node, data, vmatch = 1:ncol(data), obs = 1:nrow(data)) {
+
+    ### return(.Call("R_fitted_node", node, data, vmatch, as.integer(obs)))
+
     if (is.terminal(node))
         return(rep(id_node(node), length(obs)))
     retid <- nextid <- kidids_node(node, data, vmatch, obs)

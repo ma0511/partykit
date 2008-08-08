@@ -45,7 +45,6 @@ SEXP R_fitted_node(SEXP node, SEXP data, SEXP vmatch, SEXP obs) {
         INTEGER(ans)[i] = fitted_node(node, data, vmatch, INTEGER(obs)[i] - 1);
 
     PutRNGstate();
-        
 
     UNPROTECT(1);
     return(ans);

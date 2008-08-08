@@ -10,10 +10,4 @@
 void init_split(SEXP varid, SEXP breaks, SEXP index, SEXP right,
                 SEXP prob, SEXP info, SEXP split);
 int kidid_split(SEXP split, SEXP data, SEXP vmatch, int obs);                
-
-int varid_split(SEXP split);
-SEXP breaks_split(SEXP split);
-SEXP index_split(SEXP split);
-int right_split(SEXP split);
 SEXP prob_split(SEXP split);
-SEXP info_split(SEXP split);
