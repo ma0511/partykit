@@ -1,4 +1,5 @@
 
+#include "partykit.h"
 #include "split.h"
 
 void init_split(SEXP varid, SEXP breaks, SEXP index, SEXP right,
@@ -17,17 +18,6 @@ void init_split(SEXP varid, SEXP breaks, SEXP index, SEXP right,
     SET_VECTOR_ELT(split, RIGHT_SPLIT, right);
     SET_VECTOR_ELT(split, PROB_SPLIT, prob);
     SET_VECTOR_ELT(split, INFO_SPLIT, info);
-}
-
-SEXP R_split(SEXP varid, SEXP breaks, SEXP index, SEXP right,
-             SEXP prob, SEXP info) {
-             
-    SEXP split;
-    
-    PROTECT(split = allocVector(VECSXP, LENGTH_SPLIT));
-    init_split(varid, breaks, index, right, prob, info, split);
-    UNPROTECT(1);
-    return(split);
 }
 
 int varid_split(SEXP split) {
@@ -52,7 +42,23 @@ int right_split(SEXP split) {
 
 SEXP prob_split(SEXP split) {
 
-    return(VECTOR_ELT(split, PROB_SPLIT));
+    SEXP prob, index;
+    double sum = 0.0;
+    int i;
+
+    prob = VECTOR_ELT(split, PROB_SPLIT);
+    if (prob != R_NilValue)
+        return(prob);
+        
+    index = index_split(split);
+    SET_VECTOR_ELT(split, PROB_SPLIT, prob = allocVector(REALSXP, LENGTH(index)));
+    for (i = 0; i < LENGTH(index); i++) {
+        REAL(prob)[i] = (double) (INTEGER(index)[i] != NA_INTEGER);
+        sum += REAL(prob)[i];
+    }
+    for (i = 0; i < LENGTH(index); i++)
+        REAL(prob)[i] = REAL(prob)[i] / sum;
+    return(prob);
 }
 
 SEXP info_split(SEXP split) {
@@ -65,26 +71,6 @@ SEXP split_data(SEXP split, SEXP data, SEXP vmatch) {
     if (vmatch == R_NilValue)
         return(VECTOR_ELT(data, varid_split(split) - 1));
     return(VECTOR_ELT(data, INTEGER(vmatch)[varid_split(split) - 1] - 1));
-}
-
-int cut(double x, double *breaks, int n, int right) {
-
-    int ret, i;
-
-    ret = NA_INTEGER;
-    if (x > breaks[n - 1]) {
-        ret = n;
-    } else {
-        for (i = 0; i < n; i++) {
-            if (x <= breaks[i]) {
-                ret = i;
-                break;
-            }
-        }
-        if (!right)
-            if (x == breaks[ret]) ret++;
-    }
-    return(ret);
 }
 
 double x2d(SEXP x, int obs) {
@@ -118,23 +104,4 @@ int kidid_split(SEXP split, SEXP data, SEXP vmatch, int obs) {
     }
 
     return(ret);
-}
-
-SEXP R_kidids_split(SEXP split, SEXP data, SEXP vmatch, SEXP obs) {
-
-    SEXP ans;
-    int i, tmp;   
-        
-    PROTECT(ans = allocVector(INTSXP, LENGTH(obs)));
-    for (i = 0; i < LENGTH(ans); i++) {
-        tmp = kidid_split(split, data, vmatch, INTEGER(obs)[i] - 1);
-        if (tmp != NA_INTEGER) {
-            INTEGER(ans)[i] = tmp + 1;
-        } else {
-            INTEGER(ans)[i] = NA_INTEGER;
-        }
-        
-    }
-    UNPROTECT(1);
-    return(ans);
 }
