@@ -1,4 +1,6 @@
 
+### cd ../src
+### R CMD SHLIB *.c -o partykit.so
 ### dyn.load("../src/partykit.so")
 
 node <- function(id, split = NULL, kids = NULL, surrogates = NULL, info = NULL) {
@@ -103,6 +105,7 @@ kidids_node <- function(node, data, vmatch = 1:ncol(data), obs = NULL) {
 
 fitted_node <- function(node, data, vmatch = 1:ncol(data), obs = 1:nrow(data)) {
 
+    ### should be equivalent to:
     ### return(.Call("R_fitted_node", node, data, vmatch, as.integer(obs)))
 
     if (is.terminal(node))

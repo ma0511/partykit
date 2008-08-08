@@ -1,4 +1,12 @@
 
+/**
+    infrastructure for nodes
+    *\file utils.c
+    *\author $Author$
+    *\date $Date$
+*/
+
+
 #include "partykit.h"
 #include "node.h"
 #include "split.h"
@@ -37,6 +45,15 @@ int is_terminal_node(SEXP node) {
     }
     return(0);
 }
+
+/**
+    determine the child node observation obs has to go into based
+    on one all available splits (primary, surrogate, random).
+    *\param node a node object
+    *\param data a list
+    *\param vmatch an integer for permuting variables
+    *\param obs observation number (starting with 0)
+*/
     
 int kidid_node(SEXP node, SEXP data, SEXP vmatch, int obs) {
 
@@ -53,18 +70,18 @@ int kidid_node(SEXP node, SEXP data, SEXP vmatch, int obs) {
 
     /* surrogate / random splits if needed */
     if (ret == NA_INTEGER) {
-        /* surrogate splits */
+        /* surrogate splits first */
         if (LENGTH(surrogates) >= 1) {
             for (i = 0; i < LENGTH(surrogates); i++) {
                 if (ret != NA_INTEGER) break;
                 ret = kidid_split(VECTOR_ELT(surrogates, i), data, vmatch, obs);
             }
         }
-        /* random splits */
+
+        /* random splits when necessary */
         if (ret == NA_INTEGER) {
             prob = prob_split(primary);
-         
-            /* sample(index, 1, prob) */
+            /* the following equals sample(index, 1, prob) */
             dprob = Calloc(LENGTH(prob) - 1, double);
             dprob[0] = REAL(prob)[0];
             for (i = 1; i < LENGTH(prob) - 1; i++)
@@ -79,14 +96,33 @@ int kidid_node(SEXP node, SEXP data, SEXP vmatch, int obs) {
         error("failed to predict kidid from node %d for observation %d\n", 
               id_node(node), obs);
 
+    /* ret is in 0, ..., LENGTH(kidid_split(node)) - 1 */
     return(ret);
 }
 
+/**
+    determine the terminal node id for observation obs.
+    *\param node a node object
+    *\param data a list
+    *\param vmatch an integer for permuting variables
+    *\param obs observation number (starting with 0)
+*/
+
 int fitted_node(SEXP node, SEXP data, SEXP vmatch, int obs) {
 
+    int kidid, ret;
+    
+    /* return the id of the terminal node */
     if (is_terminal_node(node))
         return(id_node(node));
-    return(fitted_node(VECTOR_ELT(kids_node(node), 
-                                  kidid_node(node, data, vmatch, obs)), 
-                       data, vmatch, obs));
+    
+    /* determine next child node */
+    kidid = kidid_node(node, data, vmatch, obs);
+    
+    /* send observation down to node kidid (recursively!) */
+    ret = fitted_node(VECTOR_ELT(kids_node(node), kidid), 
+                      data, vmatch, obs);
+
+    /* ret is in 1, ..., #nodes */
+    return(ret);
 }

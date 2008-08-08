@@ -1,19 +1,24 @@
 
+/**
+    .Call interfaces
+    *\file utils.c
+    *\author $Author$
+    *\date $Date$
+*/
+
 #include "partykit.h"
 #include "split.h"
 #include "node.h"
 
-SEXP R_split(SEXP varid, SEXP breaks, SEXP index, SEXP right,
-             SEXP prob, SEXP info) {
-             
-    SEXP split;
-    
-    PROTECT(split = allocVector(VECSXP, LENGTH_SPLIT));
-    init_split(varid, breaks, index, right, prob, info, split);
-    UNPROTECT(1);
-    return(split);
-}
-
+/**
+    determine the child node observations obs has to go into based
+    on one split (either primary or surrogate)
+    *\param split a split object
+    *\param data a list
+    *\param vmatch an integer for permuting variables
+    *\param obs integer vector of observation numbers
+*/
+                
 SEXP R_kidids_split(SEXP split, SEXP data, SEXP vmatch, SEXP obs) {
 
     SEXP ans;
@@ -33,11 +38,20 @@ SEXP R_kidids_split(SEXP split, SEXP data, SEXP vmatch, SEXP obs) {
     return(ans);
 }
 
+/**
+    determine the terminal node id for observations obs.
+    *\param node a node object
+    *\param data a list
+    *\param vmatch an integer for permuting variables
+    *\param obs integer vector of observation numbers
+*/
+
 SEXP R_fitted_node(SEXP node, SEXP data, SEXP vmatch, SEXP obs) {
 
     SEXP ans;
     int i;
 
+    /* we might want to do random splitting */
     GetRNGstate();
          
     PROTECT(ans = allocVector(INTSXP, LENGTH(obs)));

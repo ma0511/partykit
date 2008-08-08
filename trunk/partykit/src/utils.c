@@ -1,5 +1,23 @@
 
+/**
+    utility functions.
+    *\file utils.c
+    *\author $Author$
+    *\date $Date$
+*/
+
 #include "partykit.h"
+
+/**
+    determine in which of the n intervals given by  
+    (-Inf, breaks[0]], (breaks[0], breaks[1]], ..., (breaks[n - 1], +Inf)
+    the observation x falls (intervals are numbered 0, ..., n).
+    *\param x observation
+    *\param breaks ordered cutpoints
+    *\param n length(breaks)
+    *\param right logical: TRUE means intervals are closed on the right, 
+                  FALSE closed on the left
+*/
 
 int cut(double x, double *breaks, int n, int right) {
 
@@ -8,6 +26,7 @@ int cut(double x, double *breaks, int n, int right) {
     ret = NA_INTEGER;
     if (ISNA(x)) return(ret);
 
+    /* x falls in last intervall */
     if (x > breaks[n - 1]) {
         ret = n;
     } else {
@@ -17,8 +36,10 @@ int cut(double x, double *breaks, int n, int right) {
                 break;
             }
         }
+        /* intervals are closed on the left */
         if (!right)
             if (x == breaks[ret]) ret++;
     }
+    /* ret is in 0, ..., n */
     return(ret);
 }
