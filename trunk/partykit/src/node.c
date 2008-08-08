@@ -80,5 +80,5 @@ int fitted_node(SEXP node, SEXP data, SEXP vmatch, int obs) {
         return(id_node(node));
     return(fitted_node(VECTOR_ELT(kids_node(node), 
                                   kidid_node(node, data, vmatch, obs)), 
-                      data, vmatch, obs));
+                       data, vmatch, obs));
 }

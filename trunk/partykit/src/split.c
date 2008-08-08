@@ -76,8 +76,12 @@ SEXP split_data(SEXP split, SEXP data, SEXP vmatch) {
 double x2d(SEXP x, int obs) {
 
     double ret = NA_REAL;
+
     if (isReal(x)) ret = REAL(x)[obs];
-    if (isInteger(x)) ret = (double) INTEGER(x)[obs];
+    if (isInteger(x)) {
+        if (INTEGER(x)[obs] != NA_INTEGER)
+            ret = (double) INTEGER(x)[obs];
+    }
     /* if (ISNA(ret)) error("can't coerce x to REAL or INTEGER"); */
     return(ret);
 }
@@ -86,22 +90,23 @@ int kidid_split(SEXP split, SEXP data, SEXP vmatch, int obs) {
 
     SEXP x, breaks;
     int i, ret = NA_INTEGER;
-    double dx;
 
     x = split_data(split, data, vmatch);
     breaks = breaks_split(split);
     if (breaks == R_NilValue) {
         if (!isInteger(x)) error("x is not an integer");
-        ret = INTEGER(x)[obs] - 1;
+        ret = INTEGER(x)[obs];
+        if (ret != NA_INTEGER) ret = ret - 1;
     } else {
         ret = cut(x2d(x, obs), REAL(breaks), LENGTH(breaks), 
                   right_split(split));
     }
 
     if (ret != NA_INTEGER) {
-        if (index_split(split) != R_NilValue)
-           ret = INTEGER(index_split(split))[ret] - 1;
+        if (index_split(split) != R_NilValue) {
+           ret = INTEGER(index_split(split))[ret];
+           if (ret != NA_INTEGER) ret = ret - 1;
+        }
     }
-
     return(ret);
 }
