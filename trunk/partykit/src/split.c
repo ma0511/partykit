@@ -42,7 +42,7 @@ int right_split(SEXP split) {
 
 SEXP prob_split(SEXP split) {
 
-    SEXP prob, index;
+    SEXP prob, index, breaks;
     double sum = 0.0;
     int i;
 
@@ -51,6 +51,14 @@ SEXP prob_split(SEXP split) {
         return(prob);
         
     index = index_split(split);
+    if (index == R_NilValue) {
+        breaks = breaks_split(split);
+        if (breaks == R_NilValue)
+            error("prob, index and breaks are missing");
+        SET_VECTOR_ELT(split, INDEX_SPLIT, index = allocVector(INTSXP, LENGTH(breaks) + 1));
+        for (i = 0; i <= LENGTH(breaks); i++)
+            INTEGER(index)[i] = i + 1;
+    } 
     SET_VECTOR_ELT(split, PROB_SPLIT, prob = allocVector(REALSXP, LENGTH(index)));
     for (i = 0; i < LENGTH(index); i++) {
         REAL(prob)[i] = (double) (INTEGER(index)[i] != NA_INTEGER);

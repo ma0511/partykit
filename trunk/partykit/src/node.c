@@ -62,12 +62,15 @@ int kidid_node(SEXP node, SEXP data, SEXP vmatch, int obs) {
         }
         /* random splits */
         if (ret == NA_INTEGER) {
+            Rprintf("Random: %d \n", obs + 1);
             prob = prob_split(primary);
+            Rprintf("prob: %f\n", REAL(prob)[0]);
             dprob = Calloc(LENGTH(prob) - 1, double);
             dprob[0] = REAL(prob)[0];
-            for (i = 1; i = LENGTH(prob) - 1; i++)
+            for (i = 1; i < LENGTH(prob) - 1; i++)
                 dprob[i] = REAL(prob)[i] + dprob[i - 1];
             ret = cut(unif_rand(), dprob, LENGTH(prob) - 1, 1);
+            Rprintf("cut %d\n", ret);
             Free(dprob);
         }
     }
