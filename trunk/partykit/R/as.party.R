@@ -105,7 +105,7 @@ as.party.J48 <- function(obj, ...) {
   ## construct metadata
   mf <- model.frame(obj)
   mf_class <- sapply(mf, class)
-  mf_class <- lapply(mf, levels)
+  mf_levels <- lapply(mf, levels)
 
   x <- .jcall(obj$classifier, "S", "graph")
   x <- RWeka:::parse_Weka_digraph(x, plainleaf = TRUE)

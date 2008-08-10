@@ -3,7 +3,7 @@ nobs_party <- function(party, id = 1) {
   if("(weights)" %in% names(dat)) sum(dat[["(weights)"]]) else NROW(dat)
 }
 
-node_inner <- function(obj, id = TRUE, abbreviate = FALSE, fill = "white")
+node_inner <- function(obj, id = TRUE, abbreviate = FALSE, fill = "white", gp = gpar())
 {
   meta <- obj$data
   nam <- names_party(obj)
@@ -36,7 +36,8 @@ node_inner <- function(obj, id = TRUE, abbreviate = FALSE, fill = "white")
       y = unit(0.5, "npc"),
       width = unit(1, "strwidth", nstr) * 1.3, 
       height = unit(3, "lines"),
-      name = paste("node_inner", id_node(node), sep = "")
+      name = paste("node_inner", id_node(node), sep = ""),
+      gp = gp
     )
     pushViewport(node_vp)
 
@@ -76,12 +77,13 @@ node_terminal <- function(obj,
                           digits = 3,
 		          abbreviate = FALSE,
 		          fill = c("lightgray", "white"),
-		          id = TRUE)
+		          id = TRUE,
+			  gp = gpar())
 {
   nam <- names_party(obj)
 
   extract_label <- function(node) {
-    return(c("", ""))
+    return(c("terminal", "node"))
     ## FIXME: re-use print method
   }
 
@@ -103,7 +105,8 @@ node_terminal <- function(obj,
       y = unit(0.5, "npc"),   
       width = unit(1, "strwidth", nstr) * 1.1,
       height = unit(3, "lines"),
-      name = paste("node_terminal", id_node(node), sep = "")
+      name = paste("node_terminal", id_node(node), sep = ""),
+      gp = gp
     )
     pushViewport(node_vp)
 
@@ -135,13 +138,9 @@ edge_simple <- function(obj, digits = 3, abbreviate = FALSE)
   ### panel function for simple edge labelling
   function(node, i) {
     split <- character_split(split_node(node), meta)$levels[i]
-
-	### <FIXME> phantom and . functions cannot be found by
-	###	    codetools
-	### </FIXME>
-	## if (left) split <- as.expression(bquote(phantom(0) <= .(split)))
-	##    else split <- as.expression(bquote(phantom(0) > .(split)))
-
+    ## FIXME: can this be improved?
+    if(any(grep(">=", split) > 0) | any(grep("<=", split) > 0))
+      split <- parse(text = paste("phantom(0)", split))
     grid.rect(gp = gpar(fill = "white", col = 0), width = unit(1, "strwidth", split)) 
     grid.text(split, just = "center")
   }
@@ -153,7 +152,7 @@ plot_node <- function(node, xlim, ylim, nx, ny,
 	       tnex = 2, drop_terminal = TRUE, debug = FALSE) {
 
     ### the workhorse for plotting trees
-
+ 
     ### set up viewport for terminal node
     if (is.terminal(node)) {
         x <- xlim[1] + diff(xlim)/2
@@ -196,15 +195,12 @@ plot_node <- function(node, xlim, ylim, nx, ny,
 
     ### relative positions of kids
     xfrac <- sapply(kids, pos_frac)
-
-    ### position of left and right daugher node
-    x1l <- xlim[1] + (x0 - xlim[1]) * lf
-    x1r <- x0 + (xlim[2] - x0) * rf
-    
+    x1lim <- xlim[1] + cumsum(c(0, width_kids))/sum(width_kids) * diff(xlim)
+    x1 <- x1lim[1:nk] + xfrac * diff(x1lim)
     if (!drop_terminal) {
-        y1k <- rep(y0 - 1, nk)
+        y1 <- rep(y0 - 1, nk)
     } else {
-        y1k <- ifelse(sapply(kids, is.terminal), tnex - 0.5, y0 - 1)
+        y1 <- ifelse(sapply(kids, is.terminal), tnex - 0.5, y0 - 1)
     }
 
     ### draw edges
@@ -222,27 +218,26 @@ plot_node <- function(node, xlim, ylim, nx, ny,
     upViewport()
 
     ### position of labels
-    y1max <- max(y1k)
+    y1max <- max(y1)
     ypos <- y0 - (y0 - y1max) * 0.5
-    xlpos <- x0 - (x0 - x1l) * 0.5 * (y0 - y1lr)/(y0 - y1l)
-    xrpos <- x0 - (x0 - x1r) * 0.5 * (y0 - y1lr)/(y0 - y1r)
+    xpos <- x0 - (x0 - x1) * 0.5 * (y0 - y1max)/(y0 - y1)
 
     ### setup labels
     for(i in 1:nk) {
-      lsp_vp <- viewport(x = unit(xlpos, "native"),
-                         y = unit(ypos, "native"),
-                         width = unit(xlpos - xrpos, "native"),
-                         height = unit(1, "lines"), 
-                         name =  paste("ledge", id_node(node), sep = ""))
-      pushViewport(lsp_vp)
+      sp_vp <- viewport(x = unit(xpos[i], "native"),
+                        y = unit(ypos, "native"),
+                        width = unit(diff(x1lim)[i], "native"),
+                        height = unit(1, "lines"), 
+                        name =  paste("edge", id_node(node), "-", i, sep = ""))
+      pushViewport(sp_vp)
       if(debug) grid.rect(gp = gpar(lty = "dotted", col = 2))
-      edge_panel(split, i)
+      edge_panel(node, i)
       upViewport()
     }
 
     ## call workhorse for kids
-    for(i in 1:nk) plot_node(kids[i],
-      c(xlim[1], x0), c(y1l, 1), nx, ny, 
+    for(i in 1:nk) plot_node(kids[[i]],
+      c(x1lim[i], x1lim[i+1]), c(y1[i], 1), nx, ny, 
       terminal_panel, inner_panel, edge_panel,
       tnex = tnex, drop_terminal = drop_terminal, debug = debug)
 }
@@ -256,6 +251,7 @@ plot.party <- function(x, main = NULL, type = "simple", ## FIXME: remove, was: c
 		       tnex = (type[1] == "extended") + 1, 
 		       newpage = TRUE,
 		       pop = TRUE,
+		       gp = gpar(),
 		       ...) {
 
     ### extract tree
@@ -290,7 +286,8 @@ plot.party <- function(x, main = NULL, type = "simple", ## FIXME: remove, was: c
                                       c("lines", "null", "lines")),
     			width = unit(c(1, 1, 1), 
                                      c("lines", "null", "lines"))), 
-    			name = "root")       
+    			name = "root",
+			gp = gp)       
     pushViewport(root_vp)
   
     ## viewport for main title (if any)
