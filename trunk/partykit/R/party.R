@@ -241,6 +241,7 @@ predict_party.cparty <- function(object, id, newdata = NULL,
 
     ## get observation names
     nam <- if(is.null(newdata)) rownames(object$fitted) else rownames(newdata)
+    if(length(nam) != length(id)) nam <- NULL
 
     ## match type
     type <- match.arg(type)

@@ -28,6 +28,7 @@ node_inner <- function(obj, id = TRUE, abbreviate = FALSE, fill = "white", gp = 
   }
 
   nstr <- maxstr(node_party(obj))
+  if(nchar(nstr) < 6) nstr <- "aAAAAa"
 
   ### panel function for the inner nodes
   rval <- function(node) {  
@@ -92,7 +93,7 @@ node_terminal <- function(obj,
       klab <- if(is.terminal(node)) "" else unlist(lapply(kids_node(node), maxstr))
       lab <- c(lab, klab)
       lab <- unlist(lapply(lab, function(x) strsplit(x, "\n")))
-      return(lab[which.max(nchar(lab))]) ## FIXME: nchar?
+      return(lab[which.max(nchar(lab))])
   }
 
   nstr <- maxstr(node_party(obj))
@@ -243,16 +244,13 @@ plot_node <- function(node, xlim, ylim, nx, ny,
 }
 
 
-plot.party <- function(x, main = NULL, type = "simple", ## FIXME: remove, was: c("extended", "simple"),
-                       terminal_panel = NULL, tp_args = list(),
+plot.party <- function(x, main = NULL,
+                       terminal_panel = node_terminal, tp_args = list(),
 		       inner_panel = node_inner, ip_args = list(),
                        edge_panel = edge_simple, ep_args = list(),
-		       drop_terminal = (type[1] == "extended"),
-		       tnex = (type[1] == "extended") + 1, 
-		       newpage = TRUE,
-		       pop = TRUE,
-		       gp = gpar(),
-		       ...) {
+		       drop_terminal = FALSE, tnex = 1, 
+		       newpage = TRUE, pop = TRUE, gp = gpar(), ...)
+{
 
     ### extract tree
     node <- node_party(x)
@@ -260,22 +258,6 @@ plot.party <- function(x, main = NULL, type = "simple", ## FIXME: remove, was: c
     nx <- width(node)
     ### maximal depth of the tree
     ny <- depth(node)
-
-    ### compute default settings
-    type <- match.arg(type)
-    if (type == "simple") {
-        if (is.null(terminal_panel)) 
-            terminal_panel <- node_terminal
-        if (is.null(tnex)) tnex <- 1
-    } else {
-        if (is.null(terminal_panel))
-            terminal_panel <- switch(class(x$fitted[["(response)"]]), ## FIXME: re-structure into plot.cparty
-	                             "Surv" = node_surv,
-                                     "factor" = node_barplot,
-                                     "ordered" = node_barplot,
-                                     node_boxplot)
-        if (is.null(tnex)) tnex <- 2
-    }
 
     ## setup newpage
     if (newpage) grid.newpage()
@@ -306,9 +288,6 @@ plot.party <- function(x, main = NULL, type = "simple", ## FIXME: remove, was: c
     pushViewport(tree_vp)
 
     ### setup panel functions (if necessary)
-    ### the heuristic is as follows: If the first argument
-    ### is `obj' than we assume a panel generating function, 
-    ### otherwise the function is treated as a panel function
     if(inherits(terminal_panel, "grapcon_generator"))
       terminal_panel <- do.call("terminal_panel", c(list(x), as.list(tp_args)))
     if(inherits(inner_panel, "grapcon_generator"))
@@ -335,3 +314,182 @@ plot.party <- function(x, main = NULL, type = "simple", ## FIXME: remove, was: c
     upViewport()
     if (pop) popViewport() else upViewport()
 }
+
+plot.cparty <- function(x, main = NULL,
+                        terminal_panel = NULL, tp_args = list(),
+	 	        inner_panel = node_inner, ip_args = list(),
+                        edge_panel = edge_simple, ep_args = list(),
+		        type = c("extended", "simple"), drop_terminal = NULL, tnex = NULL, 
+		        newpage = TRUE, pop = TRUE, gp = gpar(), ...)
+{
+    ### compute default settings
+    type <- match.arg(type)
+    if (type == "simple") {
+        if (is.null(terminal_panel)) 
+            terminal_panel <- node_terminal
+        if (is.null(tnex)) tnex <- 1
+        if (is.null(drop_terminal)) drop_terminal <- FALSE
+    } else {
+        if (is.null(terminal_panel))
+            terminal_panel <- switch(class(x$fitted[["(response)"]]),
+	                             "Surv" = node_surv,
+                                     "factor" = node_barplot,
+                                     "ordered" = node_barplot,
+                                     node_boxplot)
+        if (is.null(tnex)) tnex <- 2
+        if (is.null(drop_terminal)) drop_terminal <- TRUE
+    }
+
+    plot.party(x, main = main,
+      terminal_panel = terminal_panel, tp_args = tp_args,
+      inner_panel = inner_panel, ip_args = ip_args,
+      edge_panel = edge_panel, ep_args = ep_args,
+      drop_terminal = drop_terminal, tnex = tnex,
+      newpage = newpage, pop = pop, gp = gp, ...)
+}
+
+node_barplot <- function(obj,
+                         col = "black",
+      		         fill = NULL,
+			 beside = NULL,
+		         ymax = NULL,
+		         ylines = NULL,
+		         widths = 1,
+		         gap = NULL,
+			 reverse = NULL,
+		         id = TRUE,
+			 gp = gpar())
+{   
+    ## extract response
+    y <- obj$fitted[["(response)"]]
+    stopifnot(is.factor(y) || isTRUE(all.equal(round(y), y)))
+    
+    ## FIXME: This could be avoided by
+    ##   predict_party(obj, nodeids(obj, terminal = TRUE), type = "prob")
+    ## but only for terminal nodes                  ^^^^
+    probs_and_n <- function(x) {
+      y1 <- x$fitted[["(response)"]]
+      if(!is.factor(y1)) y1 <- factor(y1, levels = min(y):max(y))
+      w <- x$fitted[["(weights)"]]
+      if(is.null(w)) w <- rep.int(1L, length(y1))
+      sumw <- tapply(w, y1, sum)
+      sumw[is.na(sumw)] <- 0
+      prob <- c(sumw/sum(w), sum(w))
+      names(prob) <- c(levels(y1), "nobs")
+      prob
+    }
+    probs <- do.call("rbind", nodeapply(obj, nodeids(obj), probs_and_n, by_node = FALSE))
+    nobs <- probs[,"nobs"]
+    probs <- probs[,-ncol(probs)]
+    
+    if(is.factor(y)) {
+        ylevels <- levels(y)
+	if(is.null(beside)) beside <- if(length(ylevels) < 3) FALSE else TRUE
+        if(is.null(ymax)) ymax <- if(beside) 1.1 else 1
+	if(is.null(gap)) gap <- if(beside) 0.1 else 0
+    } else {
+        if(is.null(beside)) beside <- FALSE
+        if(is.null(ymax)) ymax <- max(probs) * 1.1
+        ylevels <- seq(1:NCOL(probs))
+        if(length(ylevels) < 2) ylevels <- ""
+	if(is.null(gap)) gap <- 1
+    }
+    if(is.null(reverse)) reverse <- !beside
+    if(is.null(fill)) fill <- gray.colors(length(ylevels))
+    if(is.null(ylines)) ylines <- if(beside) c(3, 2) else c(1.5, 2.5)
+
+    ### panel function for barplots in nodes
+    rval <- function(node) {
+    
+        ## id
+	nid <- id_node(node)
+    
+        ## parameter setup
+        pred <- probs[nid,]
+	if(reverse) {
+	  pred <- rev(pred)
+	  ylevels <- rev(ylevels)
+	}
+        np <- length(pred)
+	nc <- if(beside) np else 1
+
+	fill <- rep(fill, length.out = np)	
+        widths <- rep(widths, length.out = nc)
+	col <- rep(col, length.out = nc)
+	ylines <- rep(ylines, length.out = 2)
+
+	gap <- gap * sum(widths)
+        yscale <- c(0, ymax)
+        xscale <- c(0, sum(widths) + (nc+1)*gap)
+
+        top_vp <- viewport(layout = grid.layout(nrow = 2, ncol = 3,
+                           widths = unit(c(ylines[1], 1, ylines[2]), c("lines", "null", "lines")),
+                           heights = unit(c(1, 1), c("lines", "null"))),
+                           width = unit(1, "npc"), 
+                           height = unit(1, "npc") - unit(2, "lines"),
+			   name = paste("node_barplot", nid, sep = ""))
+
+        pushViewport(top_vp)
+        grid.rect(gp = gpar(fill = "white", col = 0))
+
+        ## main title
+        top <- viewport(layout.pos.col=2, layout.pos.row=1)
+        pushViewport(top)
+	mainlab <- paste(ifelse(id, paste("Node", names_party(obj)[nid], "(n = "), "n = "),
+	                 nobs[nid], ifelse(id, ")", ""), sep = "")
+        grid.text(mainlab)
+        popViewport()
+	
+        plot <- viewport(layout.pos.col=2, layout.pos.row=2,
+                         xscale=xscale, yscale=yscale,
+			 name = paste("node_barplot", node$nodeID, "plot", 
+                         sep = ""))
+
+        pushViewport(plot)
+	
+	if(beside) {
+  	  xcenter <- cumsum(widths+gap) - widths/2
+	  for (i in 1:np) {
+            grid.rect(x = xcenter[i], y = 0, height = pred[i], 
+                      width = widths[i],
+	              just = c("center", "bottom"), default.units = "native",
+	              gp = gpar(col = col[i], fill = fill[i]))
+	  }
+          if(length(xcenter) > 1) grid.xaxis(at = xcenter, label = FALSE)
+	  grid.text(ylevels, x = xcenter, y = unit(-1, "lines"), 
+                    just = c("center", "top"),
+	            default.units = "native", check.overlap = TRUE)
+          grid.yaxis()
+	} else {
+  	  ycenter <- cumsum(pred) - pred
+
+	  for (i in 1:np) {
+            grid.rect(x = xscale[2]/2, y = ycenter[i], height = min(pred[i], ymax - ycenter[i]), 
+                      width = widths[1],
+	              just = c("center", "bottom"), default.units = "native",
+	              gp = gpar(col = col[i], fill = fill[i]))
+	  }
+          if(np > 1) {
+	    grid.text(ylevels[1], x = unit(-1, "lines"), y = 0,
+                      just = c("left", "center"), rot = 90,
+	              default.units = "native", check.overlap = TRUE)
+	    grid.text(ylevels[np], x = unit(-1, "lines"), y = ymax,
+                      just = c("right", "center"), rot = 90,
+	              default.units = "native", check.overlap = TRUE)
+	  }
+          if(np > 2) {
+	    grid.text(ylevels[-c(1,np)], x = unit(-1, "lines"), y = ycenter[-c(1,np)],
+                      just = "center", rot = 90,
+	              default.units = "native", check.overlap = TRUE)
+	  }
+          grid.yaxis(main = FALSE)	
+	}
+	
+        grid.rect(gp = gpar(fill = "transparent"))
+        upViewport(2)
+    }
+    
+    return(rval)
+}
+class(node_barplot) <- "grapcon_generator"
+
