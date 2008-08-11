@@ -427,7 +427,8 @@ node_barplot <- function(obj,
                            heights = unit(c(1, 1), c("lines", "null"))),
                            width = unit(1, "npc"), 
                            height = unit(1, "npc") - unit(2, "lines"),
-			   name = paste("node_barplot", nid, sep = ""))
+			   name = paste("node_barplot", nid, sep = ""),
+			   gp = gp)
 
         pushViewport(top_vp)
         grid.rect(gp = gpar(fill = "white", col = 0))
@@ -493,3 +494,96 @@ node_barplot <- function(obj,
 }
 class(node_barplot) <- "grapcon_generator"
 
+node_boxplot <- function(obj,
+                         col = "black",
+		         fill = "lightgray",
+		         width = 0.5,
+		         yscale = NULL,
+		         ylines = 3,
+			 cex = 0.5,
+		         id = TRUE,
+			 gp = gpar())
+{
+    y <- obj$fitted[["(response)"]]
+    stopifnot(is.numeric(y))
+
+    if (is.null(yscale)) 
+        yscale <- range(y) + c(-0.1, 0.1) * diff(range(y))
+         
+    ### panel function for boxplots in nodes
+    rval <- function(node) {
+
+        ## extract data
+	nid <- id_node(node)
+	dat <- data_party(obj, nid)
+	yn <- dat[["(response)"]]
+	wn <- dat[["(weights)"]]
+	if(is.null(wn)) wn <- rep(1, length(yn))
+    
+        ## parameter setup
+	x <- boxplot(rep.int(yn, wn), plot = FALSE)
+
+        top_vp <- viewport(layout = grid.layout(nrow = 2, ncol = 3,
+                           widths = unit(c(ylines, 1, 1), 
+                                         c("lines", "null", "lines")),  
+                           heights = unit(c(1, 1), c("lines", "null"))),
+                           width = unit(1, "npc"), 
+                           height = unit(1, "npc") - unit(2, "lines"),
+			   name = paste("node_boxplot", nid, sep = ""),
+			   gp = gp)
+
+        pushViewport(top_vp)
+        grid.rect(gp = gpar(fill = "white", col = 0))
+
+        ## main title
+        top <- viewport(layout.pos.col=2, layout.pos.row=1)
+        pushViewport(top)
+	mainlab <- paste(ifelse(id, paste("Node", names_party(obj)[nid], "(n = "), "n = "),
+	                 sum(wn), ifelse(id, ")", ""), sep = "")
+        grid.text(mainlab)
+        popViewport()
+	
+        plot <- viewport(layout.pos.col = 2, layout.pos.row = 2,
+                         xscale = c(0, 1), yscale = yscale,
+			 name = paste("node_boxplot", nid, "plot", 
+                         sep = ""))
+
+        pushViewport(plot)
+	
+	xl <- 0.5 - width/4
+	xr <- 0.5 + width/4
+
+        ## box & whiskers
+        grid.lines(unit(c(xl, xr), "npc"), 
+                   unit(x$stats[1], "native"), gp = gpar(col = col))
+        grid.lines(unit(0.5, "npc"), 
+                   unit(x$stats[1:2], "native"), gp = gpar(col = col, lty = 2))
+        grid.rect(unit(0.5, "npc"), unit(x$stats[2], "native"), 
+                  width = unit(width, "npc"), height = unit(diff(x$stats[c(2, 4)]), "native"),
+                  just = c("center", "bottom"), 
+                  gp = gpar(col = col, fill = fill))
+        grid.lines(unit(c(0.5 - width/2, 0.5+width/2), "npc"), 
+                   unit(x$stats[3], "native"), gp = gpar(col = col, lwd = 2))
+        grid.lines(unit(0.5, "npc"), unit(x$stats[4:5], "native"), 
+                   gp = gpar(col = col, lty = 2))
+        grid.lines(unit(c(xl, xr), "npc"), unit(x$stats[5], "native"), 
+                   gp = gpar(col = col))
+
+        ## outlier
+        n <- length(x$out)
+        if (n > 0) {
+            index <- 1:n ## which(x$out > yscale[1] & x$out < yscale[2])
+            if (length(index) > 0)
+                grid.points(unit(rep.int(0.5, length(index)), "npc"), 
+                            unit(x$out[index], "native"),
+                            size = unit(cex, "char"), gp = gpar(col = col))
+        }
+	
+        grid.yaxis()
+        grid.rect(gp = gpar(fill = "transparent"))
+        upViewport(2)
+    }
+    
+    return(rval)
+}
+class(node_boxplot) <- "grapcon_generator"
