@@ -73,6 +73,8 @@ node_party <- function(party) {
 }
 
 "[.party" <- "[[.party" <- function(x, i, ...) {
+    if (is.character(i) && !is.null(names(x)))
+        i <- which(names(x) %in% i)
     stopifnot(length(i) == 1 & is.numeric(i))
     stopifnot(i <= length(x) & i >= 1)
     i <- as.integer(i)
@@ -96,7 +98,9 @@ node_party <- function(party) {
     }
     node <- recFun(node_party(x))
 
-    party(node = node, data = dat, fitted = fit, terms = x$terms, names = nam)
+    ret <- party(node = node, data = dat, fitted = fit, terms = x$terms, names = nam)
+    class(ret) <- class(x)
+    ret
 }
 
 nodeids <- function(obj, ...)
