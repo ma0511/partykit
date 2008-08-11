@@ -106,7 +106,7 @@ kidids_node <- function(node, data, vmatch = 1:ncol(data), obs = NULL) {
 fitted_node <- function(node, data, vmatch = 1:ncol(data), obs = 1:nrow(data)) {
 
     ### should be equivalent to:
-    ### return(.Call("R_fitted_node", node, data, vmatch, as.integer(obs)))
+    #return(.Call("R_fitted_node", node, data, vmatch, as.integer(obs)))
 
     if (is.terminal(node))
         return(rep(id_node(node), length(obs)))

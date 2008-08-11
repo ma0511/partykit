@@ -107,8 +107,9 @@ double x2d(SEXP x, int obs) {
 
     double ret = NA_REAL;
 
-    if (isReal(x)) ret = REAL(x)[obs];
-    if (isInteger(x)) {
+    /* FIXME: is this enough checking? */
+    if (isReal(x)) { ret = REAL(x)[obs];
+    } else {
         if (INTEGER(x)[obs] != NA_INTEGER)
             ret = (double) INTEGER(x)[obs];
     }
@@ -133,12 +134,14 @@ int kidid_split(SEXP split, SEXP data, SEXP vmatch, int obs) {
 
     /* get the variable (all observations) */
     x = split_data(split, data, vmatch);
-    
+
     breaks = breaks_split(split);
 
     /* x is a factor and needs no breaks */    
     if (breaks == R_NilValue) {
-        if (!isInteger(x)) error("x is not an integer");
+        /* FIXME: is this enough checking? */
+        if (isReal(x)) 
+            error("x is not an integer or factor (variable %d) \n", varid_split(split));
         ret = INTEGER(x)[obs];
         if (ret != NA_INTEGER) ret = ret - 1;
     } else {
@@ -146,7 +149,6 @@ int kidid_split(SEXP split, SEXP data, SEXP vmatch, int obs) {
         ret = cut(x2d(x, obs), REAL(breaks), LENGTH(breaks), 
                   right_split(split));
     }
-
     /* use index (if there) to assign child nodes */
     if (ret != NA_INTEGER) {
         if (index_split(split) != R_NilValue) {

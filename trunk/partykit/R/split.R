@@ -34,7 +34,8 @@ split <- function(varid, breaks = NULL, index = NULL, right = TRUE,
     ### vec
     if (!is.null(breaks)) {
         if (is.numeric(breaks) && (length(breaks) >= 1)) {
-            split$breaks <- breaks
+            ### FIXME: I think we need to make sure breaks are double in C
+            split$breaks <- as.double(breaks)
         } else {
             stop(sQuote("break"), " ",
                  "should be a numeric vector containing at least one element")
