@@ -13,7 +13,7 @@ party <- function(node, data, fitted, terms = NULL, names = NULL) {
     stopifnot(inherits(data, "data.frame"))
     
     if(!is.null(fitted)) {
-       stopifnot(inherits(fitted, "data.frame"))
+        stopifnot(inherits(fitted, "data.frame"))
         stopifnot("(fitted)" == names(fitted)[1])
         stopifnot(nrow(data) == 0 | nrow(data) == nrow(fitted))
 
@@ -244,7 +244,7 @@ predict_party.cparty <- function(object, id, newdata = NULL,
     if (is.null(weights)) weights <- rep(1, NROW(response))
 
     ## get observation names
-    nam <- if(is.null(newdata)) rownames(object$fitted) else rownames(newdata)
+    nam <- if(is.null(newdata)) names_party(object)[id] else rownames(newdata)
     if(length(nam) != length(id)) nam <- NULL
 
     ## match type
@@ -286,8 +286,16 @@ predict_party.cparty <- function(object, id, newdata = NULL,
     }
       
     ## empirical distribution in each leaf
-    tab <- tapply(1:NROW(response), fitted, 
-                  function(i) FUN(response[i], weights[i]), simplify = FALSE)
+    if (all(id %in% fitted)) {
+        tab <- tapply(1:NROW(response), fitted, 
+                      function(i) FUN(response[i], weights[i]), simplify = FALSE)
+    } else {
+        tab <- as.array(lapply(sort(unique(id)), function(i) {
+            index <- fitted %in% nodeids(object, i, terminal = TRUE)
+            FUN(response[index], weights[index])
+        }))
+        names(tab) <- as.character(sort(unique(id)))
+    }
     tn <- names(tab)
     dim(tab) <- NULL
     names(tab) <- tn
