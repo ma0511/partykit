@@ -257,6 +257,13 @@ predict_party.cparty <- function(object, id, newdata = NULL,
       return(structure(id, .Names = nam))
 
     if (is.null(FUN)) {
+        ### FIXME: multivariate response
+#        if (is.list(response)) return(lapply(response, function(r) {
+#            object$fitted[["(response)"]] <- r
+#            predict_party(object, id = id, newdata = newdata, type = type, 
+#                          simplify = simplify, ...)
+#        }))
+
         rtype <- class(response)[1]
         if (rtype == "ordered") rtype <- "factor"    
         if (rtype == "integer") rtype <- "numeric"
