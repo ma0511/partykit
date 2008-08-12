@@ -111,12 +111,15 @@ prob_split <- function(split) {
     prob <- split$prob
     if (!is.null(prob)) return(prob)
 
+    ### either breaks or index must be there
     if (is.null(index <- index_split(split))) {
         if (is.null(breaks <- breaks_split(split)))
             stop("neither", " ", sQuote("prob"), " ", "nor", " ", 
-                 sQuote("index"), " ", "or", sQuote("breaks"), " ", "given for", " ", sQuote("split"))
+                 sQuote("index"), " ", "or", sQuote("breaks"), " ", 
+                 "given for", " ", sQuote("split"))
         index <- 1:(length(breaks) + 1)
     }
+    ### index may contain NA
     prob <- !is.na(index)
     return(prob / sum(prob, na.rm = TRUE))
 }
@@ -135,8 +138,6 @@ kidids_split <- function(split, data, vmatch = 1:ncol(data), obs = NULL) {
     if (is.null(breaks_split(split))) {
         stopifnot(storage.mode(x) == "integer")
     } else {
-        ### FIXME: rpart may have double splits for integer variables
-        # stopifnot(storage.mode(x) == storage.mode(split$breaks))
         x <- as.integer(cut.default(as.numeric(x), 
                  breaks = c(-Inf, breaks_split(split), Inf), 
                  right = right_split(split)))
@@ -174,8 +175,8 @@ character_split <- function(split, data, digits = getOption("digits") - 2) {
 
     switch(type, 
         "factor" = {
-            nindex <- as.integer(as.character(cut(seq_along(lev), c(-Inf, breaks, Inf),
-                labels = index, right = right)))
+            nindex <- as.integer(as.character(cut(seq_along(lev), 
+                c(-Inf, breaks, Inf), labels = index, right = right)))
             dlab <- as.vector(tapply(lev, nindex, paste, collapse = ", "))
         },
         "ordered" = {

@@ -226,10 +226,11 @@ predict.party <- function(object, newdata = NULL, ...)
 predict_party <- function(party, id, newdata = NULL, ...)
     UseMethod("predict_party")
 
-
 predict_party.default <- function(party, id, newdata = NULL, ...) {
-  if(length(as.list(...)) > 0) warning("too many arguments") ## FIXME: improve warning message
-  return(structure(id, .Names = if(is.null(newdata)) rownames(object$fitted) else rownames(newdata)))
+  ## FIXME: improve warning message
+  if(length(as.list(...)) > 0) warning("too many arguments") 
+  return(structure(id, .Names = if(is.null(newdata)) 
+      rownames(object$fitted) else rownames(newdata)))
 }
 
 ### response: at scale of the response
@@ -243,7 +244,8 @@ predict_party.cparty <- function(object, id, newdata = NULL,
     fitted <- object$fitted[["(fitted)"]]
     if (is.null(weights)) weights <- rep(1, NROW(response))
 
-    ## get observation names
+    ## get observation names: either node names or
+    ## observation names from newdata
     nam <- if(is.null(newdata)) names_party(object)[id] else rownames(newdata)
     if(length(nam) != length(id)) nam <- NULL
 
@@ -290,6 +292,7 @@ predict_party.cparty <- function(object, id, newdata = NULL,
         tab <- tapply(1:NROW(response), fitted, 
                       function(i) FUN(response[i], weights[i]), simplify = FALSE)
     } else {
+        ### id may also refer to inner nodes
         tab <- as.array(lapply(sort(unique(id)), function(i) {
             index <- fitted %in% nodeids(object, i, terminal = TRUE)
             FUN(response[index], weights[index])
@@ -348,8 +351,10 @@ data_party.default <- function(party, id) {
         else
             stop("cannot subset data without fitted ids")
 
+        ### which terminal nodes follow node number id?
         nt <- nodeids(party, id, terminal = TRUE)
         wi <- party$fitted[["(fitted)"]] %in% nt
+
         ret <- if (nrow(party$data) == 0)
             subset(party$fitted, wi)
         else
@@ -361,4 +366,3 @@ data_party.default <- function(party, id) {
     else 
         return(extract(id))
 }
-
