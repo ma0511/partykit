@@ -202,8 +202,7 @@ predict.party <- function(object, newdata = NULL, ...)
         ##     vnames[unique(unlist(c(primary_vars, surrogate_vars)))]
         ## else 
         ##     vnames[unique(unlist(primary_vars))]
-	## ## FIXME: currently do not check names/class of surrogate vars
-	unames <- vnames[unique(unlist(primary_vars))]
+	unames <- vnames[unique(unlist(c(primary_vars, surrogate_vars)))]
 	
         vclass <- structure(lapply(object$data, class), .Names = vnames)
         ndnames <- names(newdata)
@@ -338,7 +337,6 @@ predict_party.cparty <- function(object, id, newdata = NULL,
     
     return(ret)
 }
-
 
 print_party <- function(party, id, ...)
     UseMethod("print_party")
