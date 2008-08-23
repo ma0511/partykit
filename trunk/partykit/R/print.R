@@ -1,30 +1,114 @@
-## FIXME: think about whether this should be visible or not,
-## or maybe an S3 method or not.
-character_node <- function(x, data, names, prefix = "", leaf = " *", first = TRUE, ...) {
+print.node <- function(x, data = NULL, names = NULL,
+  inner_panel = function(node) "", terminal_panel = function(node) " *",
+  prefix = "", first = TRUE, digits = getOption("digits") - 2, ...)
+{
+  if(first) {
+    if(is.null(names)) names <- as.character(nodeids(x)) 
+    cat(paste(prefix, "[", names[id_node(x)], "] root\n", sep = ""))
+  }
 
-    ### FIXME: process info slot
-    if (first)
-        cat(paste(prefix, "[", names[id_node(x)], "] root\n", sep = ""))
+  if (length(x) > 0) {
+    ## split labels
+    slabs <- character_split(split_node(x), data = data, digits = digits, ...)
+    slabs <- ifelse(substr(slabs$levels, 1, 1) %in% c("<", ">"),
+             paste(slabs$name, slabs$levels), 
+             paste(slabs$name, "in", slabs$levels))
 
-    if (length(x) > 0) {
-        labs <- character_split(split_node(x), data, ...)
-        labs <- ifelse(substr(labs$levels, 1, 1) %in% c("<", ">"),
-                       paste(labs$name, labs$levels), 
-                       paste(labs$name, "in", labs$levels))
+    ## kid labels
+    knodes <- kids_node(x)    
+    knam <- sapply(knodes, function(z) names[id_node(z)])
+    klabs <- sapply(knodes, function(z)
+      if(is.terminal(z)) paste(terminal_panel(z), collapse = "\n")
+        else paste(inner_panel(z), collapse = "\n"))
 
-        ### FIXME: use id labels instead of raw ids
-        terminal <- sapply(1:length(x), function(z) length(x[[z]]) < 1)
-        labs <- paste("|   ", prefix, "[", sapply(1:length(x), 
-           function(z) names[id_node(x[[z]])]), "] ", labs, 
-           ifelse(terminal, leaf, ""), "\n", sep = "")
-                  
-        for (i in 1:length(x)) {
-            cat(labs[i])
-            character_node(x[i], data, names = names, prefix = paste(prefix, "|   ", sep = ""), 
-                  leaf = leaf, first = FALSE, ...)
-        }
+    ## merge, cat, and call recursively
+    labs <- paste("|   ", prefix, "[", knam, "] ", slabs, klabs, "\n", sep = "")          
+    for (i in 1:length(x)) {
+      cat(labs[i])
+      print.node(x[i], data = data, names = names,
+        inner_panel = inner_panel, terminal_panel = terminal_panel,
+        prefix = paste(prefix, "|   ", sep = ""),  first = FALSE, digits = digits, ...)
     }
+  }
 }
 
-print.party <- function(x, ...)
-    character_node(node_party(x), x$data, names = names_party(x), ...)
+print.party <- function(x,
+  terminal_panel = function(node) " *", tp_args = list(),
+  inner_panel = function(node) "", ip_args = list(),
+  header_panel = function(party) "",
+  footer_panel = function(party) "",
+  digits = getOption("digits") - 2, ...)
+{
+  ## header
+  cat(paste(header_panel(x), collapse = "\n"))
+
+  ## nodes
+  if(inherits(terminal_panel, "grapcon_generator"))
+    terminal_panel <- do.call("terminal_panel", c(list(x), as.list(tp_args)))
+  if(inherits(inner_panel, "grapcon_generator"))
+    inner_panel <- do.call("inner_panel", c(list(x), as.list(ip_args)))
+  print(node_party(x), x$data, names = names_party(x),
+    terminal_panel = terminal_panel, inner_panel = inner_panel,
+    digits = digits, ...)
+
+  ## footer
+  cat(paste(footer_panel(x), collapse = "\n"))
+}
+
+print.cparty <- function(x,
+  FUN = NULL, digits = getOption("digits") - 4,
+  header = TRUE, footer = TRUE, ...)
+{
+  digits <- max(c(0, digits))
+
+  header_panel <- if(header) function(party) {
+    c("", "Model formula:", deparse(formula(terms(party))), "", "Fitted party:", "")
+  } else function(party) ""
+  
+  footer_panel <- if(footer) function(party) {
+    n <- width(party)
+    n <- format(c(length(party) - n, n))
+    
+    c("", paste("Number of inner nodes:   ", n[1]),
+      paste("Number of terminal nodes:", n[2]), "")
+  } else function (party) ""
+
+  y <- x$fitted[["(response)"]]
+  yclass <- class(y)
+  if(yclass == "ordered") yclass <- "factor"
+  if(!(yclass %in% c("Surv", "factor"))) yclass <- "numeric"
+  
+  if(is.null(FUN)) FUN <- switch(yclass,
+    "numeric" = function(y, w, digits) {
+      yhat <- pred_numeric(y, w)
+      yerr <- sum(w * (y - yhat)^2)
+      digits2 <- max(c(0, digits - 2))
+      paste(format(round(yhat, digits = digits), nsmall = digits),
+        " (n = ", sum(w), ", err = ",
+	format(round(yerr, digits = digits2), nsmall = digits2), ")", sep = "")
+    },
+    "Surv" = function(y, w, digits) {
+      paste(format(round(pred_Surv_response(y, w), digits = digits), nsmall = digits),
+        " (n = ", sum(w), ")", sep = "")
+    },
+    "factor" = function(y, w, digits) {
+      tab <- round(pred_factor(y, w) * sum(w))
+      mc <- round(100 * (1 - max(tab)/sum(w)), digits = max(c(0, digits - 2)))
+      paste(names(tab)[which.max(tab)], " (n = ", sum(w),
+        ", err = ", mc, "%)", sep = "")
+    }
+  )
+  
+  node_labs <- nodeapply(x, nodeids(x), function(node) {
+    y1 <- node$fitted[["(response)"]]
+    w <- node$fitted[["(weights)"]]
+    if(is.null(w)) w <- rep.int(1L, length(y1))
+    FUN(y1, w, digits)
+  }, by_node = FALSE)
+  node_labs <- paste(":", format(do.call("c", node_labs)))
+  
+  terminal_panel <- function(node) node_labs[id_node(node)]
+
+  print.party(x, terminal_panel = terminal_panel,
+    header_panel = header_panel, footer_panel = footer_panel, ...)
+}

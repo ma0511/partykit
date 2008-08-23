@@ -436,3 +436,7 @@ data_party.default <- function(party, id) {
     else 
         return(extract(id))
 }
+
+width.party <- function(x, ...) {
+  width(node_party(x), ...)
+}

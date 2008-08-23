@@ -150,20 +150,29 @@ kidids_split <- function(split, data, vmatch = 1:ncol(data), obs = NULL) {
     return(x)
 }
 
-character_split <- function(split, data, digits = getOption("digits") - 2) {
+character_split <- function(split, data = NULL, digits = getOption("digits") - 2) {
 
-    ## determine type
-    type <- sapply(data, function(x) class(x)[1])[varid_split(split)]
-    type[!(type %in% c("factor", "ordered"))] <- "numeric"
+    varid <- varid_split(split)
+
+    if (!is.null(data)) {
+        ## names and labels
+        lev <- lapply(data, levels)[[varid]]
+        mlab <- names(data)[varid]
+
+        ## determine split type
+        type <- sapply(data, function(x) class(x)[1])[varid_split(split)]
+        type[!(type %in% c("factor", "ordered"))] <- "numeric"
+    } else {
+        ## (bad) default names and labels
+	lev <- NULL
+	mlab <- paste("V", varid, sep = "")
+	type <- "numeric"
+    }
 
     ## process defaults for breaks and index
     breaks <- breaks_split(split)
     index <- index_split(split)
     right <- right_split(split)
-    varid <- varid_split(split)
-    
-    lev <- lapply(data, levels)[[varid]]
-    mlab <- names(data)[varid]
 
     if (is.null(breaks)) breaks <- 1:(length(index) - 1)
     if (is.null(index)) index <- 1:(length(breaks) + 1)
