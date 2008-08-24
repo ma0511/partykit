@@ -74,6 +74,19 @@ print.cparty <- function(x,
   } else function (party) ""
 
   y <- x$fitted[["(response)"]]
+  w <- x$fitted[["(weights)"]]
+  if(is.null(w)) {
+    wdigits <- 0
+    wsym <- "n"
+  } else {
+    if(isTRUE(all.equal(w, round(w)))) {
+      wdigits <- 0
+      wsym <- "n"
+    } else {
+      wdigits <- max(c(0, digits - 2))
+      wsym <- "w"
+    }
+  }
   yclass <- class(y)
   if(yclass == "ordered") yclass <- "factor"
   if(!(yclass %in% c("Surv", "factor"))) yclass <- "numeric"
@@ -84,17 +97,18 @@ print.cparty <- function(x,
       yerr <- sum(w * (y - yhat)^2)
       digits2 <- max(c(0, digits - 2))
       paste(format(round(yhat, digits = digits), nsmall = digits),
-        " (n = ", sum(w), ", err = ",
+        " (", wsym, " = ", format(round(sum(w), digits = wdigits), nsmall = wdigits), ", err = ",
 	format(round(yerr, digits = digits2), nsmall = digits2), ")", sep = "")
     },
     "Surv" = function(y, w, digits) {
       paste(format(round(pred_Surv_response(y, w), digits = digits), nsmall = digits),
-        " (n = ", sum(w), ")", sep = "")
+        " (", wsym, " = ", format(round(sum(w), digits = wdigits), nsmall = wdigits), ")", sep = "")
     },
     "factor" = function(y, w, digits) {
       tab <- round(pred_factor(y, w) * sum(w))
       mc <- round(100 * (1 - max(tab)/sum(w)), digits = max(c(0, digits - 2)))
-      paste(names(tab)[which.max(tab)], " (n = ", sum(w),
+      paste(names(tab)[which.max(tab)], " (",
+        wsym, " = ", format(round(sum(w), digits = wdigits), nsmall = wdigits),
         ", err = ", mc, "%)", sep = "")
     }
   )
@@ -102,7 +116,7 @@ print.cparty <- function(x,
   node_labs <- nodeapply(x, nodeids(x), function(node) {
     y1 <- node$fitted[["(response)"]]
     w <- node$fitted[["(weights)"]]
-    if(is.null(w)) w <- rep.int(1L, length(y1))
+    if(is.null(w)) w <- rep.int(1L, NROW(y1))
     FUN(y1, w, digits)
   }, by_node = FALSE)
   node_labs <- paste(":", format(do.call("c", node_labs)))
