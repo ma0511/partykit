@@ -57,10 +57,12 @@ print.party <- function(x,
 
 print.cparty <- function(x,
   FUN = NULL, digits = getOption("digits") - 4,
-  header = TRUE, footer = TRUE, ...)
+  header = NULL, footer = TRUE, ...)
 {
   digits <- max(c(0, digits))
 
+  ## FIXME: terms/call/? for "ctree" objects
+  if(is.null(header)) header <- !is.null(terms(x))
   header_panel <- if(header) function(party) {
     c("", "Model formula:", deparse(formula(terms(party))), "", "Fitted party:", "")
   } else function(party) ""
