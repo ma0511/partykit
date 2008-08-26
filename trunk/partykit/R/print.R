@@ -89,7 +89,7 @@ print.cparty <- function(x,
       wsym <- "w"
     }
   }
-  yclass <- class(y)
+  yclass <- class(y)[1]
   if(yclass == "ordered") yclass <- "factor"
   if(!(yclass %in% c("Surv", "factor"))) yclass <- "numeric"
   

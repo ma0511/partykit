@@ -331,7 +331,7 @@ plot.cparty <- function(x, main = NULL,
         if (is.null(drop_terminal)) drop_terminal <- FALSE
     } else {
         if (is.null(terminal_panel))
-            terminal_panel <- switch(class(x$fitted[["(response)"]]),
+            terminal_panel <- switch(class(x$fitted[["(response)"]])[1],
 	                             "Surv" = node_surv,
                                      "factor" = node_barplot,
                                      "ordered" = node_barplot,
