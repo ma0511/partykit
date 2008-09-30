@@ -95,7 +95,7 @@ as.simple_party.simple_party <- function(x, ...) x
 
 as.simple_party.XMLNode <- function(x, ...) as.party(x)
 
-as.simple_party.cparty <- function(x, ...) {
+as.simple_party.const_party <- function(x, ...) {
   ## extract and delete fitted
   fit <- x$fitted
   x$fitted <- NULL
@@ -148,13 +148,13 @@ as.simple_party.cparty <- function(x, ...) {
 
   ## cycle through node
   new_node <- function(onode, fitted) {
-    if(is.terminal(onode)) return(node(id = onode$id,
+    if(is.terminal(onode)) return(partynode(id = onode$id,
       split = NULL, kids = NULL, surrogates = NULL,
       info = FUN(onode, fitted)))
     kids <- kids_node(onode)
     kids_tid <- lapply(kids, nodeids, terminal = TRUE)
     kids_fitted <- base::split.data.frame(fitted, fit2id(fitted[["(fitted)"]], kids_tid))
-    node(id = onode$id, split = onode$split,
+    partynode(id = onode$id, split = onode$split,
       kids = lapply(1:length(kids), function(i) new_node(kids[[i]], kids_fitted[[i]])),
       surrogates = onode$surrogates,
       info = FUN(onode, fitted))

@@ -152,7 +152,7 @@ as.party.XMLNode <- function(x) {
       if(!(identical(sort(rval["operator",]), c("greaterThan", "lessOrEqual")) |
            identical(sort(rval["operator",]), c("greaterOrEqual", "lessThan")))
       ) stop("not yet implemented")
-      split(
+      partysplit(
         varid = which(rval["field", 1] == mf_names),
 	breaks = as.numeric(rval["value", 1]),
 	index = if(substr(rval["operator", 1], 1, 1) != "l") 2:1 else NULL,
@@ -178,7 +178,7 @@ as.party.XMLNode <- function(x) {
 	  else idx[which(!(lev %in% lab[[j]]))] <- j
       }
       stopifnot(all(idx > 0))
-      split(
+      partysplit(
         varid = varid,
 	breaks = NULL,
 	index = as.integer(idx),
@@ -191,12 +191,12 @@ as.party.XMLNode <- function(x) {
   ## (using global index ii)
   pmml_node <- function(xnode) {
     ii <<- ii + 1
-    if(is_terminal(xnode)) return(node(as.integer(ii),
+    if(is_terminal(xnode)) return(partynode(as.integer(ii),
       info = node_info(xnode)
     ))
     wi <- which("Node" == names(xnode))
     ns <- n_splits(xnode)    
-    nd <- node(as.integer(ii),
+    nd <- partynode(as.integer(ii),
       split = get_split(xnode, 1, ns > 1),
       kids = lapply(wi, function(j) pmml_node(xnode[[j]])),
       surrogates = if(ns < 2) NULL else lapply(2:ns, function(j) get_split(xnode, j, TRUE)),
@@ -210,7 +210,7 @@ as.party.XMLNode <- function(x) {
   if(is_root(tm[["Node"]])) nd <- pmml_node(tm[["Node"]]) else stop("mal-formed XML")
 
   ## set up party
-  pt <- party(node = nd, data = mf, fitted = NULL, terms = trms, names = NULL)
+  pt <- party(node = nd, data = mf, fitted = NULL, terms = trms, names = NULL) ## FIXME: info slot
   class(pt) <- c("simple_party", class(pt))
 
   return(pt)

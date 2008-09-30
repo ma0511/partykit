@@ -5,7 +5,7 @@ as.party.rpart <- function(obj, ...) {
 
     ff <- obj$frame
     n  <- nrow(ff)
-    if (n==1) return(node(as.integer(1)))  # special case of no splits
+    if (n==1) return(partynode(as.integer(1)))  # special case of no splits
 
     is.leaf <- (ff$var == "<leaf>")
     vnames <- ff$var[!is.leaf]  #the variable names for the primary splits
@@ -41,7 +41,7 @@ as.party.rpart <- function(obj, ...) {
         if (j < 1) return(NULL)
         ### numeric
         if (abs(obj$split[j, "ncat"]) == 1) {
-            ret <- split(varid = which(rownames(obj$split)[j] == names(mf)),
+            ret <- partysplit(varid = which(rownames(obj$split)[j] == names(mf)),
                       breaks = as.double(obj$split[j, "index"]),
                       right = FALSE,
                       index = if(obj$split[j, "ncat"] > 0) 2:1)
@@ -49,7 +49,7 @@ as.party.rpart <- function(obj, ...) {
             index <- obj$csplit[obj$split[j, "index"],]
             index[index == 2] <- NA
             index[index == 3] <- 2
-            ret <- split(varid = which(rownames(obj$split)[j] == names(mf)),
+            ret <- partysplit(varid = which(rownames(obj$split)[j] == names(mf)),
                       index = as.integer(index))
         }
         ret
@@ -62,8 +62,8 @@ as.party.rpart <- function(obj, ...) {
         lapply(splitindex$surrogate[[i]], rpart_onesplit)
 
     rpart_node <- function(i) {
-        if (is.null(rpart_kids(i))) return(node(as.integer(i)))
-        nd <- node(as.integer(i), split = rpart_split(i),
+        if (is.null(rpart_kids(i))) return(partynode(as.integer(i)))
+        nd <- partynode(as.integer(i), split = rpart_split(i),
 	           kids = lapply(rpart_kids(i), rpart_node),
 	           surrogates = rpart_surrogates(i))
 
@@ -80,8 +80,9 @@ as.party.rpart <- function(obj, ...) {
 
     node <- rpart_node(1)
 
-    rval <- party(node = node, data = mf[0,], fitted = fitted, terms = obj$terms)
-    class(rval) <- c("cparty", class(rval))
+    rval <- party(node = node, data = mf[0,], fitted = fitted,
+      terms = obj$terms, info = list(method = "rpart"))
+    class(rval) <- c("const_party", class(rval))
     return(rval)
 }
 
@@ -128,7 +129,7 @@ as.party.J48 <- function(obj, ...) {
       stopifnot(all(sapply(split, head, 1) == "="))
       stopifnot(all(sapply(split, tail, 1) %in% mf_levels[[var_id]]))
       
-      split <- split(varid = as.integer(var_id),
+      split <- partysplit(varid = as.integer(var_id),
         index = match(mf_levels[[var_id]], sapply(split, tail, 1)))
     } else {
       breaks <- unique(as.numeric(sapply(split, tail, 1)))
@@ -137,7 +138,7 @@ as.party.J48 <- function(obj, ...) {
       stopifnot(length(breaks) == 1 && !is.na(breaks))
       stopifnot(all(sapply(split, head, 1) %in% c("<=", ">")))
       
-      split <- split(varid = as.integer(var_id),
+      split <- partysplit(varid = as.integer(var_id),
         breaks = breaks, right = TRUE,
 	index = if(split[[1]][1] == ">") 2:1)
     }
@@ -145,8 +146,8 @@ as.party.J48 <- function(obj, ...) {
   }
 
   j48_node <- function(i) {
-    if(is.null(j48_kids(i))) return(node(as.integer(i)))
-    node(as.integer(i), split = j48_split(i), kids = lapply(j48_kids(i), j48_node))
+    if(is.null(j48_kids(i))) return(partynode(as.integer(i)))
+    partynode(as.integer(i), split = j48_split(i), kids = lapply(j48_kids(i), j48_node))
   }
 
   node <- j48_node(1)
@@ -156,8 +157,9 @@ as.party.J48 <- function(obj, ...) {
                fitted = data.frame("(fitted)" = fitted_node(node, mf),
 	                           "(response)" = model.response(mf),
 				   check.names = FALSE),
-               terms = obj$terms)
+               terms = obj$terms,
+	       info = list(method = "J4.8"))
 
-  class(j48) <- c("cparty", class(j48))
+  class(j48) <- c("const_party", class(j48))
   return(j48)
 }

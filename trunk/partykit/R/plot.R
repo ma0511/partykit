@@ -315,7 +315,7 @@ plot.party <- function(x, main = NULL,
     if (pop) popViewport() else upViewport()
 }
 
-plot.cparty <- function(x, main = NULL,
+plot.const_party <- function(x, main = NULL,
                         terminal_panel = NULL, tp_args = list(),
 	 	        inner_panel = node_inner, ip_args = list(),
                         edge_panel = edge_simple, ep_args = list(),

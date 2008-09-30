@@ -63,14 +63,14 @@ system.time(yhat <- predict_party(fit, id = id, newdata = test))
 f <- fitted(pfit)
 f[["(response)"]] <- data.frame(srv = f[["(response)"]], hansi = runif(nrow(f)))
 mp <- party(node_party(pfit), fitted = f, data = pfit$data)
-class(mp) <- c("cparty", "party")
+class(mp) <- c("const_party", "party")
 
 predict(mp, newdata = GBSG2[1:10,])
 
 ### predictions in info slots
 tmp <- data.frame(x = rnorm(100))
-pfit <- party(node = node(1L, split = split(1L, breaks = 0), 
-              kids = list(node(2L, info = -0.5), node(3L, info = 0.5))), data = tmp)
+pfit <- party(node = partynode(1L, split = partysplit(1L, breaks = 0), 
+              kids = list(partynode(2L, info = -0.5), partynode(3L, info = 0.5))), data = tmp)
 pfit
 p <- predict(pfit, newdata = tmp)
 p

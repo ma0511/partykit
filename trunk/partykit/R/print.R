@@ -1,4 +1,4 @@
-print.node <- function(x, data = NULL, names = NULL,
+print.partynode <- function(x, data = NULL, names = NULL,
   inner_panel = function(node) "", terminal_panel = function(node) " *",
   prefix = "", first = TRUE, digits = getOption("digits") - 2, ...)
 {
@@ -25,7 +25,7 @@ print.node <- function(x, data = NULL, names = NULL,
     labs <- paste("|   ", prefix, "[", knam, "] ", slabs, klabs, "\n", sep = "")          
     for (i in 1:length(x)) {
       cat(labs[i])
-      print.node(x[i], data = data, names = names,
+      print.partynode(x[i], data = data, names = names,
         inner_panel = inner_panel, terminal_panel = terminal_panel,
         prefix = paste(prefix, "|   ", sep = ""),  first = FALSE, digits = digits, ...)
     }
@@ -55,7 +55,7 @@ print.party <- function(x,
   cat(paste(footer_panel(x), collapse = "\n"))
 }
 
-print.cparty <- function(x,
+print.const_party <- function(x,
   FUN = NULL, digits = getOption("digits") - 4,
   header = NULL, footer = TRUE, ...)
 {

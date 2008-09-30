@@ -16,7 +16,7 @@
 ##    Needs to be double for numeric scores and integer for factor scores.
 ##    
 
-split <- function(varid, breaks = NULL, index = NULL, right = TRUE, 
+partysplit <- function(varid, breaks = NULL, index = NULL, right = TRUE, 
                   prob = NULL, info = NULL) {
 
     ### informal class for splits
@@ -81,33 +81,33 @@ split <- function(varid, breaks = NULL, index = NULL, right = TRUE,
     if (!is.null(info))
         split$info <- info
 
-    class(split) <- "split"
+    class(split) <- "partysplit"
 
     return(split)
 }
 
 varid_split <- function(split) {
-    stopifnot(inherits(split, "split"))
+    stopifnot(inherits(split, "partysplit"))
     split$varid
 }
 
 breaks_split <- function(split) {
-    stopifnot(inherits(split, "split"))
+    stopifnot(inherits(split, "partysplit"))
     split$breaks
 }
 
 index_split <- function(split) {
-    stopifnot(inherits(split, "split"))
+    stopifnot(inherits(split, "partysplit"))
     split$index
 }
 
 right_split <- function(split) {
-    stopifnot(inherits(split, "split"))
+    stopifnot(inherits(split, "partysplit"))
     split$right
 }
 
 prob_split <- function(split) {
-    stopifnot(inherits(split, "split"))
+    stopifnot(inherits(split, "partysplit"))
     prob <- split$prob
     if (!is.null(prob)) return(prob)
 
@@ -125,7 +125,7 @@ prob_split <- function(split) {
 }
 
 info_split <- function(split) {
-    stopifnot(inherits(split, "split"))
+    stopifnot(inherits(split, "partysplit"))
     split$info
 }
 

@@ -7,9 +7,9 @@
 ##   - potentially these need to be modified if data/terms
 ##     should be able to deal with data bases
 
-party <- function(node, data, fitted = NULL, terms = NULL, names = NULL) {
+party <- function(node, data, fitted = NULL, terms = NULL, names = NULL, info = NULL) {
 
-    stopifnot(inherits(node, "node"))
+    stopifnot(inherits(node, "partynode"))
     stopifnot(inherits(data, "data.frame"))
     
     if(!is.null(fitted)) {
@@ -20,15 +20,15 @@ party <- function(node, data, fitted = NULL, terms = NULL, names = NULL) {
         nt <- nodeids(node, terminal = TRUE)
         stopifnot(all(fitted[["(fitted)"]] %in% nt))
 
-        node <- as.node(node, from = 1L)
+        node <- as.partynode(node, from = 1L)
         nt2 <- nodeids(node, terminal = TRUE)
         fitted[["(fitted)"]] <- nt2[match(fitted[["(fitted)"]], nt)]
     } else {
-        node <- as.node(node, from = 1L)
+        node <- as.partynode(node, from = 1L)
     }
     
     party <- list(node = node, data = data, fitted = fitted, 
-                  terms = NULL, names = NULL)
+                  terms = NULL, names = NULL, info = NULL)
     class(party) <- "party"
 
     if(!is.null(terms)) {
@@ -72,21 +72,21 @@ node_party <- function(party) {
     party$node
 }
 
-is.cparty <- function(party) {
+is.const_party <- function(party) {
     stopifnot(inherits(party, "party"))
     if (!is.null(party$fitted)) 
         return(all(c("(fitted)", "(response)") %in% names(party$fitted)))
     return(FALSE)
 }
 
-as.cparty <- function(party) {
-    if (is.cparty(party)) {
+as.const_party <- function(party) {
+    if (is.const_party(party)) {
         ret <- party
-        class(ret) <- c("cparty", class(party))
+        class(ret) <- c("const_party", class(party))
         return(ret)
     }
     error("cannot coerce object of class", " ", sQuote(class(party)), 
-          " ", "to", " ", sQuote("cparty"))
+          " ", "to", " ", sQuote("const_party"))
 }
 
 "[.party" <- "[[.party" <- function(x, i, ...) {
@@ -115,7 +115,7 @@ as.cparty <- function(party) {
     }
     node <- recFun(node_party(x))
 
-    ret <- party(node = node, data = dat, fitted = fit, terms = x$terms, names = nam)
+    ret <- party(node = node, data = dat, fitted = fit, terms = x$terms, names = nam, info = x$info)
     class(ret) <- class(x)
     ret
 }
@@ -123,7 +123,7 @@ as.cparty <- function(party) {
 nodeids <- function(obj, ...)
     UseMethod("nodeids")
 
-nodeids.node <- function(obj, from = NULL, terminal = FALSE, ...) {
+nodeids.partynode <- function(obj, from = NULL, terminal = FALSE, ...) {
 
     if(is.null(from)) from <- id_node(obj)
 
@@ -178,7 +178,7 @@ nodeapply.party <- function(obj, ids = 1, FUN = NULL, by_node = TRUE, ...) {
     return(rval)
 }
 
-nodeapply.node <- function(obj, ids = 1, FUN = NULL, ...) {
+nodeapply.partynode <- function(obj, ids = 1, FUN = NULL, ...) {
 
     stopifnot(isTRUE(all.equal(ids, round(ids))))
     ids <- as.integer(ids)
@@ -271,7 +271,7 @@ predict_party.default <- function(party, id, newdata = NULL, ...) {
     return(structure(id, .Names = nam))
 }
 
-predict_party.cparty <- function(party, id, newdata = NULL,
+predict_party.const_party <- function(party, id, newdata = NULL,
     type = c("response", "prob", "node"), FUN = NULL, simplify = TRUE, ...)
 {
     ## extract fitted information
@@ -295,7 +295,7 @@ predict_party.cparty <- function(party, id, newdata = NULL,
     ### multivariate response
     if (is.data.frame(response)) {
         ret <- lapply(response, function(r) {
-            ret <- predict_party_cparty(node_party(party), fitted = fitted, 
+            ret <- predict_party_const_party(node_party(party), fitted = fitted, 
                 response = r, weights, id = id, type = type, FUN = FUN, ...)
             if (simplify) simplify_pred(ret, id, nam) else ret
         })
@@ -306,7 +306,7 @@ predict_party.cparty <- function(party, id, newdata = NULL,
     }
 
     ### univariate response
-    ret <- predict_party_cparty(node_party(party), fitted = fitted, response = response, 
+    ret <- predict_party_const_party(node_party(party), fitted = fitted, response = response, 
         weights = weights, id = id, type = type, FUN = FUN, ...)
     if (simplify) simplify_pred(ret, id, nam) else ret[as.character(id)]
 }
@@ -338,7 +338,7 @@ pred_factor_response <- function(y, w) {
 pred_numeric <- function(y, w) weighted.mean(y, w, na.rm = TRUE)
 
 ### workhorse: compute predictions based on fitted / response data
-predict_party_cparty <- function(node, fitted, response, weights,
+predict_party_const_party <- function(node, fitted, response, weights,
     id = id, type = c("response", "prob"), FUN = NULL, ...) {
 
     if (is.null(FUN)) {

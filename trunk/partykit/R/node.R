@@ -3,7 +3,7 @@
 ### R CMD SHLIB *.c -o partykit.so
 ### dyn.load("../src/partykit.so")
 
-node <- function(id, split = NULL, kids = NULL, surrogates = NULL, info = NULL) {
+partynode <- function(id, split = NULL, kids = NULL, surrogates = NULL, info = NULL) {
 
     if (!is.integer(id) || length(id) != 1)
         stop(sQuote("id"), " ", "must be a single integer")
@@ -15,42 +15,42 @@ node <- function(id, split = NULL, kids = NULL, surrogates = NULL, info = NULL) 
 
     if (!is.null(kids)) {
         if (!(is.integer(kids) | 
-              (is.list(kids) && all(sapply(kids, inherits, "node")))) 
+              (is.list(kids) && all(sapply(kids, inherits, "partynode")))) 
             || length(kids) < 2)
             stop(sQuote("kids"), " ", "must be an integer vector or a list of", 
-                 " ", sQuote("node"), " ", "objects")
+                 " ", sQuote("partynode"), " ", "objects")
     }
 
     if (!is.null(surrogates)) {
-        if (!is.list(surrogates) || any(!sapply(surrogates, inherits, "split")))
-            stop(sQuote("split"), " ", "is not a list of", " ", sQuote("split"), 
+        if (!is.list(surrogates) || any(!sapply(surrogates, inherits, "partysplit")))
+            stop(sQuote("split"), " ", "is not a list of", " ", sQuote("partysplit"), 
                  " ", "objects")
     }
 
-    node <- list(id = id, split = split, kids = kids, surrogates = surrogates, 	info = info)
-    class(node) <- "node"
+    node <- list(id = id, split = split, kids = kids, surrogates = surrogates, info = info)
+    class(node) <- "partynode"
     return(node)
 }
 
-is.node <- function(x) {
-    if (!inherits(x, "node")) return(FALSE)
+is.partynode <- function(x) {
+    if (!inherits(x, "partynode")) return(FALSE)
     rval <- diff(nodeids(x, terminal = FALSE))
     isTRUE(all.equal(unique(rval), 1))
 }
 
-as.node <- function(x, ...)
-    UseMethod("as.node")
+as.partynode <- function(x, ...)
+    UseMethod("as.partynode")
 
-as.node.node <- function(x, from = NULL, ...) {
+as.partynode.partynode <- function(x, from = NULL, ...) {
     if(is.null(from)) from <- id_node(x)
     from <- as.integer(from)
-    if(is.node(x) & id_node(x) == from) return(x)
+    if(is.partynode(x) & id_node(x) == from) return(x)
     id <- from - 1L
      
     new_node <- function(x) {
         id <<- id + 1L
-        if(is.terminal(x)) return(node(id, info = info_node(x)))
-        node(id,
+        if(is.terminal(x)) return(partynode(id, info = info_node(x)))
+        partynode(id,
              split = split_node(x),
              kids = lapply(kids_node(x), new_node),
              surrogates = surrogates_node(x),
@@ -61,17 +61,17 @@ as.node.node <- function(x, from = NULL, ...) {
 }
 
 id_node <- function(node) {
-    stopifnot(inherits(node, "node"))
+    stopifnot(inherits(node, "partynode"))
     node$id
 }
 
 kids_node <- function(node) {
-    stopifnot(inherits(node, "node"))
+    stopifnot(inherits(node, "partynode"))
     node$kids
 }
 
 info_node <- function(obj) {
-    stopifnot(inherits(obj, "node"))
+    stopifnot(inherits(obj, "partynode"))
     obj$info
 }
 
@@ -121,28 +121,28 @@ fitted_node <- function(node, data, vmatch = 1:ncol(data), obs = 1:nrow(data)) {
 }
 
 
-length.node <- function(x)
+length.partynode <- function(x)
     length(kids_node(x))
 
-"[.node" <- "[[.node" <- function(x, i, ...) {
+"[.partynode" <- "[[.partynode" <- function(x, i, ...) {
     stopifnot(length(i) == 1 & is.numeric(i))
     kids_node(x)[[i]]
 }
 
 split_node <- function(node) {
-    stopifnot(inherits(node, "node"))
+    stopifnot(inherits(node, "partynode"))
     node$split
 }
 
 surrogates_node <- function(node) {
-    stopifnot(inherits(node, "node"))
+    stopifnot(inherits(node, "partynode"))
     node$surrogates
 }
 
 is.terminal <- function(x, ...)
     UseMethod("is.terminal")
 
-is.terminal.node <- function(x, ...) {
+is.terminal.partynode <- function(x, ...) {
     kids <- is.null(kids_node(x))
     split <- is.null(split_node(x))
     stopifnot(kids == split)
@@ -152,7 +152,7 @@ is.terminal.node <- function(x, ...) {
 depth <- function(x, ...)
     UseMethod("depth")
 
-depth.node <- function(x) {
+depth.partynode <- function(x) {
     if (is.terminal(x)) return(1)
     max(sapply(kids_node(x), depth)) + 1
 }
@@ -160,7 +160,7 @@ depth.node <- function(x) {
 width <- function(x, ...)
     UseMethod("width")
 
-width.node <- function(x) {
+width.partynode <- function(x) {
     if (is.terminal(x)) return(1)
-    sum(sapply(kids_node(x), width.node))
+    sum(sapply(kids_node(x), width.partynode))
 }

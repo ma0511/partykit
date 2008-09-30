@@ -1,0 +1,6 @@
+- move ctree from party2 to partykit
+- keep original party names -> need NAMESPACE
+- partykit manual (TH)
+- partykit vignette (TH, Z)
+- revised/new MLOSS paper (TH, Z, KH)
+- as.list() method (TH)
