@@ -1,8 +1,4 @@
 
-### cd ../src
-### R CMD SHLIB *.c -o partykit.so
-### dyn.load("../src/partykit.so")
-
 partynode <- function(id, split = NULL, kids = NULL, surrogates = NULL, info = NULL) {
 
     if (!is.integer(id) || length(id) != 1)
@@ -14,8 +10,7 @@ partynode <- function(id, split = NULL, kids = NULL, surrogates = NULL, info = N
     }
 
     if (!is.null(kids)) {
-        if (!(is.integer(kids) | 
-              (is.list(kids) && all(sapply(kids, inherits, "partynode")))) 
+        if (!(is.list(kids) && all(sapply(kids, inherits, "partynode"))) 
             || length(kids) < 2)
             stop(sQuote("kids"), " ", "must be an integer vector or a list of", 
                  " ", sQuote("partynode"), " ", "objects")
@@ -59,6 +54,69 @@ as.partynode.partynode <- function(x, from = NULL, ...) {
     
     return(new_node(x))    
 }
+
+as.partynode.list <- function(obj, ...) {
+
+    if (!all(sapply(obj, inherits, what = "list")))
+        stop("'obj' has to be a list of lists")
+
+    if (!all(sapply(obj, function(x) "id" %in% names(x))))
+        stop("each list in 'obj' has to define a node 'id'")
+
+    ok <- sapply(obj, function(x) 
+              all(names(x) %in% c("id", "split", "kids", "surrogates", "info")))
+    if (any(!ok))
+        sapply(which(!ok), function(i) 
+            warning(paste("list element", i, "defines additional elements:", 
+                          paste(names(x[[i]])[!(names(x[[i]]) %in% 
+                                c("id", "split", "kids", "surrogates", "info"))], 
+                                collapse = ", "))))
+    
+    ids <- sapply(obj, function(node) node$id)
+    if (!all(ids %in% 1:length(obj)))
+        stop("ids must match 1:length(obj)")
+
+    obj <- obj[order(ids)]
+    if (length(obj) == 1) return(do.call("partynode", obj[[1]]))
+
+    new_recnode <- function(id) {
+        if (is.null(obj[[id]]$kids))
+            partynode(id = id, info = obj[[id]]$info)
+        else
+            partynode(id = id, split = obj[[id]]$split,
+                 kids = lapply(obj[[id]]$kids, new_recnode),
+		 surrogates = obj[[id]]$surrogates,
+                 info = obj[[id]]$info)
+    }
+        
+    node <- partynode(id = as.integer(1), split = obj[[1]]$split,
+                 kids = lapply(obj[[1]]$kids, new_recnode), 
+		 surrogates = obj[[1]]$surrogates,
+                 info = obj[[1]]$info)
+    return(node)
+}
+
+as.list.partynode <- function(x, ...) {
+
+    obj <- list()
+    
+    nodelist <- function(node) {
+        if (is.terminal(node))
+            obj[[node$id]] <<- list(id = id_node(node), info = info_node(node))
+        else {
+            obj[[node$id]] <<- list(id = id_node(node), split = split_node(node),
+                 kids = sapply(kids_node(node), function(k) id_node(k)))
+             if (!is.null(surrogates_node(node)))
+		 obj[[node$id]]$surrogates <- surrogates_node(node)
+             if (!is.null(info_node(node)))
+		 obj[[node$id]]$info <- info_node(node)
+            lapply(kids_node(node), nodelist)
+        }
+    }
+    nodelist(x)
+    return(obj)
+}
+
 
 id_node <- function(node) {
     stopifnot(inherits(node, "partynode"))
