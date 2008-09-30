@@ -1,6 +1,4 @@
-
-useDynLib(partykit)
+useDynLib("partykit")
+importFrom("survival", "survfit")
 
 exportPattern("^[^\\.]")
-
-importFrom(survival, survfit)
