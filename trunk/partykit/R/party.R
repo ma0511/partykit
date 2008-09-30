@@ -316,7 +316,7 @@ pred_Surv <- function(y, w)
     survival:::survfit(y, weights = w, subset = w > 0)
 
 pred_Surv_response <- function(y, w)
-    mst(pred_Surv(y, w))
+    median_survival_time(pred_Surv(y, w))
                     
 pred_factor <- function(y, w) {
     lev <- levels(y)
