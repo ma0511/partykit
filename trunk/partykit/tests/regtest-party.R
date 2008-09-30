@@ -63,7 +63,7 @@ system.time(yhat <- predict_party(fit, id = id, newdata = test))
 f <- fitted(pfit)
 f[["(response)"]] <- data.frame(srv = f[["(response)"]], hansi = runif(nrow(f)))
 mp <- party(node_party(pfit), fitted = f, data = pfit$data)
-class(mp) <- c("const_party", "party")
+class(mp) <- c("constparty", "party")
 
 predict(mp, newdata = GBSG2[1:10,])
 

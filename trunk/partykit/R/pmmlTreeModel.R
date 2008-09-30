@@ -211,7 +211,7 @@ as.party.XMLNode <- function(x) {
 
   ## set up party
   pt <- party(node = nd, data = mf, fitted = NULL, terms = trms, names = NULL) ## FIXME: info slot
-  class(pt) <- c("simple_party", class(pt))
+  class(pt) <- c("simpleparty", class(pt))
 
   return(pt)
 }

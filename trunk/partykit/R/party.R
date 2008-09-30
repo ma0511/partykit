@@ -72,21 +72,21 @@ node_party <- function(party) {
     party$node
 }
 
-is.const_party <- function(party) {
+is.constparty <- function(party) {
     stopifnot(inherits(party, "party"))
     if (!is.null(party$fitted)) 
         return(all(c("(fitted)", "(response)") %in% names(party$fitted)))
     return(FALSE)
 }
 
-as.const_party <- function(party) {
-    if (is.const_party(party)) {
+as.constparty <- function(party) {
+    if (is.constparty(party)) {
         ret <- party
-        class(ret) <- c("const_party", class(party))
+        class(ret) <- c("constparty", class(party))
         return(ret)
     }
     error("cannot coerce object of class", " ", sQuote(class(party)), 
-          " ", "to", " ", sQuote("const_party"))
+          " ", "to", " ", sQuote("constparty"))
 }
 
 "[.party" <- "[[.party" <- function(x, i, ...) {
@@ -271,7 +271,7 @@ predict_party.default <- function(party, id, newdata = NULL, ...) {
     return(structure(id, .Names = nam))
 }
 
-predict_party.const_party <- function(party, id, newdata = NULL,
+predict_party.constparty <- function(party, id, newdata = NULL,
     type = c("response", "prob", "node"), FUN = NULL, simplify = TRUE, ...)
 {
     ## extract fitted information
@@ -295,7 +295,7 @@ predict_party.const_party <- function(party, id, newdata = NULL,
     ### multivariate response
     if (is.data.frame(response)) {
         ret <- lapply(response, function(r) {
-            ret <- predict_party_const_party(node_party(party), fitted = fitted, 
+            ret <- predict_party_constparty(node_party(party), fitted = fitted, 
                 response = r, weights, id = id, type = type, FUN = FUN, ...)
             if (simplify) simplify_pred(ret, id, nam) else ret
         })
@@ -306,7 +306,7 @@ predict_party.const_party <- function(party, id, newdata = NULL,
     }
 
     ### univariate response
-    ret <- predict_party_const_party(node_party(party), fitted = fitted, response = response, 
+    ret <- predict_party_constparty(node_party(party), fitted = fitted, response = response, 
         weights = weights, id = id, type = type, FUN = FUN, ...)
     if (simplify) simplify_pred(ret, id, nam) else ret[as.character(id)]
 }
@@ -338,7 +338,7 @@ pred_factor_response <- function(y, w) {
 pred_numeric <- function(y, w) weighted.mean(y, w, na.rm = TRUE)
 
 ### workhorse: compute predictions based on fitted / response data
-predict_party_const_party <- function(node, fitted, response, weights,
+predict_party_constparty <- function(node, fitted, response, weights,
     id = id, type = c("response", "prob"), FUN = NULL, ...) {
 
     if (is.null(FUN)) {

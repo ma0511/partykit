@@ -82,7 +82,7 @@ as.party.rpart <- function(obj, ...) {
 
     rval <- party(node = node, data = mf[0,], fitted = fitted,
       terms = obj$terms, info = list(method = "rpart"))
-    class(rval) <- c("const_party", class(rval))
+    class(rval) <- c("constparty", class(rval))
     return(rval)
 }
 
@@ -160,6 +160,6 @@ as.party.J48 <- function(obj, ...) {
                terms = obj$terms,
 	       info = list(method = "J4.8"))
 
-  class(j48) <- c("const_party", class(j48))
+  class(j48) <- c("constparty", class(j48))
   return(j48)
 }

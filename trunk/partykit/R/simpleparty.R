@@ -1,4 +1,4 @@
-print.simple_party <- function(x, digits = getOption("digits") - 4,
+print.simpleparty <- function(x, digits = getOption("digits") - 4,
   header = NULL, footer = TRUE, ...)
 {
   ## digit processing
@@ -62,7 +62,7 @@ print.simple_party <- function(x, digits = getOption("digits") - 4,
     header_panel = header_panel, footer_panel = footer_panel, ...)
 }
 
-predict_party.simple_party <- function(party, id, newdata = NULL,
+predict_party.simpleparty <- function(party, id, newdata = NULL,
     type = c("response", "prob", "node"), ...)
 {
   ## get observation names: either node names or
@@ -89,13 +89,13 @@ predict_party.simple_party <- function(party, id, newdata = NULL,
   }
 }
 
-as.simple_party <- function(x, ...) UseMethod("as.simple_party")
+as.simpleparty <- function(x, ...) UseMethod("as.simpleparty")
 
-as.simple_party.simple_party <- function(x, ...) x
+as.simpleparty.simpleparty <- function(x, ...) x
 
-as.simple_party.XMLNode <- function(x, ...) as.party(x)
+as.simpleparty.XMLNode <- function(x, ...) as.party(x)
 
-as.simple_party.const_party <- function(x, ...) {
+as.simpleparty.constparty <- function(x, ...) {
   ## extract and delete fitted
   fit <- x$fitted
   x$fitted <- NULL
@@ -161,6 +161,6 @@ as.simple_party.const_party <- function(x, ...) {
   }
   x$node <- new_node(x$node, fit)
 
-  class(x) <- c("simple_party", "party")
+  class(x) <- c("simpleparty", "party")
   return(x)
 }

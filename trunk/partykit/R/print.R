@@ -55,11 +55,11 @@ print.party <- function(x,
   cat(paste(footer_panel(x), collapse = "\n"))
 }
 
-print.const_party <- function(x,
+print.constparty <- function(x,
   FUN = NULL, digits = getOption("digits") - 4,
   header = NULL, footer = TRUE, ...)
 {
-  if(is.null(FUN)) return(print(as.simple_party(x), digits = digits,
+  if(is.null(FUN)) return(print(as.simpleparty(x), digits = digits,
     header = header, footer = footer, ...))
 
   digits <- max(c(0, digits))
