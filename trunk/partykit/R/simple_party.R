@@ -1,0 +1,166 @@
+print.simple_party <- function(x, digits = getOption("digits") - 4,
+  header = NULL, footer = TRUE, ...)
+{
+  ## digit processing
+  digits <- max(c(0, digits))
+  digits2 <- max(c(0, digits - 2))
+
+  ## header panel
+  if(is.null(header)) header <- !is.null(terms(x))
+  header_panel <- if(header) function(party) {
+    c("", "Model formula:", deparse(formula(terms(party))), "", "Fitted party:", "")
+  } else function(party) ""
+  
+  ## footer panel
+  footer_panel <- if(footer) function(party) {
+    n <- width(party)
+    n <- format(c(length(party) - n, n))
+    
+    c("", paste("Number of inner nodes:   ", n[1]),
+      paste("Number of terminal nodes:", n[2]), "")
+  } else function (party) ""
+
+  ## type of predictions
+  y <- node_party(x)$info$prediction
+  yclass <- class(y)[1]
+  if(yclass == "ordered") yclass <- "factor"
+  if(!(yclass %in% c("Surv", "factor"))) yclass <- "numeric"
+
+  ## type of weights
+  n <- node_party(x)$info$n
+  if(is.null(names(n))) {
+    wdigits <- 0
+    wsym <- "n"
+  } else {
+    if(names(n) == "w") {
+      wdigits <- max(c(0, digits - 2))
+      wsym <- "w"
+    } else {
+      wdigits <- 0
+      wsym <- "n"
+    }
+  }
+
+  ## compute terminal node labels
+  FUN <- function(node) {
+    yhat <- node$info$prediction
+    if(yclass == "numeric") yhat <- format(round(yhat, digits = digits), nsmall = digits)
+    w <- node$info$n
+    yerr <- if(is.null(node$info$error)) "" else paste(", err = ",
+      format(round(node$info$error, digits = digits2), nsmall = digits2),
+      names(node$info$error), sep = "")
+    paste(yhat, " (", wsym, " = ", format(round(w, digits = wdigits), nsmall = wdigits),
+      yerr, ")", sep = "")
+  }
+  node_labs <- nodeapply(x, nodeids(x), FUN, by_node = TRUE)
+  node_labs <- paste(":", format(do.call("c", node_labs)))  
+
+  ## terminal panel
+  terminal_panel <- function(node) node_labs[id_node(node)]
+
+  print.party(x, terminal_panel = terminal_panel,
+    header_panel = header_panel, footer_panel = footer_panel, ...)
+}
+
+predict_party.simple_party <- function(party, id, newdata = NULL,
+    type = c("response", "prob", "node"), ...)
+{
+  ## get observation names: either node names or
+  ## observation names from newdata
+  nam <- if(is.null(newdata)) names_party(party)[id] else rownames(newdata)
+  if(length(nam) != length(id)) nam <- NULL
+
+  ## match type
+  type <- match.arg(type)
+
+  ## special case: fitted ids
+  if(type == "node") return(structure(id, .Names = nam))
+
+  ## predictions
+  if(type == "response") {
+    simplify_pred(nodeapply(party, nodeids(party),
+      function(x) x$info$prediction, by_node = TRUE), id, nam)
+  } else {
+    if(is.null(node_party(party)$info$distribution)) stop("probabilities not available")
+    scale <- any(node_party(party)$info$distribution > 1)
+    simplify_pred(nodeapply(party, nodeids(party),
+      function(x) if(scale) prop.table(x$info$distribution) else x$info$distribution,
+      by_node = TRUE), id, nam)
+  }
+}
+
+as.simple_party <- function(x, ...) UseMethod("as.simple_party")
+
+as.simple_party.simple_party <- function(x, ...) x
+
+as.simple_party.XMLNode <- function(x, ...) as.party(x)
+
+as.simple_party.cparty <- function(x, ...) {
+  ## extract and delete fitted
+  fit <- x$fitted
+  x$fitted <- NULL
+
+  ## response info
+  rtype <- class(fit[["(response)"]])[1]
+  if (rtype == "ordered") rtype <- "factor"    
+  if (rtype == "integer") rtype <- "numeric"
+
+  ## extract fitted info
+  FUN <- function(node, fitted) {
+    fitted <- subset(fitted,
+      fitted[["(fitted)"]] %in% nodeids(node, terminal = TRUE))
+    y <- fitted[["(response)"]]
+    w <- fitted[["(weights)"]]
+    if(is.null(w)) {
+      w <- rep(1, nrow(fitted))
+      wnam <- "n"
+    } else {
+      wnam <- if(isTRUE(all.equal(w, round(w)))) "n" else "w" 
+    }
+    
+    switch(rtype,
+      "numeric" = {
+        yhat <- pred_numeric(y, w)
+        list(prediction = yhat, n = structure(sum(w), .Names = wnam),
+	  error = sum(w * (y - yhat)^2), distribution = NULL)
+      },
+      "factor" = {
+        yhat <- pred_factor_response(y, w)
+        ytab <- round(pred_factor(y, w) * sum(w))
+        list(prediction = yhat, n = structure(sum(w), .Names = wnam),
+	  error = structure(sum(100 * prop.table(ytab)[names(ytab) != yhat]), .Names = "%"),
+	  distribution = ytab)
+      },
+      "Surv" = {
+        list(prediction = pred_Surv(y, w), n = structure(sum(w), .Names = wnam),
+	  error = NULL, distribution = NULL) ## FIXME: change distribution format?
+      })
+  }
+
+  ## convenience function for computing kid ids
+  fit2id <- function(fit, idlist) {
+    fit <- factor(fit)
+    nlevels <- levels(fit)
+    for(i in 1:length(idlist)) nlevels[match(idlist[[i]], levels(fit))] <- i
+    levels(fit) <- nlevels
+    as.numeric(factor(fit))
+  }
+
+  ## cycle through node
+  new_node <- function(onode, fitted) {
+    if(is.terminal(onode)) return(node(id = onode$id,
+      split = NULL, kids = NULL, surrogates = NULL,
+      info = FUN(onode, fitted)))
+    kids <- kids_node(onode)
+    kids_tid <- lapply(kids, nodeids, terminal = TRUE)
+    kids_fitted <- base::split.data.frame(fitted, fit2id(fitted[["(fitted)"]], kids_tid))
+    node(id = onode$id, split = onode$split,
+      kids = lapply(1:length(kids), function(i) new_node(kids[[i]], kids_fitted[[i]])),
+      surrogates = onode$surrogates,
+      info = FUN(onode, fitted))
+  }
+  x$node <- new_node(x$node, fit)
+
+  class(x) <- c("simple_party", "party")
+  return(x)
+}

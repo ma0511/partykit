@@ -59,6 +59,9 @@ print.cparty <- function(x,
   FUN = NULL, digits = getOption("digits") - 4,
   header = NULL, footer = TRUE, ...)
 {
+  if(is.null(FUN)) return(print(as.simple_party(x), digits = digits,
+    header = header, footer = footer, ...))
+
   digits <- max(c(0, digits))
 
   ## FIXME: terms/call/? for "ctree" objects

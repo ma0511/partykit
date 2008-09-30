@@ -161,13 +161,3 @@ as.party.J48 <- function(obj, ...) {
   class(j48) <- c("cparty", class(j48))
   return(j48)
 }
-
-## FIXME: small convenience function (just temporary)
-summary.cparty <- function(object) {
-  j48summary <- function(x)
-    paste(levels(x)[which.max(table(x))], " (", length(x), "/", length(x) - max(table(x)), ")", sep = "")
-
-  info <- info_node(object)
-  tapply(info$responses, info$fitted, j48summary)
-}
-
