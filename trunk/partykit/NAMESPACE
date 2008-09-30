@@ -2,3 +2,5 @@
 useDynLib(partykit)
 
 exportPattern("^[^\\.]")
+
+importFrom(survival, survfit)

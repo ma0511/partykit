@@ -13,6 +13,7 @@ Description: A toolkit with infrastructure for representing,
   a re-implementation of the party package. Currently, only
   a re-implementation of ctree() is contained in the package.)
 Depends: R (>= 2.5.0), graphics, stats, grid, mvtnorm
+Imports: survival
 Suggests: XML, pmml, rpart, RWeka, mlbench
 LazyLoad: yes
 LazyData: yes
