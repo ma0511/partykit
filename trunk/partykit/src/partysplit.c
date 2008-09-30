@@ -6,11 +6,11 @@
     *\date $Date$
 */
 
-#include "partykit.h"
-#include "split.h"
+#include "party.h"
+#include "partysplit.h"
 
 
-void init_split(SEXP varid, SEXP breaks, SEXP index, SEXP right,
+void init_partysplit(SEXP varid, SEXP breaks, SEXP index, SEXP right,
              SEXP prob, SEXP info, SEXP split) {
              
     if (LENGTH(split) != LENGTH_SPLIT)

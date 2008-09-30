@@ -6,5 +6,4 @@
 #define INFO_NODE               4               /* info_node */
 #define LENGTH_NODE             INFO_NODE + 1   /* length node object */
 
-void init_node(SEXP id, SEXP split, SEXP kids, SEXP surrogates, SEXP info, SEXP node);
 int fitted_node(SEXP node, SEXP data, SEXP vmatch, int obs);

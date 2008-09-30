@@ -7,15 +7,9 @@
 */
 
 
-#include "partykit.h"
-#include "node.h"
-#include "split.h"
-
-/*
-node <- function(id, split = NULL, kids = NULL, surrogates = NULL, info = NULL) {
-    node <- list(id = id, split = split, kids = kids, surrogates = surrogates, 	info = info)
-}
-*/
+#include "party.h"
+#include "partynode.h"
+#include "partysplit.h"
 
 int id_node(SEXP node) {
     return(INTEGER(VECTOR_ELT(node, ID_NODE))[0]);

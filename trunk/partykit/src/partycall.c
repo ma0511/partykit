@@ -6,9 +6,9 @@
     *\date $Date$
 */
 
-#include "partykit.h"
-#include "split.h"
-#include "node.h"
+#include "party.h"
+#include "partysplit.h"
+#include "partynode.h"
 
 /**
     determine the child node observations obs has to go into based

@@ -6,7 +6,7 @@
     *\date $Date$
 */
 
-#include "partykit.h"
+#include "party.h"
 
 /**
     determine in which of the n intervals given by  

@@ -1,7 +1,7 @@
 
 sapply(dir(path = "../R", pattern = "R$", full.names = TRUE), source)
 
-foo <- function(x) partysplit(1L, breaks = as.double(x))
+foo <- function(x) split(1L, breaks = as.double(x))
 x <- vector(mode = "list", length = 3)
 x[[1]] <- partynode(id = 1L, split = foo(1 / 3), kids = 2:3, info = "one")
 x[[2]] <- partynode(id = 2L, info = "two")

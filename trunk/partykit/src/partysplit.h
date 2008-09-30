@@ -7,7 +7,7 @@
 #define INFO_SPLIT		5		/* info_split */
 #define LENGTH_SPLIT		INFO_SPLIT + 1	/* length split object */
 
-void init_split(SEXP varid, SEXP breaks, SEXP index, SEXP right,
+void init_partysplit(SEXP varid, SEXP breaks, SEXP index, SEXP right,
                 SEXP prob, SEXP info, SEXP split);
 int kidid_split(SEXP split, SEXP data, SEXP vmatch, int obs);                
 SEXP prob_split(SEXP split);
