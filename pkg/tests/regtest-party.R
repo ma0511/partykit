@@ -1,6 +1,5 @@
 
-sapply(dir(path = "../R", pattern = "R$", full = TRUE), source)
-
+library("partykit")
 library("rpart")
 fit <- rpart(Kyphosis ~ Age + Number + Start, data = kyphosis)
 

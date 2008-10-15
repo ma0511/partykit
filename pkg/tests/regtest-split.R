@@ -1,5 +1,5 @@
 
-sapply(dir(path = "../R", pattern = "R$", full = TRUE), source)
+library("partykit")
 
 dat <- data.frame(v1 = as.double(1:100))
 
