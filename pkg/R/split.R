@@ -1,20 +1,3 @@
-## Basic idea:
-## A split is a function that maps data (specifying the partitioning variables)
-## to a set of integers (specifying the daughter nodes).
-## 
-## Extensions:
-##   - The function does not need to go all the way itself,
-##     we can help in doing the splitting of some numeric score of the data.
-##   - The function might be very simple: the identity of a single variable
-##     from the data.
-##
-## Arguments:
-##  - fun: Either an R function computing some splitting score from the data,
-##    or an integer specifying the column in the data.
-##    The resulting splitting score must be
-##  - breaks: A numeric vector of breaks for splitting the score via cut().
-##    Needs to be double for numeric scores and integer for factor scores.
-##    
 
 partysplit <- function(varid, breaks = NULL, index = NULL, right = TRUE, 
                   prob = NULL, info = NULL) {
@@ -23,7 +6,7 @@ partysplit <- function(varid, breaks = NULL, index = NULL, right = TRUE,
     split <- vector(mode = "list", length = 6)
     names(split) <- c("varid", "breaks", "index", "right", "prob", "info")
 
-    ### split is either a function or an id referring to a variable
+    ### split is an id referring to a variable
     stopifnot(is.integer(varid))
     split$varid <- varid
 

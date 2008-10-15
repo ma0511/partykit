@@ -55,15 +55,15 @@ as.partynode.partynode <- function(x, from = NULL, ...) {
     return(new_node(x))    
 }
 
-as.partynode.list <- function(obj, ...) {
+as.partynode.list <- function(x, ...) {
 
-    if (!all(sapply(obj, inherits, what = "list")))
-        stop("'obj' has to be a list of lists")
+    if (!all(sapply(x, inherits, what = "list")))
+        stop("'x' has to be a list of lists")
 
-    if (!all(sapply(obj, function(x) "id" %in% names(x))))
-        stop("each list in 'obj' has to define a node 'id'")
+    if (!all(sapply(x, function(x) "id" %in% names(x))))
+        stop("each list in 'x' has to define a node 'id'")
 
-    ok <- sapply(obj, function(x) 
+    ok <- sapply(x, function(x) 
               all(names(x) %in% c("id", "split", "kids", "surrogates", "info")))
     if (any(!ok))
         sapply(which(!ok), function(i) 
@@ -72,27 +72,27 @@ as.partynode.list <- function(obj, ...) {
                                 c("id", "split", "kids", "surrogates", "info"))], 
                                 collapse = ", "))))
     
-    ids <- sapply(obj, function(node) node$id)
-    if (!all(ids %in% 1:length(obj)))
-        stop("ids must match 1:length(obj)")
+    ids <- sapply(x, function(node) node$id)
+    if (!all(ids %in% 1:length(x)))
+        stop("ids must match 1:length(x)")
 
-    obj <- obj[order(ids)]
-    if (length(obj) == 1) return(do.call("partynode", obj[[1]]))
+    x <- x[order(ids)]
+    if (length(x) == 1) return(do.call("partynode", x[[1]]))
 
     new_recnode <- function(id) {
-        if (is.null(obj[[id]]$kids))
-            partynode(id = id, info = obj[[id]]$info)
+        if (is.null(x[[id]]$kids))
+            partynode(id = id, info = x[[id]]$info)
         else
-            partynode(id = id, split = obj[[id]]$split,
-                 kids = lapply(obj[[id]]$kids, new_recnode),
-		 surrogates = obj[[id]]$surrogates,
-                 info = obj[[id]]$info)
+            partynode(id = id, split = x[[id]]$split,
+                 kids = lapply(x[[id]]$kids, new_recnode),
+		 surrogates = x[[id]]$surrogates,
+                 info = x[[id]]$info)
     }
         
-    node <- partynode(id = as.integer(1), split = obj[[1]]$split,
-                 kids = lapply(obj[[1]]$kids, new_recnode), 
-		 surrogates = obj[[1]]$surrogates,
-                 info = obj[[1]]$info)
+    node <- partynode(id = as.integer(1), split = x[[1]]$split,
+                 kids = lapply(x[[1]]$kids, new_recnode), 
+		 surrogates = x[[1]]$surrogates,
+                 info = x[[1]]$info)
     return(node)
 }
 
@@ -128,9 +128,9 @@ kids_node <- function(node) {
     node$kids
 }
 
-info_node <- function(obj) {
-    stopifnot(inherits(obj, "partynode"))
-    obj$info
+info_node <- function(node) {
+    stopifnot(inherits(node, "partynode"))
+    node$info
 }
 
 kidids_node <- function(node, data, vmatch = 1:ncol(data), obs = NULL) {
@@ -210,7 +210,7 @@ is.terminal.partynode <- function(x, ...) {
 depth <- function(x, ...)
     UseMethod("depth")
 
-depth.partynode <- function(x) {
+depth.partynode <- function(x, ...) {
     if (is.terminal(x)) return(1)
     max(sapply(kids_node(x), depth)) + 1
 }
@@ -218,7 +218,7 @@ depth.partynode <- function(x) {
 width <- function(x, ...)
     UseMethod("width")
 
-width.partynode <- function(x) {
+width.partynode <- function(x, ...) {
     if (is.terminal(x)) return(1)
     sum(sapply(kids_node(x), width.partynode))
 }

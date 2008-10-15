@@ -409,7 +409,7 @@ print_party <- function(party, id, ...)
 data_party <- function(party, id)
     UseMethod("data_party")
 
-print_party.default <- function(party, id, newdata = NULL) {
+print_party.default <- function(party, id, newdata = NULL, ...) {
 
 }
 

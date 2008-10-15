@@ -3,7 +3,11 @@ pmmlTreeModel <- function(file, ...) {
   as.party(xmlRoot(xmlTreeParse(file)))
 }
 
-as.party.XMLNode <- function(x) {
+as.party.XMLNode <- function(obj, ...) {
+
+  ### FIXME: generic has as.party(obj, ...)
+  x <- obj
+
   stopifnot(require("XML"))
   ## check whether XML specifies a TreeModel
   stopifnot(c("DataDictionary", "TreeModel") %in% names(x))
