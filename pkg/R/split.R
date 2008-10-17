@@ -112,13 +112,15 @@ info_split <- function(split) {
     split$info
 }
 
-### FIXME: additional perm argument for permuting observations
-### (needed for permutation importance in random forests)
-kidids_split <- function(split, data, vmatch = 1:ncol(data), obs = NULL) {
+kidids_split <- function(split, data, vmatch = 1:ncol(data), 
+                         obs = NULL, perm = NULL) {
 
     id <- varid_split(split)
     x <- data[[vmatch[id]]]
     if (!is.null(obs)) x <- x[obs]
+    if (!is.null(perm)) {
+        if (id %in% perm) x <- sample(x)
+    }
 
     if (is.null(breaks_split(split))) {
         stopifnot(storage.mode(x) == "integer")

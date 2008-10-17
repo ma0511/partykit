@@ -6,4 +6,4 @@
 #define INFO_NODE               4               /* info_node */
 #define LENGTH_NODE             INFO_NODE + 1   /* length node object */
 
-int fitted_node(SEXP node, SEXP data, SEXP vmatch, int obs);
+int fitted_node(SEXP node, SEXP data, SEXP vmatch, SEXP perm, SEXP perms, int obs);

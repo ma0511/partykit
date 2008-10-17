@@ -2,3 +2,4 @@
 - partykit vignette (TH, Z)
 - revised/new MLOSS paper (TH, Z, KH)
 - as.list() method (TH)
+- tests: perm argument

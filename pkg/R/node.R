@@ -104,12 +104,13 @@ as.list.partynode <- function(x, ...) {
         if (is.terminal(node))
             obj[[node$id]] <<- list(id = id_node(node), info = info_node(node))
         else {
-            obj[[node$id]] <<- list(id = id_node(node), split = split_node(node),
+            thisnode <<- list(id = id_node(node), split = split_node(node),
                  kids = sapply(kids_node(node), function(k) id_node(k)))
              if (!is.null(surrogates_node(node)))
-		 obj[[node$id]]$surrogates <- surrogates_node(node)
+		 thisnode$surrogates <- surrogates_node(node)
              if (!is.null(info_node(node)))
-		 obj[[node$id]]$info <- info_node(node)
+		 thisnode$info <- info_node(node)
+            obj[[id_node(node)]]  <<- thisnode
             lapply(kids_node(node), nodelist)
         }
     }
@@ -133,13 +134,16 @@ info_node <- function(node) {
     node$info
 }
 
-kidids_node <- function(node, data, vmatch = 1:ncol(data), obs = NULL) {
+### FIXME: permutation and surrogate splits: is only the primary
+### variable permuted?
+kidids_node <- function(node, data, vmatch = 1:ncol(data), obs = NULL, 
+                        perm = NULL) {
 
     primary <- split_node(node)
     surrogates <- surrogates_node(node)
 
     ### perform primary split
-    x <- kidids_split(primary, data, vmatch, obs)
+    x <- kidids_split(primary, data, vmatch, obs, perm)
 
     ### surrogate / random splits if needed
     if (any(is.na(x))) {
@@ -162,18 +166,20 @@ kidids_node <- function(node, data, vmatch = 1:ncol(data), obs = NULL) {
     return(x)
 }
 
-fitted_node <- function(node, data, vmatch = 1:ncol(data), obs = 1:nrow(data)) {
+fitted_node <- function(node, data, vmatch = 1:ncol(data), 
+                        obs = 1:nrow(data), perm = NULL) {
 
     ### should be equivalent to:
-    #return(.Call("R_fitted_node", node, data, vmatch, as.integer(obs)))
+    # return(.Call("R_fitted_node", node, data, vmatch, as.integer(obs), 
+    #             as.integer(perm)))
 
     if (is.terminal(node))
         return(rep(id_node(node), length(obs)))
-    retid <- nextid <- kidids_node(node, data, vmatch, obs)
+    retid <- nextid <- kidids_node(node, data, vmatch, obs, perm)
     for (i in unique(nextid)) {
         indx <- nextid == i
         retid[indx] <- fitted_node(kids_node(node)[[i]], data,
-                                   vmatch, obs[indx])
+                                   vmatch, obs[indx], perm)
     }
     return(retid)
 }

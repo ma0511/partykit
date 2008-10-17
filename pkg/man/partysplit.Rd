@@ -11,15 +11,17 @@
 \title{ Multiway Splits }
 \description{
 
-  A class for representing multiway splits in nominal or 
-  ordered variables and functions for computing with splits.
+  A class for representing multiway splits and functions 
+  for computing on splits.
 
 }
 \usage{
   partysplit(varid, breaks = NULL, index = NULL, right = TRUE, 
              prob = NULL, info = NULL)
-  kidids_split(split, data, vmatch = 1:ncol(data), obs = NULL)
-  character_split(split, data = NULL, digits = getOption("digits") - 2)
+  kidids_split(split, data, vmatch = 1:ncol(data), obs = NULL, 
+               perm = NULL)
+  character_split(split, data = NULL, 
+                  digits = getOption("digits") - 2)
   varid_split(split)
   breaks_split(split)
   index_split(split)
@@ -44,25 +46,28 @@
   \item{vmatch}{ a permutation of the variable numbers in \code{data}.}
   \item{obs}{ a logical or integer vector indicating a subset of the 
               observations in \code{data}.}
+  \item{perm}{ a vector of integers specifying the variables
+               to be permuted prior before splitting (i.e., for
+               computing permutation variable importances). The
+               default \code{NULL} doesn't alter the data.}
   \item{digits}{ minimal number of significant digits.}
-}}
+}
 \details{
 
   A split is basically a function that maps data, 
   more specifically a partitioning variable,
-  to a set of integers indicating the kid nodes. Objects of
-  class \code{partysplit} describe such a function and can
+  to a set of integers indicating the kid nodes to send observations to. 
+  Objects of class \code{partysplit} describe such a function and can
   be set-up via the \code{partysplit()} constructor.
   The variables are available in a \code{list} or \code{data.frame} 
   (here called \code{data}) and \code{varid} specifies the 
-  partitioning variable, i.e., the variable to split in. 
+  partitioning variable, i.e., the variable or list element to split in. 
   The constructor \code{partysplit()} doesn't have access 
   to the actual data, i.e., doesn't \emph{estimate} splits.
 
-  \code{kidids_split()} actually performs the split
-  represented by its \code{split} argument on observations 
-  \code{data} and assigns an integer (giving the
-  kid node number) to each observation in \code{data[obs,]}.
+  \code{kidids_split()} actually partitions the data
+  \code{data[obs,]} and assigns an integer (giving the
+  kid node number) to each observation.
 
   \code{character_split()} returns a character representation
   of its \code{split} argument. The remaining functions 
@@ -72,13 +77,18 @@
   The numeric vector \code{breaks} defines how the range of 
   the partitioning variable
   is divided into intervals (like in \code{\link{cut}}) and may be 
-  \code{NULL}. The intervals are represented by integers 
-  \code{1:length(breaks) + 1}.
+  \code{NULL}. These intervals are represented by the
+  numbers one to \code{length(breaks) + 1}.
 
   \code{index} assigns these \code{length(breaks) + 1} 
-  intervals to one of at least two kid nodes.
-  Kid nodes are represented by an integer identifiers (starting with 1).
+  intervals to one of at least two kid nodes. Thus, \code{index}
+  is a vector of integers where each element corresponds
+  to one element in a list \code{kids} containing \code{\link{partynode}}
+  objects, see \code{\link{partynode}} for details.
   Either \code{breaks} or \code{index} must be given.
+  When \code{breaks} is \code{NULL}, it is assumed that
+  the partitioning variable itself has storage mode \code{integer}
+  (e.g., is a \code{\link{factor}}).
 
   \code{prob} defines a probability distribution over
   all kid nodes which is used for random splitting
@@ -89,7 +99,7 @@
 
 }
 \value{
-  An object of class \code{partysplit}:
+  The constructor \code{partysplit()} returns an object of class \code{partysplit}:
   \item{varid}{ an integer specifying the variable to split in, i.e.,
                 a column in \code{data}. }
   \item{breaks}{ a numeric vector of split points.}
@@ -101,6 +111,13 @@
   \item{prob}{ a numeric vector representing a distribution
                over kid nodes.}
   \item{info}{ arbitrary information.}
+
+  \code{kidids_split()} returns an integer vector describing
+  the partition of the observations into kid nodes.
+
+  \code{character_split()} gives a character representation of the
+  split and the remaining functions return the corresponding slots
+  of \code{partysplit} objects.
 }
 \seealso{\code{\link{cut}}}
 \examples{

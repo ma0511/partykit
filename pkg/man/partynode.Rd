@@ -7,17 +7,20 @@
 \alias{surrogates_node}
 \alias{kids_node}
 \alias{info_node}
-\title{ Nodes in Regression Trees }
+\title{ Inner and Terminal Nodes }
 \description{
 
-  A class for representing recursive nodes in decision trees
-  and for computing with nodes.
+  A class for representing inner and terminal 
+  nodes in trees and functions for partitioning of data.
 
 }
 \usage{
-  partynode(id, split = NULL, kids = NULL, surrogates = NULL, info = NULL)
-  kidids_node(node, data, vmatch = 1:ncol(data), obs = NULL)
-  fitted_node(node, data, vmatch = 1:ncol(data), obs = 1:nrow(data))
+  partynode(id, split = NULL, kids = NULL, surrogates = NULL, 
+            info = NULL)
+  kidids_node(node, data, vmatch = 1:ncol(data), 
+              obs = NULL, perm = NULL)
+  fitted_node(node, data, vmatch = 1:ncol(data), 
+              obs = 1:nrow(data), perm = NULL)
   id_node(node)
   split_node(node)
   surrogates_node(node)
@@ -25,9 +28,9 @@
   info_node(node)
 }
 \arguments{
-  \item{id}{ a unique integer identifier for a node. }
+  \item{id}{ integer, a unique identifier a node. }
   \item{split}{ an object of class \code{\link{partysplit}}. }
-  \item{kids}{ a list of \code{node} objects. }
+  \item{kids}{ a list of \code{partynode} objects. }
   \item{surrogates}{ a list of \code{partysplit} objects.}
   \item{info}{ additional information. }
   \item{node}{ an object of class \code{partynode}.}
@@ -35,45 +38,59 @@
   \item{vmatch}{ a permutation of the variable numbers in \code{data}.}
   \item{obs}{ a logical or integer vector indicating a subset of the
               observations in \code{data}.}
+  \item{perm}{ a vector of integers specifying the variables
+               to be permuted prior before splitting (i.e., for
+               computing permutation variable importances). The
+               default \code{NULL} doesn't alter the data.}
 }
 \details{
 
-  A node represents a recursive regression tree and
-  consists of an identifier. A node consisting only
-  of an identifier (and possibly additional information
+  A node represents both inner and terminal nodes in a tree structure. 
+  Each node has a unique identifier \code{id}. A node consisting only
+  of such an identifier (and possibly additional information
   in \code{info}) is a terminal node.
 
   Inner nodes consist of a primary split 
   (an object of class \code{\link{partysplit}})
-  and at least two kids. Kid nodes are objects of class \code{node}
-  itself, so the structure is defined recursively.
+  and at least two kids (daugther nodes). 
+  Kid nodes are objects of class \code{partynode}
+  itself, so the tree structure is defined recursively.
   In addition, a list of \code{partysplit} objects 
   offering surrogate splits can be supplied. Like
   \code{\help{partysplit}} objects, \code{partynode}
   objects aren't connected to the actual data.
 
   Function \code{kidids_node()} determines how
-  the observation in \code{data[obs,]} are assigned 
-  to the kid nodes (and returns the kid node number).
+  the observations in \code{data[obs,]} are partitioned
+  into the kid nodes and returns the number of the list element
+  in list \code{kids} each observations belongs to 
+  (and not it's identifier).
   This is done by evaluating \code{split} (and possibly
   all surrogate splits) on \code{data}.
 
   Function \code{fitted_node()} performs all 
-  splits recursively and returns the \code{id}
+  splits recursively and returns the identifier \code{id}
   of the terminal node each observation in
   \code{data[obs,]} belongs to.
 
-  All other functions are accessor function for
+  All other functions are accessor functions for
   extracting information from objects of class \code{partynode}.
 
 }
 \value{
-  An object of class \code{partynode}:
+  The constrcutor \code{partynode()} returns an object of class \code{partynode}:
   \item{id}{ a unique integer identifier for a node. }
   \item{split}{ an object of class \code{\link{partysplit}}. }
-  \item{kids}{ a list of \code{node} objects. }
-  \item{surrogates}{ a list of \code{partysplit} objects.}
+  \item{kids}{ a list of \code{partynode} objects. }
+  \item{surrogates}{ a list of \code{\link{partysplit}} objects.}
   \item{info}{ additional information. }
+
+  \code{kidids_split()} returns an integer vector describing
+  the partition of the observations into kid nodes.
+
+  \code{fitted_node()} returns the node identifiers of the
+  terminal nodes each observation belongs to.
+
 }
 \examples{
 
@@ -88,7 +105,7 @@
   ## textual representation
   print(stump, data = iris)  
 
-  ## number and node id of the two terminal nodes
+  ## list element number and node id of the two terminal nodes
   table(kidids_node(stump, iris), 
         fitted_node(stump, data = iris))
 

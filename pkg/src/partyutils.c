@@ -43,3 +43,17 @@ int cut(double x, double *breaks, int n, int right) {
     /* ret is in 0, ..., n */
     return(ret);
 }
+
+void C_SampleNoReplace(int *x, int m, int k, int *ans) {
+     
+     
+    int i, j, n = m;
+         
+    for (i = 0; i < m; i++)
+        x[i] = i;
+    for (i = 0; i < k; i++) {
+        j = n * unif_rand(); 
+        ans[i] = x[j];
+        x[j] = x[--n];
+    }
+}

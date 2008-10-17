@@ -102,20 +102,28 @@ int kidid_node(SEXP node, SEXP data, SEXP vmatch, int obs) {
     *\param obs observation number (starting with 0)
 */
 
-int fitted_node(SEXP node, SEXP data, SEXP vmatch, int obs) {
+int fitted_node(SEXP node, SEXP data, SEXP vmatch, SEXP perm, SEXP perms, int obs) {
 
-    int kidid, ret;
+    int kidid, ret, i;
     
     /* return the id of the terminal node */
     if (is_terminal_node(node))
         return(id_node(node));
+    
+    /* permute obs */
+    if (perm != R_NilValue) {
+        for (i = 0; i < LENGTH(perm); i++) {
+            if (varid_split(split_node(node)) == INTEGER(perm)[i])
+                obs = INTEGER(VECTOR_ELT(perms, i))[obs];
+        }
+    }
     
     /* determine next child node */
     kidid = kidid_node(node, data, vmatch, obs);
     
     /* send observation down to node kidid (recursively!) */
     ret = fitted_node(VECTOR_ELT(kids_node(node), kidid), 
-                      data, vmatch, obs);
+                      data, vmatch, perm, perms, obs);
 
     /* ret is in 1, ..., #nodes */
     return(ret);
