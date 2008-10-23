@@ -61,8 +61,8 @@
   data("iris")
   tree <- party(node, data = iris, 
                 fitted = data.frame("(fitted)" = fitted_node(node, data = iris),
-                                    check.names = FALSE),
-)
+                                    check.names = FALSE))
+
   ## number of kids in root node
   length(tree)
 
