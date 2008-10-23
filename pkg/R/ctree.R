@@ -14,6 +14,32 @@ pmaxT <- function(lin, exp, cov) {
                     sigma = cov2cor(V)))
 }
 
+MPinv <- function (X, tol = sqrt(.Machine$double.eps)) 
+{
+    if (length(dim(X)) > 2 || !(is.numeric(X) || is.complex(X))) 
+        stop("'X' must be a numeric or complex matrix")
+    if (!is.matrix(X)) 
+        X <- as.matrix(X)
+    Xsvd <- svd(X)
+    if (is.complex(X)) 
+        Xsvd$u <- Conj(Xsvd$u)
+    Positive <- Xsvd$d > max(tol * Xsvd$d[1], 0)
+    Xplus <- if (all(Positive)) 
+        Xsvd$v %*% (1/Xsvd$d * t(Xsvd$u))
+    else if (!any(Positive)) 
+        array(0, dim(X)[2:1])
+    else Xsvd$v[, Positive, drop = FALSE] %*% ((1/Xsvd$d[Positive]) * 
+        t(Xsvd$u[, Positive, drop = FALSE]))
+    list(Xplus = Xplus, rank = sum(Positive))
+}
+
+pX2 <- function(lin, exp, cov) {
+    tmp <- matrix(lin - exp, ncol = 1)
+    Xplus <- MPinv(matrix(cov, ncol = sqrt(length(cov))))
+    X2 <- crossprod(tmp, Xplus$Xplus) %*% tmp
+    c(X2, pchisq(X2, df = Xplus$rank, lower.tail = TRUE))
+}
+
 ### set up new node for conditional inference tree
 cnode <- function(id = 1, data, response, inputs, weights, ctrl) {
 
@@ -23,14 +49,19 @@ cnode <- function(id = 1, data, response, inputs, weights, ctrl) {
     p <- sapply(inputs, function(i) {
         x <- data[[i]]
         lin <- .Call("R_LinstatExpCov", x, response, weights)
-        do.call("pmaxT", lin[-1])
+        do.call(ctrl$teststatfun, lin[-1])
     })
     colnames(p) <- colnames(data)[inputs]
-    rownames(p) <- c("maxT", "pval")
-    p["pval",] <- p["pval",]^length(inputs)
-    if (any(p["pval",] > 0.95)) {
-        isel <- which.max(p["pval",])
-        if (p["pval",isel] == 1) isel <- which.max(p["maxT",])
+    rownames(p) <- c("teststat", "pval")
+    
+    if (ctrl$testtype == "Bonferroni")
+        p["pval",] <- p["pval",]^length(inputs)
+    crit <-  p["teststat",]
+    if (ctrl$testtype != "Teststatistic" && max(p["pval",]) < 1)
+        crit <- p["pval",]
+
+    if (any(crit > ctrl$mincriterion)) {
+        isel <- which.max(crit)
         isel <- inputs[isel]
     } else {
         return(partynode(as.integer(id), info = p))
@@ -65,8 +96,22 @@ cnode <- function(id = 1, data, response, inputs, weights, ctrl) {
                 kids = list(leftnode, rightnode), info = p))
 }
 
+ctree_control <- function(teststat = c("quad", "max"), 
+    testtype = c("Bonferroni", "Univariate", "Teststatistic"), 
+    mincriterion = 0.95, minsplit = 20L, minbucket = 7L, minprob = 0.01) {
+
+    teststat <- match.arg(teststat)
+    teststatfun <- ifelse(teststat == "quad", "pX2", "pmaxT")
+    testtype <- match.arg(testtype)
+    list(teststat = teststat, 
+         teststatfun = teststatfun, 
+         testtype = testtype, mincriterion = mincriterion, 
+         minsplit = minsplit, minbucket = minbucket, 
+         minprob = minprob)
+}
+
 ctree <- function(formula, data, weights, subset, na.action, 
-                  ctrl = list(minsplit = 20L, minbucket = 7L, minprob = 0.01)) {
+                  ctrl = ctree_control()) {
 
     if (missing(data)) 
         data <- environment(formula)
