@@ -50,7 +50,7 @@ length.party <- function(x)
     length(nodeids(x))
 
 names.party <- function(x)
-    x$names
+    names_party(x)
 
 "names<-.party" <- function(x, value) {
      n <- length(nodeids(x, terminal = FALSE))
@@ -439,4 +439,8 @@ data_party.default <- function(party, id) {
 
 width.party <- function(x, ...) {
   width(node_party(x), ...)
+}
+
+depth.party <- function(x, ...) {
+  depth(node_party(x), ...)
 }
