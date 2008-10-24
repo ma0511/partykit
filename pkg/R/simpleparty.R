@@ -24,7 +24,7 @@ print.simpleparty <- function(x, digits = getOption("digits") - 4,
   y <- node_party(x)$info$prediction
   yclass <- class(y)[1]
   if(yclass == "ordered") yclass <- "factor"
-  if(!(yclass %in% c("Surv", "factor"))) yclass <- "numeric"
+  if(!(yclass %in% c("survfit", "factor"))) yclass <- "numeric"
 
   ## type of weights
   n <- node_party(x)$info$n
@@ -44,6 +44,10 @@ print.simpleparty <- function(x, digits = getOption("digits") - 4,
   ## compute terminal node labels
   FUN <- function(node) {
     yhat <- node$info$prediction
+    if (yclass == "survfit") {
+        yhat <- median_survival_time(yhat)
+        yclass <- "numeric"
+    }
     if(yclass == "numeric") yhat <- format(round(yhat, digits = digits), nsmall = digits)
     w <- node$info$n
     yerr <- if(is.null(node$info$error)) "" else paste(", err = ",
