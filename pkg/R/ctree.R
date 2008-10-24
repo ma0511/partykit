@@ -45,6 +45,7 @@ cnode <- function(id = 1, data, response, inputs, weights, ctrl) {
 
     weights <- as.integer(weights)
     if (sum(weights) < ctrl$minsplit) return(partynode(as.integer(id)))
+    if (id > 1 && ctrl$stump) return(partynode(as.integer(id)))
 
     p <- sapply(inputs, function(i) {
         x <- data[[i]]
@@ -98,7 +99,8 @@ cnode <- function(id = 1, data, response, inputs, weights, ctrl) {
 
 ctree_control <- function(teststat = c("quad", "max"), 
     testtype = c("Bonferroni", "Univariate", "Teststatistic"), 
-    mincriterion = 0.95, minsplit = 20L, minbucket = 7L, minprob = 0.01) {
+    mincriterion = 0.95, minsplit = 20L, minbucket = 7L, minprob = 0.01,
+    stump = FALSE) {
 
     teststat <- match.arg(teststat)
     teststatfun <- ifelse(teststat == "quad", "pX2", "pmaxT")
@@ -107,11 +109,11 @@ ctree_control <- function(teststat = c("quad", "max"),
          teststatfun = teststatfun, 
          testtype = testtype, mincriterion = mincriterion, 
          minsplit = minsplit, minbucket = minbucket, 
-         minprob = minprob)
+         minprob = minprob, stump = stump)
 }
 
 ctree <- function(formula, data, weights, subset, na.action, 
-                  ctrl = ctree_control()) {
+                  control = ctree_control()) {
 
     if (missing(data)) 
         data <- environment(formula)
@@ -126,13 +128,13 @@ ctree <- function(formula, data, weights, subset, na.action,
     response <- names(mf)[1] ### model.response(mf)
     weights <- model.weights(mf)
     dat <- mf[, colnames(mf) != "(weights)"]
-    ret <- ctree_fit(dat, response, weights = weights, ctrl = ctrl)
+    ret <- ctree_fit(dat, response, weights = weights, ctrl = control)
     ret$terms <- terms(formula, data = mf)
     return(ret)
 }
 
 ctree_fit <- function(data, response, weights = NULL, 
-                      ctrl = list(minsplit = 20L, minbucket = 7L, minprob = 0.01)) {
+                      ctrl = ctree_control()) {
 
     inputs <- which(!(colnames(data) %in% response))
 
