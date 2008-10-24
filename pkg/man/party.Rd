@@ -3,6 +3,8 @@
 \alias{names.party}
 \alias{names<-.party}
 \alias{node_party}
+\alias{is.constparty}
+\alias{is.simpleparty}
 \title{ Recursive Partytioning }
 \description{
 
@@ -15,6 +17,8 @@ party(node, data, fitted = NULL, terms = NULL, names = NULL, info = NULL)
 \method{names}{party}(x)
 \method{names}{party}(x) <- value
 node_party(party)
+is.constparty(party)
+is.simpleparty(party)
 }
 \arguments{
   \item{node}{ an object of class \code{\link{partynode}}.}
@@ -32,6 +36,23 @@ node_party(party)
     \code{NULL}.}
 }
 \details{
+
+
+  Two classes inherit from class \code{party} and impose additional
+  assumptions on the structure of this object.
+
+  Class \code{constparty} requires that the \code{fitted} slot
+  contains a partiting of the learning sample as a factor \code{("fitted")}
+  and the response values of all observations in the learning sample
+  as \code{("response")}. This structure is most flexible and 
+  allows for graphical display of the response values in terminal
+  nodes as well as for computing predictions based on 
+  arbitrary summary statistics.
+
+  Class \code{simpleparty} assumes that certain pre-computed information
+  about the distribution of the response variable is contained
+  in the \code{info} slot nodes. At the moment, no formal
+  class is used to describe this information.
 
 }
 \value{

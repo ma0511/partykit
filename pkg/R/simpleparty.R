@@ -89,16 +89,25 @@ predict_party.simpleparty <- function(party, id, newdata = NULL,
   }
 }
 
-as.simpleparty <- function(x, ...) UseMethod("as.simpleparty")
+as.simpleparty <- function(obj, ...) UseMethod("as.simpleparty")
 
-as.simpleparty.simpleparty <- function(x, ...) x
+as.simpleparty.simpleparty <- function(obj, ...) obj
 
-as.simpleparty.XMLNode <- function(x, ...) as.party(x)
+as.simpleparty.party <- function(obj, ...) {
+  if (is.simpleparty(obj)) 
+      return(obj)
+  if (is.constparty(obj)) 
+      return(as.simpleparty(as.constparty(obj)))
+  stop("can't coerse objects of class ", sQuote(class(obj)), 
+       " to class ", sQuote("simpleparty"))
+}
 
-as.simpleparty.constparty <- function(x, ...) {
+as.simpleparty.XMLNode <- function(obj, ...) as.party(obj)
+
+as.simpleparty.constparty <- function(obj, ...) {
   ## extract and delete fitted
-  fit <- x$fitted
-  x$fitted <- NULL
+  fit <- obj$fitted
+  obj$fitted <- NULL
 
   ## response info
   rtype <- class(fit[["(response)"]])[1]
@@ -159,8 +168,18 @@ as.simpleparty.constparty <- function(x, ...) {
       surrogates = onode$surrogates,
       info = FUN(onode, fitted))
   }
-  x$node <- new_node(x$node, fit)
+  obj$node <- new_node(node_party(obj), fit)
 
-  class(x) <- c("simpleparty", "party")
-  return(x)
+  class(obj) <- c("simpleparty", "party")
+  return(obj)
 }
+
+is.simpleparty <- function(party) {
+
+    chkinfo <- function(node)
+        all(c("prediction", "n", "error", "distribution") %in% names(info_node(node)))
+
+    all(nodeapply(party, ids = nodeids(party), 
+                  FUN = chkinfo, by_node = TRUE))
+}
+
