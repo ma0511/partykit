@@ -114,15 +114,28 @@ void C_split_factor (SEXP x, SEXP y, int *iweights, int minbucket,
     q = NCOL(y);
     dy = REAL(y);
 
-    if (p == 2) {
-        ans[0] = 1;
-        ans[1] = 2;
-    } else {
+    for (i = 0; i < n; i++) {
+        if (iweights[i] == 0 || ix[i] == NA_INTEGER) continue;
+        sw += iweights[i];
+    }
 
+    for (l = 1; l < p; l++) ans[l] = NA_INTEGER;
+
+    if (p == 2) {
+
+        swx = 0.0;
         for (i = 0; i < n; i++) {
             if (iweights[i] == 0 || ix[i] == NA_INTEGER) continue;
-            sw += iweights[i];
+            if (ix[i] == 1)
+                swx += iweights[i];
         }
+
+        /* check sample size contraint */
+        if (!(swx > (sw - minbucket)) & !(swx < minbucket)) {
+            ans[0] = 1;
+            ans[1] = 2;
+        }
+    } else {
 
         /* check sample size contraint */
         if (sw >= minbucket) {
