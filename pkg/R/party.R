@@ -28,7 +28,7 @@ party <- function(node, data, fitted = NULL, terms = NULL, names = NULL, info = 
     }
     
     party <- list(node = node, data = data, fitted = fitted, 
-                  terms = NULL, names = NULL, info = NULL)
+                  terms = NULL, names = NULL, info = info)
     class(party) <- "party"
 
     if(!is.null(terms)) {
