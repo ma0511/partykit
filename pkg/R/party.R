@@ -82,7 +82,7 @@ is.constparty <- function(party) {
 as.constparty <- function(obj, ...) {
     if (is.constparty(obj)) {
         ret <- obj
-        class(ret) <- c("constparty", class(party))
+        class(ret) <- c("constparty", class(obj))
         return(ret)
     }
     stop("cannot coerce object of class", " ", sQuote(class(obj)), 
