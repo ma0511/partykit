@@ -444,3 +444,44 @@ width.party <- function(x, ...) {
 depth.party <- function(x, ...) {
   depth(node_party(x), ...)
 }
+
+rule <- function(x, i, ...) {
+    if (is.character(i) && !is.null(names(x)))
+        i <- which(names(x) %in% i)
+    stopifnot(length(i) == 1 & is.numeric(i))
+    stopifnot(i <= length(x) & i >= 1)
+    i <- as.integer(i)
+    dat <- data_party(x, i)  
+    if (!is.null(x$fitted)) {
+        findx <- which("(fitted)" == names(dat))[1]  
+        fit <- dat[,findx:ncol(dat), drop = FALSE]   
+        dat <- dat[,-(findx:ncol(dat)), drop = FALSE]
+        if (ncol(dat) == 0)
+            dat <- x$data
+    } else {
+        fit <- NULL  
+        dat <- x$data
+    }
+    nam <- names(x)[nodeids(x, from = i, terminal = FALSE)]
+
+    rule <- c()
+
+    recFun <- function(node) {
+        if (id_node(node) == i) return(NULL)   
+        kid <- sapply(kids_node(node), id_node)
+        whichkid <- max(which(kid <= i))
+        svar <- names(dat)[node$split$varid]
+        slevels <- levels(dat[, svar])[node$split$index == whichkid]
+        if (is.factor(dat[, svar])) {
+            srule <- paste(svar, " %in% c(\"", 
+                paste(slevels, collapse = "\", \"", sep = ""), "\")",
+                sep = "")
+        } else {
+            stop("not yet implemented")
+        }
+        rule <<- c(rule, srule)
+        return(recFun(node[[whichkid]]))
+    }
+    node <- recFun(node_party(x))
+    paste(rule, collapse = " & ")
+}
