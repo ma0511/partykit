@@ -3,7 +3,7 @@
 - revised/new MLOSS paper (TH, Z, KH)
 - as.list() method (TH)
 - node_surv (Z)
-- print rules, similar to
+- print rules, similar to the following
 
 list.rules.rpart <- function(model)
 {
