@@ -1,0 +1,80 @@
+\documentclass[10pt]{article}
+
+\usepackage{url}
+\usepackage{natbib}
+
+\renewcommand{\title}[1]{\begin{center}{\bf \LARGE #1}\end{center}}
+\newcommand{\affiliations}{\footnotesize}
+\newcommand{\keywords}{\paragraph{Keywords:}}
+
+\setlength{\oddsidemargin}{0cm} \setlength{\evensidemargin}{0cm}
+\setlength{\textwidth}{16.5cm} \setlength{\topmargin}{-1cm}
+\setlength{\textheight}{24.5cm}
+
+\begin{document}
+\pagestyle{empty}
+
+\title{\textbf{partykit}: A Toolbox for Recursive Partytioning}
+
+\begin{center}
+  {\bf Torsten Hothorn$^{1}$ and Achim Zeileis$^{2}$}
+\end{center}
+
+\begin{affiliations}
+1. Institut f\"ur Statistik, Ludwig-Maximilians-Universit\"at M\"unchen \par
+2. Department of Statistics and Mathematics, Wirtschaftsuniversit\"at Wien \par
+\texttt{\{Torsten.Hothorn, Achim.Zeileis\}@R-project.org}
+\end{affiliations}
+
+\keywords Regression Trees, Visualization, CTree, CHAID, Weka, PMML.
+
+\vskip 0.8cm
+
+Recursive Partitioning methods, or simply `trees', are simple yet powerful
+methods to estimate regression relationships. Since the publication of the
+Automated Interaction Detection (AID) algorithm in 1964, many extentions,
+modifications and new approaches have been suggested in both the statistics
+and machine learning communities. Most of the algorithms in use today are
+available to the \textsf{R} user, for example from packages \textbf{rpart}
+\citep{PKG:rpart},
+\textbf{RWeka} \citep{PKG:RWeka}, \textbf{party} \citep{PKG:party}, or \textbf{mvpart}
+\citep{PKG:mvpart}.
+
+Computations on fitted trees or the implementation of a new or modified
+recursive partitioning method, however, are relatively difficult tasks.
+As an example, one might want to predict a numeric response by the median
+instead of the mean based on an \textit{rpart} object. Or, instead of
+binary splits, one is going to implement an algorithm which potentially
+uses multiway splits, maybe containing a non-trivial model in each terminal
+node. These, and other, tasks require extensive programming,
+mainly because each package dealing with (some specialized form of)
+recursive partitioning uses a different internal representation of a tree. Thus, no
+standard user-interface exists, and methods for predictions, graphical or textual
+visualizations, or other computations heavily rely on these internals.
+
+To overcome these difficulties, the \textbf{partykit} package \citep{PKG:partykit} offers a 
+unified representation of tree objects along with \texttt{predict}, 
+\texttt{print}, and \texttt{plot} methods. Trees are represented through 
+a class \textit{party}, with building blocks \textit{partynode} and 
+\textit{partysplit}. The design of these classes covers splits in arbitrary
+functions of (one or more) variables, including multiway splits. In
+addition, non-constant fits in the terminal nodes are supported as well.
+Conversion methods exist for the most important sources of recursive
+partitioning objects, currently \textit{rpart}, \textit{J48} and
+\textit{pmmlTreeModel} objects can easily be converted into a \textit{party}
+object to compute with. The \textbf{partykit} also offers a re-implementation
+of conditional inference trees \cite{Hothorn:2006:JCGS}, illustrating the usefulness of the generic
+infrastructure.
+
+In our presentation, we will only sketch details of these classes and 
+corresponding methods and focus
+on applications of the toolkit, for example for producing nice and
+non-standard plots
+for \textit{rpart} or \textit{J48} objects, for computing predictions
+on millions of new observations really fast, and for implementing CHAID, 
+a popular classification tree algorithm.
+
+\bibliographystyle{plainnat}
+\bibliography{partykit}
+
+\end{document}
