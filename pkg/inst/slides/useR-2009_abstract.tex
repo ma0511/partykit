@@ -1,12 +1,15 @@
-\documentclass[10pt,a4paper]{article}
+\documentclass[10pt]{article}
 
-\usepackage{url,a4wide}
+\usepackage{url}
 \usepackage[authoryear,round]{natbib}
 
 \renewcommand{\title}[1]{\begin{center}{\bf \LARGE #1}\end{center}}
-\renewcommand{\author}[1]{\begin{center}{\bf #1}\end{center}}
-\newenvironment{affiliations}{\footnotesize \begin{enumerate}}{\end{enumerate}}
-\newenvironment{keywords}{\paragraph{Keywords:}}{\bigskip}
+\newcommand{\affiliations}{\footnotesize}
+\newcommand{\keywords}{\paragraph{Keywords:}}
+
+\setlength{\oddsidemargin}{0cm} \setlength{\evensidemargin}{0cm}
+\setlength{\textwidth}{16.5cm} \setlength{\topmargin}{-1cm}
+\setlength{\textheight}{24.5cm}
 
 \let\code=\texttt
 \let\pkg=\textbf
@@ -17,18 +20,23 @@
 \pagestyle{empty}
 
 \title{\pkg{partykit}: A Toolbox for Recursive Partytioning}
-\author{Torsten Hothorn$^{1}$ and Achim Zeileis$^{2}$}
+
+\begin{center}
+  {\bf Torsten Hothorn$^{1}$, Achim Zeileis$^{2}$}
+\end{center}
 
 \begin{affiliations}
+\begin{enumerate}
   \item Institut f\"ur Statistik, Ludwig-Maximilians-Universit\"at M\"unchen, Germany\\
         \texttt{Torsten.Hothorn@R-project.org}
   \item Department of Statistics and Mathematics, Wirtschaftsuniversit\"at Wien, Austria\\
         \texttt{Achim.Zeileis@R-project.org}
+\end{enumerate}
 \end{affiliations}
 
-\begin{keywords}
-Regression Trees, Visualization, CTree, CHAID, Weka, PMML.
-\end{keywords}
+\keywords Regression Trees, Visualization, CTree, CHAID, Weka, PMML.
+
+\vskip 0.8cm
 
 Recursive partitioning methods, or simply ``trees'', are simple yet powerful
 methods for capturing regression relationships. Since the publication of the
