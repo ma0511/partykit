@@ -220,6 +220,7 @@ as.party.XMLNode <- function(obj, ...) {
           ar <- nj[[wii]][["Array"]]
 	  stopifnot(xmlAttrs(ar)["type"] == "string")
   	  rv <- strsplit(xmlValue(ar), " ")[[1]]
+	  rv <- gsub("&quot;", "", rv, fixed = TRUE) ## FIXME: labels seem to be quoted in new PMML
 	  stopifnot(length(rv) == as.numeric(xmlAttrs(ar)["n"]))
 	  return(rv)
 	} else {
