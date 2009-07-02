@@ -40,7 +40,7 @@ library("rJava")
 \title{\pkg{partykit}: \\ A Toolbox for Recursive Partytioning}
 
 \author{Torsten Hothorn \\ Ludwig-Maximilians-Universit\"at M\"unchen \vspace*{1cm} \\ 
-        Achim Zeileis \\ Wirtschaftsuniversit\"at Wien}
+        Achim Zeileis \\ WU Wirtschaftsuniversit\"at Wien}
 \fancyfoot[L]{\tiny 2009-07-09} %%\copyright{} 2007 Friedrich Leisch
 \fancyfoot[R]{\arabic{page}}
 
@@ -57,8 +57,8 @@ The Machine Learning task view lists the following tree-related packages
 \item \pkg{rpart} (CART)
 \item \pkg{tree} (CART)
 \item \pkg{mvpart} (multivariate CART)
-\item \pkg{knnTree} (nearest neighbor based trees)
-\item \pkg{RWeka} (J48, M5$^\prime$, LMT)
+\item \pkg{knnTree} (nearest-neighbor-based trees)
+\item \pkg{RWeka} (J4.8, M5$^\prime$, LMT)
 \item \pkg{LogicReg} (Logic Regression)
 \item \pkg{BayesTree} (with Bayesian flavor)
 \item \pkg{TWIX} (with extra splits)
@@ -93,7 +93,7 @@ are missing from the above list, for example
 \item QUEST
 \item GUIDE
 \item LOTUS
-\item C4.5
+\item CRUISE
 \item ...
 \end{compactitem}
 
@@ -111,6 +111,7 @@ of fitting the tree but also of
 
 \newslide{Wouldn't it be nice to...}
 
+{\color{white} hansi \\}
 ... have a common infrastructure for
 \begin{itemize}
 \item representing fitted trees,
@@ -121,12 +122,13 @@ of fitting the tree but also of
 
 \newslide{R-Forge Package \pkg{partykit}}
 
-offers a unified representation of trees with methods for
+{\color{white} hansi \\}
+offers a unified approach to 
 \begin{itemize}
-\item printing,
-\item plotting,
-\item computing predictions and
-\item coercing from/to different formats.
+\item representing fitted trees,
+\item printing trees,
+\item plotting trees, and
+\item computing predictions from trees.
 \end{itemize}
 
 \newslide{Unified Representation of Trees}
@@ -156,6 +158,7 @@ Computing: \\
 
 <<ex-rpart, echo = TRUE>>=
 data("GlaucomaM", package = "ipred")
+library("rpart")
 g_rpart <- rpart(Class ~ ., data = GlaucomaM)
 print(g_rpart)
 @
@@ -172,6 +175,7 @@ text(g_rpart)
 
 {\small
 <<ex-rpart-partykit, echo = TRUE>>=
+library("partykit")
 g_party <- as.party(g_rpart)
 print(g_party, header = FALSE)
 @
@@ -210,7 +214,7 @@ them to focus on the algorithm, not on technical details.
 We only had to implement variable selection, splitting and stopping rules,
 \pkg{partykit} takes care of the rest.
 
-The resulting package \pkg{CHAID} is available from R-forge and
+The resulting package \pkg{CHAID} is available from R-Forge and
 consists of only 362 lines of R code and was validated against SPSS 15.
 
 \newpage
@@ -220,6 +224,7 @@ Fit a CHAID tree to BreastCancer data from package \pkg{mlbench}:
 \small{
 <<ex-CHAID, echo = TRUE>>=
 data("BreastCancer", package = "mlbench")
+library("CHAID")
 b_chaid <- chaid(Class ~ Cl.thickness + Cell.size + Cell.shape + 
                   Marg.adhesion + Epith.c.size + Bare.nuclei + 
                   Bl.cromatin + Normal.nucleoli + Mitoses, 
@@ -235,7 +240,7 @@ plot(b_chaid)
 
 \newpage
 
-Benchmark experiment CHAID vs. CTREE\\
+Benchmark experiment misclassification error CHAID vs.~CTREE\\
 (Bachelor thesis by Stefanie Thiemichen)
 \begin{center}
 \includegraphics{ratiobox}
@@ -258,7 +263,7 @@ plot(pm)
 \newpage
 
 <<ex-pmml-predict, echo = TRUE>>=
-nd <- data.frame(nutzung = gl(3, 10), beruf = sample(gl(3, 10)))
+nd <- data.frame(X1 = gl(3, 10), X2 = sample(gl(3, 10)))
 predict(pm, newdata = nd)
 @
 
@@ -268,6 +273,7 @@ Once a stable version of \pkg{partykit} is available from CRAN, we hope that
 useRs will start
 \begin{itemize}
 \item adding new tree algorithms,
+\item adding new ensemble methods,
 \item adding coercing methods from/to other packages,
 \item adding new plot functionality, and generally
 \item will use our kit to party harder.
