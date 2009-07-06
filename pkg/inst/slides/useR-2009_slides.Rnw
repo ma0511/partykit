@@ -208,10 +208,10 @@ table(p1, p2)
 
 \pkg{partykit} makes it `easy' to implement new or old tree algorithms.
 
-My students implemented CHAID as a software project last winter. I wanted
-them to focus on the algorithm, not on technical details. 
+My students implemented CHAID as a software project last winter. \\
+I wanted them to focus on the algorithm, not on technical details. 
 
-We only had to implement variable selection, splitting and stopping rules,
+They only had to implement variable selection, splitting and stopping rules,
 \pkg{partykit} takes care of the rest.
 
 The resulting package \pkg{CHAID} is available from R-Forge and
