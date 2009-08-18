@@ -1,0 +1,95 @@
+This file provides preliminary (and still incomplete) documentation for the implementation of the GUIDE algorithm
+in file guide.R.
+
+Reference: 
+Wei-Yin Loh (2002). Regression Trees with unbiased Variable Selection and Interaction Detection. 
+Statistica Sinica, 12, 361--386.
+
+
+
+guide depends on library(partykit)
+
+
+
+guide
+=====================
+
+guide(formula, data, vartype = NULL, complexity, subset, weights, na.action = na.omit,
+			control = guide_control())
+
+
+formula:
+---------------------
+a formula, as in the lm function; only main effects are allowed 
+
+
+data:
+----------------------
+an optional data frame in which to interpret the variables named in the
+formula
+
+
+vartype:
+--------------
+character vector whose length equals number of predictors in formula, 
+each entry one of "n", "f", "s", "c" [cf. Loh (2002) p.371],
+specifying if corresponding predictor in formula is either numeric and
+"n" --> used for splitting nodes and fitting the model 
+"s" --> splitting only, not fitting 
+"f" --> fitting only, not splitting
+or if predictor is a factor
+"c" --> split nodes only, not fitting
+
+If vartype is NULL its entries are set to "c" for factorial regressors and "n" for numeric ones. 
+This setting for vartype is mandatory if complexity is "const".
+
+
+complexity:
+--------------
+character vector who specifies the complexity of the linear model fitted at each node:
+"const" --> a constant model is fitted at each node
+"mult" --> a multiple linear model is fitted at each node; all "n" and "f" variables are used as regressors
+
+If complexity is "const", the entries of vartype have to be "c" for factorial regressors 
+and "n" for numeric ones (which is the default behavior when vartype=NULL).
+
+
+subset:
+------------
+optional vector saying that only a subset of the rows of the data
+should be used in the fit
+
+
+weights:
+---------------------
+optional case weights to be used in the fitting process
+
+
+na.action:
+--------------------
+The default action na.omit deletes all observations for which response and/or predictors are missing
+
+
+
+guide_control
+=================
+
+guide_control( splitmethod = "G", minsplit = 20)
+
+options that control details of the guide algorithm
+
+
+splitmethod:
+----------------
+character vector, either "G" or "M". Determines how a node is split if the selected split variable is numeric:
+"G" --> uses greedy search to find the splitvalue that minimizes the total SSE in the regression models 
+        fitted to the data subsets defined by the split; default
+"M" --> splits at the sample median of the split variable
+
+
+minsplit:
+--------------
+number of observations in splitted response at which no further split is desired
+
+
+
