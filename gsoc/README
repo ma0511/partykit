@@ -47,8 +47,9 @@ This setting for vartype is mandatory if complexity is "const".
 complexity:
 --------------
 character vector who specifies the complexity of the linear model fitted at each node:
-"const" --> a constant model is fitted at each node
+"const" --> a constant model is fitted at each node; default
 "mult" --> a multiple linear model is fitted at each node; all "n" and "f" variables are used as regressors
+"simple" --> a best simple linear model is fitted at each node; each "n" and "f" variable is evaluated as regressor
 
 If complexity is "const", the entries of vartype have to be "c" for factorial regressors 
 and "n" for numeric ones (which is the default behavior when vartype=NULL).
