@@ -45,7 +45,7 @@ print.simpleparty <- function(x, digits = getOption("digits") - 4,
   FUN <- function(node) {
     yhat <- node$info$prediction
     if (yclass == "survfit") {
-        yhat <- median_survival_time(yhat)
+        yhat <- .median_survival_time(yhat)
         yclass <- "numeric"
     }
     if(yclass == "numeric") yhat <- format(round(yhat, digits = digits), nsmall = digits)
@@ -82,12 +82,12 @@ predict_party.simpleparty <- function(party, id, newdata = NULL,
 
   ## predictions
   if(type == "response") {
-    simplify_pred(nodeapply(party, nodeids(party),
+    .simplify_pred(nodeapply(party, nodeids(party),
       function(x) x$info$prediction, by_node = TRUE), id, nam)
   } else {
     if(is.null(node_party(party)$info$distribution)) stop("probabilities not available")
     scale <- any(node_party(party)$info$distribution > 1)
-    simplify_pred(nodeapply(party, nodeids(party),
+    .simplify_pred(nodeapply(party, nodeids(party),
       function(x) if(scale) prop.table(x$info$distribution) else x$info$distribution,
       by_node = TRUE), id, nam)
   }
@@ -133,19 +133,19 @@ as.simpleparty.constparty <- function(obj, ...) {
     
     switch(rtype,
       "numeric" = {
-        yhat <- pred_numeric(y, w)
+        yhat <- .pred_numeric(y, w)
         list(prediction = yhat, n = structure(sum(w), .Names = wnam),
 	  error = sum(w * (y - yhat)^2), distribution = NULL)
       },
       "factor" = {
-        yhat <- pred_factor_response(y, w)
-        ytab <- round(pred_factor(y, w) * sum(w))
+        yhat <- .pred_factor_response(y, w)
+        ytab <- round(.pred_factor(y, w) * sum(w))
         list(prediction = yhat, n = structure(sum(w), .Names = wnam),
 	  error = structure(sum(100 * prop.table(ytab)[names(ytab) != yhat]), .Names = "%"),
 	  distribution = ytab)
       },
       "Surv" = {
-        list(prediction = pred_Surv(y, w), n = structure(sum(w), .Names = wnam),
+        list(prediction = .pred_Surv(y, w), n = structure(sum(w), .Names = wnam),
 	  error = NULL, distribution = NULL) ## FIXME: change distribution format?
       })
   }

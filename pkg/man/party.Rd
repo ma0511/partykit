@@ -8,12 +8,13 @@
 \title{ Recursive Partytioning }
 \description{
 
-  A class for representing decision trees
-  and accessor functions.
+  A class for representing decision trees and corresponding
+  accessor functions.
 
 }
 \usage{
-party(node, data, fitted = NULL, terms = NULL, names = NULL, info = NULL)
+party(node, data, fitted = NULL, terms = NULL, names = NULL, 
+      info = NULL)
 \method{names}{party}(x)
 \method{names}{party}(x) <- value
 node_party(party)
@@ -25,7 +26,7 @@ is.simpleparty(party)
   \item{data}{ a (potentially empty) \code{\link{data.frame}}.}
   \item{fitted}{ an optional \code{\link{data.frame}} with \code{nrow(data)} 
                  rows (only if \code{nrow(data) != 0} and 
-                 containing at least the fitted terminal node ids
+                 containing at least the fitted terminal node identifiers
                  as element \code{(fitted)}.}
   \item{terms}{ an optional \code{\link{terms}} object.  }
   \item{names}{ an optional vector of names to be assigned to each node of \code{node}. }
@@ -37,7 +38,23 @@ is.simpleparty(party)
 }
 \details{
 
+  Objects of class \code{party} basically consist of a \code{\link{partynode}}
+  object representing the tree structure in a recursive way and 
+  data. The \code{data} argument takes a \code{data.frame} which, however,
+  might have zero columns. Optionally, a \code{data.frame} with at least one
+  variable \code{(fitted)} containing the terminal node numbers of 
+  data used for fitting the tree may be specified along with a
+  \code{\link{terms}} object or any additional (currently unstructured)
+  information as \code{info}. Argument \code{names} defines names
+  for all nodes in \code{node}.
 
+  Method \code{names} can be used to extract or alter names for nodes.
+  Function \code{node_party} returns the \code{node} element of a
+  \code{party} object. Further methods for \code{party} objects
+  are documented in \code{\link{party-methods}} and 
+  \code{\link{party-predict}}. Trees of various flavors can be coerced
+  to \code{party}, see \code{\link{party-coersion}}.
+  
   Two classes inherit from class \code{party} and impose additional
   assumptions on the structure of this object.
 

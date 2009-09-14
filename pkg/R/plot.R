@@ -1,4 +1,4 @@
-nobs_party <- function(party, id = 1) {
+.nobs_party <- function(party, id = 1) {
   dat <- data_party(party, id = id)
   if("(weights)" %in% names(dat)) sum(dat[["(weights)"]]) else NROW(dat)
 }
@@ -149,7 +149,7 @@ edge_simple <- function(obj, digits = 3, abbreviate = FALSE)
 }
 class(edge_simple) <- "grapcon_generator"
 
-plot_node <- function(node, xlim, ylim, nx, ny, 
+.plot_node <- function(node, xlim, ylim, nx, ny, 
                terminal_panel, inner_panel, edge_panel,
 	       tnex = 2, drop_terminal = TRUE, debug = FALSE) {
 
@@ -238,7 +238,7 @@ plot_node <- function(node, xlim, ylim, nx, ny,
     }
 
     ## call workhorse for kids
-    for(i in 1:nk) plot_node(kids[[i]],
+    for(i in 1:nk) .plot_node(kids[[i]],
       c(x1lim[i], x1lim[i+1]), c(y1[i], 1), nx, ny, 
       terminal_panel, inner_panel, edge_panel,
       tnex = tnex, drop_terminal = drop_terminal, debug = debug)
@@ -302,7 +302,7 @@ plot.party <- function(x, main = NULL,
       terminal_panel(node)
     } else {
       ## call the workhorse
-      plot_node(node,
+      .plot_node(node,
         xlim = c(0, nx), ylim = c(0, ny - 0.5 + (tnex - 1)),
         nx = nx, ny = ny, 
         terminal_panel = terminal_panel,
@@ -333,7 +333,7 @@ plot.constparty <- function(x, main = NULL,
     } else {
         if (is.null(terminal_panel))
             terminal_panel <- switch(class(x$fitted[["(response)"]])[1],
-	                             "Surv" = node_surv,
+	                             "Surv" = stop("node_surv not yet implemented"),
                                      "factor" = node_barplot,
                                      "ordered" = node_barplot,
                                      node_boxplot)

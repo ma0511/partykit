@@ -10,6 +10,7 @@
 \alias{as.simpleparty.simpleparty}
 \alias{as.simpleparty.XMLNode}
 \alias{as.simpleparty.constparty}
+\alias{pmmlTreeModel}
 \title{ Coersion Functions }
 \description{
 
@@ -21,6 +22,7 @@ as.party(obj, ...)
 \method{as.party}{rpart}(obj, ...)
 \method{as.party}{J48}(obj, ...)
 \method{as.party}{XMLNode}(obj, ...)
+pmmlTreeModel(file, ...)
 as.constparty(obj, ...)
 as.simpleparty(obj, ...)
 \method{as.simpleparty}{party}(obj, ...)
@@ -32,6 +34,8 @@ as.simpleparty(obj, ...)
   \item{obj}{ an object of class \code{\link[rpart]{rpart}},
               \code{\link[RWeka]{J48}}, \code{XMLnode} or
               objects inheriting from \code{party}.}
+  \item{file}{ a file name of a XML file 
+              containing a PMML description of a tree.}
   \item{\dots}{ additional arguments.}
 }
 \details{

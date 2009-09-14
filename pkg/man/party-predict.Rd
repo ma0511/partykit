@@ -23,14 +23,25 @@ predict_party(party, id, newdata = NULL, ...)
 \arguments{
   \item{object}{ objects of class \code{\link{party}}. }
   \item{newdata}{ an optional data frame in which to look for variables with
-          which to predict,if omitted, the fitted values are used.}
+          which to predict, if omitted, the fitted values are used.}
   \item{party}{ objects of class \code{\link{party}}. }
   \item{id}{ a vector of terminal node identifiers. }
-  \item{type}{}
+  \item{type}{ a character string denoting the type of predicted value
+          returned, ignored when argument \code{FUN} is given.  
+          For \code{"response"}, the mean of a numeric response, the predicted
+          class for a categorical response or the median survival time
+          for a censored response is returned. For a categorical response,
+          \code{"prob"} returns the matrix of conditional class probabilities 
+          (\code{simplify = TRUE}) or a list with the conditional
+          class probabilities for each observation (\code{simplify = FALSE}).
+          \code{"node"} returns an integer vector of terminal node
+          identifiers.}
   \item{FUN}{ a function to compute summary statistics, i.e., constant
               predictions for each node with argument list \code{(y, w)}
               where \code{y} is the response and \code{w} are case weights.}
-  \item{simplify}{}
+  \item{simplify}{ a logical indicating whether the resulting list 
+                   of predictions should be converted to a suitable
+                   vector or matrix (if possible).}
   \item{\dots}{ additional arguments. }
 }
 \details{
@@ -46,8 +57,8 @@ predict_party(party, id, newdata = NULL, ...)
 
 }
 \value{
-  A list of predictions, possibly simplified to a numeric vector or
-  character.
+  A list of predictions, possibly simplified to a numeric vector, 
+  numeric matrix or factor.
 }
 \examples{
 

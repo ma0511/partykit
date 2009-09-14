@@ -1,7 +1,7 @@
 Package: partykit
 Title: A Toolkit for Recursive Partytioning
-Date: 2009-01-01
-Version: 0.0-1
+Date: 2009-09-14
+Version: 0.0-2
 Author: Torsten Hothorn, Achim Zeileis
 Maintainer: Torsten Hothorn <Torsten.Hothorn@R-project.org>
 Description: A toolkit with infrastructure for representing,
@@ -14,7 +14,8 @@ Description: A toolkit with infrastructure for representing,
   a re-implementation of ctree() is contained in the package.)
 Depends: R (>= 2.5.0), graphics, stats, grid, mvtnorm
 Imports: survival
-Suggests: XML, pmml, rpart, RWeka, mlbench
+Suggests: XML, pmml, mlbench, RWeka, rpart
 LazyLoad: yes
 LazyData: yes
 License: GPL-2
+Packaged: 2009-07-01 08:39:25 UTC; hothorn

@@ -14,6 +14,7 @@
 \alias{depth.partynode}
 \alias{width}
 \alias{width.partynode}
+\alias{print.partynode}
 \title{ Methods for Node Objects}
 \description{
 
@@ -35,11 +36,21 @@
   \method{depth}{partynode}(x, ...)
   width(x, ...)
   \method{width}{partynode}(x, ...)
+  \method{print}{partynode}(x, data = NULL, names = NULL,
+  inner_panel = function(node) "", terminal_panel = function(node) " *",
+  prefix = "", first = TRUE, digits = getOption("digits") - 2, ...)
 }
 \arguments{
   \item{x}{ an object of class \code{partynode} or \code{list}.}
   \item{from}{ an integer giving the identifier of the root node.}
   \item{i}{ an integer specifying the kid to extract.}
+  \item{data}{ an optional \code{data.frame}.}
+  \item{names}{ a vector of names for nodes.}
+  \item{terminal_panel}{ a panel function for printing terminal nodes.}
+  \item{inner_panel}{ a panel function for printing inner nodes.}
+  \item{prefix}{ lines start with this symbol.}
+  \item{first}{ a logical.}
+  \item{digits}{ number of digits to be printed.}
   \item{\dots}{ additional arguments.}
 }
 \details{
@@ -92,7 +103,10 @@
   print(node, data = iris)
 
   ## print subtree
-  print(as.partynode(node[2]), data = iris)
+  print(node[2], data = iris)
+
+  ## print subtree, with root node number one
+  print(as.partynode(node[2], from = 1), data = iris)
 
   ## number of kids in root node
   length(node)

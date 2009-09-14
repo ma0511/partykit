@@ -8,6 +8,7 @@ pfit <- as.party(fit)
 all(predict(pfit, newdata = kyphosis, type = "node") == fit$where)
 
 library("RWeka")
+library("rJava")
 
 itree <- J48(Species ~ ., data = iris)
 pitree <- as.party(itree)

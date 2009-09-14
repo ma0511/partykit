@@ -1,17 +1,30 @@
 \name{party-methods}
 \alias{party-methods}
 \alias{length.party}
+\alias{print.party}
+\alias{print.simpleparty}
+\alias{print.constparty}
 \alias{[.party}
 \alias{[[.party}
 \alias{depth.party}
 \alias{width.party}
-\title{ Methods for Party Objects}
+\title{ Methods for Party Objects }
 \description{
 
   Methods for computing on \code{party} objects.
 
 }
 \usage{
+  \method{print}{party}(x, 
+  terminal_panel = function(node) " *", tp_args = list(),
+  inner_panel = function(node) "", ip_args = list(),
+  header_panel = function(party) "",
+  footer_panel = function(party) "",
+  digits = getOption("digits") - 2, ...)
+  \method{print}{simpleparty}(x, digits = getOption("digits") - 4,
+  header = NULL, footer = TRUE, ...)
+  \method{print}{constparty}(x, FUN = NULL, digits = getOption("digits") - 4,
+  header = NULL, footer = TRUE, ...)
   \method{length}{party}(x)
   \method{[}{party}(x, i, ...)
   \method{[[}{party}(x, i, ...)
@@ -21,12 +34,23 @@
 \arguments{
   \item{x}{ an object of class \code{\link{party}}.}
   \item{i}{ an integer specifying the root of the subtree to extract.}
+  \item{terminal_panel}{ a panel function for printing terminal nodes.}
+  \item{tp_args}{ a list containing arguments to \code{terminal_panel}.}
+  \item{inner_panel}{ a panel function for printing inner nodes.}
+  \item{ip_args}{ a list containing arguments to \code{inner_panel}.}
+  \item{header_panel}{ a panel function for printing the header.}
+  \item{footer_panel}{ a panel function for printing the footer.}
+  \item{digits}{ number of digits to be printed.}
+  \item{header}{}
+  \item{footer}{}
+  \item{FUN}{ a function to be applied to nodes.}
   \item{\dots}{ additional arguments.}
 }
 \details{
 
   \code{length} gives the number of nodes in the tree (in contrast
-  to the \code{length} method for \code{\link{partynode}} objects),
+  to the \code{length} method for \code{\link{partynode}} objects which
+  returns the number of kid nodes in the root),
   \code{depth} the depth of the tree and \code{width} 
   the number of terminal nodes.
 
@@ -60,8 +84,10 @@
   ## set up party object
   data("iris")
   tree <- party(node, data = iris, 
-                fitted = data.frame("(fitted)" = fitted_node(node, data = iris),
-                                    check.names = FALSE))
+      fitted = data.frame("(fitted)" = 
+                          fitted_node(node, data = iris),
+                          check.names = FALSE))
+  names(tree) <- paste("Node", nodeids(tree), sep = " ")
 
   ## number of kids in root node
   length(tree)
@@ -72,7 +98,9 @@
   ## number of terminal nodes
   width(tree)
 
-  tree[2]
+  ## node number four
+  tree["Node 4"]
+  tree[["Node 4"]]
 
 }
 \keyword{tree}

@@ -98,7 +98,7 @@ print.constparty <- function(x,
   
   if(is.null(FUN)) FUN <- switch(yclass,
     "numeric" = function(y, w, digits) {
-      yhat <- pred_numeric(y, w)
+      yhat <- .pred_numeric(y, w)
       yerr <- sum(w * (y - yhat)^2)
       digits2 <- max(c(0, digits - 2))
       paste(format(round(yhat, digits = digits), nsmall = digits),
@@ -106,11 +106,11 @@ print.constparty <- function(x,
 	format(round(yerr, digits = digits2), nsmall = digits2), ")", sep = "")
     },
     "Surv" = function(y, w, digits) {
-      paste(format(round(pred_Surv_response(y, w), digits = digits), nsmall = digits),
+      paste(format(round(.pred_Surv_response(y, w), digits = digits), nsmall = digits),
         " (", wsym, " = ", format(round(sum(w), digits = wdigits), nsmall = wdigits), ")", sep = "")
     },
     "factor" = function(y, w, digits) {
-      tab <- round(pred_factor(y, w) * sum(w))
+      tab <- round(.pred_factor(y, w) * sum(w))
       mc <- round(100 * (1 - max(tab)/sum(w)), digits = max(c(0, digits - 2)))
       paste(names(tab)[which.max(tab)], " (",
         wsym, " = ", format(round(sum(w), digits = wdigits), nsmall = wdigits),

@@ -1,5 +1,5 @@
 
-median_survival_time <- function(x) {
+.median_survival_time <- function(x) {
     minmin <- function(y, xx) {
         if (any(!is.na(y) & y==.5)) {
             if (any(!is.na(y) & y <.5))

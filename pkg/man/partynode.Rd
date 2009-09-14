@@ -11,7 +11,7 @@
 \description{
 
   A class for representing inner and terminal 
-  nodes in trees and functions for partitioning of data.
+  nodes in trees and functions for data partitioning.
 
 }
 \usage{
@@ -28,7 +28,7 @@
   info_node(node)
 }
 \arguments{
-  \item{id}{ integer, a unique identifier a node. }
+  \item{id}{ integer, a unique identifier for a node. }
   \item{split}{ an object of class \code{\link{partysplit}}. }
   \item{kids}{ a list of \code{partynode} objects. }
   \item{surrogates}{ a list of \code{partysplit} objects.}
@@ -57,7 +57,7 @@
   itself, so the tree structure is defined recursively.
   In addition, a list of \code{partysplit} objects 
   offering surrogate splits can be supplied. Like
-  \code{\help{partysplit}} objects, \code{partynode}
+  \code{\link{partysplit}} objects, \code{partynode}
   objects aren't connected to the actual data.
 
   Function \code{kidids_node()} determines how
@@ -66,12 +66,14 @@
   in list \code{kids} each observations belongs to 
   (and not it's identifier).
   This is done by evaluating \code{split} (and possibly
-  all surrogate splits) on \code{data}.
+  all surrogate splits) on \code{data} using 
+  \code{\link{kidids_split}}.
 
   Function \code{fitted_node()} performs all 
   splits recursively and returns the identifier \code{id}
   of the terminal node each observation in
-  \code{data[obs,]} belongs to.
+  \code{data[obs,]} belongs to. Arguments \code{vmatch}, 
+  \code{obs} and \code{perm} are passed to \code{\link{kidids_split}}.
 
   All other functions are accessor functions for
   extracting information from objects of class \code{partynode}.
@@ -86,10 +88,11 @@
   \item{info}{ additional information. }
 
   \code{kidids_split()} returns an integer vector describing
-  the partition of the observations into kid nodes.
+  the partition of the observations into kid nodes by their position
+  in list \code{kids}.
 
-  \code{fitted_node()} returns the node identifiers of the
-  terminal nodes each observation belongs to.
+  \code{fitted_node()} returns the node identifiers (\code{id}) 
+  of the terminal nodes each observation belongs to.
 
 }
 \examples{
@@ -108,6 +111,28 @@
   ## list element number and node id of the two terminal nodes
   table(kidids_node(stump, iris), 
         fitted_node(stump, data = iris))
+
+  ## assign terminal nodes with probability 0.5
+  ## to observations with missing `Sepal.Length'
+  iris_NA <- iris
+  iris_NA[sample(1:nrow(iris), 50), "Sepal.Length"] <- NA
+  table(fitted_node(stump, data = iris_NA, 
+                    obs = !complete.cases(iris_NA)))
+
+  ## a stump defined by a primary split in `Sepal.Length'
+  ## and a surrogate split in `Sepal.Width' which
+  ## determines terminal nodes for observations with
+  ## missing `Sepal.Length'
+  stump <- partynode(id = 1L, 
+      split = partysplit(which(names(iris) == "Sepal.Length"),
+                         breaks = 5),
+      kids = lapply(2:3, partynode),
+      surrogates = list(partysplit(
+          which(names(iris) == "Sepal.Width"),
+          breaks = 3)))
+  f <- fitted_node(stump, data = iris_NA, 
+                   obs = !complete.cases(iris_NA))
+  tapply(iris_NA$Sepal.Width[!complete.cases(iris_NA)], f, range)
 
 }
 \keyword{tree}

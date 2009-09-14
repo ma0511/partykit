@@ -11,6 +11,11 @@ party <- function(node, data, fitted = NULL, terms = NULL, names = NULL, info = 
 
     stopifnot(inherits(node, "partynode"))
     stopifnot(inherits(data, "data.frame"))
+    ### make sure all split variables are there 
+    ids <- nodeids(node)[!nodeids(node) %in% nodeids(node, terminal = TRUE)]
+    varids <- unique(unlist(nodeapply(node, ids = ids, FUN = function(x) 
+        varid_split(split_node(x)))))
+    stopifnot(varids %in% 1:ncol(data))
     
     if(!is.null(fitted)) {
         stopifnot(inherits(fitted, "data.frame"))
@@ -115,7 +120,8 @@ as.constparty <- function(obj, ...) {
     }
     node <- recFun(node_party(x))
 
-    ret <- party(node = node, data = dat, fitted = fit, terms = x$terms, names = nam, info = x$info)
+    ret <- party(node = node, data = dat, fitted = fit, 
+                 terms = x$terms, names = nam, info = x$info)
     class(ret) <- class(x)
     ret
 }
@@ -295,9 +301,9 @@ predict_party.constparty <- function(party, id, newdata = NULL,
     ### multivariate response
     if (is.data.frame(response)) {
         ret <- lapply(response, function(r) {
-            ret <- predict_party_constparty(node_party(party), fitted = fitted, 
+            ret <- .predict_party_constparty(node_party(party), fitted = fitted, 
                 response = r, weights, id = id, type = type, FUN = FUN, ...)
-            if (simplify) simplify_pred(ret, id, nam) else ret
+            if (simplify) .simplify_pred(ret, id, nam) else ret
         })
         if (all(sapply(ret, is.atomic)))
             ret <- as.data.frame(ret)
@@ -306,19 +312,19 @@ predict_party.constparty <- function(party, id, newdata = NULL,
     }
 
     ### univariate response
-    ret <- predict_party_constparty(node_party(party), fitted = fitted, response = response, 
+    ret <- .predict_party_constparty(node_party(party), fitted = fitted, response = response, 
         weights = weights, id = id, type = type, FUN = FUN, ...)
-    if (simplify) simplify_pred(ret, id, nam) else ret[as.character(id)]
+    if (simplify) .simplify_pred(ret, id, nam) else ret[as.character(id)]
 }
 
 ### functions for node prediction based on fitted / response
-pred_Surv <- function(y, w)
-    survival:::survfit(y, weights = w, subset = w > 0)
+.pred_Surv <- function(y, w)
+    survival:::survfit(y ~ 1, weights = w, subset = w > 0)
 
-pred_Surv_response <- function(y, w)
-    median_survival_time(pred_Surv(y, w))
+.pred_Surv_response <- function(y, w)
+    .median_survival_time(.pred_Surv(y, w))
                     
-pred_factor <- function(y, w) {
+.pred_factor <- function(y, w) {
     lev <- levels(y)
     sumw <- tapply(w, y, sum)
     sumw[is.na(sumw)] <- 0
@@ -327,18 +333,18 @@ pred_factor <- function(y, w) {
     return(prob)
 }
 
-pred_factor_response <- function(y, w) {
-    prob <- pred_factor(y, w)
+.pred_factor_response <- function(y, w) {
+    prob <- .pred_factor(y, w)
     return(factor(which.max(prob), levels = 1:nlevels(y),
                   labels = levels(y), 
                   ordered = is.ordered(y)))
-    return(prob)
+    return(prob) 
 }
                     
-pred_numeric <- function(y, w) weighted.mean(y, w, na.rm = TRUE)
+.pred_numeric <- function(y, w) weighted.mean(y, w, na.rm = TRUE)
 
 ### workhorse: compute predictions based on fitted / response data
-predict_party_constparty <- function(node, fitted, response, weights,
+.predict_party_constparty <- function(node, fitted, response, weights,
     id = id, type = c("response", "prob"), FUN = NULL, ...) {
 
     if (is.null(FUN)) {
@@ -348,12 +354,12 @@ predict_party_constparty <- function(node, fitted, response, weights,
         if (rtype == "integer") rtype <- "numeric"
 
         FUN <- switch(rtype,
-            "Surv" = if (type == "response") pred_Surv_response else pred_Surv,
-            "factor" = if (type == "response") pred_factor_response else pred_factor,
+            "Surv" = if (type == "response") .pred_Surv_response else .pred_Surv,
+            "factor" = if (type == "response") .pred_factor_response else .pred_factor,
             "numeric" = {
                 if (type == "prob")
                     stop(sQuote("type = \"prob\""), " ", "is not available")
-                pred_numeric
+                .pred_numeric
            })
     }
       
@@ -378,7 +384,7 @@ predict_party_constparty <- function(node, fitted, response, weights,
 
 
 ### simplify structure of predictions
-simplify_pred <- function(tab, id, nam) {
+.simplify_pred <- function(tab, id, nam) {
 
     if (all(sapply(tab, length) == 1) & all(sapply(tab, is.atomic))) {
         ret <- do.call("c", tab)
@@ -505,3 +511,4 @@ list.rules.party <- function(x, i = NULL, ...) {
     node <- recFun(node_party(x))
     paste(rule, collapse = " & ")
 }
+	

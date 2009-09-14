@@ -173,6 +173,7 @@ fitted_node <- function(node, data, vmatch = 1:ncol(data),
     # return(.Call("R_fitted_node", node, data, vmatch, as.integer(obs), 
     #             as.integer(perm)))
 
+    if (is.logical(obs)) obs <- which(obs)
     if (is.terminal(node))
         return(rep(id_node(node), length(obs)))
     retid <- nextid <- kidids_node(node, data, vmatch, obs, perm)

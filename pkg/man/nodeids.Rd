@@ -23,6 +23,7 @@ nodeids(obj, ...)
   \item{\dots}{ additional arguments.}
 }
 \details{
+  The identifiers of each node are extracted.
 }
 \value{
   A vector of node identifiers.
@@ -56,8 +57,9 @@ nodeids(obj, ...)
   ## set up party object
   data("iris")
   tree <- party(node, data = iris, 
-                fitted = data.frame("(fitted)" = fitted_node(node, data = iris),
-                                    check.names = FALSE))
+      fitted = data.frame("(fitted)" = 
+                          fitted_node(node, data = iris),
+                          check.names = FALSE))
   tree
   
   ### ids of all nodes

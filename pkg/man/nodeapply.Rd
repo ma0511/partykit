@@ -6,7 +6,7 @@
 \description{
 
   Returns a list of values obtained by applying a function to
-  \code{partynode} objects.
+  \code{party} or \code{partynode} objects.
 
 }
 \usage{
@@ -25,12 +25,15 @@ nodeapply(obj, ids = 1, FUN = NULL, ...)
 }
 \details{
 
-  The method for \code{party} essentially calls the \code{nodeapply}
-  method on it's \code{node} slot.
+  Function \code{FUN} is applied to all nodes with node identifiers in
+  \code{ids} for a \code{partynode} object.
+  The method for \code{party} by default calls the \code{nodeapply}
+  method on it's \code{node} slot. If \code{by_node} is \code{FALSE},
+  it is applied to a \code{party} object with root node \code{ids}.
 
 }
 \value{
-  A list.
+  A list of results of length \code{length(ids)}.
 }
 \examples{
 
@@ -65,5 +68,20 @@ nodeapply(obj, ids = 1, FUN = NULL, ...)
   nodeapply(node, ids = nodeids(node, terminal = TRUE), 
             FUN = function(x) info_node(x))
 
+  ## fit tree using rpart
+  library("rpart")
+  rp <- rpart(Kyphosis ~ Age + Number + Start, data = kyphosis)
+
+  ## coerse to `constparty'
+  rpk <- as.party(rp)
+
+  ## extract nodeids
+  nodeids(rpk)
+  unlist(nodeapply(node_party(rpk), ids = nodeids(rpk), FUN = id_node))
+  unlist(nodeapply(rpk, ids = nodeids(rpk), FUN = id_node))
+
+  ## but root nodes of party objects always have id = 1
+  unlist(nodeapply(rpk, ids = nodeids(rpk), FUN = function(x) 
+         id_node(node_party(x)), by_node = FALSE))
 }
 \keyword{tree}

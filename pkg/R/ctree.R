@@ -1,6 +1,6 @@
 
 ### calculate p-value
-pmaxT <- function(lin, exp, cov) {
+.pmaxT <- function(lin, exp, cov) {
     v <- diag(V <- matrix(cov, ncol = sqrt(length(cov))))
     lin <- as.vector(lin)[v > 0]
     exp <- as.vector(exp)[v > 0]
@@ -14,7 +14,7 @@ pmaxT <- function(lin, exp, cov) {
                     sigma = cov2cor(V)))
 }
 
-MPinv <- function (X, tol = sqrt(.Machine$double.eps)) 
+.MPinv <- function (X, tol = sqrt(.Machine$double.eps)) 
 {
     if (length(dim(X)) > 2 || !(is.numeric(X) || is.complex(X))) 
         stop("'X' must be a numeric or complex matrix")
@@ -33,15 +33,15 @@ MPinv <- function (X, tol = sqrt(.Machine$double.eps))
     list(Xplus = Xplus, rank = sum(Positive))
 }
 
-pX2 <- function(lin, exp, cov) {
+.pX2 <- function(lin, exp, cov) {
     tmp <- matrix(lin - exp, ncol = 1)
-    Xplus <- MPinv(matrix(cov, ncol = sqrt(length(cov))))
+    Xplus <- .MPinv(matrix(cov, ncol = sqrt(length(cov))))
     X2 <- crossprod(tmp, Xplus$Xplus) %*% tmp
     c(X2, pchisq(X2, df = Xplus$rank, lower.tail = TRUE))
 }
 
 ### set up new node for conditional inference tree
-cnode <- function(id = 1, data, response, inputs, weights, ctrl) {
+.cnode <- function(id = 1, data, response, inputs, weights, ctrl) {
 
     weights <- as.integer(weights)
     if (sum(weights) < ctrl$minsplit) return(partynode(as.integer(id)))
@@ -86,11 +86,11 @@ cnode <- function(id = 1, data, response, inputs, weights, ctrl) {
 
     left <- weights
     left[kidids == 2] <- 0
-    leftnode <- cnode(id + 1, data, response, inputs, left, ctrl)
+    leftnode <- .cnode(id + 1, data, response, inputs, left, ctrl)
 
     right <- weights
     right[kidids == 1] <- 0
-    rightnode <- cnode(max(nodeids(leftnode)) + 1, data, response, 
+    rightnode <- .cnode(max(nodeids(leftnode)) + 1, data, response, 
                        inputs, right, ctrl)
 
     return(partynode(as.integer(id), split = thissplit, 
@@ -103,7 +103,7 @@ ctree_control <- function(teststat = c("quad", "max"),
     stump = FALSE) {
 
     teststat <- match.arg(teststat)
-    teststatfun <- ifelse(teststat == "quad", "pX2", "pmaxT")
+    teststatfun <- ifelse(teststat == "quad", ".pX2", ".pmaxT")
     testtype <- match.arg(testtype)
     list(teststat = teststat, 
          teststatfun = teststatfun, 
@@ -128,23 +128,23 @@ ctree <- function(formula, data, weights, subset, na.action,
     response <- names(mf)[1] ### model.response(mf)
     weights <- model.weights(mf)
     dat <- mf[, colnames(mf) != "(weights)"]
-    ret <- ctree_fit(dat, response, weights = weights, ctrl = control)
+    ret <- .ctree_fit(dat, response, weights = weights, ctrl = control)
     ret$terms <- terms(formula, data = mf)
     return(ret)
 }
 
-ctree_fit <- function(data, response, weights = NULL, 
+.ctree_fit <- function(data, response, weights = NULL, 
                       ctrl = ctree_control()) {
 
     inputs <- which(!(colnames(data) %in% response))
 
-    infl <- y2infl(data, response)
+    infl <- .y2infl(data, response)
 
     if (is.null(weights))
         weights <- rep(1, nrow(data))
     storage.mode(weights) <- "integer"
 
-    tree <-  cnode(1L, data, infl, inputs, weights, ctrl)
+    tree <-  .cnode(1L, data, infl, inputs, weights, ctrl)
     fitted <- data.frame("(fitted)" = fitted_node(tree, data), 
                          "(response)" = data[ , response, drop = TRUE], 
                          check.names = FALSE)
@@ -153,7 +153,7 @@ ctree_fit <- function(data, response, weights = NULL,
     return(ret)
 }
 
-logrank_trafo <- function(x, ties.method = c("logrank", "HL")) {
+.logrank_trafo <- function(x, ties.method = c("logrank", "HL")) {
     ties.method <- match.arg(ties.method)
     time <- x[,1]
     event <- x[,2]
@@ -168,7 +168,7 @@ logrank_trafo <- function(x, ties.method = c("logrank", "HL")) {
 }
 
 ### convert response y to influence function h(y)
-y2infl <- function(data, response) {
+.y2infl <- function(data, response) {
 
     if (length(response) == 1) {
         response <- data[[response]]
@@ -179,11 +179,11 @@ y2infl <- function(data, response) {
             "factor" = model.matrix(~ response - 1),
             "ordered" = (1:nlevels(response))[as.integer(response)],
             "numeric" = response,
-            "Surv" = logrank_trafo(response)
+            "Surv" = .logrank_trafo(response)
         )
     } else {
         ### multivariate response
-        infl <- lapply(response, y2infl, data = data)
+        infl <- lapply(response, .y2infl, data = data)
         infl <- do.call("cbind", infl)
     }
     storage.mode(infl) <- "double"
