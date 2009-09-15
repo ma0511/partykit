@@ -1,19 +1,6 @@
 
 #include "ctree.h"
 
-SEXP R_LinstatExpCov (const SEXP x, const SEXP y, const SEXP weights) {
-
-    SEXP ans;
-    int *thisweights;
-
-    thisweights = Calloc(LENGTH(x), int);
-    PROTECT(ans = allocVector(VECSXP, 4));
-    C_LinstatExpCov(x, y, weights, thisweights, ans);
-    UNPROTECT(1);
-    Free(thisweights);
-    return(ans);
-}
-
 SEXP R_split (const SEXP x, const SEXP y, const SEXP weights, const SEXP minbucket) {
 
     SEXP ans, cx;
@@ -51,5 +38,24 @@ SEXP R_split (const SEXP x, const SEXP y, const SEXP weights, const SEXP minbuck
     Free(covinf);
 
     UNPROTECT(1);
+    return(ans);
+}
+
+SEXP R_LinstatExpCov (const SEXP data, const SEXP inputs, 
+                      const SEXP y, const SEXP weights) {
+
+    SEXP ans, p;
+    int i, *iinputs, *thisweights;
+       
+    thisweights = Calloc(LENGTH(weights), int);
+    iinputs = LOGICAL(inputs);
+    PROTECT(ans = allocVector(VECSXP, LENGTH(data)));
+    for (i = 0; i < LENGTH(data); i++) {
+        if (iinputs[i])
+            SET_VECTOR_ELT(ans, i, p = allocVector(VECSXP, 4));
+            C_LinstatExpCov(VECTOR_ELT(data, i), y, weights, thisweights, p);
+    }
+    UNPROTECT(1);
+    Free(thisweights);
     return(ans);
 }
