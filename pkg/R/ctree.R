@@ -40,6 +40,8 @@
 .pmaxT <- function(lin, exp, cov, pval = TRUE) {
     if (length(lin) == 1) {
         maxT <- abs(lin - exp) / sqrt(cov)
+        v <- 1
+        V <- matrix(1)
     } else {
         v <- diag(V <- matrix(cov, ncol = length(lin)))
         lin <- as.vector(lin)[v > 0]
@@ -63,7 +65,8 @@
     ### <FIXME> surrogate splits for multiway splits </FIXME>?
     stopifnot(length(unique(split)) == 2)
     response <- as.factor(split)
-    response <- model.matrix(~ response)[, -1, drop = TRUE]
+    response <- model.matrix(~ response - 1)
+    if (ncol(response) == 2) response <- response[, -1, drop = FALSE]
     storage.mode(response) <- "double"
 
     lin <- .Call("R_LinstatExpCov", data, inp, response, weights)
@@ -139,7 +142,7 @@
             return(partynode(as.integer(id), info = exp(p)))
         }
         x <- data[[isel]]
-        swp <- ceiling(sum(weights[!is.na(x)]) * mp)
+        swp <- ceiling(sum(weights) * mp)
         if (mb < swp) mb <- as.integer(swp)
 
         if ((ctrl$multiway && ctrl$maxsurrogate == 0) && is.factor(x)) {
@@ -164,12 +167,20 @@
     if (is.null(thissplit))
         return(partynode(as.integer(id), info = exp(p)))
 
-    kidids <- kidids_split(thissplit, data)
+    ret <- partynode(as.integer(id))
+    ret$split <- thissplit
+    ret$info <- exp(p)
     thissurr <- NULL
+    kidids <- kidids_node(ret, data)
+
     if (ctrl$maxsurrogate > 0) {
         inp <- inputs
         inp[isel] <- FALSE
-        thissurr <- .csurr(kidids, data, inp, weights, ctrl)
+        w <- weights
+        xna <- is.na(x)
+        w[xna] <- 0L
+        ret$surrogate <- .csurr(kidids, data, inp, w, ctrl)
+        kidids[xna] <- kidids_node(ret, data, obs = xna)
     }
 
     kids <- vector(mode = "list", length = 1:max(kidids))
@@ -181,9 +192,9 @@
         kids[[k]] <- .cnode(nextid, data, response, inputs, w, ctrl, cenv)
         nextid <- max(nodeids(kids[[k]])) + 1
     }
+    ret$kids <- kids
 
-    return(partynode(as.integer(id), split = thissplit, surrogate = thissurr,
-                     kids = kids, info = exp(p)))
+    return(ret)
 }
 
 ctree_control <- function(teststat = c("quad", "max"),
@@ -202,7 +213,7 @@ ctree_control <- function(teststat = c("quad", "max"),
          maxsurrogate = maxsurrogate)
 }
 
-ctree <- function(formula, data, weights, subset, na.action, 
+ctree <- function(formula, data, weights, subset, na.action = na.pass, 
                   control = ctree_control()) {
 
     if (missing(data)) 
@@ -211,7 +222,8 @@ ctree <- function(formula, data, weights, subset, na.action,
     m <- match(c("formula", "data", "subset", "weights", "na.action"), 
                names(mf), 0)
     mf <- mf[c(1, m)]
-    mf$drop.unused.levels <- FALSE
+    mf$drop.unused.levels <- TRUE
+    mf$na.action <- na.action
     mf[[1]] <- as.name("model.frame")
     mf <- eval(mf, parent.frame())
  
@@ -280,7 +292,11 @@ ctree <- function(formula, data, weights, subset, na.action,
         if (rtype == "integer") rtype <- "numeric"
 
         infl <- switch(rtype,
-            "factor" = model.matrix(~ response)[, -1, drop = FALSE],
+            "factor" = { 
+                X <- model.matrix(~ response - 1)
+                if (nlevels(response) > 2) return(X)
+                return(X[,-1, drop = FALSE])
+            },
             "ordered" = (1:nlevels(response))[as.integer(response)],
             "numeric" = response,
             "Surv" = .logrank_trafo(response)

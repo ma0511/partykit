@@ -18,4 +18,4 @@ Suggests: XML, pmml, mlbench, RWeka, rpart
 LazyLoad: yes
 LazyData: yes
 License: GPL-2
-Packaged: 2009-07-01 08:39:25 UTC; hothorn
+Packaged: 2009-09-16 05:41:56 UTC; hothorn
