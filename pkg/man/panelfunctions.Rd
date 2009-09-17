@@ -14,7 +14,8 @@
     for the most important cases are documented here.
 }
 \usage{
-node_inner(obj, id = TRUE, abbreviate = FALSE, fill = "white", gp = gpar())
+node_inner(obj, id = TRUE, abbreviate = FALSE, fill = "white", 
+    gp = gpar())
 node_terminal(obj, digits = 3, abbreviate = FALSE,
     fill = c("lightgray", "white"), id = TRUE, gp = gpar())
 edge_simple(obj, digits = 3, abbreviate = FALSE)
@@ -66,7 +67,8 @@ node_barplot(obj, col = "black", fill = NULL, beside = NULL,
   the kind of model and the measurement scale of the variables modelled.
 
   For univariate regressions (typically fitted by \code{}),
-  \code{node_surv} returns a functions that plots Kaplan-Meier curves in each 
+  \code{node_surv}
+  returns a functions that plots Kaplan-Meier curves in each 
   terminal node; \code{node_barplot}, \code{node_boxplot}, \code{node_hist} and
   \code{node_density} can be used to plot bar plots, box plots, histograms and 
   estimated densities into the terminal nodes.

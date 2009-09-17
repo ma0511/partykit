@@ -9,9 +9,9 @@
 \usage{
 ctree_control(teststat = c("quad", "max"),
     testtype = c("Bonferroni", "Univariate", "Teststatistic"),
-    mincriterion = 0.95, minsplit = 20L, minbucket = 7L, minprob = 0.01,
-    stump = FALSE, maxsurrogate = 0, mtry = Inf, maxdepth = Inf,
-    multiway = FALSE, splittry = 2)
+    mincriterion = 0.95, minsplit = 20L, minbucket = 7L, 
+    minprob = 0.01, stump = FALSE, maxsurrogate = 0, mtry = Inf, 
+    maxdepth = Inf, multiway = FALSE, splittry = 2)
 }
 \arguments{
   \item{teststat}{ a character specifying the type of the test statistic
@@ -23,7 +23,7 @@ ctree_control(teststat = c("quad", "max"),
   \item{minsplit}{ the minimum sum of weights in a node in order to be considered
                    for splitting. }
   \item{minbucket}{ the minimum sum of weights in a terminal node. }
-  \item{minprob}{ }
+  \item{minprob}{ proportion of observations needed to establish a terminal node.}
   \item{stump}{ a logical determining whether a stump (a tree with three
                 nodes only) is to be computed. }
   \item{maxsurrogate}{ number of surrogate splits to evaluate. Note the
@@ -43,24 +43,27 @@ ctree_control(teststat = c("quad", "max"),
 
   The arguments \code{teststat}, \code{testtype} and \code{mincriterion}
   determine how the global null hypothesis of independence between all input
-  variables and the response is tested (see \code{\link{ctree}}). The 
-  argument \code{nresample} is the number of Monte-Carlo replications to be
-  used when \code{testtype = "MonteCarlo"}.
+  variables and the response is tested (see \code{\link{ctree}}). 
+  The variable with most extreme p-value or test statistic is selected
+  for splitting. If this isn't possible due to sample size constraints
+  explained in the next paragraph, up to \code{splittry} other variables
+  are inspected for possible splits.
 
-  A split is established when the sum of the weights in both daugther nodes
-  is larger than \code{minsplit}, this avoids pathological splits at the
-  borders. When \code{stump = TRUE}, a tree with at most two terminal nodes
-  is computed.
+  A split is established when all of the following criteria are met:
+  1) the sum of the weights in the current node 
+  is larger than \code{minsplit}, 2) a fraction of the sum of weights of more than 
+  \code{minprob} will be contained in all daughther nodes, 3) the sum of 
+  the weights in all daughther nodes exceeds \code{minbucket}, and 4)
+  the depth of the tree is smaller than \code{maxdepth}.
+  This avoids pathological splits deep down the tree. 
+  When \code{stump = TRUE}, a tree with at most two terminal nodes is computed.
 
   The argument \code{mtry > 0} means that a random forest like `variable
   selection', i.e., a random selection of \code{mtry} input variables, is
   performed in each node.
 
-  It might be informative to look at scatterplots of input variables against
-  the standardized two-sample split statistics, those are available when
-  \code{savesplitstats = TRUE}. Each node is then associated with a vector
-  whose length is determined by the number of observations in the learning
-  sample and thus much more memory is required.
+  In each inner node, \code{maxsurrogate} surrogate splits are computed 
+  (regardless of any missing values in the learning sample).
 
 }
 \value{

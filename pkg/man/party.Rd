@@ -14,7 +14,7 @@
 }
 \usage{
 party(node, data, fitted = NULL, terms = NULL, names = NULL, 
-      info = NULL)
+    info = NULL)
 \method{names}{party}(x)
 \method{names}{party}(x) <- value
 node_party(party)
@@ -27,7 +27,9 @@ is.simpleparty(party)
   \item{fitted}{ an optional \code{\link{data.frame}} with \code{nrow(data)} 
                  rows (only if \code{nrow(data) != 0} and 
                  containing at least the fitted terminal node identifiers
-                 as element \code{(fitted)}.}
+                 as element \code{(fitted)}. In addition, weights
+                 may be contained as element \code{(weights)} and 
+                 responses as \code{(response)}.}
   \item{terms}{ an optional \code{\link{terms}} object.  }
   \item{names}{ an optional vector of names to be assigned to each node of \code{node}. }
   \item{info}{ additional information. }
@@ -56,8 +58,7 @@ is.simpleparty(party)
   to \code{party}, see \code{\link{party-coersion}}.
   
   Two classes inherit from class \code{party} and impose additional
-  assumptions on the structure of this object.
-
+  assumptions on the structure of this object:
   Class \code{constparty} requires that the \code{fitted} slot
   contains a partiting of the learning sample as a factor \code{("fitted")}
   and the response values of all observations in the learning sample
@@ -76,10 +77,12 @@ is.simpleparty(party)
   The constrcutor returns an object of class \code{party}:
   \item{node}{ an object of class \code{\link{partynode}}.}
   \item{data}{ a (potentially empty) \code{\link{data.frame}}.}
-  \item{fitted}{ an optional \code{\link{data.frame}} with \code{nrow(data)}
-                 rows (only if \code{nrow(data) != 0} and
-                 containing at least the fitted terminal node ids
-                 as element \code{(fitted)}.}
+  \item{fitted}{ an optional \code{\link{data.frame}} with \code{nrow(data)} 
+                 rows (only if \code{nrow(data) != 0} and 
+                 containing at least the fitted terminal node identifiers
+                 as element \code{(fitted)}. In addition, weights
+                 may be contained as element \code{(weights)} and 
+                 responses as \code{(response)}.}
   \item{terms}{ an optional \code{\link{terms}} object.  }
   \item{names}{ an optional vector of names to be assigned to each node of \code{node}. }
   \item{info}{ additional information. }
@@ -88,18 +91,17 @@ is.simpleparty(party)
 }
 \examples{
 
-  data("iris")
+    data("iris")
 
-  ## a stump defined by a binary split in Sepal.Length
-  stump <- partynode(id = 1L,
-      split = partysplit(which(names(iris) == "Sepal.Length"),
-                         breaks = 5),
-      kids = lapply(2:3, partynode))
+    ## a stump defined by a binary split in Sepal.Length
+    stump <- partynode(id = 1L,
+        split = partysplit(which(names(iris) == "Sepal.Length"),
+            breaks = 5),
+        kids = lapply(2:3, partynode))
 
-  party(stump, iris, 
+    party(stump, iris, 
         fitted = data.frame("(fitted)" = fitted_node(stump, data = iris), 
-                            check.names = FALSE),
-        names = c("root", "left", "right"))
+          check.names = FALSE), names = c("root", "left", "right"))
 
 }
 \keyword{tree}

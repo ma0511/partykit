@@ -6,8 +6,8 @@
   multivariate response variables in a conditional inference framework. 
 }
 \usage{
-ctree(formula, data, weights, subset, na.action,
-      control = ctree_control())
+ctree(formula, data, weights, subset, na.action = na.pass,
+    control = ctree_control())
 }
 \arguments{
   \item{formula}{ a symbolic description of the model to be fit. }
@@ -17,7 +17,8 @@ ctree(formula, data, weights, subset, na.action,
   \item{weights}{ an optional vector of weights to be used in the fitting
                   process. Only non-negative integer valued weights are
                   allowed.}
-  \item{na.action}{}
+  \item{na.action}{a function which indicates what should happen when the data
+                   contain missing value.}
   \item{control}{a list with control parameters, see
                  \code{\link{ctree_control}}.}
 }
@@ -37,8 +38,7 @@ ctree(formula, data, weights, subset, na.action,
   The implementation utilizes a unified framework for conditional inference,
   or permutation tests, developed by Strasser and Weber (1999). The stop
   criterion in step 1) is either based on multiplicity adjusted p-values 
-  (\code{testtype = "Bonferroni"} 
-  or \code{testtype = "MonteCarlo"} in \code{\link{ctree_control}})
+  (\code{testtype = "Bonferroni"} in \code{\link{ctree_control}})
   or on the univariate p-values (\code{testtype = "Univariate"}). In both cases, the
   criterion is maximized, i.e., 1 - p-value is used. A split is implemented 
   when the criterion exceeds the value given by \code{mincriterion} as
@@ -50,22 +50,9 @@ ctree(formula, data, weights, subset, na.action,
   is based on the univariate p-values avoiding a variable selection bias
   towards input variables with many possible cutpoints.
 
-  Multiplicity-adjusted Monte-Carlo p-values are computed 
-  following a "min-p" approach. The univariate 
-  p-values based on the limiting distribution (chi-square
-  or normal) are computed for each of the random 
-  permutations of the data. This means that one should
-  use a quadratic test statistic when factors are in
-  play (because the evaluation of the corresponding
-  multivariate normal distribution is time-consuming).
-
-  By default, the scores for each ordinal factor \code{x} are
-  \code{1:length(x)}, this may be changed using \code{scores = list(x =
-  c(1,5,6))}, for example.
-
-  Predictions can be computed using \code{\link{predict}}. The first returns predicted means,
-  predicted classes or median predicted survival times, whereas
-  the latter gives more information about the conditional
+  Predictions can be computed using \code{\link{predict}}, which returns predicted means,
+  predicted classes or median predicted survival times and 
+  more information about the conditional
   distribution of the response, i.e., class probabilities
   or predicted Kaplan-Meier curves. For observations
   with zero weights, predictions are computed from the fitted tree 

@@ -56,12 +56,12 @@ as.simpleparty(obj, ...)
 }
 \examples{
 
-  ## fit tree using rpart
-  library("rpart")
-  rp <- rpart(Kyphosis ~ Age + Number + Start, data = kyphosis)
+    ## fit tree using rpart
+    library("rpart")
+    rp <- rpart(Kyphosis ~ Age + Number + Start, data = kyphosis)
 
-  ## coerse to `constparty'
-  as.party(rp)
+    ## coerse to `constparty'
+    as.party(rp)
 
 }
 \keyword{tree}

@@ -20,8 +20,9 @@
     terminal_panel = NULL, tp_args = list(),
     inner_panel = node_inner, ip_args = list(),
     edge_panel = edge_simple, ep_args = list(),
-    type = c("extended", "simple"), drop_terminal = NULL, tnex = NULL,
-    newpage = TRUE, pop = TRUE, gp = gpar(), ...)
+    type = c("extended", "simple"), drop_terminal = NULL, 
+    tnex = NULL, newpage = TRUE, pop = TRUE, gp = gpar(), 
+    ...)
 }
 \arguments{
   \item{x}{ an object of class \code{party} or \code{constparty}.}

@@ -16,7 +16,8 @@
 predict_party(party, id, newdata = NULL, ...)
 \method{predict_party}{default}(party, id, newdata = NULL, ...) 
 \method{predict_party}{constparty}(party, id, newdata = NULL,
-    type = c("response", "prob", "node"), FUN = NULL, simplify = TRUE, ...)
+    type = c("response", "prob", "node"), FUN = NULL, 
+    simplify = TRUE, ...)
 \method{predict_party}{simpleparty}(party, id, newdata = NULL,
     type = c("response", "prob", "node"), ...)
 }

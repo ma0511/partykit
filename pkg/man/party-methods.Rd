@@ -15,21 +15,21 @@
 
 }
 \usage{
-  \method{print}{party}(x, 
-  terminal_panel = function(node) " *", tp_args = list(),
-  inner_panel = function(node) "", ip_args = list(),
-  header_panel = function(party) "",
-  footer_panel = function(party) "",
-  digits = getOption("digits") - 2, ...)
-  \method{print}{simpleparty}(x, digits = getOption("digits") - 4,
-  header = NULL, footer = TRUE, ...)
-  \method{print}{constparty}(x, FUN = NULL, digits = getOption("digits") - 4,
-  header = NULL, footer = TRUE, ...)
-  \method{length}{party}(x)
-  \method{[}{party}(x, i, ...)
-  \method{[[}{party}(x, i, ...)
-  \method{depth}{party}(x, ...)
-  \method{width}{party}(x, ...)
+\method{print}{party}(x, 
+    terminal_panel = function(node) " *", tp_args = list(),
+    inner_panel = function(node) "", ip_args = list(),
+    header_panel = function(party) "",
+    footer_panel = function(party) "",
+    digits = getOption("digits") - 2, ...)
+\method{print}{simpleparty}(x, digits = getOption("digits") - 4,
+    header = NULL, footer = TRUE, ...)
+\method{print}{constparty}(x, FUN = NULL, digits = getOption("digits") - 4,
+    header = NULL, footer = TRUE, ...)
+\method{length}{party}(x)
+\method{[}{party}(x, i, ...)
+\method{[[}{party}(x, i, ...)
+\method{depth}{party}(x, ...)
+\method{width}{party}(x, ...)
 }
 \arguments{
   \item{x}{ an object of class \code{\link{party}}.}
@@ -41,8 +41,8 @@
   \item{header_panel}{ a panel function for printing the header.}
   \item{footer_panel}{ a panel function for printing the footer.}
   \item{digits}{ number of digits to be printed.}
-  \item{header}{}
-  \item{footer}{}
+  \item{header}{ header to be printed.}
+  \item{footer}{ footer to be printed.}
   \item{FUN}{ a function to be applied to nodes.}
   \item{\dots}{ additional arguments.}
 }
@@ -57,50 +57,50 @@
 }
 \examples{
 
-  ## a tree as flat list structure
-  nodelist <- list(
-    # root node
-    list(id = 1L, split = partysplit(varid = 4L, breaks = 1.9), 
-         kids = 2:3),
-    # V4 <= 1.9, terminal node
-    list(id = 2L),
-    # V4 > 1.9
-    list(id = 3L, split = partysplit(varid = 5L, breaks = 1.7), 
-         kids = c(4L, 7L)),
-    # V5 <= 1.7
-    list(id = 4L, split = partysplit(varid = 4L, breaks = 4.8), 
-         kids = 5:6),
-    # V4 <= 4.8, terminal node
-    list(id = 5L),
-    # V4 > 4.8, terminal node
-    list(id = 6L),
-    # V5 > 1.7, terminal node
-    list(id = 7L)
-  )
+    ## a tree as flat list structure
+    nodelist <- list(
+        # root node
+        list(id = 1L, split = partysplit(varid = 4L, breaks = 1.9), 
+            kids = 2:3),
+        # V4 <= 1.9, terminal node
+        list(id = 2L),
+        # V4 > 1.9
+        list(id = 3L, split = partysplit(varid = 5L, breaks = 1.7), 
+            kids = c(4L, 7L)),
+        # V5 <= 1.7
+        list(id = 4L, split = partysplit(varid = 4L, breaks = 4.8), 
+            kids = 5:6),
+        # V4 <= 4.8, terminal node
+        list(id = 5L),
+        # V4 > 4.8, terminal node
+        list(id = 6L),
+        # V5 > 1.7, terminal node
+        list(id = 7L)
+    )
 
-  ## convert to a recursive structure
-  node <- as.partynode(nodelist)
+    ## convert to a recursive structure
+    node <- as.partynode(nodelist)
 
-  ## set up party object
-  data("iris")
-  tree <- party(node, data = iris, 
-      fitted = data.frame("(fitted)" = 
-                          fitted_node(node, data = iris),
-                          check.names = FALSE))
-  names(tree) <- paste("Node", nodeids(tree), sep = " ")
+    ## set up party object
+    data("iris")
+    tree <- party(node, data = iris, 
+        fitted = data.frame("(fitted)" = 
+            fitted_node(node, data = iris),
+            check.names = FALSE))
+    names(tree) <- paste("Node", nodeids(tree), sep = " ")
 
-  ## number of kids in root node
-  length(tree)
+    ## number of kids in root node
+    length(tree)
 
-  ## depth of tree
-  depth(tree)
+    ## depth of tree
+    depth(tree)
 
-  ## number of terminal nodes
-  width(tree)
+    ## number of terminal nodes
+    width(tree)
 
-  ## node number four
-  tree["Node 4"]
-  tree[["Node 4"]]
+    ## node number four
+    tree["Node 4"]
+    tree[["Node 4"]]
 
 }
 \keyword{tree}
