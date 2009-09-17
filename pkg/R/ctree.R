@@ -21,7 +21,7 @@
 
 .pX2 <- function(lin, exp, cov, pval = TRUE) {
     if (length(lin) == 1) {
-        if (cov < .Machine$double.eps) return(c(0, -Inf))
+        if (cov < .Machine$double.eps) return(c(-Inf, -Inf))
         X2 <- ((lin - exp)^2) / cov
         df <- 1
     } else {
@@ -38,7 +38,9 @@
 
 ### calculate max-T p-value
 .pmaxT <- function(lin, exp, cov, pval = TRUE) {
+
     if (length(lin) == 1) {
+        if (cov < .Machine$double.eps) return(c(-Inf, -Inf))
         maxT <- abs(lin - exp) / sqrt(cov)
         v <- 1
         V <- matrix(1)
@@ -48,9 +50,9 @@
         exp <- as.vector(exp)[v > 0]
         V <- V[v > 0, v > 0, drop = FALSE]
         v <- v[v > 0]
-        if (length(v) == 0) return(c(0, 0))
+        if (length(v) == 0) return(c(-Inf, -Inf))
         maxT <- as.vector(max(abs(lin - exp) / sqrt(v)))
-        if (is.na(maxT)) return(c(0, 0))
+        if (is.na(maxT)) return(c(-Inf, -Inf))
     }
     if (pval) 
         return(c(log(maxT), log(pmvnorm(lower = rep(-maxT, length(v)),
@@ -82,6 +84,7 @@
         isel <- which(inp)[isel]
         x <- data[[isel]]
         sp <- .Call("R_split", x, response, weights, as.integer(0))
+        if (any(is.na(sp))) next
         if (length(sp) == 1) {
             ret[[i]] <- partysplit(as.integer(isel), breaks = sp, index = 1:2)
         } else {
@@ -97,6 +100,8 @@
         }
         crit[which.max(crit)] <- -Inf
     }
+    ret <- ret[!sapply(ret, is.null)]
+    if (length(ret) == 0) ret <- NULL
     return(ret)
 }
 
@@ -124,8 +129,8 @@
     } 
     lin <- .Call("R_LinstatExpCov", data, inp, response, weights)
     p <- sapply(lin[inp], function(x) do.call(ctrl$cfun, x[-1]))
-    crit <- p[1,]
-    p <- p[-1,]
+    crit <- p[1,,drop = FALSE]
+    p <- p[-1,,drop = FALSE]
     colnames(p) <- colnames(data)[inp]
 
     mb <- ctrl$minbucket
@@ -262,7 +267,8 @@ ctree <- function(formula, data, weights, subset, na.action = na.pass,
     }
     tree <- .cnode(1L, data, infl, inputs, weights, ctrl)
     fitted <- data.frame("(fitted)" = fitted_node(tree, data), 
-                         "(response)" = data[ , response, drop = TRUE], 
+                         "(response)" = data[ , response, drop = TRUE],
+                         "(weights)" = weights,
                          check.names = FALSE)
     ret <- party(tree, data = data, fitted = fitted)
     class(ret) <- c("constparty", class(ret))
