@@ -51,9 +51,10 @@ SEXP R_LinstatExpCov (const SEXP data, const SEXP inputs,
     iinputs = LOGICAL(inputs);
     PROTECT(ans = allocVector(VECSXP, LENGTH(data)));
     for (i = 0; i < LENGTH(data); i++) {
-        if (iinputs[i])
+        if (iinputs[i]) {
             SET_VECTOR_ELT(ans, i, p = allocVector(VECSXP, 4));
             C_LinstatExpCov(VECTOR_ELT(data, i), y, weights, thisweights, p);
+        }
     }
     UNPROTECT(1);
     Free(thisweights);

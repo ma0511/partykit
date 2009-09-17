@@ -184,7 +184,7 @@
         w <- weights
         xna <- is.na(x)
         w[xna] <- 0L
-        ret$surrogate <- .csurr(kidids, data, inp, w, ctrl)
+        ret$surrogates <- .csurr(kidids, data, inp, w, ctrl)
         kidids[xna] <- kidids_node(ret, data, obs = xna)
     }
 

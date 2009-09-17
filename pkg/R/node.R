@@ -152,7 +152,7 @@ kidids_node <- function(node, data, vmatch = 1:ncol(data), obs = NULL,
             for (surr in surrogates) {
                 nax <- is.na(x)
                 if (!any(nax)) break;
-                x[nax] <- kidids_split(surr, data, vmatch, obs = obs[nax])
+                x[nax] <- kidids_split(surr, data, vmatch, obs = obs)[nax]
             }
         }
         nax <- is.na(x)
