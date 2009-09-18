@@ -1,18 +1,23 @@
 
-- model.frame.party
+x - model.frame.party (Z)
+
+x - model.frame in predict -> na.action?
+    terms vs. more model info (formula/Formula, 
+    call, na.action, ...) (Z)
 
 - ctree (TH):
   - MonteCarlo
   - scores for ordinal variables
-  - use Formula for multivariate responses
-  - nice predictions for multivariate responses
-    fitted may contain (response).1 (response).2 ...
-  - add party regression tests
+x  - use Formula for multivariate responses (TH, Z send material)
+x  - nice predictions for multivariate responses
+     fitted may contain multivariate (response)
+x  - add party regression tests
 
-- partykit manual (TH)
-- partykit vignette (TH, Z)
+x - partykit manual (TH)
+x - partykit vignette (TH, Z)
 - revised/new MLOSS paper (TH, Z, KH)
-- node_surv, node_hist, node_density, node_bivplot (Z)
+x- node_surv, node_hist, node_density, node_bivplot (Z)
+x- terminal_panel more sophisticated
 - prettify list.rules
 
 From Matthias.Studer@unige.ch Tue May 26 08:19:08 2009

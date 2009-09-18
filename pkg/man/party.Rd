@@ -60,7 +60,7 @@ is.simpleparty(party)
   \code{party} object. Further methods for \code{party} objects
   are documented in \code{\link{party-methods}} and 
   \code{\link{party-predict}}. Trees of various flavors can be coerced
-  to \code{party}, see \code{\link{party-coersion}}.
+  to \code{party}, see \code{\link{party-coercion}}.
   
   Two classes inherit from class \code{party} and impose additional
   assumptions on the structure of this object:

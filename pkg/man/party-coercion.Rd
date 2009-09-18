@@ -1,5 +1,5 @@
-\name{party-coersion}
-\alias{party-coersion}
+\name{party-coercion}
+\alias{party-coercion}
 \alias{as.party}
 \alias{as.party.rpart}
 \alias{as.party.J48}
@@ -14,7 +14,7 @@
 \title{ Coersion Functions }
 \description{
 
-  Functions coersing various objects to objects of class party.
+  Functions coercing various objects to objects of class party.
 
 }
 \usage{
@@ -41,12 +41,12 @@ as.simpleparty(obj, ...)
 \details{
 
   Trees fitted using functions \code{\link[rpart]{rpart}} or 
-  \code{\link[RWeka]{J48}} are coersed to \code{\link{party}}
+  \code{\link[RWeka]{J48}} are coerced to \code{\link{party}}
   objects. By default, objects of class \code{constparty}
   are returned.
 
   When information about the learning sample is available, 
-  \code{\link{party}} objects can be coersed to objects of 
+  \code{\link{party}} objects can be coerced to objects of 
   class \code{constparty} or \code{simpleparty} 
   (see \code{\link{party}} for details).
 
@@ -60,7 +60,7 @@ as.simpleparty(obj, ...)
     library("rpart")
     rp <- rpart(Kyphosis ~ Age + Number + Start, data = kyphosis)
 
-    ## coerse to `constparty'
+    ## coerce to `constparty'
     as.party(rp)
 
 }

@@ -74,7 +74,7 @@ nodeapply(obj, ids = 1, FUN = NULL, ...)
     library("rpart")
     rp <- rpart(Kyphosis ~ Age + Number + Start, data = kyphosis)
 
-    ## coerse to `constparty'
+    ## coerce to `constparty'
     rpk <- as.party(rp)
 
     ## extract nodeids

@@ -68,7 +68,7 @@ predict_party(party, id, newdata = NULL, ...)
   rp <- rpart(skips ~ Opening + Solder + Mask + PadType + Panel,
               data = solder, method = 'anova')
 
-  ## coerse to `constparty'
+  ## coerce to `constparty'
   pr <- as.party(rp)
 
   ## mean predictions
