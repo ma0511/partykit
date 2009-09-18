@@ -14,8 +14,8 @@ Description: A toolkit with infrastructure for representing,
   a re-implementation of ctree() is contained in the package.)
 Depends: R (>= 2.5.0), graphics, stats, grid, mvtnorm
 Imports: survival
-Suggests: XML, pmml, mlbench, RWeka, rpart
+Suggests: XML, pmml, mlbench, RWeka, rJava, rpart
 LazyLoad: yes
 LazyData: yes
 License: GPL-2
-Packaged: 2009-09-17 10:01:54 UTC; hothorn
+Packaged: 2009-09-18 07:17:20 UTC; hothorn

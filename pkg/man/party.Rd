@@ -5,6 +5,8 @@
 \alias{node_party}
 \alias{is.constparty}
 \alias{is.simpleparty}
+\alias{data_party}
+\alias{data_party.default}
 \title{ Recursive Partytioning }
 \description{
 
@@ -17,6 +19,8 @@ party(node, data, fitted = NULL, terms = NULL, names = NULL,
     info = NULL)
 \method{names}{party}(x)
 \method{names}{party}(x) <- value
+data_party(party, id = 1L)
+\method{data_party}{default}(party, id = 1L)
 node_party(party)
 is.constparty(party)
 is.simpleparty(party)
@@ -37,6 +41,7 @@ is.simpleparty(party)
   \item{party}{ an object of class \code{party}.}
   \item{value}{a character vector of up to the same length as \code{x}, or
     \code{NULL}.}
+  \item{id}{ a node identifier.}
 }
 \details{
 
@@ -88,6 +93,8 @@ is.simpleparty(party)
   \item{info}{ additional information. }
   \code{names} can be used to set and retrieve names of nodes and 
   \code{node_party} returns an object of class \code{\link{partynode}}.
+  \code{data_party} returns a data frame with observations contained in node
+  \code{id}.
 }
 \examples{
 

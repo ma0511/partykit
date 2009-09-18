@@ -6,7 +6,7 @@
 node_inner <- function(obj, id = TRUE, abbreviate = FALSE, fill = "white", gp = gpar())
 {
   meta <- obj$data
-  nam <- names_party(obj)
+  nam <- names(obj)
 
   extract_label <- function(node) {
     if(is.terminal(node)) return(rep.int("", 2))
@@ -81,7 +81,7 @@ node_terminal <- function(obj,
 		          id = TRUE,
 			  gp = gpar())
 {
-  nam <- names_party(obj)
+  nam <- names(obj)
 
   extract_label <- function(node) {
     return(c("terminal", "node"))
@@ -437,7 +437,7 @@ node_barplot <- function(obj,
         ## main title
         top <- viewport(layout.pos.col=2, layout.pos.row=1)
         pushViewport(top)
-	mainlab <- paste(ifelse(id, paste("Node", names_party(obj)[nid], "(n = "), "n = "),
+	mainlab <- paste(ifelse(id, paste("Node", names(obj)[nid], "(n = "), "n = "),
 	                 nobs[nid], ifelse(id, ")", ""), sep = "")
         grid.text(mainlab)
         popViewport()
@@ -539,7 +539,7 @@ node_boxplot <- function(obj,
         ## main title
         top <- viewport(layout.pos.col=2, layout.pos.row=1)
         pushViewport(top)
-	mainlab <- paste(ifelse(id, paste("Node", names_party(obj)[nid], "(n = "), "n = "),
+	mainlab <- paste(ifelse(id, paste("Node", names(obj)[nid], "(n = "), "n = "),
 	                 sum(wn), ifelse(id, ")", ""), sep = "")
         grid.text(mainlab)
         popViewport()

@@ -47,7 +47,7 @@ print.party <- function(x,
     terminal_panel <- do.call("terminal_panel", c(list(x), as.list(tp_args)))
   if(inherits(inner_panel, "grapcon_generator"))
     inner_panel <- do.call("inner_panel", c(list(x), as.list(ip_args)))
-  print(node_party(x), x$data, names = names_party(x),
+  print(node_party(x), x$data, names = names(x),
     terminal_panel = terminal_panel, inner_panel = inner_panel,
     digits = digits, ...)
 

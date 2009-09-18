@@ -71,7 +71,7 @@ predict_party.simpleparty <- function(party, id, newdata = NULL,
 {
   ## get observation names: either node names or
   ## observation names from newdata
-  nam <- if(is.null(newdata)) names_party(party)[id] else rownames(newdata)
+  nam <- if(is.null(newdata)) names(party)[id] else rownames(newdata)
   if(length(nam) != length(id)) nam <- NULL
 
   ## match type

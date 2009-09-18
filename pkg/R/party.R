@@ -55,7 +55,7 @@ length.party <- function(x)
     length(nodeids(x))
 
 names.party <- function(x)
-    names_party(x)
+    .names_party(x)
 
 "names<-.party" <- function(x, value) {
      n <- length(nodeids(x, terminal = FALSE))
@@ -65,7 +65,7 @@ names.party <- function(x)
      x
 }
 
-names_party <- function(party) {
+.names_party <- function(party) {
     names <- party$names
     if (is.null(names))
         names <- as.character(nodeids(party, terminal = FALSE))
@@ -180,7 +180,7 @@ nodeapply.party <- function(obj, ids = 1, FUN = NULL, by_node = TRUE, ...) {
         rval <- lapply(ids, function(i) FUN(obj[[i]], ...))
     }
 
-    names(rval) <- names_party(obj)[ids]
+    names(rval) <- names(obj)[ids]
     return(rval)
 }
 
@@ -270,7 +270,7 @@ predict_party.default <- function(party, id, newdata = NULL, ...) {
 
     ## get observation names: either node names or
     ## observation names from newdata
-    nam <- if(is.null(newdata)) names_party(party)[id] else rownames(newdata)
+    nam <- if(is.null(newdata)) names(party)[id] else rownames(newdata)
     if(length(nam) != length(id)) nam <- NULL
 
     ## special case: fitted ids
@@ -288,7 +288,7 @@ predict_party.constparty <- function(party, id, newdata = NULL,
 
     ## get observation names: either node names or
     ## observation names from newdata
-    nam <- if(is.null(newdata)) names_party(party)[id] else rownames(newdata)
+    nam <- if(is.null(newdata)) names(party)[id] else rownames(newdata)
     if(length(nam) != length(id)) nam <- NULL
 
     ## match type
@@ -409,17 +409,18 @@ predict_party.constparty <- function(party, id, newdata = NULL,
     ret
 }
 
-print_party <- function(party, id, ...)
-    UseMethod("print_party")
+#print_party <- function(party, id, ...)
+#    UseMethod("print_party")
+#
+#
+#print_party.default <- function(party, id, newdata = NULL, ...) {
+#
+#}
 
-data_party <- function(party, id)
+data_party <- function(party, id = 1L)
     UseMethod("data_party")
 
-print_party.default <- function(party, id, newdata = NULL, ...) {
-
-}
-
-data_party.default <- function(party, id) {
+data_party.default <- function(party, id = 1L) {
     
     extract <- function(id) {
         if(is.null(party$fitted))
@@ -451,10 +452,10 @@ depth.party <- function(x, ...) {
   depth(node_party(x), ...)
 }
 
-list.rules.party <- function(x, i = NULL, ...) {
+.list.rules.party <- function(x, i = NULL, ...) {
     if (is.null(i)) i <- nodeids(x, terminal = TRUE)
     if (length(i) > 1) {
-        ret <- sapply(i, list.rules.party, x = x)
+        ret <- sapply(i, .list.rules.party, x = x)
         names(ret) <- if (is.character(i)) i else names(x)[i]
         return(ret)
     }
@@ -511,4 +512,3 @@ list.rules.party <- function(x, i = NULL, ...) {
     node <- recFun(node_party(x))
     paste(rule, collapse = " & ")
 }
-	
