@@ -52,7 +52,7 @@ info_node(node)
 
   Inner nodes consist of a primary split 
   (an object of class \code{\link{partysplit}})
-  and at least two kids (daugther nodes). 
+  and at least two kids (daughter nodes). 
   Kid nodes are objects of class \code{partynode}
   itself, so the tree structure is defined recursively.
   In addition, a list of \code{partysplit} objects 
@@ -80,7 +80,7 @@ info_node(node)
 
 }
 \value{
-  The constrcutor \code{partynode()} returns an object of class \code{partynode}:
+  The constructor \code{partynode()} returns an object of class \code{partynode}:
   \item{id}{ a unique integer identifier for a node. }
   \item{split}{ an object of class \code{\link{partysplit}}. }
   \item{kids}{ a list of \code{partynode} objects. }

@@ -11,7 +11,7 @@
 \alias{as.simpleparty.XMLNode}
 \alias{as.simpleparty.constparty}
 \alias{pmmlTreeModel}
-\title{ Coersion Functions }
+\title{ Coercion Functions }
 \description{
 
   Functions coercing various objects to objects of class party.

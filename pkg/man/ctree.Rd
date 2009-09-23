@@ -29,7 +29,7 @@ ctree(formula, data, weights, subset, na.action = na.pass,
   works as follows: 1) Test the global null hypothesis of independence between
   any of the input variables and the response (which may be multivariate as well). 
   Stop if this hypothesis cannot be rejected. Otherwise select the input
-  variable with strongest association to the resonse. This
+  variable with strongest association to the response. This
   association is measured by a p-value corresponding to a test for the
   partial null hypothesis of a single input variable and the response.
   2) Implement a binary split in the selected input variable. 

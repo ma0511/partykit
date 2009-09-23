@@ -65,7 +65,7 @@ is.simpleparty(party)
   Two classes inherit from class \code{party} and impose additional
   assumptions on the structure of this object:
   Class \code{constparty} requires that the \code{fitted} slot
-  contains a partiting of the learning sample as a factor \code{("fitted")}
+  contains a partitioning of the learning sample as a factor \code{("fitted")}
   and the response values of all observations in the learning sample
   as \code{("response")}. This structure is most flexible and 
   allows for graphical display of the response values in terminal
@@ -79,7 +79,7 @@ is.simpleparty(party)
 
 }
 \value{
-  The constrcutor returns an object of class \code{party}:
+  The constructor returns an object of class \code{party}:
   \item{node}{ an object of class \code{\link{partynode}}.}
   \item{data}{ a (potentially empty) \code{\link{data.frame}}.}
   \item{fitted}{ an optional \code{\link{data.frame}} with \code{nrow(data)} 

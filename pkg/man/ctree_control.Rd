@@ -52,8 +52,8 @@ ctree_control(teststat = c("quad", "max"),
   A split is established when all of the following criteria are met:
   1) the sum of the weights in the current node 
   is larger than \code{minsplit}, 2) a fraction of the sum of weights of more than 
-  \code{minprob} will be contained in all daughther nodes, 3) the sum of 
-  the weights in all daughther nodes exceeds \code{minbucket}, and 4)
+  \code{minprob} will be contained in all daughter nodes, 3) the sum of 
+  the weights in all daughter nodes exceeds \code{minbucket}, and 4)
   the depth of the tree is smaller than \code{maxdepth}.
   This avoids pathological splits deep down the tree. 
   When \code{stump = TRUE}, a tree with at most two terminal nodes is computed.

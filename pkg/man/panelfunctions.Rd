@@ -52,7 +52,7 @@ node_barplot(obj, col = "black", fill = NULL, beside = NULL,
   extensible framework for the visualization of binary regression trees. The
   user is allowed to specify panel functions for plotting terminal and inner
   nodes as well as the corresponding edges. The panel functions to be used
-  should depend only on the node being visualzied, however, for setting up
+  should depend only on the node being visualized, however, for setting up
   an appropriate panel function, information from the whole tree is typically
   required. Hence, \pkg{party} adopts the framework of \code{grapcon_generator}
   (graphical appearance control) from the \pkg{vcd} package (Meyer, Zeileis and
@@ -64,7 +64,7 @@ node_barplot(obj, col = "black", fill = NULL, beside = NULL,
   is a terse text-based representation of terminal nodes.
 
   Graphical representations of terminal nodes are available and depend on
-  the kind of model and the measurement scale of the variables modelled.
+  the kind of model and the measurement scale of the variables modeled.
 
   For univariate regressions (typically fitted by \code{}),
   \code{node_surv}
