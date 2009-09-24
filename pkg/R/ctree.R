@@ -161,7 +161,9 @@
                 if (length(sp) == 1) {
                     thissplit <- partysplit(as.integer(isel), breaks = sp)
                 } else {
+                    ### <FIXME>: deal with empty levels -> NA in sp?
                     thissplit <- partysplit(as.integer(isel), index = sp)
+                    ### </FIXME>
                 }
                 break()
             }
