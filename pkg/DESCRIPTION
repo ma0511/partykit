@@ -1,7 +1,7 @@
 Package: partykit
 Title: A Toolkit for Recursive Partytioning
-Date: 2009-09-14
-Version: 0.0-2
+Date: 2009-09-24
+Version: 0.1-0
 Author: Torsten Hothorn, Achim Zeileis
 Maintainer: Torsten Hothorn <Torsten.Hothorn@R-project.org>
 Description: A toolkit with infrastructure for representing,
@@ -18,4 +18,3 @@ Suggests: XML, pmml, mlbench, RWeka, rJava, rpart
 LazyLoad: yes
 LazyData: yes
 License: GPL-2
-Packaged: 2009-09-18 07:17:20 UTC; hothorn
