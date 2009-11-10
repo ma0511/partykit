@@ -32,7 +32,7 @@ as.simpleparty(obj, ...)
 }
 \arguments{
   \item{obj}{ an object of class \code{\link[rpart]{rpart}},
-              \code{\link[RWeka]{J48}}, \code{XMLnode} or
+              \code{\link[RWeka:Weka_classifier_trees]{J48}}, \code{XMLnode} or
               objects inheriting from \code{party}.}
   \item{file}{ a file name of a XML file 
               containing a PMML description of a tree.}
@@ -41,7 +41,7 @@ as.simpleparty(obj, ...)
 \details{
 
   Trees fitted using functions \code{\link[rpart]{rpart}} or 
-  \code{\link[RWeka]{J48}} are coerced to \code{\link{party}}
+  \code{\link[RWeka:Weka_classifier_trees]{J48}} are coerced to \code{\link{party}}
   objects. By default, objects of class \code{constparty}
   are returned.
 
