@@ -170,8 +170,7 @@ character_split <- function(split, data = NULL, digits = getOption("digits") - 2
 
     switch(type, 
         "factor" = {
-            nindex <- as.integer(as.character(cut(seq_along(lev), 
-                c(-Inf, breaks, Inf), labels = index, right = right)))
+            nindex <- index[cut(seq_along(lev), c(-Inf, breaks, Inf), right = right)]
             dlab <- as.vector(tapply(lev, nindex, paste, collapse = ", "))
         },
         "ordered" = {

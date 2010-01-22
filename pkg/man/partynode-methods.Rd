@@ -84,16 +84,16 @@ width(x, ...)
         # V4 <= 1.9, terminal node
         list(id = 2L),
         # V4 > 1.9
-        list(id = 3L, split = partysplit(varid = 5L, breaks = 1.7), 
+        list(id = 3L, split = partysplit(varid = 1L, breaks = 1.7), 
             kids = c(4L, 7L)),
-        # V5 <= 1.7
+        # V1 <= 1.7
         list(id = 4L, split = partysplit(varid = 4L, breaks = 4.8), 
             kids = 5:6),
         # V4 <= 4.8, terminal node
         list(id = 5L),
         # V4 > 4.8, terminal node
         list(id = 6L),
-        # V5 > 1.7, terminal node
+        # V1 > 1.7, terminal node
         list(id = 7L)
     )
 

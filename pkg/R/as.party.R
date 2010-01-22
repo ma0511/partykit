@@ -47,8 +47,10 @@ as.party.rpart <- function(obj, ...) {
                       index = if(obj$split[j, "ncat"] > 0) 2:1)
         } else {
             index <- obj$csplit[obj$split[j, "index"],]
-            index[index == 2] <- NA
-            index[index == 3] <- 2
+            ### csplit has columns 1:max(nlevels) for all factors
+            index <- index[1:nlevels(mf[, rownames(obj$split)[j]])]
+            index[index == 2] <- NA ### level not present in split
+            index[index == 3] <- 2  ### 1..left, 3..right
             ret <- partysplit(varid = which(rownames(obj$split)[j] == names(mf)),
                       index = as.integer(index))
         }
