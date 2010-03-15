@@ -125,7 +125,11 @@ as.party.J48 <- function(obj, ...) {
     if(is.leaf[i]) return(NULL)
     
     var_id <- which(nodes[i, "splitvar"] == names(mf))
-    split <- strsplit(edges[nodes[i,"name"] == edges[,"from"], "label"], " ")
+    ##
+    edges <- edges[nodes[i,"name"] == edges[,"from"], "label"]
+    split <- Map(c, sub("^([[:punct:]]+).*$", "\\1", edges), sub("^([[:punct:]]+) *", "", edges))
+    ## ## for J48 the following suffices
+    ## split <- strsplit(edges[nodes[i,"name"] == edges[,"from"], "label"], " ")
 
     if(mf_class[var_id] %in% c("ordered", "factor")) {
       stopifnot(all(sapply(split, head, 1) == "="))
