@@ -52,7 +52,9 @@
   to the \code{length} method for \code{\link{partynode}} objects which
   returns the number of kid nodes in the root),
   \code{depth} the depth of the tree and \code{width} 
-  the number of terminal nodes.
+  the number of terminal nodes. The subset methods extract subtrees
+  and the \code{print} method generates a textual representation
+  of the tree.
 
 }
 \examples{

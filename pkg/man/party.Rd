@@ -108,7 +108,7 @@ is.simpleparty(party)
 
     party(stump, iris, 
         fitted = data.frame("(fitted)" = fitted_node(stump, data = iris), 
-          check.names = FALSE), names = c("root", "left", "right"))
+            check.names = FALSE), names = c("root", "left", "right"))
 
 }
 \keyword{tree}

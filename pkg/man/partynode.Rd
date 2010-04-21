@@ -102,7 +102,7 @@ info_node(node)
     ## a stump defined by a binary split in Sepal.Length
     stump <- partynode(id = 1L, 
         split = partysplit(which(names(iris) == "Sepal.Length"),
-          breaks = 5),
+            breaks = 5),
         kids = lapply(2:3, partynode))
 
     ## textual representation
@@ -117,7 +117,7 @@ info_node(node)
     iris_NA <- iris
     iris_NA[sample(1:nrow(iris), 50), "Sepal.Length"] <- NA
     table(fitted_node(stump, data = iris_NA, 
-      obs = !complete.cases(iris_NA)))
+        obs = !complete.cases(iris_NA)))
 
     ## a stump defined by a primary split in `Sepal.Length'
     ## and a surrogate split in `Sepal.Width' which
