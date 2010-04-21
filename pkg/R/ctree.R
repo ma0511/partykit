@@ -211,6 +211,7 @@ ctree_control <- function(teststat = c("quad", "max"),
     multiway = FALSE, splittry = 2L) {
 
     teststat <- match.arg(teststat)
+    if (teststat == "max") stopifnot(require("mvtnorm"))
     testtype <- match.arg(testtype)
     list(teststat = teststat,
          testtype = testtype, mincriterion = log(mincriterion),
