@@ -1,0 +1,287 @@
+\documentclass[nojss]{jss}
+
+%\VignetteIndexEntry{partykit: A Toolkit for Recursive Partytioning}
+%\VignetteDepends{partykit}
+%\VignetteKeywords{recursive partitioning}
+%\VignettePackage{partykit}
+
+%% packages
+\usepackage{amstext}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{thumbpdf}
+\usepackage{rotating}
+%% need no \usepackage{Sweave}
+
+%% commands
+\renewcommand{\Prob}{\mathbb{P} }
+\renewcommand{\E}{\mathbb{E}}
+\newcommand{\V}{\mathbb{V}}
+\newcommand{\Var}{\mathbb{V}}
+\newcommand{\R}{\mathbb{R} }
+\newcommand{\N}{\mathbb{N} }
+\newcommand{\C}{\mathbb{C} }
+\newcommand{\argmin}{\operatorname{argmin}\displaylimits}
+\newcommand{\argmax}{\operatorname{argmax}\displaylimits}
+\newcommand{\LS}{\mathcal{L}_n}
+\newcommand{\TS}{\mathcal{T}_n}
+\newcommand{\LSc}{\mathcal{L}_{\text{comb},n}}
+\newcommand{\LSbc}{\mathcal{L}^*_{\text{comb},n}}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\yn}{y_{\text{new}}}
+\newcommand{\z}{\mathbf{z}}
+\newcommand{\X}{\mathbf{X}}
+\newcommand{\Y}{\mathbf{Y}}
+\newcommand{\sX}{\mathcal{X}}
+\newcommand{\sY}{\mathcal{Y}}
+\newcommand{\T}{\mathbf{T}}
+\newcommand{\x}{\mathbf{x}}
+\renewcommand{\a}{\mathbf{a}}
+\newcommand{\xn}{\mathbf{x}_{\text{new}}}
+\newcommand{\y}{\mathbf{y}}
+\newcommand{\w}{\mathbf{w}}
+\newcommand{\ws}{\mathbf{w}_\cdot}
+\renewcommand{\t}{\mathbf{t}}
+\newcommand{\M}{\mathbf{M}}
+\renewcommand{\vec}{\text{vec}}
+\newcommand{\B}{\mathbf{B}}
+\newcommand{\K}{\mathbf{K}}
+\newcommand{\W}{\mathbf{W}}
+\newcommand{\D}{\mathbf{D}}
+\newcommand{\I}{\mathbf{I}}
+\newcommand{\bS}{\mathbf{S}}
+\newcommand{\cellx}{\pi_n[\x]}
+\newcommand{\partn}{\pi_n(\mathcal{L}_n)}
+\newcommand{\err}{\text{Err}}
+\newcommand{\ea}{\widehat{\text{Err}}^{(a)}}
+\newcommand{\ecv}{\widehat{\text{Err}}^{(cv1)}}
+\newcommand{\ecvten}{\widehat{\text{Err}}^{(cv10)}}
+\newcommand{\eone}{\widehat{\text{Err}}^{(1)}}
+\newcommand{\eplus}{\widehat{\text{Err}}^{(.632+)}}
+\newcommand{\eoob}{\widehat{\text{Err}}^{(oob)}}
+\newcommand{\bft}{\mathbf{t}}
+
+\hyphenation{Qua-dra-tic}
+
+\title{\pkg{partykit}: A Toolkit for Recursive Partytioning}
+\Plaintitle{partykit: A Toolkit for Recursive Partytioning}
+
+\author{Torsten Hothorn\\Ludwig-Maximilians-\\Universit\"at M\"unchen
+   \And Achim Zeileis\\Wirtschaftsuniversit\"at Wien}
+\Plainauthor{Torsten Hothorn, Achim Zeileis}
+
+\Abstract{
+  The \pkg{partykit} package 
+}
+\Keywords{recursive partitioning}
+
+\Address{
+  Torsten Hothorn\\
+  Institut f\"ur Statistik\\
+  Ludwig-Maximilians-Universit\"at M\"unchen\\
+  Ludwigstra{\ss}e 33\\
+  80539 M\"unchen, Germany\\
+  E-mail: \email{Torsten.Hothorn@R-project.org}\\
+  URL: \url{http://www.stat.uni-muenchen.de/~hothorn/}\\
+
+  Achim Zeileis\\
+  Institut für Statistik \\
+  Fakultät für Volkswirtschaft und Statistik \\
+  Leopold-Franzens-Universität Innsbruck \\
+  Universitätsstraße 15 \\
+  6020 Innsbruck, Österreich
+  E-mail: \email{Achim.Zeileis@R-project.org}\\
+  URL: \url{http://statmath.wu.ac.at/~zeileis/}
+}
+
+
+\begin{document}
+
+<<setup, echo = FALSE, results = hide>>=
+options(width = 70, SweaveHooks = list(leftpar = 
+    function() par(mai = par("mai") * c(1, 1.1, 1, 1))))
+require("partykit")
+set.seed(290875)
+data("iris")
+@
+
+\setkeys{Gin}{width=\textwidth}
+
+
+\section{Introduction}
+
+\section{Splits}
+
+A split is basically a function that maps data, 
+more specifically a partitioning variable, to child nodes. 
+Objects of class \code{partysplit} are designed to represent 
+such functions and are set-up by the \code{partysplit()} 
+constructor:
+<<partysplit-1, echo = TRUE>>=
+## binary split in numeric variable `Sepal.Length'
+sl5 <- partysplit(which(names(iris) == "Sepal.Length"),
+    breaks = 5)
+class(sl5)
+@
+The internal structure of class \code{partysplit} contains
+information about the partitioning variable, the split-points,
+the handling of split-points, the treatment of observations with
+missing values and the daughter nodes to send observations to:
+<<partysplit-2, echo = TRUE>>=
+unclass(sl5)
+@
+Here, the split is defined in the first variable (corresponds to
+\code{Sepal.Length} in data frame \code{iris}) and the splitting rule
+is \code{Sepal.Length} $\le 5$:
+<<partysplit-3, echo = TRUE>>=
+character_split(sl5, data = iris)
+@
+This representation of splits is completely abstract and, most importantly,
+independent of any data. Now, data comes into play when we actually
+want to perform splits:
+<<partysplit-4, echo = TRUE>>= 
+kidids_split(sl5, data = iris)
+@
+For each observation in \code{iris} the split is performed and the 
+number of the daughter node to send this observation to
+is returned. Of course, this is a very complicated way of saying
+<<partysplit-5, echo = TRUE>>=
+(!with(iris, Sepal.Length <= 5)) + 1
+@
+
+However, splits may become more complex. Consider a split in a categorical
+variable at three levels where the first two levels go to the left
+daugther node and the third one to the right daugther node:
+<<partysplit-6, echo = TRUE>>=
+## binary split in factor `Species'
+sp <- partysplit(which(names(iris) == "Species"),
+    index = c(1L, 1L, 2L))
+character_split(sp, data = iris)
+table(kidids_split(sp, data = iris), iris$Species)
+@
+The internal structure of this object now contains an index slot
+<<partysplit-6, echo = TRUE>>=
+unclass(sp)
+@
+that maps levels to daughter nodes. This mapping is also
+useful with splits in ordered variables, for example when 
+representing multiway splits:
+<<partysplit-7, echo = TRUE>>=
+## multiway split in numeric variable `Sepal.Width',    
+## higher values go to the first kid, smallest values
+## to the last kid
+sw23 <- partysplit(which(names(iris) == "Sepal.Width"),       
+    breaks = c(3, 3.5), index = 3:1)    
+character_split(sw23, data = iris)
+table(kidids_split(sw23, data = iris),
+    cut(iris$Sepal.Width, breaks = c(-Inf, 2, 3, Inf)))
+@
+The mapping of classes of the categorized numeric variable
+to daugther nodes can be changed by modifying \code{index}:
+<<partysplit-8, echo = TRUE>>=
+sw23 <- partysplit(which(names(iris) == "Sepal.Width"),
+    breaks = c(3, 3.5), index = c(1L, 3L, 2L))
+character_split(sw23, data = iris)
+@
+
+The additional argument \code{prop} is used to specify a 
+discrete probability distribution over the daugther nodes that
+is used to map observations with missing values to daugther nodes.
+Furthermore, the \code{info} argument and slot takes arbitrary objects
+to be stored with the split (for example split statistics) but is not
+structured at the moment.
+
+The slots of \code{partysplit} objects shall be accessed by the corresponding
+accessor functions.
+
+\section{Nodes}
+
+Inner and terminal nodes are represented by objects of class \code{partynode}.
+Each node has a unique identifier \code{id}. A node consisting only
+of such an identifier (and possibly additional information  
+in \code{info}) is a terminal node:
+<<partynode-1, echo = TRUE>>=
+n1 <- partynode(id = 1L)
+is.terminal(n1)
+print(n1)
+@
+Inner nodes have to have a primary split \code{split} and at least two
+daugther nodes. The daugther nodes are objects of class \code{partynode}
+itself and thus represent the recursive nature of this data structure.
+The daugther nodes are pooled in a list \code{kids}. 
+In addition, a list of \code{partysplit} objects offering 
+surrogate splits can be supplied; a list of \code{partysplit} objects
+in slot \code{surrogates} defines such additional splits (mostly used 
+for handling missing values). Note that \code{partynode} objects aren't 
+connected to the actual data.
+
+Based on the binary split \code{sl5} defined in the previous section, 
+we set-up an inner node with two terminal daugther nodes and
+print this stump (the data is needed because neither split nor nodes
+contain information about variable names or levels):
+<<partynode-2, echo = TRUE>>=
+n1 <- partynode(id = 1L, split = sl5, kids = sapply(2:3, partynode))
+print(n1, data = iris)
+@
+Now that we have defined our first simple tree, we want to assign
+observations to terminal nodes:
+<<partynode-3, echo = TRUE>>=
+fitted_node(n1, data = iris)
+@
+Here, the \code{id}s of the terminal node each observations falls into
+are returned. Alternatively, we could compute the position of these
+daugther nodes in the list \code{kids}:
+<<partynode-4, echo = TRUE>>=
+kidids_node(n1, data = iris)
+@
+Furthermore, the \code{info} argument and slot takes arbitrary objects
+to be stored with the node (predictions, for example, but we will handle
+this issue later). The slots can be extracted by means of the corresponding
+accessor functions.
+
+A number of methods are defined for \code{partynode} objects.
+\code{is.partynode} checks if the argument is a valid \code{partynode}
+object. \code{is.terminal} is \code{TRUE} for terminal nodes
+and \code{FALSE} for inner nodes. The subset methods
+return the \code{partynode} object corresponding to the \code{i}th
+kid:
+<<partynode-5, echo = TRUE>>=
+n1[2]
+@
+
+The \code{as.partynode} and \code{as.list} methods can be used
+to convert flat list structures into recursive \code{partynode}
+objects and vice versa. \code{as.partynode} applied to
+\code{partynode} objects renumbers the recursive nodes
+starting with root node identifier \code{from}.
+
+\code{length} gives the number of kid nodes of the root node,
+\code{depth} the depth of the tree and \code{width}
+the number of terminal nodes.
+ 
+\section{Trees}
+
+Although tree structures can be represented by \code{partynode} objects,
+a tree is more than a number of nodes and splits. More
+information about (parts of the) corresponding data is necessary for 
+high-level computations on trees.
+
+Objects of class \code{party} basically consist of a \code{partynode}
+object representing the tree structure in a recursive way and 
+data. The \code{data} argument takes a \code{data.frame} which, however,
+might have zero columns. Optionally, a \code{data.frame} with at least one
+variable \code{(fitted)} containing the terminal node numbers of
+data used for fitting the tree may be specified along with a   
+\code{terms} object or any additional (currently unstructured)
+information as \code{info}. Argument \code{names} defines names
+for all nodes in \code{node}.
+
+<<party-1, echo = TRUE>>=
+t1 <- party(n1, 
+   data = data.frame(iris, 
+       "(fitted)" = fitted_node(n1, data = iris),
+       "(response)" = iris$Species))
+@
+
+\end{document}
