@@ -282,9 +282,11 @@ for all nodes in \code{node}.
 
 <<party-1, echo = TRUE>>=
 t1 <- party(n1, 
-   data = data.frame(iris, 
-       "(fitted)" = fitted_node(n1, data = iris),
-       "(response)" = iris$Species))
+   data = iris,
+   fitted = data.frame("(fitted)" = fitted_node(n1, data = iris),
+                       "(response)" = iris$Species,
+                       check.names = FALSE))
+t1
 @
 
 \section{My first Tree}
@@ -299,7 +301,8 @@ two groups. We select the feature/split point combination with lowest two-sided 
 however only if this result is significant at level $\alpha = 0.05$.
 
 This strategy can be implemented based on the data (response and features) and 
-some case weights as follows:
+some case weights as follows (\code{response} is just the name of the response
+and \code{data} is a data frame with all variables):
 <<mytree-1, echo = TRUE>>=
 findsplit <- function(response, data, weights) {
 
@@ -349,7 +352,8 @@ findsplit <- function(response, data, weights) {
 }
 @
 
-Now we have to set-up the recursion for growing a recursive 
+In order to actually grow a tree on data, 
+we have to set-up the recursion for growing a recursive 
 \code{partynode} structure:
 <<mytree-2, echo = TRUE>>=
 growtree <- function(id = 1L, response, data, weights) {
@@ -398,7 +402,13 @@ mytree <- function(formula, data, weights = NULL) {
     ### data without missing values, response comes last
     data <- data[complete.cases(data), 
                  c(all.vars(formula)[-1], response)]
+    ### data is numeric
+    stopifnot(all(sapply(data, is.numeric)))
+
     if (is.null(weights)) weights <- rep(1, nrow(data))
+    ### weights are case weights, i.e., integers
+    stopifnot(length(weights) == nrow(data) &
+              max(abs(weights - floor(weights))) < .Machine$double.eps)
 
     ### grow tree
     nodes <- growtree(id = 1L, response, data, weights)
