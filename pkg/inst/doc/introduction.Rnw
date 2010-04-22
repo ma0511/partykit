@@ -388,6 +388,8 @@ growtree <- function(id = 1L, response, data, weights) {
 }
 @
 
+A very rough sketch of formula-based user-interface needs
+to set-up the data and call \code{growtree()}:
 <<mytree-3, echo = TRUE>>=
 mytree <- function(formula, data, weights = NULL) {
 
@@ -415,6 +417,9 @@ mytree <- function(formula, data, weights = NULL) {
 }
 @
 
+We now can fit this tree, for example to the airquality data; the
+\code{print()} method provides us with a first overview on the 
+resulting model
 <<mytree-4, echo = TRUE>>=
 aqt <- mytree(Ozone ~ Solar.R + Wind + Temp, data = airquality)
 aqt
@@ -425,30 +430,42 @@ aqt
 <<mytree-5, echo = TRUE, fig = TRUE, width = 10, height = 6>>=
 plot(aqt)
 @
-\caption{Tree}
+\caption{Tree. \label{plottree}}
 \end{center}
 \end{figure}
 
+We depict the model graphically using \code{plot()} (see Figure~\ref{plottree})
+and compute predictions using
 <<mytree-6, echo = TRUE>>=
 predict(aqt, newdata = airquality[1:10,])
 @
 
+An interesting feature is the ability to extract subsets of trees:
 <<mytree-7, echo = TRUE>>=
 aqt4 <- aqt[4]
 aqt4
 @
+which again are objects inheriting from \code{party} and thus
+can be plotted easily (see Figure~\ref{subtree}).
 
 \begin{figure}
 \begin{center}
 <<mytree-8, echo = TRUE, fig = TRUE, width = 10, height = 6>>=
 plot(aqt4)
 @
-\caption{Subtree}
+\caption{Subtree. \label{subtree}}
 \end{center}
 \end{figure}
 
-<<mytree-9, echo = TRUE>>=
-info_split(split_node(node_party(aqt4)))
+We also might be interested in extracting the $p$-values in the
+inner nodes in a nicely formatted way:
+<<mytree-10, echo = TRUE>>=
+fun <- function(x) 
+    format.pval(info_split(split_node(x))$pvalue, 
+                digits = 3, eps = 0.001)
+nid <- nodeids(aqt)
+iid <- nid[!(nid %in% nodeids(aqt, terminal = TRUE))]
+unlist(nodeapply(aqt, ids = iid, FUN = fun))
 @
 
 \end{document}
