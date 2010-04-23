@@ -212,11 +212,12 @@ levels $1, \dots, K$, the default split points are $\mu = (-\infty, 1, \dots, K 
 The function $g$ essentially determines, which of the intervals (defined by $\mu$) the value
 $x_i$ is contained in ($I$ denotes the indicator function here):
 \begin{eqnarray*}
-x \mapsto g(x) = \sum_{j = 1}^l j I_{A(j)}(x_i)
+x \mapsto g(x) = \sum_{j = 1}^l j I_{\mathcal{A}(j)}(x_i)
 \end{eqnarray*}
-where $A(j) = (\mu_{j - 1}, \mu_j]$ for \code{right = TRUE} except $A(l) = (\mu_{l - 1}, \infty)$.
-If \code{right = FALSE}, then $A(j) = [\mu_{j - 1}, \mu_j)$ except 
-$A(1) = (-\infty, \mu_1)$. Note that with some categorical variable $x_i$ and default
+where $\mathcal{A}(j) = (\mu_{j - 1}, \mu_j]$ for \code{right = TRUE} except 
+$\mathcal{A}(l) = (\mu_{l - 1}, \infty)$.
+If \code{right = FALSE}, then $\mathcal{A}(j) = [\mu_{j - 1}, \mu_j)$ except 
+$\mathcal{A}(1) = (-\infty, \mu_1)$. Note that with some categorical variable $x_i$ and default
 split points, $g$ is the identity.
 
 Now, $h$ maps from the index set $\mathcal{I}$ into the set of daugther nodes:
