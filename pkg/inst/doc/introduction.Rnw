@@ -198,6 +198,42 @@ structured at the moment.
 The slots of \code{partysplit} objects shall be accessed by the corresponding
 accessor functions.
 
+Formally, a split is a function $f$ mapping an element $x = (x_1, \dots, x_p)$ of a $p$-dimensional 
+sample space $\mathcal{X}$ into a set of $k$ daugther nodes $\mathcal{D} = \{d_1, \dots, d_k\}$.
+This mapping is defined as a composition $f = h \circ g$ of two functions $g: \mathcal{X} \rightarrow \mathcal{I}$
+and $h: \mathcal{I} \rightarrow \mathcal{D}$ with index set $\mathcal{I} = \{1, \dots, l\}, l \ge k$.
+
+Let $\mu = (-\infty, \mu_1, \dots, \mu_{l - 1}, \infty)$ denote the split points
+($(\mu_1, \dots, \mu_{l - 1})$ = \code{break}). We are interested to split according to the 
+information contained in the $i$th element of $x$ ($i$ = \code{varid}).
+For numeric $x_i$, the split points are also numeric. If $x_i$ is a factor at
+levels $1, \dots, K$, the default split points are $\mu = (-\infty, 1, \dots, K - 1, \infty)$.
+
+The function $g$ essentially determines, which of the intervals (defined by $\mu$) the value
+$x_i$ is contained in ($I$ denotes the indicator function here):
+\begin{eqnarray*}
+x \mapsto g(x) = \sum_{j = 1}^l j I_{A(j)}(x_i)
+\end{eqnarray*}
+where $A(j) = (\mu_{j - 1}, \mu_j]$ for \code{right = TRUE} except $A(l) = (\mu_{l - 1}, \infty)$.
+If \code{right = FALSE}, then $A(j) = [\mu_{j - 1}, \mu_j)$ except 
+$A(1) = (-\infty, \mu_1)$. Note that with some categorical variable $x_i$ and default
+split points, $g$ is the identity.
+
+Now, $h$ maps from the index set $\mathcal{I}$ into the set of daugther nodes:
+\begin{eqnarray*}
+f(x) = h(g(x)) = d_{\sigma_{g(x)}}
+\end{eqnarray*}
+where $\sigma = (\sigma_1, \dots, \sigma_l) \in \{1, \dots, k\}^l$ (\code{index}). 
+By default, $\sigma = (1, \dots, l)$ and $k = l$.
+
+If $x_i$ is missing, then $f(x)$ is randomly drawn with $\mathbb{P}(f(x) = d_j) = p_j, j = 1, \dots, k$
+for a discrete probability distribution $p = (p_1, \dots, p_k)$ over the $k$ daugther nodes (\code{prob}).
+
+In the simplest case of a binary split in a numeric variable $x_i$, there is only
+one split point $\mu_1$ and, with $\sigma = (1, 2)$, observations with $x_i \le \mu_1$ are sent
+to daugther node $d_1$ and observations with $x_i > \mu_1$ to $d_2$.
+
+
 \section{Nodes}
 
 Inner and terminal nodes are represented by objects of class \code{partynode}.
