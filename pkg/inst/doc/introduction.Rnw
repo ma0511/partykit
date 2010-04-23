@@ -67,8 +67,8 @@
 \title{\pkg{partykit}: A Toolkit for Recursive Partytioning}
 \Plaintitle{partykit: A Toolkit for Recursive Partytioning}
 
-\author{Torsten Hothorn\\Ludwig-Maximilians-Universit\"at M\"unchen
-   \And Achim Zeileis\\Leopold-Franzens-Universität Innsbruck}
+\author{Torsten Hothorn\\Ludwig-Maximilians-Universit\"at \\ M\"unchen
+   \And Achim Zeileis\\Leopold-Franzens-Universit\"at \\ Innsbruck}
 \Plainauthor{Torsten Hothorn, Achim Zeileis}
 
 \Abstract{
@@ -117,7 +117,7 @@ data("iris")
 \section{Splits}
 
 A split is basically a function that maps data, 
-more specifically a partitioning variable, to child nodes. 
+more specifically a partitioning variable, to daugther nodes. 
 Objects of class \code{partysplit} are designed to represent 
 such functions and are set-up by the \code{partysplit()} 
 constructor:
@@ -153,51 +153,6 @@ is returned. Of course, this is a very complicated way of saying
 (!with(iris, Sepal.Length <= 5)) + 1
 @
 
-However, splits may become more complex. Consider a split in a categorical
-variable at three levels where the first two levels go to the left
-daugther node and the third one to the right daugther node:
-<<partysplit-6, echo = TRUE>>=
-## binary split in factor `Species'
-sp <- partysplit(which(names(iris) == "Species"),
-    index = c(1L, 1L, 2L))
-character_split(sp, data = iris)
-table(kidids_split(sp, data = iris), iris$Species)
-@
-The internal structure of this object now contains an index slot
-<<partysplit-6, echo = TRUE>>=
-unclass(sp)
-@
-that maps levels to daughter nodes. This mapping is also
-useful with splits in ordered variables, for example when 
-representing multiway splits:
-<<partysplit-7, echo = TRUE>>=
-## multiway split in numeric variable `Sepal.Width',    
-## higher values go to the first kid, smallest values
-## to the last kid
-sw23 <- partysplit(which(names(iris) == "Sepal.Width"),       
-    breaks = c(3, 3.5), index = 3:1)    
-character_split(sw23, data = iris)
-table(kidids_split(sw23, data = iris),
-    cut(iris$Sepal.Width, breaks = c(-Inf, 2, 3, Inf)))
-@
-The mapping of classes of the categorized numeric variable
-to daugther nodes can be changed by modifying \code{index}:
-<<partysplit-8, echo = TRUE>>=
-sw23 <- partysplit(which(names(iris) == "Sepal.Width"),
-    breaks = c(3, 3.5), index = c(1L, 3L, 2L))
-character_split(sw23, data = iris)
-@
-
-The additional argument \code{prop} is used to specify a 
-discrete probability distribution over the daugther nodes that
-is used to map observations with missing values to daugther nodes.
-Furthermore, the \code{info} argument and slot takes arbitrary objects
-to be stored with the split (for example split statistics) but is not
-structured at the moment.
-
-The slots of \code{partysplit} objects shall be accessed by the corresponding
-accessor functions.
-
 Formally, a split is a function $f$ mapping an element $x = (x_1, \dots, x_p)$ of a $p$-dimensional 
 sample space $\mathcal{X}$ into a set of $k$ daugther nodes $\mathcal{D} = \{d_1, \dots, d_k\}$.
 This mapping is defined as a composition $f = h \circ g$ of two functions $g: \mathcal{X} \rightarrow \mathcal{I}$
@@ -232,8 +187,58 @@ for a discrete probability distribution $p = (p_1, \dots, p_k)$ over the $k$ dau
 
 In the simplest case of a binary split in a numeric variable $x_i$, there is only
 one split point $\mu_1$ and, with $\sigma = (1, 2)$, observations with $x_i \le \mu_1$ are sent
-to daugther node $d_1$ and observations with $x_i > \mu_1$ to $d_2$.
+to daugther node $d_1$ and observations with $x_i > \mu_1$ to $d_2$. However,
+this representation of splits is general enough to deal with more complicated
+set-ups like surrogate splits, where typically the index needs modification, for example
+$\sigma = (2, 1)$, categorical splits, i.e., there is one data structure for both
+ordered and unordered splits, multiway splits, and functional splits. The latter
+can be implemented by defining a new artificial splitting variable $x_{p + 1}$ by
+means of a potentially very complex function of $x$ later used for splitting.
 
+As an example, consider a split in a categorical
+variable at three levels where the first two levels go to the left
+daugther node and the third one to the right daugther node:
+<<partysplit-6, echo = TRUE>>=
+## binary split in factor `Species'
+sp <- partysplit(which(names(iris) == "Species"),
+    index = c(1L, 1L, 2L))
+character_split(sp, data = iris)
+table(kidids_split(sp, data = iris), iris$Species)
+@
+The internal structure of this object contains the \code{index} slot
+<<partysplit-6, echo = TRUE>>=
+unclass(sp)
+@
+that maps levels to daughter nodes. This mapping is also
+useful with splits in ordered variables, for example when 
+representing multiway splits:
+<<partysplit-7, echo = TRUE>>=
+## multiway split in numeric variable `Sepal.Width',    
+## higher values go to the first kid, smallest values
+## to the last kid
+sw23 <- partysplit(which(names(iris) == "Sepal.Width"),       
+    breaks = c(3, 3.5), index = 3:1)    
+character_split(sw23, data = iris)
+table(kidids_split(sw23, data = iris),
+    cut(iris$Sepal.Width, breaks = c(-Inf, 2, 3, Inf)))
+@
+The mapping of classes of the categorized numeric variable
+to daugther nodes can be changed by modifying \code{index}:
+<<partysplit-8, echo = TRUE>>=
+sw23 <- partysplit(which(names(iris) == "Sepal.Width"),
+    breaks = c(3, 3.5), index = c(1L, 3L, 2L))
+character_split(sw23, data = iris)
+@
+
+The additional argument \code{prop} is used to specify a 
+discrete probability distribution over the daugther nodes that
+is used to map observations with missing values to daugther nodes.
+Furthermore, the \code{info} argument and slot takes arbitrary objects
+to be stored with the split (for example split statistics) but is not
+structured at the moment.
+
+The slots of \code{partysplit} objects shall be accessed by the corresponding
+accessor functions.
 
 \section{Nodes}
 
