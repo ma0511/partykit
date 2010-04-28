@@ -224,22 +224,39 @@ ctree_control <- function(teststat = c("quad", "max"),
 ctree <- function(formula, data, weights, subset, na.action = na.pass, 
                   control = ctree_control()) {
 
-    if (missing(data)) 
+    if (missing(data))
         data <- environment(formula)
     mf <- match.call(expand.dots = FALSE)
-    m <- match(c("formula", "data", "subset", "weights", "na.action"), 
+    m <- match(c("formula", "data", "subset", "weights", "na.action"),
                names(mf), 0)
     mf <- mf[c(1, m)]
+    
+    ### only necessary for extended model formulae 
+    ### e.g. multivariate responses
+    if (require("Formula")) {
+        formula <- Formula(formula)
+    } else {
+        if (length(formula[[2]]) > 1)
+            stop("Package ", sQuote("Formula"),
+                 " not available for handling extended model formula ",
+                 sQuote("formula"))
+    }
+    mf$formula <- formula
     mf$drop.unused.levels <- TRUE
     mf$na.action <- na.action
     mf[[1]] <- as.name("model.frame")
     mf <- eval(mf, parent.frame())
- 
-    response <- names(mf)[1] ### model.response(mf)
+
+    response <- names(mf)[1]
+    if (inherits(formula, "Formula"))
+        response <- names(model.part(formula, mf, lhs = 1))
     weights <- model.weights(mf)
     dat <- mf[, colnames(mf) != "(weights)"]
     ret <- .ctree_fit(dat, response, weights = weights, ctrl = control)
     ret$terms <- terms(formula, data = mf)
+    ### need to adjust print and plot methods
+    ### for multivariate responses
+    if (length(response) > 1) class(ret) <- "party"
     return(ret)
 }
 
@@ -270,9 +287,10 @@ ctree <- function(formula, data, weights, subset, na.action = na.pass,
     }
     tree <- .cnode(1L, data, infl, inputs, weights, ctrl)
     fitted <- data.frame("(fitted)" = fitted_node(tree, data), 
-                         "(response)" = data[ , response, drop = TRUE],
                          "(weights)" = weights,
                          check.names = FALSE)
+    fitted[[3]] <- data[, response, drop = length(response) == 1]
+    names(fitted)[3] <- "(response)"
     ret <- party(tree, data = data, fitted = fitted)
     class(ret) <- c("constparty", class(ret))
     return(ret)
@@ -314,7 +332,7 @@ ctree <- function(formula, data, weights, subset, na.action = na.pass,
         ### multivariate response
         infl <- lapply(response, .y2infl, data = data)
         tmp <- do.call("cbind", infl)
-        attr(tmp, "assign") <- rep(1:length(infl), sapply(infl, ncol))
+        attr(tmp, "assign") <- rep(1:length(infl), sapply(infl, NCOL))
         infl <- tmp
     }
     storage.mode(infl) <- "double"

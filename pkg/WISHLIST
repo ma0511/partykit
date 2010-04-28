@@ -8,9 +8,11 @@ x - model.frame in predict -> na.action?
 - ctree (TH):
   - MonteCarlo
   - scores for ordinal variables
-x  - use Formula for multivariate responses (TH, Z send material)
 x  - nice predictions for multivariate responses
      fitted may contain multivariate (response)
+   -> predictions seem to work; however plot and print methods
+      need generalization. So far, ctree returns "party" object 
+      for multivariate responses
 x  - add party regression tests
 
 x - partykit manual (TH)
