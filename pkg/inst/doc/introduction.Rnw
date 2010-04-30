@@ -114,6 +114,24 @@ data("iris")
 
 \section{Introduction}
 
+### Aufbau: erstmal Baum zusammenbauen, den plotten (ohne code) und diesen
+### Baum dann Schritt fuer Schritt zusammensetzen vielleicht:
+
+<<weather-data, echo = FALSE>>=
+weather <-
+structure(list(outlook = structure(c(1L, 1L, 2L, 3L, 3L, 3L, 
+2L, 1L, 1L, 3L, 1L, 2L, 2L, 3L), .Label = c("sunny", "overcast", 
+"rainy"), class = "factor"), temperature = c(85, 80, 83, 70, 
+68, 65, 64, 72, 69, 75, 75, 72, 81, 71), humidity = c(85, 90, 
+86, 96, 80, 70, 65, 95, 70, 80, 70, 90, 75, 91), windy = c(FALSE, 
+TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, 
+TRUE, FALSE, TRUE), play = structure(c(2L, 2L, 1L, 1L, 1L, 2L, 
+1L, 2L, 1L, 1L, 1L, 1L, 1L, 2L), .Label = c("yes", "no"), class = "factor")), .Names = c("outlook", 
+"temperature", "humidity", "windy", "play"), row.names = c(NA, 
+-14L), class = "data.frame")
+@
+### response: play siehe Witten/Frank im Weka Buch
+
 \section{Splits}
 
 A split is basically a function that maps data, 
@@ -306,6 +324,8 @@ starting with root node identifier \code{from}.
 the number of terminal nodes.
  
 \section{Trees}
+
+### code in eine Tabelle
 
 Although tree structures can be represented by \code{partynode} objects,
 a tree is more than a number of nodes and splits. More
