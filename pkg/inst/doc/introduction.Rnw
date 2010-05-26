@@ -114,8 +114,8 @@ data("iris")
 
 \section{Introduction}
 
-### Aufbau: erstmal Baum zusammenbauen, den plotten (ohne code) und diesen
-### Baum dann Schritt fuer Schritt zusammensetzen vielleicht:
+%%% Aufbau: erstmal Baum zusammenbauen, den plotten (ohne code) und diesen
+%%% Baum dann Schritt fuer Schritt zusammensetzen vielleicht:
 
 <<weather-data, echo = FALSE>>=
 weather <-
@@ -130,7 +130,7 @@ TRUE, FALSE, TRUE), play = structure(c(2L, 2L, 1L, 1L, 1L, 2L,
 "temperature", "humidity", "windy", "play"), row.names = c(NA, 
 -14L), class = "data.frame")
 @
-### response: play siehe Witten/Frank im Weka Buch
+%%% response: play siehe Witten/Frank im Weka Buch
 
 \section{Splits}
 
@@ -325,7 +325,7 @@ the number of terminal nodes.
  
 \section{Trees}
 
-### code in eine Tabelle
+%%% code in eine Tabelle
 
 Although tree structures can be represented by \code{partynode} objects,
 a tree is more than a number of nodes and splits. More
