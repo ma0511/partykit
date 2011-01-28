@@ -63,7 +63,10 @@ ctree_control(teststat = c("quad", "max"),
   performed in each node.
 
   In each inner node, \code{maxsurrogate} surrogate splits are computed 
-  (regardless of any missing values in the learning sample).
+  (regardless of any missing values in the learning sample). Factors
+  in test samples whose levels were empty in the learning sample 
+  are treated as missing when computing predictions (in contrast
+  to \code{\link[party]{ctree}}.
 
 }
 \value{

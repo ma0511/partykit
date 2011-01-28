@@ -161,9 +161,10 @@
                 if (length(sp) == 1) {
                     thissplit <- partysplit(as.integer(isel), breaks = sp)
                 } else {
-                    ### <FIXME>: deal with empty levels -> NA in sp?
+                    ### deal with empty levels -> NA in sp
+                    if (is.factor(x)) 
+                        sp[table(rep(x, weights)) == 0] <- NA
                     thissplit <- partysplit(as.integer(isel), index = sp)
-                    ### </FIXME>
                 }
                 break()
             }
@@ -242,7 +243,7 @@ ctree <- function(formula, data, weights, subset, na.action = na.pass,
                  sQuote("formula"))
     }
     mf$formula <- formula
-    mf$drop.unused.levels <- TRUE
+    mf$drop.unused.levels <- FALSE
     mf$na.action <- na.action
     mf[[1]] <- as.name("model.frame")
     mf <- eval(mf, parent.frame())

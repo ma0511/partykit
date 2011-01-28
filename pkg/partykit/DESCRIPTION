@@ -15,6 +15,7 @@ Description: A toolkit with infrastructure for representing,
 Depends: R (>= 2.5.0), graphics, stats, grid
 Imports: survival
 Suggests: XML, pmml, mlbench, RWeka, rJava, rpart, mvtnorm, Formula
+Enhances: ipred
 LazyLoad: yes
 LazyData: yes
 License: GPL-2

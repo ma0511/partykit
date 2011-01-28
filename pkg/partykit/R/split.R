@@ -25,7 +25,6 @@ partysplit <- function(varid, breaks = NULL, index = NULL, right = TRUE,
         }
     }
 
-    ### FIXME: index for factors may contain NA
     if (!is.null(index)) {
         if (is.integer(index)) {
             if (!(length(index) >= 2)) 
@@ -100,11 +99,12 @@ prob_split <- function(split) {
             stop("neither", " ", sQuote("prob"), " ", "nor", " ", 
                  sQuote("index"), " ", "or", sQuote("breaks"), " ", 
                  "given for", " ", sQuote("split"))
-        index <- 1:(length(breaks) + 1)
+        nkids <- length(breaks) + 1
+    } else {
+        nkids <- max(index, na.rm = TRUE)
     }
-    ### index may contain NA
-    prob <- !is.na(index)
-    return(prob / sum(prob, na.rm = TRUE))
+    prob <- rep(1, nkids) / nkids
+    return(prob)
 }
 
 info_split <- function(split) {
@@ -132,6 +132,9 @@ kidids_split <- function(split, data, vmatch = 1:ncol(data),
                  right = right_split(split)))
     }
     index <- index_split(split)
+    ### empty factor levels correspond to NA and return NA here
+    ### and thus the corresponding observations will be treated
+    ### as missing values (surrogate or random splits):
     if (!is.null(index))
         x <- index[x]
     return(x)

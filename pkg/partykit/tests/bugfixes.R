@@ -331,3 +331,9 @@ f <- as.party(fit)
 plot(f,tp_args = list(id = FALSE))
 f[10]$node$split
 
+### factors with empty levels in learning sample
+library("mlbench")
+data("Vowel")
+ct <- ctree(V2 ~ V1, data = Vowel[1:200,]) ### only levels 1:4 in V1
+p1 <- predict(ct, newdata = Vowel) ### 14 levels in V1
+

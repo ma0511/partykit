@@ -34,7 +34,7 @@ info_split(split)
                 a column number in \code{data}. }
   \item{breaks}{ a numeric vector of split points. }
   \item{index}{ an integer vector containing a contiguous sequence 
-                from one to the number of kid nodes.}
+                from one to the number of kid nodes. May contain \code{NA}s.}
   \item{right}{ a logical, indicating if the intervals defined by 
                 \code{breaks} should be closed on the
                 right (and open on the left) or vice versa.}
@@ -88,7 +88,10 @@ info_split(split)
   intervals to one of at least two kid nodes. Thus, \code{index}
   is a vector of integers where each element corresponds
   to one element in a list \code{kids} containing \code{\link{partynode}}
-  objects, see \code{\link{partynode}} for details.
+  objects, see \code{\link{partynode}} for details. The vector
+  \code{index} may contain \code{NA}s, in that case, the corresponding
+  values of the splitting variable are treated as missings (for
+  example factor levels that are not present in the learning sample).
   Either \code{breaks} or \code{index} must be given.
   When \code{breaks} is \code{NULL}, it is assumed that
   the partitioning variable itself has storage mode \code{integer}
