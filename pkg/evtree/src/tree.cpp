@@ -32,7 +32,7 @@ Tree::Tree(int* nInstances, int* nVariables, double** data, int* weights, int *s
                this->initNode(nodeNumber);
         }
 
-}
+} // end Tree
 
 
 Tree::Tree(int* nInstances, int* nVariables, double** data, int* weights, int* maxCat, variable** variables, int* maxNode, int* minbucket, int* minsplit){
@@ -96,7 +96,7 @@ Tree::Tree(int* nInstances, int* nVariables, double** data, int* weights, int* m
                 exit(0);
             }
         }
-}
+} // end Tree
 
 
 Tree::~Tree(){
@@ -124,7 +124,7 @@ Tree::~Tree(){
         nInstances= NULL;
         nVariables= NULL;
         weights= NULL;
-}
+} // end ~Tree
 
 
 void Tree::initNode(int nodeNumber){
@@ -159,7 +159,7 @@ this->data, this->nInstances, this->nVariables, this->variables );
         this->nodes[nodeNumber] = NULL;
     }
 
-}
+} // end initNode
 
 
 int Tree::predictClass(int minbucket, int minsplit, bool pruneIfInvalid, int nodeNumber){
@@ -183,7 +183,7 @@ int Tree::predictClass(int minbucket, int minsplit, bool pruneIfInvalid, int nod
        this->deleteChildNodes(returnValue); // call recursion delete node and everything below it
        return predictClass(minbucket, minsplit, true, 0 );
     }
-}
+} // end  predictClass
 
 
 bool Tree::reverseClassification(int startNode, int nodeNumber){
@@ -206,7 +206,7 @@ bool Tree::reverseClassification(int startNode, int nodeNumber){
         }
     }
     return true;
-}
+} // reverseClassification
 
 
 bool Tree::deleteChildNodes(int nodeNumber){
@@ -234,7 +234,7 @@ bool Tree::deleteChildNodes(int nodeNumber){
         cout << "warning: mode could not be deleted " << endl;
         return false;
     }
-}
+} // end deleteChildNodes
 
 
 void Tree::randomizeCategories(int nodeNumber){
@@ -255,27 +255,13 @@ void Tree::randomizeCategories(int nodeNumber){
         }
     }
 
-}
+} // end randomizeCategories
 
 
 bool Tree::calculateTotalCosts(int method, double alpha, int sumWeights, double populationMSE){
-    // only 1 and 6 are implemented with weights and sufficently tested
- //   if(method == 0){
- //   this->performance= 2*(double(*this->nInstances)-this->calculateTotalMC(0)*(double(*this->nInstances)/((double) sumWeights)) +  alpha*(this->nNodes+1.0)*log((double)(*this->nInstances));
-     //  this->performance= 2*(double(*this->nInstances)-this->calculateTotalMC(0)*(double(*this->nInstances)/dataSSE)) +  alpha*(*this->nodes[0]->nClassesDependendVar-1)*(this->nNodes+1)*log((double)(*this->nInstances));
     if(method == 1){
        this->performance= 2.0*(((double) sumWeights)-this->calculateTotalMC(0)) + alpha*(this->nNodes+1.0)*log(((double)sumWeights));
- /*   }else if(method == 2){
-       this->performance= 2*this->calculateTotalBIC(0)+  ((*this->nodes[0]->nClassesDependendVar+1)*(this->nNodes+1)-1)*log((double)(*this->nInstances));
-    }else if(method == 3) {
-       this->performance= 2*this->calculateTotalBIC(0)+  ((*this->nodes[0]->nClassesDependendVar-1)*(this->nNodes+1))*log((double)(*this->nInstances));
-    }else if(method == 4) {
-       this->performance= this->calculateTotalMDL(0)+
-            this->nNodes*2+1+
-            this->nNodes*log2((double)(*this->nVariables));
-    }else if(method == 5){
-       this->performance= 1.0-this->calculateTotalMC(0)+ alpha*(this->nNodes+1);*/
-    }else if(method == 6){
+    }else{
                double SMSE= max(this->calculateTotalSE(0)/(populationMSE), 0.001);
                this->performance= (
                   ((double) sumWeights)*log(SMSE)+alpha*4.0*log(((double) sumWeights))*((double)this->nNodes+2.0)
@@ -283,7 +269,7 @@ bool Tree::calculateTotalCosts(int method, double alpha, int sumWeights, double 
                );
     }
     return true;
-}
+} // end calculateTotalCosts
 
 
 double Tree::calculateTotalSE(int nodeNumber){
@@ -299,7 +285,7 @@ double Tree::calculateTotalSE(int nodeNumber){
         performance +=  this->nodes[nodeNumber]->calculateChildNodeSE(false, this->weights);
     }
     return performance;
-}
+} // end calculateTotalSE
 
 
 double Tree::calculateTotalMC(int nodeNumber){
@@ -310,102 +296,12 @@ double Tree::calculateTotalMC(int nodeNumber){
         performance += this->calculateTotalMC(nodeNumber*2+2);
 
     if( this->splitN[nodeNumber] == nodeNumber && this->nodes[nodeNumber]->leftChild == NULL){
-        performance += this->nodes[nodeNumber]->calculateChildNodePerf(true, 1, this->weights);
+        performance += this->nodes[nodeNumber]->calculateChildNodeMC(true, this->weights);
     }
     if( this->splitN[nodeNumber] == nodeNumber && this->nodes[nodeNumber]->rightChild == NULL){
-        performance +=  this->nodes[nodeNumber]->calculateChildNodePerf(false, 1, this->weights);
+        performance +=  this->nodes[nodeNumber]->calculateChildNodeMC(false, this->weights);
     }
 
     return performance;
-}
-
-
-double Tree::calculateTotalBIC(int nodeNumber){
-    double performance=0;
-    if(this->nodes[nodeNumber]->leftChild != NULL)
-        performance += this->calculateTotalBIC(nodeNumber*2+1);
-    if(this->nodes[nodeNumber]->rightChild != NULL)
-        performance += this->calculateTotalBIC(nodeNumber*2+2);
-
-    if( this->splitN[nodeNumber] == nodeNumber && this->nodes[nodeNumber]->leftChild == NULL){
-        performance += this->nodes[nodeNumber]->calculateChildNodePerf(true, 2, this->weights);
-    }
-    if( this->splitN[nodeNumber] == nodeNumber && this->nodes[nodeNumber]->rightChild == NULL){
-        performance +=  this->nodes[nodeNumber]->calculateChildNodePerf(false, 2, this->weights);
-    }
-
-    return performance;
-}
-
-
-double Tree::calculateTotalMDL(int nodeNumber){
-      double performance=0;
-      if(this->nodes[nodeNumber]->leftChild != NULL)
-          performance += this->calculateTotalMDL(nodeNumber*2+1);
-      if(this->nodes[nodeNumber]->rightChild != NULL)
-          performance += this->calculateTotalMDL(nodeNumber*2+2);
-
-      if( this->splitN[nodeNumber] == nodeNumber && this->nodes[nodeNumber]->leftChild == NULL){
-          performance += this->nodes[nodeNumber]->calculateChildNodePerf(true, 4, this->weights);
-      }
-      if( this->splitN[nodeNumber] == nodeNumber && this->nodes[nodeNumber]->rightChild == NULL){
-          performance +=  this->nodes[nodeNumber]->calculateChildNodePerf(false, 4, this->weights);
-      }
-      return performance;
-}
-
-
-
-void Tree::printTree(int method){ /// for debugging
-    cout << "------------------------------------------------------------" << endl;
-    if(method == 6){
-        cout << "MSE: " << this->calculateTotalSE(0)/(*this->nInstances) << ", Number of Nodes " << this->nNodes << ", Quality:" << this->performance << endl;
-        printNode(0, method); // init recursive call of node 0
-    }else{
-        cout << "Correct Classified: " << this->calculateTotalMC(0)/(*this->nInstances) << ", Number of Nodes " << this->nNodes << ", Quality:" << this->performance*100 << endl;
-        printNode(0, method); // init recursive call of node 0
-    }
-}
-
-
-void Tree::printNode(int i, int method){ /// for debugging
-    int exp=0;
-    while( pow(2,exp) <= i+1 ){ ///
-        cout << " ";
-        exp++;
-    }
-    cout << i+1 << ") "; ///
-    cout << splitV[i];
-    if( variables[abs(this ->splitV[i])]->isCat == false){
-        if( this->splitV[i] >= 0 ){
-               cout << " < " << (double)this->splitP[i];
-        }else{
-             cout << " >= " << (double)this->splitP[i];
-        }
-    }else{
-        cout << " = ";
-        bool printComma= false;
-        for(int k=0; k<variables[this->splitV[i]]->nCats; k++){
-            if(this->csplit[k][i]==1){
-                if (printComma == true)
-                       cout << ", " ;
-              cout  << variables[ this->splitV[i]]->sortedValues[k];
-                printComma= true;
-            }
-        }
-    }
-    if(method < 6)
-        cout << ", NI: " << this->nodes[i]->sumLocalWeights << ", Class: " << this->nodes[i]->predictionInternalNode << ", CC: " << this->nodes[i]->calculateNodeMC(this->weights) << "%" << endl;
-    else
-        cout << ", NI: " << this->nodes[i]->sumLocalWeights << ", Mean: " << this->nodes[i]->predictionInternalNode << ", MSE: " << this->nodes[i]->calculateNodeSE(this->weights) << "" << endl;
-
-
-    if(this->splitN[(i*2)+1]==i*2+1 && i*2+1 < *this->maxNode){
-            printNode(i*2+1, method);
-    }
-    if(this->splitN[(i*2)+2]==i*2+2 && i*2+2 < *this->maxNode){
-            printNode(i*2+2, method);
-    }
-}
-
+} // end calculateTotalMC
 

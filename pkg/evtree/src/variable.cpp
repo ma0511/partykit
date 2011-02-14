@@ -35,13 +35,13 @@ variable::variable(int varNumber, int dependendVar, int nInst, double** data, in
             }
          this->sortValues();
          }
-}
+} // end variable
 
 
 variable::~variable(){
     delete [] sortedValues;
     sortedValues= NULL;
-}
+} // end ~variable
 
 
 void variable::sortValues(){
@@ -60,7 +60,7 @@ void variable::sortValues(){
     }
     delete [] temp;
     temp= NULL;
-}
+} // end sortValues
 
         
 

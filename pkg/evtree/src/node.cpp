@@ -22,7 +22,7 @@ int* nInst, int* nVar, variable** variables){
     this->predictionRightTerminal= 0;
     this->nClassesDependendVar= &variables[*this->nVar-1]->nCats;
     this->csplit = csplit;
-}
+} // end Node
 
 
 int Node::partition( int* classification, int* weights, variable** variables, int* nNodes, int minbucket, int minsplit ){
@@ -126,7 +126,7 @@ double Node::calculateNodeMC(int* weights){
     delete [] sumsClassification;
     sumsClassification= NULL;
     return ((double)correctClassified) / ((double)sumWeights);
-}
+} // end calculateNodeMC
 
 
 double Node::calculateNodeSE(int* weights){
@@ -145,13 +145,12 @@ double Node::calculateNodeSE(int* weights){
         nodeMean /= ((double)sumWeights);
         this->predictionInternalNode= nodeMean;
         return 1.0/((double)sumWeights)*squaredSum-(nodeMean*nodeMean);
-}
+} // end calculateNodeSE
 
 
-double Node::calculateChildNodePerf(bool leftNode, int method, int* weights){
+double Node::calculateChildNodeMC(bool leftNode, int* weights){
         // calculate the performance depending of the cost criterium
         double performance_cc= 0;
-        double performance= 0;
         int sumWeights=0;
         double *sumsClassification = new double[*this->nClassesDependendVar];
 
@@ -175,44 +174,14 @@ double Node::calculateChildNodePerf(bool leftNode, int method, int* weights){
         }
         int localMajorityClassVariable=0;
         performance_cc= sumsClassification[0];
-        if(method == 4){  // MDL criteria
-            if( sumsClassification[0] != 0 ){
-                performance = sumsClassification[0]*log2(((double)sumWeights)/sumsClassification[0]);
-            }
 
-            for(int i=1; i<*this->nClassesDependendVar; i++){
-                if(  sumsClassification [i] > performance_cc  ){  // CC part
-                    performance_cc= sumsClassification [i];
-                    localMajorityClassVariable=i;
-                }
-                if( sumsClassification[i] != 0 ){   // BIC part
-                    performance += sumsClassification[i]*log2(((double)sumWeights)/sumsClassification[i]) ;
-                }
-            }
-            performance  += (double)(*this->nClassesDependendVar-1)/2.0*log2(((double)sumWeights)/2.0)
-                         + log2(pow(pi, (double)(*this->nClassesDependendVar)/2.0) / (double)factorial( int(ceil((double)(*this->nClassesDependendVar)/2.0)) )) ;
-
-
-            if(variables[*this->splitV]->isCat){
-                performance+= log2((double)pow(2,variables[*this->splitV]->nCats)-2);///MDLTEST//
-            }else{
-                performance+= log2((double)(variables[*this->splitV]->nCats-1));
-            }
-        }else{
-            if( method > 1 && sumsClassification[0] != 0 ){   // BIC crieteria only
-                performance = sumsClassification[0]*log(((double)sumWeights)/sumsClassification[0]);
-            }
-
-            for(int i=1; i<*this->nClassesDependendVar; i++){
-                if(  sumsClassification [i] > performance_cc  ){  // CC part
-                    performance_cc= sumsClassification [i];
-                    localMajorityClassVariable=i;
-                }
-                if(method > 1 &&  sumsClassification[i] != 0 ){   // BIC part
-                    performance += sumsClassification[i]*log(((double)sumWeights)/sumsClassification[i]);
-                }
+        for(int i=1; i<*this->nClassesDependendVar; i++){
+            if(  sumsClassification [i] > performance_cc  ){  // CC part
+                performance_cc= sumsClassification [i];
+                localMajorityClassVariable=i;
             }
         }
+        
         delete [] sumsClassification;
         sumsClassification= NULL;
 
@@ -225,11 +194,8 @@ double Node::calculateChildNodePerf(bool leftNode, int method, int* weights){
             this->performanceRightTerminal= performance_cc/((double)sumWeights);
         }
 
-        if(method<=1)
-            return performance_cc;
-        else
-            return performance;
-}
+        return performance_cc;
+} // end calculateNodeMC
 
 
 double Node::calculateChildNodeSE(bool leftNode, int* weights){
@@ -268,7 +234,7 @@ double Node::calculateChildNodeSE(bool leftNode, int* weights){
             this->predictionRightTerminal= nodeMean;
         }
         return performance;
-}
+} // end calculateNodeSE
 
 
 int Node::factorial( int n ){
@@ -277,7 +243,7 @@ int Node::factorial( int n ){
         return 1;
     else
         return  n * factorial( n-1 );
-}
+} // end factorial
 
 
 Node::~Node(){
@@ -294,5 +260,5 @@ Node::~Node(){
        nInst= NULL;
        nVar= NULL;
        data= NULL;
-}
+} // ~end Node
 

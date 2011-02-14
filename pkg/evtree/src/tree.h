@@ -28,12 +28,7 @@ class Tree{
 	 void initNode(int nodeNo);
  	 double calculateTotalMC(int nodeNumber);
          bool calculateTotalCosts(int method, double alpha, int sumWeights, double populationMSE);
-	 double calculateTotalBIC(int nodeNumber);
-         double calculateTotalMDL(int nodeNumber);
          double calculateTotalSE(int nodeNumber);
-  	 void printTree(int evCriteria);
-	 void printNode(int nodeNo, int evCriteria);
-  	 void printTerminalsOf(int nodeNo);
          bool deleteChildNodes(int nodeNo);
          bool reverseClassification(int startNode, int nodeNumber);
          void randomizeCategories(int nodeNumber);

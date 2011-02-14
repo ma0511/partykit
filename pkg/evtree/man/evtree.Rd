@@ -1,5 +1,6 @@
 \name{evtree}
 \alias{evtree}
+\alias{evtree-package}
 \title{
 evtree
 }
@@ -31,9 +32,9 @@ First, a set of trees is initialized with random split rules in the root nodes. 
   An object of class \code{\link{party}}.
 }
 
-\references{
+%\references{
 %% ~put references to the literature/web site here ~
-}
+%}
 
 \author{
 Thomas Grubinger

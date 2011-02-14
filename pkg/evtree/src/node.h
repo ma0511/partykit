@@ -38,7 +38,7 @@ class Node{
 	int partition( int* classification, int* weights, variable** variables, int* nNodes, int minbucket, int minsplit);
 	double calculateNodeSE(int* weights);
 	double calculateNodeMC(int* weights);
-        double calculateChildNodePerf(bool left, int criterium, int* weights);
+        double calculateChildNodeMC(bool left, int* weights);
         double calculateChildNodeSE(bool left, int* weights);
         int factorial(int number);
 };

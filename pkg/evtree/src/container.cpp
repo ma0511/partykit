@@ -16,8 +16,8 @@ int* nIter, int* nTrees, int* pMutateMajor, int* pMutateMinor, int* pCrossover, 
     srand((unsigned)time(0));
     this->acceptProb= 0.25;
     this->agePenalty= 0.0005;
-    this->maxNode=*maxNode; 
-    this->minsplit=*minsplit;
+    this->maxNode= *maxNode;
+    this->minsplit= *minsplit;
     this->nTrees= *nTrees;
     this->nInstances= *nInstances;
     this->nIterations= *nIter;
@@ -34,7 +34,7 @@ int* nIter, int* nTrees, int* pMutateMajor, int* pMutateMinor, int* pCrossover, 
     this->probPrune= *pPrune+this->probSplit;
     this->probCrossover= *pCrossover+this->probPrune;
     this->elitismRange= max((int)ceil((double)(this->nTrees/20.0)),2);
-    this->nTrees+=this->elitismRange;
+    this->nTrees+= this->elitismRange;
     this->treesAge= new int[this->nTrees];
     this->method= *method;
     this->elitismList= new int[this->elitismRange];
@@ -47,7 +47,7 @@ int* nIter, int* nTrees, int* pMutateMajor, int* pMutateMinor, int* pCrossover, 
     for (int i = 0; i < this->nInstances; i++){
         this->data[i] = new double[this->nVariables];
         this->weights[i] = weights[i];
-        sumWeights+= this->weights[i];
+        sumWeights += this->weights[i];
     }
     for(int v=0; v<this->nVariables; v++){
         for(int i=0; i<this->nInstances; i++){
@@ -81,12 +81,12 @@ int* nIter, int* nTrees, int* pMutateMajor, int* pMutateMinor, int* pCrossover, 
     this->alpha= (*alpha);
     this->trees= new Tree*[this->nTrees];
 
-    for(int i=0; i<this->nTrees;i++){
+    for(int i=0; i<this->nTrees; i++){
         this->trees[i]= new Tree(&this->nInstances, &this->nVariables, this->data, this->weights, &this->maxCat, this->variables, &this->maxNode, &this->minbucket, &this->minsplit);
         this->treesAge[i]=0;
     }
 
-    for(int i=0; i<this->nTrees;i++){
+    for(int i=0; i<this->nTrees; i++){
         this->evaluateTree(i, true, 0);
     }
 
@@ -130,7 +130,7 @@ int* nIter, int* nTrees, int* pMutateMajor, int* pMutateMinor, int* pCrossover, 
     }else{
          cout << "to few iterations" << endl;
     }
-} 
+} // end Container
 
 
 void Container::evolution(){
@@ -242,11 +242,11 @@ void Container::evolution(){
           }
       }
       this->acceptProb = (double)nAccepts/(double)this->nTrees;
-   }// end for(int i=0; i<this->iterations; i++)
+   }
     // all trees are pruned at the end of the run
     for(int i =0; i<this->nTrees; i++)
       this->pruneAllNodes(i);
-}
+} // end evolution
 
 
 double Container::pruneNode(int treeNumber){
@@ -313,14 +313,13 @@ double Container::pruneNode(int treeNumber){
             return -1;
 	}else{
             cout << "accept in prune node " << accept << endl;
-            this->trees[treeNumber]->printTree(6);
             cout << "warning: invalid tree is replaced by a random tree (4) " << endl;
             this->overwriteTree(treeNumber);
             return -2;
         }
 
     }else return -4;
-}
+}// end pruneNode
 
 
 int Container::pruneAllNodes(int treeNumber){ 
@@ -399,7 +398,7 @@ int Container::pruneAllNodes(int treeNumber){
     if(flag==true)
         this->pruneAllNodes(treeNumber);
     return 1;
-}
+} // end pruneAllNodes
 
 
 double Container::splitNode(int treeNumber){
@@ -480,7 +479,7 @@ double Container::splitNode(int treeNumber){
             return -2;
         }
         return -5;
-}
+} // splitNode
 
 
 int Container::randomTerminalNode(int treeNumber){
@@ -523,7 +522,7 @@ int Container::randomTerminalNode(int treeNumber){
         nodes= NULL;
         return returnvalue;
     }
-}
+} // randomTerminalNode
 
 
 double Container::initMutateNode(int treeNumber, bool isMinorChange){
@@ -540,7 +539,7 @@ double Container::initMutateNode(int treeNumber, bool isMinorChange){
             return -5;
         }
         return accept;
-}
+} // initMutateNode
 
 
 double Container::mutateNode(int treeNumber, int nodeNumber, bool isMinorChange){
@@ -701,7 +700,7 @@ int Container::calculateNoOfNodesInSubtree(int treeNumber, int nodeNumber){
     if(this->trees[treeNumber]->splitN[nodeNumber*2+2] == nodeNumber*2+2)
          return calculateNoOfNodesInSubtree(treeNumber, nodeNumber*2+2)+1;
     else return 1;
-}
+} // calculateNoOfNodesInSubtree
 
 
 bool Container::changeRandomCategories(int treeNumber, int nodeNumber){
@@ -745,7 +744,7 @@ bool Container::changeRandomCategories(int treeNumber, int nodeNumber){
         i++;
     }
     return true;
-}
+} // end changeRadomCategories
 
 
 int Container::getRandomTree(bool elitism){
@@ -769,7 +768,7 @@ int Container::getRandomTree(bool elitism){
         }
 	return randTree;
    }
-}
+} // end get Trandom Tree
 
 
 int Container::getGenitor(){
@@ -834,7 +833,7 @@ bool Container::randomSplitPoint(int treeNumber, int nodeNumber){
     }
     this->trees[treeNumber]->splitP[nodeNumber]=-999999;
     return true;
-}
+} // end getSplitPoint
 
 
 bool Container::changeSplitPoint(int treeNumber, int nodeNumber){
@@ -872,7 +871,7 @@ bool Container::changeSplitPoint(int treeNumber, int nodeNumber){
         }
         this->trees[treeNumber]->splitP[nodeNumber] = this->variables[ abs(this->trees[treeNumber]->splitV[nodeNumber]) ]->sortedValues[randomSplitPoint];
     return true;
-}
+} // end changeSplitPoint
 
 
 int Container::randomSplitNode(int treeNumber){
@@ -888,7 +887,7 @@ int Container::randomSplitNode(int treeNumber){
         delete [] nodes;
         nodes= NULL;
         return rvalue;
-}
+} // end randomSplitNode
 
 
 bool Container::evaluateTree(int treeNumber, bool pruneIfInvalid, int nodeNumber){
@@ -913,7 +912,7 @@ bool Container::evaluateTree(int treeNumber, bool pruneIfInvalid, int nodeNumber
 	}
 	this->trees[treeNumber]->calculateTotalCosts(this->method, this->alpha, this->sumWeights, this->populationMSE);
 	return true;
-}
+} // end evaluateTree
 
 
 Container::~Container(){
@@ -941,14 +940,14 @@ Container::~Container(){
         treesAge = NULL;
         delete [] weights;
         weights= NULL;
-}
+} // end ~Container
 
 
 void Container::initVariables(int* varType){
     for (int i = 0; i < this->nVariables ; i++){
         this->variables[i]= new variable( i, this->nVariables-1, this->nInstances, this->data, varType[i]);
     }
-}
+} // end initVariables
 
 
 void Container::overwriteTree(int targetPos){
@@ -967,7 +966,7 @@ void Container::overwriteTree(int targetPos){
               sourcePos= this->getRandomTree(true);
         this->trees[targetPos]= new Tree(&this->nInstances, &this->nVariables, this->data,  this->weights, this->trees[sourcePos]->splitN, this->trees[sourcePos]->splitV, this->trees[sourcePos]->splitP, this->trees[sourcePos]->csplit, &this->maxCat, &this->trees[sourcePos]->nNodes, this->variables, &this->maxNode);
     }
-}
+} // end overwriteTree
 
 
 void Container::overwriteTree(int sourcePos, int targetPos){
@@ -989,7 +988,8 @@ void Container::overwriteTree(int sourcePos, int targetPos){
                 this->trees[targetPos]= new Tree(&this->nInstances, &this->nVariables, this->data, this->weights, this->trees[treeNo]->splitN, this->trees[treeNo]->splitV, this->trees[treeNo]->splitP, this->trees[treeNo]->csplit, &this->maxCat, &this->trees[treeNo]->nNodes, this->variables, &this->maxNode);
             }
         }
-}
+} // end overwriteTree
+
 
 
 int Container::evaluateNewSolution( int treeNumber, double* oldPerf){
@@ -1002,7 +1002,7 @@ int Container::evaluateNewSolution( int treeNumber, double* oldPerf){
             return 0;
         }else
             return -1;
-} 
+}  // end evaluateNewSolution
 
 
 bool Container::updatePerformanceList(int treeNumber){
@@ -1027,7 +1027,7 @@ bool Container::updatePerformanceList(int treeNumber){
             return true;
             }
         return false;
-}
+} // end updatePerformanceList
 
 
 double Container::crossover(int treeNumber1){
@@ -1079,7 +1079,7 @@ double Container::crossover(int treeNumber1){
         int **csplit2;
         csplit2= new int*[this->maxCat];
         // init data matrix
-        for (int i = 0; i < this->maxCat; i++){ 
+        for (int i = 0; i < this->maxCat; i++){
             csplit[i] = new int[(this->maxNode)];
             csplit2[i] = new int[(this->maxNode)];
         }
@@ -1179,7 +1179,7 @@ double Container::crossover(int treeNumber1){
           this->treesAge[treeNumber2]++;
 
       return 1;  // improve
-}
+} // end crossover
 
 
 int Container::initNVPCrossoverTree1(int treeNumber,int node, int randomNode, int* splitN, int* splitV, double* splitP, int** csplit){
@@ -1197,7 +1197,7 @@ int Container::initNVPCrossoverTree1(int treeNumber,int node, int randomNode, in
           }
       }
       return 0;
-}
+} // initNVPCrossoverTree1
 
 
 int Container::initNVPCrossoverTree2(int treeNumber, int randomNode2, int randomNode1, int* splitN, int* splitV, double* splitP, int** csplit){
@@ -1215,5 +1215,5 @@ int Container::initNVPCrossoverTree2(int treeNumber, int randomNode2, int random
           }
     }
     return 0;
-}
+} // initNVPCrossoverTree2
  
