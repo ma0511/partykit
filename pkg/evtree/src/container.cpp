@@ -2,20 +2,20 @@
 
 extern "C"{
 void tree(int* nInst, int* nVar, int *varType, double* ndata, int* weights, int* prediction, int *splitN, int *splitV, double *splitP, int* csplit, int* maxNode, int* minbucket, int* minsplit,
-int* nIter, int* nTrees, int* pMutateMajor, int* pMutateMinor,int *pCrossover, int *pSplit, int *pPrune, int* method, double* alpha){
+int* nIter, int* nTrees, int* pMutateMajor, int* pMutateMinor,int *pCrossover, int *pSplit, int *pPrune, int* method, double* alpha, int* seed){
 	Container* container= new Container(nInst, nVar, varType, ndata, weights, prediction, splitN, splitV, splitP, csplit, maxNode, minbucket, minsplit,
-nIter,nTrees, pMutateMajor, pMutateMinor, pCrossover, pSplit, pPrune, method, alpha);
+nIter,nTrees, pMutateMajor, pMutateMinor, pCrossover, pSplit, pPrune, method, alpha, seed);
     delete container;
     container= NULL;
     }
 }//extern C 
 
 Container::Container(int* nInstances, int* nVariables, int *varType, double* ndata, int* weights, int* prediction, int *splitN, int *splitV, double *splitP, int* csplit, int* maxNode, int *minbucket,int* minsplit,
-int* nIter, int* nTrees, int* pMutateMajor, int* pMutateMinor, int* pCrossover, int* pSplit, int* pPrune, int* method, double* alpha ){
+int* nIter, int* nTrees, int* pMutateMajor, int* pMutateMinor, int* pCrossover, int* pSplit, int* pPrune, int* method, double* alpha, int* seed ){
     // constructor
-    srand((unsigned)time(0));
-    this->acceptProb= 0.25;
-    this->agePenalty= 0.0005;
+    if(*seed < 0)
+	    *seed = (unsigned)time(0);
+    srand(*seed);
     this->maxNode= *maxNode;
     this->minsplit= *minsplit;
     this->nTrees= *nTrees;
@@ -35,7 +35,6 @@ int* nIter, int* nTrees, int* pMutateMajor, int* pMutateMinor, int* pCrossover, 
     this->probCrossover= *pCrossover+this->probPrune;
     this->elitismRange= max((int)ceil((double)(this->nTrees/20.0)),2);
     this->nTrees+= this->elitismRange;
-    this->treesAge= new int[this->nTrees];
     this->method= *method;
     this->elitismList= new int[this->elitismRange];
 
@@ -83,7 +82,6 @@ int* nIter, int* nTrees, int* pMutateMajor, int* pMutateMinor, int* pCrossover, 
 
     for(int i=0; i<this->nTrees; i++){
         this->trees[i]= new Tree(&this->nInstances, &this->nVariables, this->data, this->weights, &this->maxCat, this->variables, &this->maxNode, &this->minbucket, &this->minsplit);
-        this->treesAge[i]=0;
     }
 
     for(int i=0; i<this->nTrees; i++){
@@ -135,14 +133,12 @@ int* nIter, int* nTrees, int* pMutateMajor, int* pMutateMinor, int* pCrossover, 
 
 void Container::evolution(){
     // evolves the initial solution
-    int nAccepts=0; // use to calculate the acceptance rate, that is the relative number of trees replaced in one iteration
     double evalValue; // stores the return value from variation operators
     int randomNumber=0; // random number calculated for each tree in each iteration. used for operator selecdtion
     bool elitismFlag= false;
     for(int i=0; i<this->nIterations; i++){
         // checks for user interupts via control-c
         R_CheckUserInterrupt();
-        nAccepts=0;
         for(int j=0; j<nTrees; j++){
             // check if tree j is in the elitism list
             // if it is; with a small probability a copy of j is placed in the population
@@ -173,40 +169,14 @@ void Container::evolution(){
                randomNumber= (rand()%100);
                if(randomNumber < this->probMutateMajor){
                      evalValue= this->initMutateNode(j,false);
-                     if(evalValue >= 0){
-                         this->treesAge[j]=0;
-                         nAccepts++;
-                     }else{
-                         this->treesAge[j]++;
-                     }
                }else if(randomNumber < this->probMutateMinor){
                      evalValue= this->initMutateNode(j, true);
-                     if(evalValue >= 0){
-                           this->treesAge[j]=0;
-                           nAccepts++;
-                     }else{
-                         this->treesAge[j]++;
-                     }
                }else if(randomNumber < this->probSplit){
                      evalValue= this->splitNode(j);
-                     if(evalValue >= 0){
-                         this->treesAge[j]=0;
-                         nAccepts++;
-                     }else{
-                         this->treesAge[j]++;
-                     }
                }else if(randomNumber < this->probPrune){
                      evalValue= this->pruneNode(j);
-                     if(evalValue >= 0){
-                         this->treesAge[j]= 0;
-                           nAccepts++;
-                     }else{
-                         this->treesAge[j]++;
-                     }
                }else{
                      evalValue= this->crossover(j);
-                     if(evalValue >=0)
-                           nAccepts++;
                }
 
                // if j belongs in the elitism list an extra copy is made replacing a random tree
@@ -241,7 +211,6 @@ void Container::evolution(){
               }
           }
       }
-      this->acceptProb = (double)nAccepts/(double)this->nTrees;
    }
     // all trees are pruned at the end of the run
     for(int i =0; i<this->nTrees; i++)
@@ -936,8 +905,6 @@ Container::~Container(){
         performanceHistory= NULL;
         delete [] elitismList;
         elitismList= NULL;
-        delete [] treesAge;
-        treesAge = NULL;
         delete [] weights;
         weights= NULL;
 } // end ~Container
@@ -951,7 +918,7 @@ void Container::initVariables(int* varType){
 
 
 void Container::overwriteTree(int targetPos){
-    // replaces the tree with treenumber tagetPos by a random tree
+    // replaces the tree with treenumber targetPos by a random tree
     delete this->trees[targetPos];
     this->trees[targetPos] = NULL;
     int sourcePos;
@@ -970,7 +937,7 @@ void Container::overwriteTree(int targetPos){
 
 
 void Container::overwriteTree(int sourcePos, int targetPos){
-       // replaces the tree tagetPos with tree sourcePos
+       // replaces the tree targetPos with tree sourcePos
         if(sourcePos == targetPos){
             overwriteTree(targetPos);
         }else{
@@ -994,12 +961,9 @@ void Container::overwriteTree(int sourcePos, int targetPos){
 
 int Container::evaluateNewSolution( int treeNumber, double* oldPerf){
         // evaluates the improve of the new solution; is used by all mutation operators
-        this->agePenalty= max(0.0005, this->agePenalty*(1+0.001*(0.25-this->acceptProb)) ) ;
         double* newPerf= &this->trees[treeNumber]->performance;
         if( *newPerf <= *oldPerf){
             return 1;
-        }else if(  (*newPerf/(*oldPerf))  < (1+this->treesAge[treeNumber]*agePenalty) ){
-            return 0;
         }else
             return -1;
 }  // end evaluateNewSolution
@@ -1167,16 +1131,6 @@ double Container::crossover(int treeNumber1){
                      this->trees[treeNumber1]= NULL;
                      this->trees[treeNumber1]= oldTree;
             }
-
-      if(accept1 >= 0)
-          this->treesAge[treeNumber1]=0;
-      else
-          this->treesAge[treeNumber1]++;
-
-      if(accept2 >= 0)
-          this->treesAge[treeNumber2]=0;
-      else
-          this->treesAge[treeNumber2]++;
 
       return 1;  // improve
 } // end crossover

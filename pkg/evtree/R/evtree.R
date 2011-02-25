@@ -62,7 +62,7 @@ evtree <- function(formula, data = list(), weights = NULL, subset = NULL, contro
          }
     }
 
-    if(control$method < 6){
+     if(control$method < 6){
         if(is.factor(mf[,nVariables]) == FALSE)
             stop('dependend variable is not a factor')
         if(length(levels(mf[,nVariables]))<2)
@@ -107,6 +107,12 @@ list(pmutatemajor = 20, pmutateminor = 20, pcrossover = 20, psplit = 20, pprune 
 
     if(2*control$minbucket > sum(weights)-1)
         stop(paste("no split could be found \n \"minbucket\" is larger than half the weighted number of observations in the training data"))
+
+    if(is.null(control$seed)){
+   	control$seed = -1
+    }else if(control$seed < 0){
+        stop("parameter \"seed\" in evtree.control must be a non-negative integer")
+    }
 
     if(control$niterations < 100)
         stop("parameter \"niterations\" must at least be 100")
@@ -199,7 +205,8 @@ list(pmutatemajor = 20, pmutateminor = 20, pcrossover = 20, psplit = 20, pprune 
                 as.integer(op$psplit),
                 as.integer(op$pprune),
                 as.integer(control$method),
-                as.double(control$alpha)
+                as.double(control$alpha),
+		as.integer(control$seed)
                 )
             return(out)
     }
@@ -216,6 +223,7 @@ list(pmutatemajor = 20, pmutateminor = 20, pcrossover = 20, psplit = 20, pprune 
         mtree$weights <- weights
         mtree$prediction <- out[[6]]+1
         mtree$maxCat <- maxCat
+        mtree$seed <- out[[23]]
 
         init <- .initializeNode(mtree)
         node <- init[[1]]
@@ -227,7 +235,11 @@ list(pmutatemajor = 20, pmutateminor = 20, pcrossover = 20, psplit = 20, pprune 
 
         fitted <- data.frame(prediction, mtree$weights, mf[nVariables])
         names(fitted) <- c("(fitted)", "(weights)" ,"(response)")
-        partyObject <- party(node, mf, fitted = fitted, terms = terms, info = list(method = "evtree", nIterations = out[[14]]))
+        partyObject <- party(node, mf, fitted = fitted, terms = terms, info = list(method = "evtree", nIterations = out[[14]], seed = mtree$seed))
         class(partyObject) <- c("constparty", "party")
         return(partyObject)
 }
+
+
+
+

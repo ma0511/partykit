@@ -5,9 +5,10 @@
   Various parameters that control aspects of the `evtree' fit.
 }
 \usage{
-evtree.control(minbucket = 20L, minsplit = 7L, maxdepth = 9L, 
+evtree.control(minbucket = 7L, minsplit = 20L, maxdepth = 9L, 
 niterations = 10000L, ntrees = 100L, alpha = 1, operatorprob = 
-list(pmutatemajor = 20, pmutateminor = 20, pcrossover = 20, psplit = 20, pprune = 20) )
+list(pmutatemajor = 20, pmutateminor = 20, pcrossover = 20, psplit = 20, pprune = 20),
+seed = NULL)
 }
 
 \arguments{
@@ -21,6 +22,7 @@ The default \code{alpha = 1}.}
   \item{operatorprob}{ probabilities for the selection of variation operators. The default 
 \code{list(pmutatemajor = 20, pmutateminor = 20, pcrossover = 20, psplit = 20, pprune = 20)}. 
 The probabilities must sum up to 100.} 
+  \item{seed}{ a seed to initialize the random number generator. By default the random number generator is initialized by the system time. Results can be reproduced by re-using the same seed}
 }
 
 \value{
