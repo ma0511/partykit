@@ -1,8 +1,58 @@
-
-evtree <- function(formula, data = list(), weights = NULL, subset = NULL, control = evtree.control()){
+evtree <- function(formula, data = list(), weights = NULL, subset = NULL, control = evtree.control(), ...){
     start <- proc.time()
-    call <- match.call()
+    args <- list(...)
+    if( length(args) > 0 ){   
+	for(a in 1:length(args))
+		if(names(args)[a] == "minbucket")
+			control$minbucket <- args[[a]]
+		else if(names(args)[a] == "minsplit")
+			control$minsplit <- args[[a]]
+		else if(names(args)[a] == "maxdepth")
+			control$maxdepth <- args[[a]]
+		else if(names(args)[a] == "niterations")
+			control$niterations <- args[[a]]
+		else if(names(args)[a] == "ntrees")
+			control$ntrees <- args[[a]]
+		else if(names(args)[a] == "alpha")
+			control$alpha <- args[[a]]
+		else if(names(args)[a] == "seed")
+			control$seed <- args[[a]]
+		else if(names(args)[a] == "operatorprob")
+			control$operatorprob <- args[[a]]
+		else if(names(args)[a] == "pmutatemajor")
+			control$operatorprob$pmutatemajor <- args[[a]]
+		else if(names(args)[a] == "pmutateminor")
+			control$operatorprob$pmutateminor <- args[[a]]
+		else if(names(args)[a] == "pcrossover")
+			control$operatorprob$pcrossover <- args[[a]]
+		else if(names(args)[a] == "psplit")
+			control$operatorprob$psplit <- args[[a]]
+		else if(names(args)[a] == "pprune")
+			control$operatorprob$pprune <- args[[a]]
+		else
+			warning(paste("extra argument ", names(args)[a], " is just disregarded"))
+    }
+
+    if( length(control$args) > 0 ){
+	for(a in 1:length(control$args))
+		if(names(control$args)[a] == "pmutatemajor")
+			control$operatorprob$pmutatemajor <- control$args[[a]]	
+		else if(names(control$args)[a] == "pmutateminor")			
+			control$operatorprob$pmutateminor <- control$args[[a]]
+		else if(names(control$args)[a] == "pcrossover")
+			control$operatorprob$pcrossover <- control$args[[a]]
+		else if(names(control$args)[a] == "psplit")
+			control$operatorprob$psplit <- control$args[[a]]
+		else if(names(control$args)[a] == "pprune")
+			control$operatorprob$pprune <- control$args[[a]]
+		else
+			warning(paste("extra argument ", names(control$args)[a], " is just disregarded"))
+    }
+
+    call <- match.call(expand.dots = FALSE)
+    m <- match(c("formula", "data"), names(call), 0L)
     call[[1L]] <- as.name("model.frame")
+    call <- call[c(1L,m)]
     call$control <- NULL
     call <- eval(call, parent.frame())
     terms <- (attr(call,"terms"))
@@ -18,7 +68,6 @@ evtree <- function(formula, data = list(), weights = NULL, subset = NULL, contro
     mf <- mf[,sapply(sapply(mf, unique), length) > 1] ## drop variables with only one level
     if(is.null(dim(mf)))
         stop('independend variables are all constant')
-
     if(is.null(weights)){
         weights <- array(1,nrow(mf))
     }else{
@@ -53,7 +102,6 @@ evtree <- function(formula, data = list(), weights = NULL, subset = NULL, contro
     nVariables <- ncol(mf)
     nInstances <- nrow(mf)
     prediction <- array(as.integer(0),nInstances)
-
     if(is.null(control$method)){
          if(is.factor(mf[,nVariables])){
             control$method <- 1
@@ -90,7 +138,7 @@ evtree <- function(formula, data = list(), weights = NULL, subset = NULL, contro
             op$pcrossover <- control$operatorprob[[5]]
     }else{
        stop('argument operatorprob must be of form: operatorprob=
-list(pmutatemajor = 20, pmutateminor = 20, pcrossover = 20, psplit = 20, pprune = 20)')
+		list(pmutatemajor = 20, pmutateminor = 20, pcrossover = 20, psplit = 20, pprune = 20)')
     }
 
     if(op$pmutatemajor + op$pmutateminor + op$psplit + op$pprune+op$pcrossover != 100)
@@ -118,7 +166,7 @@ list(pmutatemajor = 20, pmutateminor = 20, pcrossover = 20, psplit = 20, pprune 
         stop("parameter \"niterations\" must at least be 100")
 
     if(control$ntrees < 10)
-        stop("parameter \"ntrees\" must at least be 100")
+        stop("parameter \"ntrees\" must at least be 10")
 
     if(control$alpha < 0)
         stop("parameter \"alpha\" must be equal or larger than 0")

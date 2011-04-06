@@ -7,7 +7,7 @@ evtree
 \description{
  	An Evolutionary Algorithm to Build Classification and Regression Trees.
 }
-\usage{evtree(formula, data=list(), weights=NULL, subset = NULL, control = evtree.control())}
+\usage{evtree(formula, data=list(), weights=NULL, subset = NULL, control = evtree.control(), ...)}
 
 \arguments{
   \item{formula}{ a symbolic description of the model to be fit. }
@@ -37,7 +37,7 @@ First, a set of trees is initialized with random split rules in the root nodes. 
 %}
 
 \author{
-Thomas Grubinger
+Thomas Grubinger, Achim Zeileis, Karl-Peter Pfeiffer
 }
 
 \examples{
