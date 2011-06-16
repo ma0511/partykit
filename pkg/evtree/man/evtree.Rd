@@ -5,9 +5,9 @@
 evtree
 }
 \description{
- 	An Evolutionary Algorithm to Build Classification and Regression Trees.
+ 	evtree: Evolutionary Learning of Globally Optimal Classification and Regression Trees in R
 }
-\usage{evtree(formula, data=list(), weights=NULL, subset = NULL, control = evtree.control(), ...)}
+\usage{evtree(formula, data=list(), weights=NULL, subset = NULL, control = evtree.control(...), ...)}
 
 \arguments{
   \item{formula}{ a symbolic description of the model to be fit. }

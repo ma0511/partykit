@@ -1,53 +1,5 @@
-evtree <- function(formula, data = list(), weights = NULL, subset = NULL, control = evtree.control(), ...){
+evtree <- function(formula, data = list(), weights = NULL, subset = NULL, control = evtree.control(...), ...){
     start <- proc.time()
-    args <- list(...)
-    if( length(args) > 0 ){   
-	for(a in 1:length(args))
-		if(names(args)[a] == "minbucket")
-			control$minbucket <- args[[a]]
-		else if(names(args)[a] == "minsplit")
-			control$minsplit <- args[[a]]
-		else if(names(args)[a] == "maxdepth")
-			control$maxdepth <- args[[a]]
-		else if(names(args)[a] == "niterations")
-			control$niterations <- args[[a]]
-		else if(names(args)[a] == "ntrees")
-			control$ntrees <- args[[a]]
-		else if(names(args)[a] == "alpha")
-			control$alpha <- args[[a]]
-		else if(names(args)[a] == "seed")
-			control$seed <- args[[a]]
-		else if(names(args)[a] == "operatorprob")
-			control$operatorprob <- args[[a]]
-		else if(names(args)[a] == "pmutatemajor")
-			control$operatorprob$pmutatemajor <- args[[a]]
-		else if(names(args)[a] == "pmutateminor")
-			control$operatorprob$pmutateminor <- args[[a]]
-		else if(names(args)[a] == "pcrossover")
-			control$operatorprob$pcrossover <- args[[a]]
-		else if(names(args)[a] == "psplit")
-			control$operatorprob$psplit <- args[[a]]
-		else if(names(args)[a] == "pprune")
-			control$operatorprob$pprune <- args[[a]]
-		else
-			warning(paste("extra argument ", names(args)[a], " is just disregarded"))
-    }
-
-    if( length(control$args) > 0 ){
-	for(a in 1:length(control$args))
-		if(names(control$args)[a] == "pmutatemajor")
-			control$operatorprob$pmutatemajor <- control$args[[a]]	
-		else if(names(control$args)[a] == "pmutateminor")			
-			control$operatorprob$pmutateminor <- control$args[[a]]
-		else if(names(control$args)[a] == "pcrossover")
-			control$operatorprob$pcrossover <- control$args[[a]]
-		else if(names(control$args)[a] == "psplit")
-			control$operatorprob$psplit <- control$args[[a]]
-		else if(names(control$args)[a] == "pprune")
-			control$operatorprob$pprune <- control$args[[a]]
-		else
-			warning(paste("extra argument ", names(control$args)[a], " is just disregarded"))
-    }
 
     call <- match.call(expand.dots = FALSE)
     m <- match(c("formula", "data"), names(call), 0L)
@@ -122,57 +74,6 @@ evtree <- function(formula, data = list(), weights = NULL, subset = NULL, contro
             stop("variance of the denpendend variable is 0")
     }
 
-    if(is.null(control$operatorprob$pmutatemajor) == FALSE && is.null(control$operatorprob$pmutateminor) == FALSE &&
-        is.null(control$operatorprob$psplit) == FALSE && is.null(control$operatorprob$pprune) == FALSE &&
-        is.null(control$operatorprob$pcrossover) == FALSE
-        ){
-            op <- control$operatorprob
-    }else if(is.null(control$operatorprob$pmutatemajor) && is.null(control$operatorprob$pmutateminor)&&
-        is.null(control$operatorprob$psplit) && is.null(control$operatorprob$pprune) && is.null(control$operatorprob$pcrossover)
-        ){
-            op <- list()
-            op$pmutatemajor <- control$operatorprob[[1]]
-            op$pmutateminor <- control$operatorprob[[2]]
-            op$psplit <- control$operatorprob[[3]]
-            op$pprune <- control$operatorprob[[4]]
-            op$pcrossover <- control$operatorprob[[5]]
-    }else{
-       stop('argument operatorprob must be of form: operatorprob=
-		list(pmutatemajor = 20, pmutateminor = 20, pcrossover = 20, psplit = 20, pprune = 20)')
-    }
-
-    if(op$pmutatemajor + op$pmutateminor + op$psplit + op$pprune+op$pcrossover != 100)
-        stop("elements of operatorprob must sum up to 100%")
-
-    if(control$minsplit < 2 | control$minbucket < 1 )
-        stop("parameters \"minsplit\" and \"minbucket\" must be defined with at least 1 and 2 observations")
-
-    if(control$minsplit < control$minbucket)
-        control$minsplit <- control$minbucket+1
-
-    if(control$minsplit > sum(weights))
-        stop(paste("no split could be found \n \"minsplit\" is larger than the weighted number of observations in the training data"))
-
-    if(2*control$minbucket > sum(weights)-1)
-        stop(paste("no split could be found \n \"minbucket\" is larger than half the weighted number of observations in the training data"))
-
-    if(is.null(control$seed)){
-   	control$seed = -1
-    }else if(control$seed < 0){
-        stop("parameter \"seed\" in evtree.control must be a non-negative integer")
-    }
-
-    if(control$niterations < 100)
-        stop("parameter \"niterations\" must at least be 100")
-
-    if(control$ntrees < 10)
-        stop("parameter \"ntrees\" must at least be 10")
-
-    if(control$alpha < 0)
-        stop("parameter \"alpha\" must be equal or larger than 0")
-
-    if(control$maxdepth > 12)
-        stop("\"maxdepth > 12\" is not supported")
 
     for (i in 1:(nVariables-1)){
         if(is.character(mf[,i])){
@@ -191,6 +92,13 @@ evtree <- function(formula, data = list(), weights = NULL, subset = NULL, contro
     for(i in 1:(control$maxdepth-1) ){
         maxNode <- maxNode*2+1
     }
+    
+     if(2*control$minbucket > sum(weights)-1)
+    	 stop(paste("no split could be found \n \"minbucket\" is larger than half the weighted number of observations in the training data"))
+    	     
+     if(control$minsplit > sum(weights))
+         stop(paste("no split could be found \n \"minsplit\" is larger than the weighted number of observations in the training data"))
+
 
     # splitnumbers, splitvariables and splitpoints
     splitN <- array(-999999, maxNode)
@@ -230,7 +138,7 @@ evtree <- function(formula, data = list(), weights = NULL, subset = NULL, contro
 
     #specification of function tree
     tree <- function(nInstances,nVariables,varType,ndata,weights,prediction,splitN,splitV,splitP,
-                csplit,maxNode, op, control){
+                csplit,maxNode, operatorprob, control){
             out <-  .C( "tree", PACKAGE="evtree",
                 as.integer(nInstances), 
                 as.integer(nVariables), 
@@ -247,11 +155,11 @@ evtree <- function(formula, data = list(), weights = NULL, subset = NULL, contro
                 as.integer(control$minsplit), 
                 as.integer(control$niterations), 
                 as.integer(control$ntrees),
-                as.integer(op$pmutatemajor),
-                as.integer(op$pmutateminor),
-                as.integer(op$pcrossover),
-                as.integer(op$psplit),
-                as.integer(op$pprune),
+                as.integer(control$operatorprob$pmutatemajor),
+                as.integer(control$operatorprob$pmutateminor),
+                as.integer(control$operatorprob$pcrossover),
+                as.integer(control$operatorprob$psplit),
+                as.integer(control$operatorprob$pprune),
                 as.integer(control$method),
                 as.double(control$alpha),
 		as.integer(control$seed)
@@ -260,7 +168,7 @@ evtree <- function(formula, data = list(), weights = NULL, subset = NULL, contro
     }
     #Call of the tree function
     out <- tree(nInstances, nVariables, varType, ndata, weights, prediction, splitN, splitV, splitP, csplit,
-            maxNode, op, control)
+            maxNode, operatorprob, control)
         mtree = list()
         mtree$varType <-varType
         mtree$splitN <- out[[7]]

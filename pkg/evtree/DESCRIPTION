@@ -1,11 +1,12 @@
 Package: evtree
 Type: Package
-Title: evtree: An Evolutionary Algorithm to Build Classification and Regression Trees
+Title: evtree: Evolutionary Learning of Globally Optimal Classification and Regression Trees in R
 Version: 0.01
-Date: 2011-04-06
+Date: 2011-06-16
 Author: Thomas Grubinger, Achim Zeileis, Karl-Peter Pfeiffer
 Maintainer: Thomas Grubinger <thomas.grubinger@i-med.ac.at>
-Description: Commonly used classification and regression tree methods like the CART algorithm are recursive methods that build the model in a forward stepwise search. Although this approach is known to be an efficient heuristic, the results of recursive tree methods are only locally optimal, as splits are chosen to maximize homogeneity at the next step only. An alternative way to search over the parameter space of trees is to use global optimization methods like evolutionary algorithms. This package implements an evolutionary algorithm to build classification and regression trees in R.
+Description: 
+Commonly used classification and regression tree methods like the CART algorithm are recursive methods that build the model in a forward stepwise search. Although this approach is known to be an efficient heuristic, the results of recursive tree methods are only locally optimal, as splits are chosen to maximize homogeneity at the next step only. An alternative way to search over the parameter space of trees is to use global optimization methods like evolutionary algorithms. This paper describes the evtree package, which implements an evolutionary algorithm for learning globally optimal classification and regression trees in R.
 Depends: R (>= 2.11.0), partykit
 LazyLoad: yes
 LazyData: yes
