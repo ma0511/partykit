@@ -5,9 +5,8 @@ Version: 0.01
 Date: 2011-06-16
 Author: Thomas Grubinger, Achim Zeileis, Karl-Peter Pfeiffer
 Maintainer: Thomas Grubinger <thomas.grubinger@i-med.ac.at>
-Description: 
-Commonly used classification and regression tree methods like the CART algorithm are recursive methods that build the model in a forward stepwise search. Although this approach is known to be an efficient heuristic, the results of recursive tree methods are only locally optimal, as splits are chosen to maximize homogeneity at the next step only. An alternative way to search over the parameter space of trees is to use global optimization methods like evolutionary algorithms. This paper describes the evtree package, which implements an evolutionary algorithm for learning globally optimal classification and regression trees in R.
-Depends: R (>= 2.11.0), partykit
+Description: Commonly used classification and regression tree methods like the CART algorithm are recursive methods that build the model in a forward stepwise search. Although this approach is known to be an efficient heuristic, the results of recursive tree methods are only locally optimal, as splits are chosen to maximize homogeneity at the next step only. An alternative way to search over the parameter space of trees is to use global optimization methods like evolutionary algorithms. This paper describes the evtree package, which implements an evolutionary algorithm for learning globally optimal classification and regression trees in R.
+Depends: R (>= 2.11.0), partykit   
 LazyLoad: yes
 LazyData: yes
 License: GPL-2
