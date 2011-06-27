@@ -2,7 +2,7 @@
 \alias{evtree}
 \alias{evtree-package}
 \title{
-evtree
+Evolutionary Learning of Globally Optimal Trees
 }
 \description{
  	evtree: Evolutionary Learning of Globally Optimal Classification and Regression Trees in R
