@@ -5,10 +5,7 @@
   Various parameters that control aspects of the `evtree' fit.
 }
 \usage{
-evtree.control(minbucket = 7L, minsplit = 20L, maxdepth = 9L, 
-niterations = 10000L, ntrees = 100L, alpha = 1, operatorprob = 
-list(pmutatemajor = 0.2, pmutateminor = 0.2, pcrossover = 0.2, psplit = 0.2, pprune = 0.2),
-seed = NULL, ...)
+evtree.control(minbucket = 7L, minsplit = 20L, maxdepth = 9L, niterations = 10000L, ntrees = 100L, alpha = 1, operatorprob = list(pmutatemajor = 0.2, pmutateminor = 0.2, pcrossover = 0.2, psplit = 0.2, pprune = 0.2), seed = NULL, ...)
 }
 
 \arguments{

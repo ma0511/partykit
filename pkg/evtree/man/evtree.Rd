@@ -46,7 +46,7 @@ Thomas Grubinger, Achim Zeileis, Karl-Peter Pfeiffer
     airct <- evtree(Ozone ~ ., data = airq)
     airct
     plot(airct)
-    mean(( airq$Ozone - predict(airct))^2)
+    mean((airq$Ozone - predict(airct))^2)
 
     ### classification
     irisct <- evtree(Species ~ .,data = iris)
