@@ -20,13 +20,13 @@ evtree.control <- function(minbucket = 7L, minsplit = 20L, maxdepth = 9L,
     warning("computations may take extremely long for \"maxdepth\" > 12 (or even be infeasible)")
   }
 
-  if(!is.integer(niterations)) seed <- as.integer(niterations)
+  if(!is.integer(niterations)) niterations <- as.integer(niterations)
   if(niterations < 100L) {
     warning("computations may be unreliable for \"niterations\" < 100")
   }
 
-  if(!is.integer(ntrees)) seed <- as.integer(ntrees)
-  if(niterations < 10L) {
+  if(!is.integer(ntrees)) ntrees <- as.integer(ntrees)
+  if(ntrees < 10L) {
     warning("computations may be unreliable for \"ntrees\" < 10")
   }
 
@@ -42,7 +42,7 @@ evtree.control <- function(minbucket = 7L, minsplit = 20L, maxdepth = 9L,
     seed <- -1L
   }
 
-  op <- c(pmutatemajor = 0.2, pmutateminor = 0.2, pcrossover = 0.2, psplit = 0.2, pprune = 0.2)
+  op <- c())
   operatorprob <- unlist(operatorprob)
   if(is.null(names(operatorprob)) & length(operatorprob) == 5L) names(operatorprob) <- names(op)
   if(is.null(names(operatorprob))) {
@@ -50,8 +50,7 @@ evtree.control <- function(minbucket = 7L, minsplit = 20L, maxdepth = 9L,
     operatorprob <- op
   }
   op[names(operatorprob)] <- operatorprob
-  operatorprob <- op/sum(op)
-
+  operatorprob <- op/sum(op)*100
 
   list(
     minbucket = minbucket,
