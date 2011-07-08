@@ -42,7 +42,7 @@ evtree.control <- function(minbucket = 7L, minsplit = 20L, maxdepth = 9L,
     seed <- -1L
   }
 
-  op <- c())
+  op <- c(pmutatemajor = 0.2, pmutateminor = 0.2, pcrossover = 0.2, psplit = 0.2, pprune = 0.2)
   operatorprob <- unlist(operatorprob)
   if(is.null(names(operatorprob)) & length(operatorprob) == 5L) names(operatorprob) <- names(op)
   if(is.null(names(operatorprob))) {
