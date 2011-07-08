@@ -5,7 +5,7 @@
 Evolutionary Learning of Globally Optimal Trees
 }
 \description{
- 	evtree: Evolutionary Learning of Globally Optimal Classification and Regression Trees in R
+	evtree: learning of globally optimal classiffication and regression trees by using evolutionary algorithms	
 }
 \usage{evtree(formula, data=list(), weights=NULL, subset = NULL, control = evtree.control(...), ...)}
 
@@ -22,9 +22,7 @@ Evolutionary Learning of Globally Optimal Trees
 }
 
 \details{
-Commonly used classification and regression tree methods like the CART algorithm are recursive methods that build the model in a forward stepwise search. Although this approach is known to be an efficient heuristic, the results of recursive tree methods are only locally optimal, as splits are chosen to maximize homogeneity at the next step only. One way to build trees that are more globally optimal is to use stochastic optimization methods, like evolutionary algorithms. This method implements and evolutionary algorithm to build classification and regression trees. 
-
-First, a set of trees is initialized with random split rules in the root nodes. Secondly, the trees are iteratively modified by mutation and crossover operators. After each modification a survivor selection mechanism selects the best candidate models for the next iteration. The algorithm terminates when the quality of the best trees does not improve further, but not later than a maximum number of iterations specified by \code{niterations} in \code{\link{evtree.control}}. 
+Commonly used classification and regression tree methods like the CART algorithm are recursive partitioning methods that build the model in a forward stepwise search. Although this approach is known to be an efficient heuristic, the results of recursive tree methods are only locally optimal, as splits are chosen to maximize homogeneity at the next step only. An alternative way to search over the parameter space of trees is to use global optimization methods like evolutionary algorithms. The evtree package implements an evolutionary algorithm for learning globally optimal classification and regression trees in R. CPU and memory-intensive tasks are fully computed in C++ while the partykit package is leveraged to represent the resulting trees in R, providing unified infrastructure for summaries, visualizations, and predictions.
 }
 
 
