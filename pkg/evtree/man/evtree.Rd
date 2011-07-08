@@ -19,7 +19,9 @@ Evolutionary Learning of Globally Optimal Trees
                   allowed.}
   \item{control}{ a list with control parameters, see
                  \code{\link{evtree.control}}.}
-}
+  \item{...}{ arguments to \code{evtree.control} may also be specified in the
+          call to \code{evtree}.}
+  }
 
 \details{
 Commonly used classification and regression tree methods like the CART algorithm are recursive partitioning methods that build the model in a forward stepwise search. Although this approach is known to be an efficient heuristic, the results of recursive tree methods are only locally optimal, as splits are chosen to maximize homogeneity at the next step only. An alternative way to search over the parameter space of trees is to use global optimization methods like evolutionary algorithms. The evtree package implements an evolutionary algorithm for learning globally optimal classification and regression trees in R. CPU and memory-intensive tasks are fully computed in C++ while the partykit package is leveraged to represent the resulting trees in R, providing unified infrastructure for summaries, visualizations, and predictions.

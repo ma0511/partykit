@@ -649,7 +649,7 @@ In Section~\ref{comp} we compared \code{evtree} with \code{rpart} and \code{ctre
 
 The goal of this package is not to replace the well-established algorithms like \code{rpart} and \code{ctree}. We rather want to provide \proglang{R} users with an alternative which, given sufficient amounts of time and main memory, is often more accurate than recursive partitioning methods. By the nature of the algorithm it is able to discover patterns which cannot be modeled by a greedy algorithm. As \code{evtree} models can be substantially different to recursively fitted models, it can be beneficial to use both approaches, as this may reveal additional relationships in the data.  
 
-\bibliography{evtree} 
+\bibliography{evtree.bib} 
 
 \end{document}
 
