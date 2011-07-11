@@ -21,7 +21,7 @@ A data frame containing 1,437 observations on 10 variables.
   \item{husbands_occupation}{ordered factor indicating the husbands occupation, with levels \code{"low"}, \code{"medium-low"}, \code{"medium-high"} and \code{"high"}. }  
   \item{standard_of_living_index}{standard of living index with levels \code{"low"}, \code{"medium-low"}, \code{"medium-high"} and \code{"high"}.}  
   \item{media_exposure}{binary variable indicating media exposure, with levels \code{"good"} and \code{"not good"}.}
-  \item{contraceptive_method_used}{factor variable indicating the contraceptive method used, with levels {"no-use"}, \code{"long-term"} and \code{"short-term"}.}
+  \item{contraceptive_method_used}{factor variable indicating the contraceptive method used, with levels \code{"no-use"}, \code{"long-term"} and \code{"short-term"}.}
 }
 }
 
@@ -30,9 +30,7 @@ This dataset is a subset of the 1987 National Indonesia Contraceptive Prevalence
     
 The dataset has been taken from the UCI Repository Of Machine Learning Databases at
 
-	\url{http://archive.ics.uci.edu/ml/}
-
-and were converted to R format by Thomas Grubinger.
+\url{http://archive.ics.uci.edu/ml/}.
 }
 
 \references{
@@ -41,6 +39,7 @@ Lim, T.-S., Loh, W.-Y. & Shih, Y.-S. (1999). A Comparison of Prediction Accuracy
 
 \examples{
 data("ContraceptiveChoice")
+summary(ContraceptiveChoice)
 \dontrun{
 contt <- evtree(contraceptive_method_used ~ . , data = ContraceptiveChoice) 
 contt
