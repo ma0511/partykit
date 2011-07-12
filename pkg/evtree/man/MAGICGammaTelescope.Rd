@@ -27,23 +27,25 @@ A data frame containing 19,020 observations on 11 variables.
 }
 
 \source{
-The original data was provided by:
+	The original data was provided by:
+	
+	
+	R. K. Bock,
+	Major Atmospheric Gamma Imaging Cherenkov Telescope project (MAGIC),        
+	rkb '@' mail.cern.ch,
+	\url{http://www.magic.mppmu.mpg.de}
 
-R. K. Bock
-Major Atmospheric Gamma Imaging Cherenkov Telescope project (MAGIC)
-http://wwwmagic.mppmu.mpg.de
-rkb '@' mail.cern.ch
+	and was donated by:
 
-and donated by:
+	P. Savicky,	
+	Institute of Computer Science, AS of CR, Czech Republic,
+	savicky '@' cs.cas.cz 
 
-P. Savicky
-Institute of Computer Science, AS of CR
-Czech Republic
-savicky '@' cs.cas.cz 
 
-The dataset has been taken from the UCI Repository Of Machine Learning Databases at
+	The data-set has been taken from the UCI Repository Of Machine Learning Databases at
 
-\url{http://archive.ics.uci.edu/ml/}.
+
+	\url{http://archive.ics.uci.edu/ml/}.
 }
 
 \details{
@@ -52,11 +54,11 @@ Classifying a background event as signal is worse than classifying a signal even
 
 
 \references{
-Bock, R.K., Chilingarian, A., Gaug, M., Hakl, F., Hengstebeck, T., Jirina, M., Klaschka, J., Kotrc, E., Savicky, P., Towers, S., Vaicilius, A., Wittek W. (2004). Methods for multidimensional event classification: a case study using images from a Cherenkov gamma-ray telescope. Nucl.Instr.Meth. A, 516, pp. 511-528.
+Bock, R.K., Chilingarian, A., Gaug, M., Hakl, F., Hengstebeck, T., Jirina, M., Klaschka, J., Kotrc, E., Savicky, P., Towers, S., Vaicilius, A., Wittek W. (2004). Methods for Multidimensional event Classification: a Case Study Using Images From a Cherenkov Gamma-Ray Telescope. \emph{Nuclear Instruments and Methods in Physics Research Section A: Accelerators, Spectrometers, Detectors and Associated Equipment}, \emph{516}(1), 511--528.
 
-P. Savicky, E. Kotrc. Experimental Study of Leaf Confidences for Random Forest. Proceedings of COMPSTAT 2004, In: Computational Statistics. (Ed.: Antoch J.) - Heidelberg, Physica Verlag 2004, pp. 1767-1774.
+P. Savicky, E. Kotrc (2004). Experimental Study of Leaf Confidences for Random Forest. In \emph{Proceedings of COMPSTAT}, pp. 1767--1774. Physica Verlag, Heidelberg, Germany. 
 
-J. Dvorak, P. Savicky. Softening Splits in Decision Trees Using Simulated Annealing. Proceedings of ICANNGA 2007, Warsaw, (Ed.: Beliczynski et. al), Part I, LNCS 4431, pp. 721-729.
+J. Dvorak, P. Savicky (2007). Softening Splits in Decision Trees Using Simulated Annealing. In \emph{Proceedings of the 8th International Conference on Adaptive and Natural Computing Algorithms, Part I}, pp. 721--729, Springer-Verlag, New-York.
 }
 
 \examples{
@@ -65,7 +67,7 @@ summary(MAGICGammaTelescope)
 \dontrun{
 mgtt <- evtree(class ~ . , data = MAGICGammaTelescope) 
 mgtt
-table(predict(mggt), MAGICGammaTelescope$class)
+table(predict(mgtt), MAGICGammaTelescope$class)
 plot(mgtt)
 }
 }

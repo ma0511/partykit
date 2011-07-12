@@ -5,12 +5,13 @@
 Evolutionary Learning of Globally Optimal Trees
 }
 \description{
-	evtree: learning of globally optimal classiffication and regression trees by using evolutionary algorithms	
+	evtree: learning of globally optimal classification and regression trees by using evolutionary algorithms.	
 }
-\usage{evtree(formula, data=list(), weights=NULL, subset = NULL, control = evtree.control(...), ...)}
+\usage{evtree(formula, data=list(), weights=NULL, subset = NULL, 
+control = evtree.control(...), ...)}
 
 \arguments{
-  \item{formula}{ a symbolic description of the model to be fit. }
+  \item{formula}{ a symbolic description of the model to be fit.}
   \item{data}{ a data frame containing the variables in the model. }
   \item{subset}{ an optional vector specifying a subset of observations to be
                  used in the fitting process.}
@@ -24,7 +25,13 @@ Evolutionary Learning of Globally Optimal Trees
   }
 
 \details{
-Commonly used classification and regression tree methods like the CART algorithm are recursive partitioning methods that build the model in a forward stepwise search. Although this approach is known to be an efficient heuristic, the results of recursive tree methods are only locally optimal, as splits are chosen to maximize homogeneity at the next step only. An alternative way to search over the parameter space of trees is to use global optimization methods like evolutionary algorithms. The evtree package implements an evolutionary algorithm for learning globally optimal classification and regression trees in R. CPU and memory-intensive tasks are fully computed in C++ while the partykit package is leveraged to represent the resulting trees in R, providing unified infrastructure for summaries, visualizations, and predictions.
+Globally optimal classification and regression trees are learned by using evolutionary algorithm. Roughly, the algorithm works as follows. First, a set of trees is initialized with random split rules in the root nodes. Second, mutation and crossover operators are applied to modify the trees' structure and the tests that are applied in the internal nodes. After each modification step a survivor selection mechanism selects the best candidate models for the next iteration. In this evolutionary process the mean quality of the population increases over time. The algorithm terminates when the quality of the best trees does not improve further, but not later than a maximum number of iterations specified by \code{niterations} in \code{\link{evtree.control}}.
+
+
+More details on the algorithm are provided by \code{vignette("evtree")}. 
+
+
+The resulting trees can be summarized and visualized by \code{print()}, \code{summary()}, and \code{plot()} functions provided by the \code{partykit} package. A \code{predict()} function is utilized to predict the class labels of new data. 
 }
 
 
