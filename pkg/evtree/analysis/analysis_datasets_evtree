@@ -14,68 +14,72 @@ source("/home/grubinger/Desktop/NB/EA/bootstrap_evtree.R")
 data(Glass)
 rglass <- bootstrap_evtree(Glass, nboots=250)
 apply(apply(rglass, 2, as.numeric),2,mean)
-save(rglass, file="/home/grubinger/Desktop/results_JSS/glass")
+save(rglass, file="/home/grubinger/Desktop/results_JSS/glass.RData")
 
 ### 2. statlogHeart ###
 load(file="/home/grubinger/Desktop/results_JSS/statlogHeart.RData")
 rheart <- bootstrap_evtree(statlogHeart, nboots=250)
 apply(apply(rheart, 2, as.numeric),2,mean)
-save(rheart, file="/home/grubinger/Desktop/results_JSS/heart")
+save(rheart, file="/home/grubinger/Desktop/results_JSS/heart.RData")
 
 ### 3. Ionosphere ###
 data(Ionosphere)
 rionosphere <- bootstrap_evtree(Ionosphere, nboots=250)
 apply(apply(rionosphere, 2, as.numeric),2,mean)
-save(rionosphere, file="/home/grubinger/Desktop/results_JSS/ionosphere")
+save(rionosphere, file="/home/grubinger/Desktop/results_JSS/ionosphere.RData")
 
 ### 4. musk ###
 data(musk)
 rmusk <- bootstrap_evtree(musk, nboots=250)
 apply(apply(rmusk, 2, as.numeric),2,mean)
-save(rmusk, file="/home/grubinger/Desktop/results_JSS/musk")
+save(rmusk, file="/home/grubinger/Desktop/results_JSS/musk.RData")
 
 ### 5. BreastCancer ###
 data(BreastCancer)
-kdata <- BreastCancer[complete.cases(BreastCancer),2:11]
-rbreastcancer <- bootstrap_evtree(kdata, nboots=250)
+BreastCancer <- BreastCancer[complete.cases(BreastCancer),2:11]
+for(i in 1:5)
+	BreastCancer[,i] <- as.numeric(BreastCancer[,i]) 
+for(i in 6:10)
+	BreastCancer[,i] <- as.factor(BreastCancer[,i]) 
+rbreastcancer <- bootstrap_evtree(BreastCancer, nboots=250)
 apply(apply(rbreastcancer, 2, as.numeric),2,mean)
-save(rbreastcancer, file="/home/grubinger/Desktop/results_JSS/breastcancer")
+save(rbreastcancer, file="/home/grubinger/Desktop/results_JSS/breastcancer.RData")
 
 ### 6. PimaIndiansDiabetes ###
 data(PimaIndiansDiabetes)
 rpima <- bootstrap_evtree(PimaIndiansDiabetes, nboots=250)
 apply(apply(rpima, 2, as.numeric),2,mean)
-save(rpima, file="/home/grubinger/Desktop/results_JSS/pima")
+save(rpima, file="/home/grubinger/Desktop/results_JSS/pima.RData")
 
 ### 7. Vowel ###
 data(Vowel)
 rvowel <- bootstrap_evtree(Vowel, nboots=250)
 apply(apply(rvowel, 2, as.numeric),2,mean)
-save(rvowel, file="/home/grubinger/Desktop/results_JSS/vowel")
+save(rvowel, file="/home/grubinger/Desktop/results_JSS/vowel.RData")
 
 ### 8. statlogGermanCredit ###
 load(file="/home/grubinger/Desktop/results_JSS/statlogGermanCredit.RData")
 rcredit <- bootstrap_evtree(statlogGermanCredit, nboots=250)#25
 apply(apply(rcredit, 2, as.numeric),2,mean)
-save(rcredit, file="/home/grubinger/Desktop/results_JSS/credit")
+save(rcredit, file="/home/grubinger/Desktop/results_JSS/credit.RData")
 
 ### 9. contraceptiveMethodChoice ###
 load(file="/home/grubinger/Desktop/results_JSS/contraceptiveMethodChoice.RData")
 rcontraceptive <- bootstrap_evtree(contraceptiveMethodChoice, nboots = 250)
 apply(apply(rcontraceptive, 2, as.numeric),2,mean)
-save(rcontraceptive, file="/home/grubinger/Desktop/results_JSS/contraceptive")
+save(rcontraceptive, file="/home/grubinger/Desktop/results_JSS/contraceptive.RData")
 
 ### 10. DNA ###
 data(DNA)
 rdna <- bootstrap_evtree(DNA, nboots = 250)
 apply(apply(rdna, 2, as.numeric),2,mean)
-save(rdna, file="/home/grubinger/Desktop/results_JSS/dna")
+save(rdna, file="/home/grubinger/Desktop/results_JSS/dna.RData")
 
 ### 11. spam ###
 data(spam)
 rspam <- bootstrap_evtree(spam, nboots = 250)
 apply(apply(rspam, 2, as.numeric),2,mean)
-save(rspam, file="/home/grubinger/Desktop/results_JSS/spam")
+save(rspam, file="/home/grubinger/Desktop/results_JSS/spam.RData")
 
 
 ### 12. magicGammaTelescope ###
@@ -108,42 +112,42 @@ save(mg5, file="/home/grubinger/Desktop/results_JSS/mg5")
 data("Servo")
 rservo <- bootstrap_evtree(Servo, nboots = 250)
 apply(apply(rservo, 2, as.numeric),2,mean)
-save(rservo, file="/home/grubinger/Desktop/results_JSS/servo")
+save(rservo, file="/home/grubinger/Desktop/results_JSS/servo.RData")
 
 ### 14. BostonHousing ###
 data("BostonHousing")
 rbostonhousing <- bootstrap_evtree(BostonHousing, nboots = 250)
 apply(apply(rbostonhousing, 2, as.numeric),2,mean)
-save(rbostonhousing, file="/home/grubinger/Desktop/results_JSS/bostonhousing")
+save(rbostonhousing, file="/home/grubinger/Desktop/results_JSS/bostonhousing.RData")
 
 ### simulatied chessboard examples ###
 source("/home/grubinger/Desktop/NB/EA/chessboard44.R")
 
 rchessboard44_0 <- benchchessboard44(noise = 0, seed = 1000, nrealizations = 250)
 apply(apply(rchessboard44_0, 2, as.numeric),2,mean)
-save(rchessboard44_0, file="/home/grubinger/Desktop/results_JSS/chessboard44_0")
+save(rchessboard44_0, file="/home/grubinger/Desktop/results_JSS/chessboard44_0.RData")
 
 rchessboard44_5 <- benchchessboard44(noise = 5, seed = 1000, nrealizations = 250)
 apply(apply(rchessboard44_5, 2, as.numeric),2,mean)
-save(rchessboard44_5, file="/home/grubinger/Desktop/results_JSS/chessboard44_5")
+save(rchessboard44_5, file="/home/grubinger/Desktop/results_JSS/chessboard44_5.RData")
 
 rchessboard44_10 <- benchchessboard44(noise = 10, seed = 1000, nrealizations = 250)
 apply(apply(rchessboard44_10, 2, as.numeric),2,mean)
-save(rchessboard44_10, file="/home/grubinger/Desktop/results_JSS/chessboard44_10")
+save(rchessboard44_10, file="/home/grubinger/Desktop/results_JSS/chessboard44_10.RData")
 
 
 
 rchessboard44_0 <- benchchessboard44(noise = 0, seed = 1000, nrealizations = 250, totalpoints= 2000)
 apply(apply(rchessboard44_0, 2, as.numeric),2,mean)
-save(rchessboard44_0, file="/home/grubinger/Desktop/results_JSS/chessboard44_0")
+save(rchessboard44_0, file="/home/grubinger/Desktop/results_JSS/chessboard44_0.RData")
 
 rchessboard44_5 <- benchchessboard44(noise = 5, seed = 1000, nrealizations = 250, totalpoints= 2000)
 apply(apply(rchessboard44_5, 2, as.numeric),2,mean)
-save(rchessboard44_5, file="/home/grubinger/Desktop/results_JSS/chessboard44_5")
+save(rchessboard44_5, file="/home/grubinger/Desktop/results_JSS/chessboard44_5.RData")
 
 rchessboard44_10 <- benchchessboard44(noise = 10, seed = 1000, nrealizations = 250, totalpoints= 2000)
 apply(apply(rchessboard44_10, 2, as.numeric),2,mean)
-save(rchessboard44_10, file="/home/grubinger/Desktop/results_JSS/chessboard44_10")
+save(rchessboard44_10, file="/home/grubinger/Desktop/results_JSS/chessboard44_10.RData")
 
 
 
@@ -153,13 +157,13 @@ adata$HD3_4 <- as.factor(adata$HD3_4)
 adata$AUFART1 <- as.factor(adata$AUFART1)
 adata$ENTART1 <- as.factor(adata$ENTART1)
 rmel0101 <- bootstrap_evtree(adata[c(-4,-5)], nboots = 250, seed = 1000)
-save(rmel0101, file="/home/grubinger/Desktop/results_JSS/mel0101")
+save(rmel0101, file="/home/grubinger/Desktop/results_JSS/mel0101.RData")
 
 
 load("/home/grubinger/Desktop/hdg0502.rda" )
 rhdg0502 <- bootstrap_evtree(adata, nboots= 250, seed=1000)
-save(rhdg0502, file="/home/grubinger/Desktop/results_JSS/hdg0502")
+save(rhdg0502, file="/home/grubinger/Desktop/results_JSS/hdg0502.RData")
 
 load("/home/grubinger/Desktop/hdg0202.rda" )
 rhdg0202 <- bootstrap_evtree(adata[,-c(10,46,47,50)], nboots = 250, seed = 1000)
-save(rhdg0202, file = "/home/grubinger/Desktop/results_JSS/hdg0202")
+save(rhdg0202, file = "/home/grubinger/Desktop/results_JSS/hdg0202.RData")
