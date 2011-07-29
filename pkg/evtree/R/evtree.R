@@ -180,7 +180,6 @@ evtree <- function(formula, data = list(), weights = NULL, subset = NULL, contro
         mtree$prediction <- out[[6]]+1
         mtree$maxCat <- maxCat
         mtree$seed <- out[[23]]
-
         init <- .initializeNode(mtree)
         node <- init[[1]]
         gid  <- init[[2]]
@@ -188,7 +187,6 @@ evtree <- function(formula, data = list(), weights = NULL, subset = NULL, contro
         prediction <- array(-999999, length(mtree$prediction))
         for(i in 1:length(gid))
             prediction[ mtree$prediction == gid[i] ] <- i
-
         fitted <- data.frame(prediction, mtree$weights, mf[nVariables])
         names(fitted) <- c("(fitted)", "(weights)" ,"(response)")
         partyObject <- party(node, mf, fitted = fitted, terms = terms, info = list(method = "evtree", nIterations = out[[14]], seed = mtree$seed))

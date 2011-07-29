@@ -14,7 +14,7 @@ variable::variable(int varNumber, int dependendVar, int nInst, double** data, in
         for(int i=0; i<this->nCats; i++){
             this->sortedValues[i]= -999999;
         }
-        if(varNumber != dependendVar ){
+        if(varNumber != dependendVar && this->isCat == false){
             this->sortedValues[0]= data[0][varNumber];
             int i=1;
             int k=1;
@@ -34,7 +34,10 @@ variable::variable(int varNumber, int dependendVar, int nInst, double** data, in
                 i++;
             }
          this->sortValues();
-         }
+         }else if(varNumber != dependendVar){
+               for(int i=0; i<this->nCats; i++)
+         	    this->sortedValues[i]= i+1;
+        }	               
 } // end variable
 
 

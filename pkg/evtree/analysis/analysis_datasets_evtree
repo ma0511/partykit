@@ -7,32 +7,32 @@ library("partykit")
 library("kernlab")
 library("mlbench")
 library("evtree")
-source("/home/grubinger/Desktop/NB/EA/bootstrap_evtree.R")
+source("/home/grubinger/partykit/pkg/evtree/analysis/bootstrap_evtree.R")
 
 
 ### 1. Glass ###
 data(Glass)
 rglass <- bootstrap_evtree(Glass, nboots=250)
 apply(apply(rglass, 2, as.numeric),2,mean)
-save(rglass, file="/home/grubinger/Desktop/results_JSS/glass.RData")
+save(rglass, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/glass.RData")
 
 ### 2. statlogHeart ###
-load(file="/home/grubinger/Desktop/results_JSS/statlogHeart.RData")
+load(file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/statlogHeart.RData")
 rheart <- bootstrap_evtree(statlogHeart, nboots=250)
 apply(apply(rheart, 2, as.numeric),2,mean)
-save(rheart, file="/home/grubinger/Desktop/results_JSS/heart.RData")
+save(rheart, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/heart.RData")
 
 ### 3. Ionosphere ###
 data(Ionosphere)
 rionosphere <- bootstrap_evtree(Ionosphere, nboots=250)
 apply(apply(rionosphere, 2, as.numeric),2,mean)
-save(rionosphere, file="/home/grubinger/Desktop/results_JSS/ionosphere.RData")
+save(rionosphere, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/ionosphere.RData")
 
 ### 4. musk ###
 data(musk)
 rmusk <- bootstrap_evtree(musk, nboots=250)
 apply(apply(rmusk, 2, as.numeric),2,mean)
-save(rmusk, file="/home/grubinger/Desktop/results_JSS/musk.RData")
+save(rmusk, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/musk.RData")
 
 ### 5. BreastCancer ###
 data(BreastCancer)
@@ -43,111 +43,112 @@ for(i in 6:10)
 	BreastCancer[,i] <- as.factor(BreastCancer[,i]) 
 rbreastcancer <- bootstrap_evtree(BreastCancer, nboots=250)
 apply(apply(rbreastcancer, 2, as.numeric),2,mean)
-save(rbreastcancer, file="/home/grubinger/Desktop/results_JSS/breastcancer.RData")
+save(rbreastcancer, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/breastcancer.RData")
+
 
 ### 6. PimaIndiansDiabetes ###
 data(PimaIndiansDiabetes)
 rpima <- bootstrap_evtree(PimaIndiansDiabetes, nboots=250)
 apply(apply(rpima, 2, as.numeric),2,mean)
-save(rpima, file="/home/grubinger/Desktop/results_JSS/pima.RData")
+save(rpima, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/pima.RData")
 
 ### 7. Vowel ###
 data(Vowel)
 rvowel <- bootstrap_evtree(Vowel, nboots=250)
 apply(apply(rvowel, 2, as.numeric),2,mean)
-save(rvowel, file="/home/grubinger/Desktop/results_JSS/vowel.RData")
+save(rvowel, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/vowel.RData")
 
 ### 8. statlogGermanCredit ###
-load(file="/home/grubinger/Desktop/results_JSS/statlogGermanCredit.RData")
+load(file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/statlogGermanCredit.RData")
 rcredit <- bootstrap_evtree(statlogGermanCredit, nboots=250)#25
 apply(apply(rcredit, 2, as.numeric),2,mean)
-save(rcredit, file="/home/grubinger/Desktop/results_JSS/credit.RData")
+save(rcredit, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/credit.RData")
 
 ### 9. contraceptiveMethodChoice ###
-load(file="/home/grubinger/Desktop/results_JSS/contraceptiveMethodChoice.RData")
+load(file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/contraceptiveMethodChoice.RData")
 rcontraceptive <- bootstrap_evtree(contraceptiveMethodChoice, nboots = 250)
 apply(apply(rcontraceptive, 2, as.numeric),2,mean)
-save(rcontraceptive, file="/home/grubinger/Desktop/results_JSS/contraceptive.RData")
+save(rcontraceptive, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/contraceptive.RData")
 
 ### 10. DNA ###
 data(DNA)
 rdna <- bootstrap_evtree(DNA, nboots = 250)
 apply(apply(rdna, 2, as.numeric),2,mean)
-save(rdna, file="/home/grubinger/Desktop/results_JSS/dna.RData")
+save(rdna, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/dna.RData")
 
 ### 11. spam ###
 data(spam)
 rspam <- bootstrap_evtree(spam, nboots = 250)
 apply(apply(rspam, 2, as.numeric),2,mean)
-save(rspam, file="/home/grubinger/Desktop/results_JSS/spam.RData")
+save(rspam, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/spam.RData")
 
 
 ### 12. magicGammaTelescope ###
-load(file="/home/grubinger/Desktop/results_JSS/magicGammaTelescope.RData")
+load(file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/magicGammaTelescope.RData")
 mg1 <- bootstrap_evtree(magicGammaTelescope, nboots = 50, seed = 1000)
 apply(apply(mg1, 2, as.numeric),2,mean)
-save(mg1, file="/home/grubinger/Desktop/results_JSS/mg1")
+save(mg1, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/mg1")
 
-load(file="/home/grubinger/Desktop/results_JSS/magicGammaTelescope.RData")
+load(file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/magicGammaTelescope.RData")
 mg2 <- bootstrap_evtree(magicGammaTelescope, nboots = 50, seed = 2000)
 apply(apply(mg2, 2, as.numeric),2,mean)
-save(mg2, file="/home/grubinger/Desktop/results_JSS/mg2")
+save(mg2, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/mg2")
 
-load(file="/home/grubinger/Desktop/results_JSS/magicGammaTelescope.RData")
+load(file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/magicGammaTelescope.RData")
 mg3 <- bootstrap_evtree(magicGammaTelescope, nboots = 50, seed = 3000)
 apply(apply(mg3, 2, as.numeric),2,mean)
-save(mg3, file="/home/grubinger/Desktop/results_JSS/mg3")
+save(mg3, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/mg3")
 
-load(file="/home/grubinger/Desktop/results_JSS/magicGammaTelescope.RData")
+load(file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/magicGammaTelescope.RData")
 mg4 <- bootstrap_evtree(magicGammaTelescope, nboots = 50, seed = 4000)
 apply(apply(mg4, 2, as.numeric),2,mean)
-save(mg4, file="/home/grubinger/Desktop/results_JSS/mg4")
+save(mg4, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/mg4")
 
-load(file="/home/grubinger/Desktop/results_JSS/magicGammaTelescope.RData")
+load(file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/magicGammaTelescope.RData")
 mg5 <- bootstrap_evtree(magicGammaTelescope, nboots = 50, seed = 5000)
 apply(apply(mg5, 2, as.numeric),2,mean)
-save(mg5, file="/home/grubinger/Desktop/results_JSS/mg5")
+save(mg5, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/mg5")
 
 ### 13. Servo ###
 data("Servo")
 rservo <- bootstrap_evtree(Servo, nboots = 250)
 apply(apply(rservo, 2, as.numeric),2,mean)
-save(rservo, file="/home/grubinger/Desktop/results_JSS/servo.RData")
+save(rservo, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/servo.RData")
 
 ### 14. BostonHousing ###
 data("BostonHousing")
 rbostonhousing <- bootstrap_evtree(BostonHousing, nboots = 250)
 apply(apply(rbostonhousing, 2, as.numeric),2,mean)
-save(rbostonhousing, file="/home/grubinger/Desktop/results_JSS/bostonhousing.RData")
+save(rbostonhousing, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/bostonhousing.RData")
 
 ### simulatied chessboard examples ###
 source("/home/grubinger/Desktop/NB/EA/chessboard44.R")
 
 rchessboard44_0 <- benchchessboard44(noise = 0, seed = 1000, nrealizations = 250)
 apply(apply(rchessboard44_0, 2, as.numeric),2,mean)
-save(rchessboard44_0, file="/home/grubinger/Desktop/results_JSS/chessboard44_0.RData")
+save(rchessboard44_0, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/chessboard44_0.RData")
 
 rchessboard44_5 <- benchchessboard44(noise = 5, seed = 1000, nrealizations = 250)
 apply(apply(rchessboard44_5, 2, as.numeric),2,mean)
-save(rchessboard44_5, file="/home/grubinger/Desktop/results_JSS/chessboard44_5.RData")
+save(rchessboard44_5, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/chessboard44_5.RData")
 
 rchessboard44_10 <- benchchessboard44(noise = 10, seed = 1000, nrealizations = 250)
 apply(apply(rchessboard44_10, 2, as.numeric),2,mean)
-save(rchessboard44_10, file="/home/grubinger/Desktop/results_JSS/chessboard44_10.RData")
+save(rchessboard44_10, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/chessboard44_10.RData")
 
 
 
 rchessboard44_0 <- benchchessboard44(noise = 0, seed = 1000, nrealizations = 250, totalpoints= 2000)
 apply(apply(rchessboard44_0, 2, as.numeric),2,mean)
-save(rchessboard44_0, file="/home/grubinger/Desktop/results_JSS/chessboard44_0.RData")
+save(rchessboard44_0, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/chessboard44_0.RData")
 
 rchessboard44_5 <- benchchessboard44(noise = 5, seed = 1000, nrealizations = 250, totalpoints= 2000)
 apply(apply(rchessboard44_5, 2, as.numeric),2,mean)
-save(rchessboard44_5, file="/home/grubinger/Desktop/results_JSS/chessboard44_5.RData")
+save(rchessboard44_5, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/chessboard44_5.RData")
 
 rchessboard44_10 <- benchchessboard44(noise = 10, seed = 1000, nrealizations = 250, totalpoints= 2000)
 apply(apply(rchessboard44_10, 2, as.numeric),2,mean)
-save(rchessboard44_10, file="/home/grubinger/Desktop/results_JSS/chessboard44_10.RData")
+save(rchessboard44_10, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/chessboard44_10.RData")
 
 
 
@@ -157,13 +158,13 @@ adata$HD3_4 <- as.factor(adata$HD3_4)
 adata$AUFART1 <- as.factor(adata$AUFART1)
 adata$ENTART1 <- as.factor(adata$ENTART1)
 rmel0101 <- bootstrap_evtree(adata[c(-4,-5)], nboots = 250, seed = 1000)
-save(rmel0101, file="/home/grubinger/Desktop/results_JSS/mel0101.RData")
+save(rmel0101, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/mel0101.RData")
 
 
 load("/home/grubinger/Desktop/hdg0502.rda" )
 rhdg0502 <- bootstrap_evtree(adata, nboots= 250, seed=1000)
-save(rhdg0502, file="/home/grubinger/Desktop/results_JSS/hdg0502.RData")
+save(rhdg0502, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/hdg0502.RData")
 
 load("/home/grubinger/Desktop/hdg0202.rda" )
 rhdg0202 <- bootstrap_evtree(adata[,-c(10,46,47,50)], nboots = 250, seed = 1000)
-save(rhdg0202, file = "/home/grubinger/Desktop/results_JSS/hdg0202.RData")
+save(rhdg0202, file = "/home/grubinger/partykit/pkg/evtree/inst/doc/results/hdg0202.RData")

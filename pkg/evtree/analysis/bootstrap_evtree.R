@@ -83,6 +83,11 @@ bootstrap_evtree <- function(kdata, nboots = 250, seed = 1000){
         NN_evtree[f] <- width(node_party(out_evtree))
         NN_rpart[f] <- length(out_rpart$splits[,4])+1
         NN_ctree[f] <- (max(where(out_ctree))+1)/2
+        
+        
+ 	if(sum(predict(out_evtree, newdata = unclass(out_evtree)$data) == ytrain) != sum(predict(out_evtree) == ytrain))
+ 		print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Failure in prediction of cats")
+        
     } # end for
     accuracy <- cbind(accuracy_evtree, accuracy_crpart, accuracy_ctree, NN_evtree, NN_rpart, NN_ctree)
     accuracy
