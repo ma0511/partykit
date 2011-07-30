@@ -12,7 +12,6 @@ class Tree{
 	 int *splitV;
 	 double *splitP;
          int *weights;
-   	 int *splitN;
          int** csplit;
 	 int nNodes;
 	 int *classification;	
@@ -21,7 +20,7 @@ class Tree{
 	 double performance;  
 
 	 public:
-	 Tree(int* nInst, int* nVariables, double** data, int* weights, int *splitN, int *splitV, double *splitP, int** csplit, int* maxCat, int* nNodes, variable** variables, int* maxNode);
+	 Tree(int* nInst, int* nVariables, double** data, int* weights, int *splitV, double *splitP, int** csplit, int* maxCat, int* nNodes, variable** variables, int* maxNode);
 	 Tree(int* nInst, int* nVariables, double** data, int* weights, int* maxCat, variable** variables, int* maxNode, int* minbucket, int* minsplit);
          ~Tree();
  	 int predictClass(int minbucket, int minsplit, bool crossover, int nodeNumber);

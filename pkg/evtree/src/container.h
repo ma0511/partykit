@@ -36,7 +36,7 @@ class Container{
          int sumWeights; // weighted variance for regression, sum of weights for classification
          double populationMSE; // population variance; used for regression trees only
          public:
-         Container(int* nInst, int* nVar, int *varType, double* ndata, int* weights, int* prediction, int *splitN, int *splitV, double *splitP, int* csplit, int *maxNode, int *minbucket, int* minsplit,
+         Container(int* nInst, int* nVar, int *varType, double* ndata, int* weights, int* prediction, int *splitV, double *splitP, int* csplit, int *maxNode, int *minbucket, int* minsplit,
               int* nIter, int* nTrees, int* pMutateMajor, int* pMutateMinor, int* pCrossover, int *pSplit, int* pPrune, int* evCriteria, double* evParameter, int* seed);
          ~Container();
          void initVariables(int* varType);
@@ -48,7 +48,6 @@ class Container{
          double splitNode(int treeNumber);
          double pruneNode(int treeNumber);
          int pruneAllNodes(int treeNumber);
-         bool removeNode(int treeNumber, int nodeNumber);
          double crossover(int treeNumber);
          int getRandomTree(bool elitismTree);
          int getGenitor(void);
@@ -62,7 +61,7 @@ class Container{
          void overwriteTree(int sourcePos, int targetPos);
          int evaluateNewSolution(int treeNumber, double* oldPerformance);
          bool updatePerformanceList(int tree);
-         int initNVPCrossoverTree1(int treeNumber, int node, int randomNode1, int* tempN, int* tempV, double* tempP, int** csplit);
-         int initNVPCrossoverTree2(int treeNumber, int randomNode2, int randomNode1, int* tempN, int* tempV, double* tempP, int** csplit);
+         int initNVPCrossoverTree1(int treeNumber, int node, int randomNode1, int* tempV, double* tempP, int** csplit);
+         int initNVPCrossoverTree2(int treeNumber, int randomNode2, int randomNode1, int* tempV, double* tempP, int** csplit);
 };
 

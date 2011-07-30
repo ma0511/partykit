@@ -32,13 +32,13 @@
         node <- partynode(id = length(.evtree_gid), split = split,
         if( id*2 < 2^(mtree$maxdepth) ){
               kids = list(
-                        if( mtree$splitN[id*2] == id*2 ){
+                        if( mtree$splitV[id*2] >= 0 ){
                             .initNode(id = id*2, mtree)
                         }else{
                             .evtree_gid <<- c(.evtree_gid, id*2)
                             partynode(as.integer(length(.evtree_gid)))
                         },
-                        if( mtree$splitN[id*2+1] == id*2+1 ) {
+                        if( mtree$splitV[id*2+1] >= 0 ) {
                             .initNode(id = id*2+1, mtree)
                         }else{
                             .evtree_gid <<- c(.evtree_gid, id*2+1)

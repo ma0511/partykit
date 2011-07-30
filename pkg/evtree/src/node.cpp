@@ -1,8 +1,8 @@
 #include "node.h"
 
-Node::Node(int* splitN, int* splitV, double* splitP, int** csplit, Node* leftChild, Node* rightChild, double** data,
+Node::Node(int pos, int* splitV, double* splitP, int** csplit, Node* leftChild, Node* rightChild, double** data,
 int* nInst, int* nVar, variable** variables){
-    this->splitN = splitN;
+    this->pos = pos;
     this->splitV= splitV;
     this->splitP= splitP;
     this->nInst = nInst;
@@ -34,16 +34,16 @@ int Node::partition( int* classification, int* weights, variable** variables, in
     if( this->variables[*this->splitV]->isCat == true){ // categorical split-variable
         bool flag = false;
         for(int i=0; i < *this->nInst; i++){
-            if(classification[i] == *this->splitN){
+            if(classification[i] == this->pos){
                 flag = false;
                 for(int k=0; k < variables[ *this->splitV]->nCats && flag==false ; k++){
                     if( variables[ *this->splitV ]->sortedValues[k]==this->data[i][*this->splitV] ){
-                       if( this->csplit[k][*this->splitN] == 1 ){
-                           classification[i]= (*this->splitN)*2+1;
+                       if( this->csplit[k][this->pos] == 1 ){
+                           classification[i]= (this->pos)*2+1;
                            this->localClassification[i]=classification[i];
                            this->sumLeftLocalWeights++;
                        }else{
-                           classification[i]= (*this->splitN)*2+2;
+                           classification[i]= (this->pos)*2+2;
                            this->localClassification[i]=classification[i];
                            this->sumRightLocalWeights++;
                        }
@@ -54,13 +54,13 @@ int Node::partition( int* classification, int* weights, variable** variables, in
        }
     }else if( variables[*this->splitV]->isCat == false){  // numeric split-variable
         for(int i=0; i < *this->nInst; i++){
-            if(classification[i] == *this->splitN){
+            if(classification[i] == this->pos){
                     if( (double)this->data[i][ *this->splitV ] < (double)*this->splitP  ){
-                            classification[i]= (*this->splitN)*2+1;
+                            classification[i]= (this->pos)*2+1;
                             this->sumLeftLocalWeights += weights[i];
                             this->localClassification[i]=classification[i];
                     }else{
-                            classification[i]= (*this->splitN)*2+2;
+                            classification[i]= (this->pos)*2+2;
                             this->sumRightLocalWeights += weights[i];
                             this->localClassification[i]=classification[i];
                     }
@@ -69,8 +69,8 @@ int Node::partition( int* classification, int* weights, variable** variables, in
 
     }
     this->sumLocalWeights = this->sumLeftLocalWeights + this->sumRightLocalWeights ;
-    if( this->sumLocalWeights < minsplit  && *this->splitN > 0){  // checks if there are enough instances in the nodes; otherwise the node is pruned
-        return (int) *this->splitN;
+    if( this->sumLocalWeights < minsplit  && this->pos > 0){  // checks if there are enough instances in the nodes; otherwise the node is pruned
+        return (int) this->pos;
     }
 
     // recursive call of partition until there are no further internal nodes
@@ -93,9 +93,9 @@ int Node::partition( int* classification, int* weights, variable** variables, in
     }
 
     if(this->sumLeftLocalWeights < minbucket){   // if there are to few instances in the left terminal-node the internal node is pruned
-        return *this->splitN;
+        return this->pos;
     }else if(this->sumRightLocalWeights < minbucket){ // if there are to few instances in the right terminal-node the internal node is pruned
-        return *this->splitN;
+        return this->pos;
     }
     return -1;
 } // end partition
@@ -109,7 +109,7 @@ double Node::calculateNodeMC(int* weights){
         sumsClassification [i]= 0.0;
     }
     for(int i=0; i<*this->nInst; i++){
-        if( localClassification[i] == (*this->splitN)*2+1 || localClassification[i] == (*this->splitN)*2+2) {
+        if( localClassification[i] == (this->pos)*2+1 || localClassification[i] == (this->pos)*2+2) {
             sumsClassification[ (int)data[i][ *this->nVar-1] -1] += weights[i];
             sumWeights += weights[i];
         }
@@ -135,7 +135,7 @@ double Node::calculateNodeSE(int* weights){
         int sumWeights= 0;
 
         for(int i=0; i<*this->nInst; i++){
-            if( this->localClassification[i] == (*this->splitN)*2+1 || this->localClassification[i] == (*this->splitN)*2+2 ){
+            if( this->localClassification[i] == (this->pos)*2+1 || this->localClassification[i] == (this->pos)*2+2 ){
                  nodeMean += data[i][*this->nVar-1]*weights[i];
                  squaredSum += data[i][*this->nVar-1]*data[i][*this->nVar-1]*weights[i];
                  sumWeights += weights[i];
@@ -159,14 +159,14 @@ double Node::calculateChildNodeMC(bool leftNode, int* weights){
         }
         if(leftNode==true){
             for(int i=0; i<*this->nInst; i++){
-                if( localClassification[i] == (*this->splitN)*2+1){
+                if( localClassification[i] == (this->pos)*2+1){
                      sumsClassification[ (int)data[i][*this->nVar-1]-1]  += weights[i];
                      sumWeights += weights[i];
                 }
             }
         }else{
             for(int i=0; i<*this->nInst; i++){
-                if(localClassification[i] == (*this->splitN)*2+2 ){
+                if(localClassification[i] == (this->pos)*2+2 ){
                      sumsClassification[ (int)data[i][*this->nVar-1]-1]  += weights[i];
                      sumWeights += weights[i];
                 }
@@ -206,7 +206,7 @@ double Node::calculateChildNodeSE(bool leftNode, int* weights){
         int sumWeights= 0;
         if(leftNode==true){
             for(int i=0; i<*this->nInst; i++){
-                if( localClassification[i] == (*this->splitN)*2+1){
+                if( localClassification[i] == (this->pos)*2+1){
                      nodeMean += data[i][*this->nVar-1]*weights[i];
                      squaredSum += data[i][*this->nVar-1]*data[i][*this->nVar-1]*weights[i];
                      sumWeights += weights[i];
@@ -214,7 +214,7 @@ double Node::calculateChildNodeSE(bool leftNode, int* weights){
             }
         }else{
             for(int i=0; i<*this->nInst; i++){
-                if(localClassification[i] == (*this->splitN)*2+2 ){
+                if(localClassification[i] == (this->pos)*2+2 ){
                      nodeMean += data[i][*this->nVar-1]*weights[i];
                      squaredSum += data[i][*this->nVar-1]*data[i][*this->nVar-1]*weights[i];
                      sumWeights += weights[i];
@@ -251,7 +251,6 @@ Node::~Node(){
        localClassification= NULL;
        leftChild= NULL;
        rightChild= NULL;
-       splitN= NULL;
        splitV= NULL;
        splitP= NULL;
        csplit= NULL;

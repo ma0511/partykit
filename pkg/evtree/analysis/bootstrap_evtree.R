@@ -38,7 +38,6 @@ bootstrap_evtree <- function(kdata, nboots = 250, seed = 1000){
         ytrain <- nbootTraining[ ,dim(nbootTraining)[2]]
         xpredict <- nbootTest[ ,1:(dim(nbootTest)[2]-1)]
         ypredict <- nbootTest[ ,dim(nbootTest)[2]]
-
         out_ctree <- party::ctree(
                 ytrain ~ ., data = cbind(xtrain, ytrain),
                 control = party::ctree_control(

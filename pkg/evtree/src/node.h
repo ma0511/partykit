@@ -8,7 +8,7 @@ using namespace std;
 
 class Node{
 	public:
-	int* splitN;
+	int pos;
 	int* splitV;
 	double* splitP;
         int** csplit;
@@ -32,7 +32,7 @@ class Node{
 	double predictionLeftTerminal;
 	double predictionRightTerminal;
 
-	Node(int* splitN, int* splitV, double* splitP, int** csplit, Node* leaftChild, Node* rightChild, double** data,
+	Node(int splitN, int* splitV, double* splitP, int** csplit, Node* leaftChild, Node* rightChild, double** data,
 				int* nInst, int* nVar, variable** variables);
 	~Node();
 	int partition( int* classification, int* weights, variable** variables, int* nNodes, int minbucket, int minsplit);

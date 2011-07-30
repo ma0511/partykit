@@ -1,4 +1,4 @@
-1
+q('no')
 R
 rm(list=ls())
 library("rpart")
@@ -7,7 +7,9 @@ library("partykit")
 library("kernlab")
 library("mlbench")
 library("evtree")
+source("/home/grubinger/partykit/pkg/evtree/R/evtree-internal.R")
 source("/home/grubinger/partykit/pkg/evtree/analysis/bootstrap_evtree.R")
+
 
 
 ### 1. Glass ###
@@ -16,11 +18,13 @@ rglass <- bootstrap_evtree(Glass, nboots=250)
 apply(apply(rglass, 2, as.numeric),2,mean)
 save(rglass, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/glass.RData")
 
+
 ### 2. statlogHeart ###
-load(file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/statlogHeart.RData")
-rheart <- bootstrap_evtree(statlogHeart, nboots=250)
+data(StatlogHeart)
+rheart <- bootstrap_evtree(StatlogHeart, nboots=250)
 apply(apply(rheart, 2, as.numeric),2,mean)
 save(rheart, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/heart.RData")
+
 
 ### 3. Ionosphere ###
 data(Ionosphere)
@@ -33,6 +37,7 @@ data(musk)
 rmusk <- bootstrap_evtree(musk, nboots=250)
 apply(apply(rmusk, 2, as.numeric),2,mean)
 save(rmusk, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/musk.RData")
+
 
 ### 5. BreastCancer ###
 data(BreastCancer)
@@ -52,6 +57,7 @@ rpima <- bootstrap_evtree(PimaIndiansDiabetes, nboots=250)
 apply(apply(rpima, 2, as.numeric),2,mean)
 save(rpima, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/pima.RData")
 
+
 ### 7. Vowel ###
 data(Vowel)
 rvowel <- bootstrap_evtree(Vowel, nboots=250)
@@ -59,14 +65,14 @@ apply(apply(rvowel, 2, as.numeric),2,mean)
 save(rvowel, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/vowel.RData")
 
 ### 8. statlogGermanCredit ###
-load(file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/statlogGermanCredit.RData")
-rcredit <- bootstrap_evtree(statlogGermanCredit, nboots=250)#25
+data(GermanCredit)
+rcredit <- bootstrap_evtree(GermanCredit, nboots=250)#25
 apply(apply(rcredit, 2, as.numeric),2,mean)
 save(rcredit, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/credit.RData")
 
 ### 9. contraceptiveMethodChoice ###
-load(file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/contraceptiveMethodChoice.RData")
-rcontraceptive <- bootstrap_evtree(contraceptiveMethodChoice, nboots = 250)
+data(ContraceptiveChoice)
+rcontraceptive <- bootstrap_evtree(ContraceptiveChoice, nboots = 250)
 apply(apply(rcontraceptive, 2, as.numeric),2,mean)
 save(rcontraceptive, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/contraceptive.RData")
 
@@ -83,31 +89,45 @@ apply(apply(rspam, 2, as.numeric),2,mean)
 save(rspam, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/spam.RData")
 
 
-### 12. magicGammaTelescope ###
-load(file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/magicGammaTelescope.RData")
-mg1 <- bootstrap_evtree(magicGammaTelescope, nboots = 50, seed = 1000)
+### 12. MAGICGammaTelescope ###
+data(MAGICGammaTelescope)
+mg1 <- bootstrap_evtree(MAGICGammaTelescope, nboots = 50, seed = 1000)
 apply(apply(mg1, 2, as.numeric),2,mean)
 save(mg1, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/mg1")
 
-load(file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/magicGammaTelescope.RData")
-mg2 <- bootstrap_evtree(magicGammaTelescope, nboots = 50, seed = 2000)
+
+data(MAGICGammaTelescope)
+mg2 <- bootstrap_evtree(MAGICGammaTelescope, nboots = 50, seed = 2000)
 apply(apply(mg2, 2, as.numeric),2,mean)
 save(mg2, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/mg2")
 
-load(file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/magicGammaTelescope.RData")
-mg3 <- bootstrap_evtree(magicGammaTelescope, nboots = 50, seed = 3000)
+
+data(MAGICGammaTelescope)
+mg3 <- bootstrap_evtree(MAGICGammaTelescope, nboots = 50, seed = 3000)
 apply(apply(mg3, 2, as.numeric),2,mean)
 save(mg3, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/mg3")
 
-load(file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/magicGammaTelescope.RData")
-mg4 <- bootstrap_evtree(magicGammaTelescope, nboots = 50, seed = 4000)
+
+data(MAGICGammaTelescope)
+mg4 <- bootstrap_evtree(MAGICGammaTelescope, nboots = 50, seed = 4000)
 apply(apply(mg4, 2, as.numeric),2,mean)
 save(mg4, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/mg4")
 
-load(file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/magicGammaTelescope.RData")
-mg5 <- bootstrap_evtree(magicGammaTelescope, nboots = 50, seed = 5000)
+
+data(MAGICGammaTelescope)
+mg5 <- bootstrap_evtree(MAGICGammaTelescope, nboots = 50, seed = 5000)
 apply(apply(mg5, 2, as.numeric),2,mean)
 save(mg5, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/mg5")
+
+
+load(file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/mg1")
+load(file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/mg2")
+load(file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/mg3")
+load(file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/mg4")
+load(file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/mg5")
+magicgamma <- rbind(mg1, mg2, mg3, mg4, mg5)
+save(magicgamma, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/magicgamma.RData")
+
 
 ### 13. Servo ###
 data("Servo")

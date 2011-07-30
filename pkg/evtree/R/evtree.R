@@ -100,8 +100,7 @@ evtree <- function(formula, data = list(), weights = NULL, subset = NULL, contro
          stop(paste("no split could be found \n \"minsplit\" is larger than the weighted number of observations in the training data"))
 
 
-    # splitnumbers, splitvariables and splitpoints
-    splitN <- array(-999999, maxNode)
+    # splitvariables and splitpoints
     splitV <- array(-999999, maxNode)
     splitP <- array(-999999, maxNode)
 
@@ -125,9 +124,9 @@ evtree <- function(formula, data = list(), weights = NULL, subset = NULL, contro
             }else{
                 varType[i] <- -length(levels(mf[,i]))
                 k <- k + 1
+       	        if(abs(varType[i]) > maxCat & i < nVariables)
+                	maxCat <- abs(varType[i])                
             }
-            if(abs(varType[i]) > maxCat & i < nVariables)
-                maxCat <- abs(varType[i])
         }else{
             varType[i] <- length(unique(mf[,i]))
             j <- j +1
@@ -137,7 +136,7 @@ evtree <- function(formula, data = list(), weights = NULL, subset = NULL, contro
     csplit <- array(2, maxCat*maxNode)
 
     #specification of function tree
-    tree <- function(nInstances,nVariables,varType,ndata,weights,prediction,splitN,splitV,splitP,
+    tree <- function(nInstances,nVariables,varType,ndata,weights,prediction, splitV,splitP,
                 csplit,maxNode, operatorprob, control){
             out <-  .C( "tree", PACKAGE="evtree",
                 as.integer(nInstances), 
@@ -146,7 +145,6 @@ evtree <- function(formula, data = list(), weights = NULL, subset = NULL, contro
                 as.double(ndata), 
                 as.integer(weights),
                 as.integer(prediction), 
-                as.integer(splitN), 
                 as.integer(splitV), 
                 as.double(splitP), 
                 as.integer(csplit), 
@@ -167,23 +165,22 @@ evtree <- function(formula, data = list(), weights = NULL, subset = NULL, contro
             return(out)
     }
     #Call of the tree function
-    out <- tree(nInstances, nVariables, varType, ndata, weights, prediction, splitN, splitV, splitP, csplit,
+    out <- tree(nInstances, nVariables, varType, ndata, weights, prediction, splitV, splitP, csplit,
             maxNode, operatorprob, control)
         mtree = list()
         mtree$varType <-varType
-        mtree$splitN <- out[[7]]
-        mtree$splitV <- out[[8]]
-        mtree$splitP <- out[[9]]
-        mtree$csplit <- out[[10]]
+        mtree$splitV <- out[[7]]
+        mtree$splitP <- out[[8]]
+        mtree$csplit <- out[[9]]
         mtree$maxdepth <- control$maxdepth
         mtree$weights <- weights
         mtree$prediction <- out[[6]]+1
         mtree$maxCat <- maxCat
-        mtree$seed <- out[[23]]
+        mtree$seed <- out[[22]]
         init <- .initializeNode(mtree)
         node <- init[[1]]
         gid  <- init[[2]]
-
+        
         prediction <- array(-999999, length(mtree$prediction))
         for(i in 1:length(gid))
             prediction[ mtree$prediction == gid[i] ] <- i
