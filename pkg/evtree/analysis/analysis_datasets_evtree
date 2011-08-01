@@ -158,19 +158,6 @@ save(rchessboard44_10, file="/home/grubinger/partykit/pkg/evtree/inst/doc/result
 
 
 
-rchessboard44_0 <- benchchessboard44(noise = 0, seed = 1000, nrealizations = 250, totalpoints= 2000)
-apply(apply(rchessboard44_0, 2, as.numeric),2,mean)
-save(rchessboard44_0, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/chessboard44_0.RData")
-
-rchessboard44_5 <- benchchessboard44(noise = 5, seed = 1000, nrealizations = 250, totalpoints= 2000)
-apply(apply(rchessboard44_5, 2, as.numeric),2,mean)
-save(rchessboard44_5, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/chessboard44_5.RData")
-
-rchessboard44_10 <- benchchessboard44(noise = 10, seed = 1000, nrealizations = 250, totalpoints= 2000)
-apply(apply(rchessboard44_10, 2, as.numeric),2,mean)
-save(rchessboard44_10, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/chessboard44_10.RData")
-
-
 
 load("/home/grubinger/Desktop/mel0101.rda" )
 names(adata)[c(11:50)] <- paste("s", c(11:50), sep="")
