@@ -162,9 +162,10 @@ save(rchessboard44_10, file="/home/grubinger/partykit/pkg/evtree/inst/doc/result
 load("/home/grubinger/Desktop/mel0101.rda" )
 names(adata)[c(11:50)] <- paste("s", c(11:50), sep="")
 adata$HD3_4 <- as.factor(adata$HD3_4)
+adata$HD3 <- as.factor(adata$HD3)
 adata$AUFART1 <- as.factor(adata$AUFART1)
 adata$ENTART1 <- as.factor(adata$ENTART1)
-rmel0101 <- bootstrap_evtree(adata[c(-4,-5)], nboots = 250, seed = 1000)
+rmel0101 <- bootstrap_evtree(adata[,-c(4,6)], nboots = 250, seed = 1000)
 save(rmel0101, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/mel0101.RData")
 
 
@@ -172,6 +173,8 @@ load("/home/grubinger/Desktop/hdg0502.rda" )
 rhdg0502 <- bootstrap_evtree(adata, nboots= 250, seed=1000)
 save(rhdg0502, file="/home/grubinger/partykit/pkg/evtree/inst/doc/results/hdg0502.RData")
 
+
 load("/home/grubinger/Desktop/hdg0202.rda" )
 rhdg0202 <- bootstrap_evtree(adata[,-c(10,46,47,50)], nboots = 250, seed = 1000)
 save(rhdg0202, file = "/home/grubinger/partykit/pkg/evtree/inst/doc/results/hdg0202.RData")
+

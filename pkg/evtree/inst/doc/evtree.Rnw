@@ -390,9 +390,11 @@ HDG0502$^\diamond$ & 8251 &  1 & 7 & 1 &   91  & -               \\
 \label{tab:dataDescription}
 \end{table}
 
-The relative performance of \code{evtree} and \code{rpart} is summarized in Figure~\ref{fig:crpart}. Performance differences are displayed relative to \code{evtree}'s performance. For example, on the \textit{Glass} data-set, the average misclassification rate of \code{rpart} is $2.8\%$ higher than the misclassification rate of \code{evtree}. It can be observed that on 13 out of 17 data-sets \code{evtree} significantly outperforms \code{rpart} in terms of predictive accuracy. Only on the \textit{Contraceptive Method} data-set \code{evtree} performs slightly worse.  In terms of complexity, \code{evtree} models are significantly more complex on 9 and less complex on 7 data-sets. 
 
-Figure~\ref{fig:cptree} summarizes the relative performance of \code{evtree} and \code{ctree}. For 14 out of 17 data-sets \code{evtree} shows a better predictive performance. The algorithms' performances on the 3 other data-sets is similar. The relative complexity of \code{evtree} models is significantly smaller for 15 and larger for 1 data-set. 
+The relative performance of \code{evtree} and \code{rpart} is summarized in Figure~\ref{fig:crpart}. Performance differences are displayed relative to \code{evtree}'s performance. For example, on the \textit{Glass} data-set, the average misclassification rate of \code{rpart} is $2.7\%$ higher than the misclassification rate of \code{evtree}. It can be observed that on $12$ out of $17$ data-sets \code{evtree} significantly outperforms \code{rpart} in terms of predictive accuracy. Only on the \textit{Contraceptive Method} data-set \code{evtree} performs slightly worse.  In terms of complexity, \code{evtree} models are significantly more complex on $10$ and less complex on $7$ data-sets. 
+
+
+Figure~\ref{fig:cptree} summarizes the relative performance of \code{evtree} and \code{ctree}. For 15 out of 17 data-sets \code{evtree} shows a better predictive performance. The algorithms' performances  is significantly worse on the \textit{MEL0101} data-set, where the average misclassifiation rate of \code{ctree} is $5.6\%$ lower. However, on this data-set, \code{ctree} models are on average $86.5\%$ larger than \code{evtree} models. The relative complexity of \code{evtree} models is significantly smaller for 15 and larger for 1 data-set. 
 
 %% vorberechnungen
 <<label=figciplots, echo = FALSE>>=
@@ -449,11 +451,11 @@ r <- rbind(r, preprocess(d = rcredit, dname = "Statlog German Credit", isclassif
 r <- rbind(r, preprocess(d = rcontraceptive, dname = "Contraceptive Method", isclassification = T))
 r <- rbind(r, preprocess(d = rdna, dname = "DNA", isclassification = T))
 r <- rbind(r, preprocess(d = rspam, dname = "Spam", isclassification = T))
-r <- rbind(r, preprocess(d = rmagic, dname = "Magic Gamma Telescope", isclassification = T))
+r <- rbind(r, preprocess(d = rmagicgamma, dname = "Magic Gamma Telescope", isclassification = T))
 r <- rbind(r, preprocess(d = rservo, dname = "Servo", isclassification = F))
 r <- rbind(r, preprocess(d = rbostonhousing, dname = "Boston Housing", isclassification = F))
-r <- rbind(r, preprocess(d = mel0101, dname = "MEL0101", isclassification = F))
-r <- rbind(r, preprocess(d = hdg0202, dname = "HDG0202", isclassification = F))
+r <- rbind(r, preprocess(d = rmel0101, dname = "MEL0101", isclassification = F))
+r <- rbind(r, preprocess(d = rhdg0202, dname = "HDG0202", isclassification = F))
 r <- rbind(r, preprocess(d = rhdg0502, dname = "HDG0502", isclassification = F))
 
 ra <- r[,1:4]
@@ -497,14 +499,14 @@ plotd <- function(alg){
     dummy <- c(1:17)
     names(dummy) <- uniquedatasetlabels
     stats <- cstats(ra, alg)
-    plotCI(stats$mean, dummy, li=stats$lower, ui=stats$upper, err="x", xlim=c(-12,45), axes=F, ann=T, ylab= "", xlab= "difference in predictive accuracy [%]", lwd=1.5 )
+    plotCI(stats$mean, dummy, li=stats$lower, ui=stats$upper, err="x", xlim=c(-11,46), axes=F, ann=T, ylab= "", xlab= "difference in predictive accuracy [%]", lwd=1.5 )
     axis(side = 2, at = c(1:length(dummy)), labels= names(dummy), lwd=0.1)
-    axis(side = 1, lwd=0.1, lwd.ticks=1, at=c(-10,-5,0,5,10,15,20,25,30,35,40))
+    axis(side = 1, lwd=0.1, lwd.ticks=1, at=c(-10,-5,0,5,10,15,20,25,30,35,40,45))
     box(lwd=1)
     abline(v=0, lty=2)
     abline(h=5.5, lty=1, lwd=0.5)
     stats <- cstats(rc, alg)
-    plotCI(stats$mean, dummy, li= stats$lower, ui= stats$upper, err="x", xlim=c(-160,210), axes=F, ann=T, ylab= "", xlab= "difference in complexity [%]", lwd=1.5 )
+    plotCI(stats$mean, dummy, li= stats$lower, ui= stats$upper, err="x", xlim=c(-110,210), axes=F, ann=T, ylab= "", xlab= "difference in complexity [%]", lwd=1.5 )
     axis(side = 1, lwd=0.1, lwd.ticks=1, at=c(-150,-100,-50,0,50,100,150,200))
     box(lwd=1)
     abline(v=0, lty=2)
@@ -583,7 +585,8 @@ points(ch[ch[,9]==0,1], ch[ch[,9]==0,2], pch= c("o"))
 \caption{\label{fig:chess} Class distribution of the simulated $4 \times 4$ chess-board problem plotted on the $(X_1, X_2)$-plane. The two classes are indicated by black $(o)$ and grey $(x)$.}
 \end{figure}
 
-The results are summarized in Table~\ref{tab:resultsChessboard}. It can be seen that, in the absence of noise, \code{rpart} models on average classify $67.2\%$ of the data points correctly and had $13.0$ terminal nodes. An average \code{ctree} model only has $1.1$ terminal nodes and a classification accuracy of $50.2\%$. In contrast, \code{evtree} classifies $92.8\%$ of the instances correctly and requires 14.0 terminal nodes. In the presence of $5\%$ and $10\%$ noise, \code{evtree} classifies $88.7\%$ and $84.2\%$ of the data correctly. 
+The results are summarized in Table~\ref{tab:resultsChessboard}. It can be seen that, in the absence of noise, \code{rpart} models on average classify $69.1\%$ of the data points correctly and had $16.6$ terminal nodes. An average \code{ctree} model only has $1.1$ terminal nodes and a classification accuracy of $49.9\%$. In contrast, \code{evtree} classifies $93.2\%$ of the instances correctly and requires $14.4$ terminal nodes. In the presence of $5\%$ and $10\%$ noise, \code{evtree} classifies $89.0\%$ and $84.5\%$ of the data correctly. 
+
 
 <<label =  tab:resultsChessboard,  echo = FALSE, results=tex>>=
 library("xtable")

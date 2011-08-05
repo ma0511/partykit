@@ -1,4 +1,4 @@
-chessboard44 <- function(totalpoints = 8000, noisevariables = 6, noise = 0){
+chessboard44 <- function(totalpoints = 4000, noisevariables = 6, noise = 0){
     chess44 <- array(0,c(totalpoints,noisevariables+3))
 
     for(i in 1:(noisevariables+2))
@@ -33,7 +33,7 @@ chessboard44 <- function(totalpoints = 8000, noisevariables = 6, noise = 0){
 
 
 
-benchchessboard44 <- function(totalpoints = 8000, noisevariables = 6, noise = 0, nrealizations = 250, seed = 1000){
+benchchessboard44 <- function(totalpoints = 4000, noisevariables = 6, noise = 0, nrealizations = 250, seed = 1000){
     set.seed(seed)
     accuracy_evtree <- array(-999999, nrealizations)
     accuracy_rpart <- array(-999999, nrealizations)
