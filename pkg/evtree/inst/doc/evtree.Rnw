@@ -1,75 +1,64 @@
 \documentclass[nojss]{jss}
-\usepackage{amssymb, amsmath, amsthm} 
-%\usepackage{longtable}
-\usepackage{booktabs}
-\usepackage{listings}
-\raggedbottom
+\usepackage{amssymb, amsmath, amsthm, booktabs, thumbpdf}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Sweave/vignette information and metadata
+%% need no \usepackage{Sweave}
+\SweaveOpts{engine = R, eps = FALSE, keep.source = TRUE}
+%\VignetteIndexEntry{Evolutionary Learning of Globally Optimal Classification and Regression Trees in R}
+%\VignetteDepends{stats,evtree,partykit,mlbench,plotrix,lme4,multcomp,rpart,ctree,xtable}
+%\VignetteKeywords{machine learning, classification trees, regression trees, evolutionary algorithms, R}
+%\VignettePackage{evtree}
 
-%% almost as usual
 \author{Thomas Grubinger\\ Innsbruck Medical University 
-\And Achim Zeileis\\ Universit\"at Innsbruck 
-\And Karl-Peter Pfeiffer\\ Innsbruck Medical University
+   \And Achim Zeileis\\ Universit\"at Innsbruck 
+   \And Karl-Peter Pfeiffer\\ Innsbruck Medical University
 }
-
-
+\Plainauthor{Thomas Grubinger, Achim Zeileis, Karl-Peter Pfeiffer}
 
 \title{\pkg{evtree}: Evolutionary Learning of Globally Optimal Classification and Regression Trees in \proglang{R}}
-%% for pretty printing and a nice hypersummary also set:
-\Plainauthor{Thomas Grubinger, Achim Zeileis and Karl-Peter Pfeiffer} %% comma-separated
-\Plaintitle{evtree: Evolutionary Learning of Globally Optimal Classification and Regression Trees in R} %% without formatting
-\Shorttitle{Evolutionary Learning of Globally Optimal Classification and Regression Trees in R} %% a short title (if necessary)
+\Plaintitle{evtree: Evolutionary Learning of Globally Optimal Classification and Regression Trees in R}
+\Shorttitle{\pkg{evtree}: Evolutionary Learning of Globally Optimal Trees in \proglang{R}}
 
-%% an abstract and keywords
 \Abstract{
-Commonly used classification and regression tree methods like the CART algorithm are recursive partitioning methods that build the model in a forward stepwise search. Although this approach is known to be an efficient heuristic, the results of recursive tree methods are only locally optimal, as splits are chosen to maximize homogeneity at the next step only. An alternative way to search over the parameter space of trees is to use global optimization methods like evolutionary algorithms. This paper describes the \pkg{evtree} package, which implements an evolutionary algorithm for learning globally optimal classification and regression trees in \proglang{R}. CPU and memory-intensive tasks are fully computed in \proglang{C++} while the \pkg{partykit} \citep{hothorn2009partykit} package is leveraged to represent the resulting trees in \proglang{R}, providing unified infrastructure for summaries, visualizations, and predictions. \code{evtree} is compared to \code{rpart} \citep{therneau1997introduction}, the open-source CART implementation, and \code{ctree} \citep{hothorn2006urp} (conditional inference trees). On 20 evaluated data-sets, including several benchmark problems from the UCI machine learning repository, \code{evtree} models offered at least similar and most of the time increased predictive accuracy.  
+  Commonly used classification and regression tree methods like the CART
+  algorithm are recursive partitioning methods that build the model in a forward
+  stepwise search. Although this approach is known to be an efficient heuristic,
+  the results of recursive tree methods are only locally optimal, as splits are
+  chosen to maximize homogeneity at the next step only. An alternative way to
+  search over the parameter space of trees is to use global optimization methods
+  like evolutionary algorithms. This paper describes the \pkg{evtree} package,
+  which implements an evolutionary algorithm for learning globally optimal
+  classification and regression trees in \proglang{R}. CPU and memory-intensive
+  tasks are fully computed in \proglang{C++} while the \pkg{partykit}
+  \citep{hothorn2009partykit} package is leveraged to represent the resulting
+  trees in \proglang{R}, providing unified infrastructure for summaries,
+  visualizations, and predictions. \code{evtree} is compared to \code{rpart}
+  \citep{therneau1997introduction}, the open-source CART implementation, and
+  \code{ctree} \citep{hothorn2006urp} (conditional inference trees). On 20
+  evaluated data-sets, including several benchmark problems from the UCI machine
+  learning repository, \code{evtree} models offered at least similar and most of
+  the time increased predictive accuracy.  
 }
 
-
 \Keywords{machine learning, classification trees, regression trees, evolutionary algorithms, \proglang{R}}
-\Plainkeywords{machine learning, classification trees, regression trees, evolutionary algorithms, R} %% without formatting
-%% at least one keyword must be supplied
+\Plainkeywords{machine learning, classification trees, regression trees, evolutionary algorithms, R}
 
-%% publication informatione
-%% NOTE: Typically, this can be left commented and will be filled out by the technical editor
-%% \Volume{13}
-%% \Issue{9}
-%% \Month{September}
-%% \Year{2004}
-%% \Submitdate{2004-09-29}
-%% \Acceptdate{2004-09-29}
-
-%% The address of (at least) one author should be given
-%% in the following format:
 \Address{
   Thomas Grubinger, Karl-Peter Pfeiffer\\
   Innsbruck Medical University\\
   Department for Medical Statistics, Informatics and Health Economics\\
-  6020, Innsbruck\\
+  6020, Innsbruck, Austria\\
   E-mail: \email{thomas.grubinger@i-med.ac.at}\\
   URL: \url{http://www.i-med.ac.at/msig/mitarbeiter/grubinger}\\
-
 
   Achim Zeileis \\
   Universit\"at Innsbruck\\
   Department of Statistics\\
-  6020, Innsbruck\\
+  6020, Innsbruck, Austria\\
   E-mail: \email{Achim.Zeileis@R-project.org}\\
   URL: \url{http://eeecon.uibk.ac.at/~zeileis/}
 }
 
-%% It is also possible to add a telephone and fax number
-%% before the e-mail in the following format:
-%% Telephone: +43/1/31336-5053
-%% Fax: +43/1/31336-734
-
-%% for those who use Sweave please include the following line (with % symbols):
-%% need no \usepackage{Sweave.sty}
-
-%% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
  
@@ -147,7 +136,7 @@ In contrast to CART and C4.5, conditional inference trees utilize an unbiased va
 \subsection{An illustration showing the limitations of locally optimal decision trees}
 
 A very simple example that illustrates the limitation of recursive partitioning methods is depicted in Figure~\ref{fig:illustration}. The example only contains two independent variables and can be solved with only three splits that partition the input space into four regions. As expected the recursive partitioning methods \code{rpart} and \code{ctree} fail to find any split at all, as the impurity of the resulting subsets cannot be reduced by the first split. For methods that explore $\Theta$ in a more global fashion it is straightforward to find an optimal solution to this problem. One solution, which is the tree constructed by \code{evtree} is given by: 
-
+%
 << echo = FALSE, split= TRUE>>=
 library("evtree")
 X1 <- c(rep(0.25, 4), rep(0.75, 4), rep(1.25 ,4),  rep(1.75, 4))
@@ -163,15 +152,14 @@ print(evtree(Y~.,data=chess22, minbucket = 1, minsplit=2))
 
 \setkeys{Gin}{width=0.4\textwidth}
 \begin{figure}[tbh!]
-    \centering
+\centering
 <<fig = TRUE, echo = FALSE>>=
 par(cex.axis=1.5, cex.lab=1.5)
 plot(chess22[chess22[,3]=="class: o",1], chess22[chess22[,3]=="class: o",2], type="p",  pch= c("x"), col=colors()[320], xlab="X1", ylab="X2", xlim=c(0,2), ylim=c(0,2), cex=2)
 points(chess22[chess22[,3]=="class: x",1], chess22[chess22[,3]=="class: x",2], pch= c("o"), cex=2)
 par(cex.axis=1.5, cex.lab=1.5)
 @
-\caption{Class distribution of  the $(X_1, X_2)$-plane. The two classes are indicated by black $(o)$ and grey $(x)$.}
-\label{fig:illustration}
+\caption{\label{fig:illustration} Class distribution of  the $(X_1, X_2)$-plane. The two classes are indicated by black $(o)$ and grey $(x)$.}
 \end{figure}
 
 All instances all are classified correctly. Each of the terminal nodes 3 and 7 contain four instances of the class $(x)$. Four instances of class $(o)$ are assigned to each of the terminal nodes 4 and 6.
@@ -309,49 +297,49 @@ The algorithm terminates when the quality of the best $5\%$ of trees stabilizes 
 \label{impl}
 
 \code{evtree} provides an efficient implementation of an evolutionary algorithm that builds classification trees in \proglang{R}. CPU- and memory- intensive tasks are fully computed in \proglang{C++}, while the user interfaces and plot functions are written in \proglang{R}. The \code{.C()} interface \citep{chambers2008software} was used to pass arguments between the two languages. \code{evtree} depends on the \pkg{partykit} package  \citep{hothorn2009partykit}, which provides an infrastructure for representing, summarizing, and visualizing tree-structured models. The supplied functionality includes standard \code{print()}, \code{summary()}, and \code{plot()} functions to display trees and a \code{predict()} function to predict the class labels of new data. The arguments of  \code{evtree()} are
-
-\begin{verbatim}
-evtree(formula, data = list(), weights = NULL, subset = NULL, control = 
-evtree.control(...), ...)
-\end{verbatim}
-
+%
+\begin{Code}
+  evtree(formula, data = list(), weights = NULL, subset = NULL,
+    control = evtree.control(...), ...)
+\end{Code}
+%
 where \code{formula} and \code{data} are a standard \proglang{R} formula of type \code{y ~ x1 + x2} with the respective data. \code{weights} is an optional vector specifying weights to be used in the fitting process. The option vector subset specifies a subset of observations to be used in the fitting process. \code{control} comprises a list of control parameters
-
-\begin{verbatim}
-evtree.control(minbucket = 7L, minsplit = 20L, maxdepth = 9L, 
-niterations = 10000L, ntrees = 100L, alpha = 1, operatorprob = list(
-pmutatemajor = 0.2, pmutateminor = 0.2, pcrossover = 0.2, psplit = 0.2, 
-pprune = 0.2), seed = NULL, ...)
-\end{verbatim}
-
+%
+\begin{Code}
+  evtree.control(minbucket = 7L, minsplit = 20L, maxdepth = 9L, 
+    niterations = 10000L, ntrees = 100L, alpha = 1,
+    operatorprob = list(pmutatemajor = 0.2, pmutateminor = 0.2,
+      pcrossover = 0.2, psplit = 0.2, pprune = 0.2),
+    seed = NULL, ...)
+\end{Code}
+%
 where the parameters \code{minbucket}, \code{minsplit}, and \code{maxdepth} constrain the solution to a minimum number of observations in each terminal node, a minimum number of observation in each internal node and a maximum tree depth. Note that the memory requirements increase by the square of the maximum tree depth. Parameter \code{alpha} regulates the complexity part of the evaluation function and refers to $\alpha$ in Equation~\ref{eq:classification} for classification trees and Equation~\ref{eq:regression} for regression trees. \code{niterations} and \code{ntrees} specify the maximum number of iterations and the number of trees in the population. With the argument \code{operatorprob}, user-specified probabilities for the variation operators can be defined. Argument \code{seed} is an optional seed for the random number generator, which allows models to be reproduced by re-using the same seed. If not specified, the random number generator is initialized by the system time. In this case, iterative calls of \code{evtree} will possibly result in different models.
-
+%
 <<>>=
 library("evtree")
 data("iris")
 model <- evtree(Species ~ ., iris, control = evtree.control(seed = 1000))
 @
+%
 The fitted model can be examined using the \code{print()} and \code{plot()} functions. 
-
+%
 <<>>=
 print(model)
 @
 
 \setkeys{Gin}{width=1\textwidth}
-\begin{figure}[tbh!]
-    \begin{center}
+\begin{figure}[t!]
+\centering
 <<echo= FALSE>>=
 par(cex.axis=1.5, cex.lab=1.5)
 <<fig=TRUE, echo=TRUE, width = 13.5, height= 8.5>>=
 plot(model)
 @
-     \end{center}
-     \caption{Example of a tree plotted by the \code{plot()} function}
-     \label{fig:example}
+\caption{\label{fig:example} Example of a tree plotted by the \code{plot()} function.}
 \end{figure}
 
 The resulting plot is displayed in Figure~\ref{fig:example}. \code{predict()} can be used for the prediction of the response.
-
+%
 <<>>=
 predict(model, newdata = iris[c(10, 35, 60, 85, 110, 135), -5])
 @
@@ -408,7 +396,7 @@ Figure~\ref{fig:cptree} summarizes the relative performance of \code{evtree} and
 
 %% vorberechnungen
 <<label=figciplots, echo = FALSE>>=
-rm(list=ls())
+rm(list = ls())
 library("plotrix")
 library("lme4")
 library("multcomp")
@@ -525,22 +513,20 @@ plotd <- function(alg){
 @
 
 \setkeys{Gin}{width=1\textwidth}
-\begin{figure}[tbh!]
-    \centering
+\begin{figure}[t!]
+\centering
 <<fig = TRUE, echo = FALSE, width=14, height=7.9>>=
 plotd("rpart")
 @
-\caption{Performance comparison of \code{evtree} and \code{rpart}. Prediction error is compared by the relative difference of the misclassification rate or the mean-squared error. The complexity is compared by the relative difference of the number of terminal nodes.}
- \label{fig:crpart}
+\caption{\label{fig:crpart} Performance comparison of \code{evtree} and \code{rpart}. Prediction error is compared by the relative difference of the misclassification rate or the mean-squared error. The complexity is compared by the relative difference of the number of terminal nodes.}
 \end{figure}
 
 \begin{figure}[tbh!]
-    \centering
+\centering
 <<fig = TRUE, echo = FALSE, width=14, height=7.9>>=
 plotd("ctree")
 @
-\caption{Performance comparison of \code{evtree} and \code{ctree}. Prediction error is compared by the relative difference of the misclassification rate or the mean-squared error. The complexity is compared by the relative difference of the number of terminal nodes.}
-\label{fig:cptree}
+\caption{\label{fig:cptree} Performance comparison of \code{evtree} and \code{ctree}. Prediction error is compared by the relative difference of the misclassification rate or the mean-squared error. The complexity is compared by the relative difference of the number of terminal nodes.}
 \end{figure}
 
 The disadvantages of our algorithm are computation time and memory requirements. While the smallest of the analyzed data-sets, \textit{Glass Identification}, only needed approximately 4--6 seconds to fit, larger data-sets demanded several minutes. The fit of a model from the largest data-set, \textit{MAGIC Gamma Telescope}, required approximately 40--50 minutes and a main memory of 400 Mbit. The required resources were measured on an Intel Core 2 Duo with 2.2 GHz and 2 GB RAM using the 64-bit version of Ubuntu 10.10.
@@ -586,7 +572,7 @@ chessboard44 <- function(totalpoints = 4000, noisevariables = 6, noise = 0){
 
 \setkeys{Gin}{width=0.4\textwidth}
 \begin{figure}[tbh!]
-    \centering
+\centering
 <<fig = TRUE, echo = FALSE>>=
 par(cex.axis=1.5, cex.lab=1.5)
 ch <- chessboard44(totalpoints= 2000)
@@ -594,14 +580,13 @@ par(cex.axis=1.5, cex.lab=1.5)
 plot(ch[ch[,9]==1,1], ch[ch[,9]==1,2], type="p",  pch= c("x"), col=colors()[320], xlab="X1", ylab="X2", cex=1)
 points(ch[ch[,9]==0,1], ch[ch[,9]==0,2], pch= c("o"))
 @
-\caption{Class distribution of the simulated $4 \times 4$ chess-board problem plotted on the $(X_1, X_2)$-plane. The two classes are indicated by black $(o)$ and grey $(x)$.}
-\label{fig:chess}
+\caption{\label{fig:chess} Class distribution of the simulated $4 \times 4$ chess-board problem plotted on the $(X_1, X_2)$-plane. The two classes are indicated by black $(o)$ and grey $(x)$.}
 \end{figure}
 
 The results are summarized in Table~\ref{tab:resultsChessboard}. It can be seen that, in the absence of noise, \code{rpart} models on average classify $67.2\%$ of the data points correctly and had $13.0$ terminal nodes. An average \code{ctree} model only has $1.1$ terminal nodes and a classification accuracy of $50.2\%$. In contrast, \code{evtree} classifies $92.8\%$ of the instances correctly and requires 14.0 terminal nodes. In the presence of $5\%$ and $10\%$ noise, \code{evtree} classifies $88.7\%$ and $84.2\%$ of the data correctly. 
 
 <<label =  tab:resultsChessboard,  echo = FALSE, results=tex>>=
-library(xtable)
+library("xtable")
 load(file = "./results/chessboard44_0.RData")
 load(file = "./results/chessboard44_5.RData")
 load(file = "./results/chessboard44_10.RData")
@@ -649,7 +634,7 @@ In Section~\ref{comp} we compared \code{evtree} with \code{rpart} and \code{ctre
 
 The goal of this package is not to replace the well-established algorithms like \code{rpart} and \code{ctree}. We rather want to provide \proglang{R} users with an alternative which, given sufficient amounts of time and main memory, is often more accurate than recursive partitioning methods. By the nature of the algorithm it is able to discover patterns which cannot be modeled by a greedy algorithm. As \code{evtree} models can be substantially different to recursively fitted models, it can be beneficial to use both approaches, as this may reveal additional relationships in the data.  
 
-\bibliography{evtree.bib} 
+\bibliography{evtree} 
 
 \end{document}
 
