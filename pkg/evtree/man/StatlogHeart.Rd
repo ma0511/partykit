@@ -43,7 +43,7 @@ The use of a cost matrix is suggested for this data-set. It is worse to class pa
 data("StatlogHeart")
 summary(StatlogHeart)
 shw <- array(1, nrow(StatlogHeart))
-shw[StatlogHeart$classes == "presence"] <- 5
+shw[StatlogHeart$heart_disease == "presence"] <- 5
 sht <- evtree(heart_disease ~ . , data = StatlogHeart, weights = shw) 
 sht
 table(predict(sht), StatlogHeart$heart_disease)
