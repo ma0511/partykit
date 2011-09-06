@@ -386,7 +386,7 @@ HDG0502$^\diamond$ & 8251 &  1 & 7 & 1 &   91  & -               \\
 \bottomrule
 \end{tabular}
 \end{center}
-\caption{Description of the evaluated benchmark data-sets. The data-sets marked with a $(^*)$ are from the UCI machine learning repository \citep{Frank+Asuncion:2010}. Data-sets marked with a $(^\#)$ and $(^{+})$ are from the \proglang{R} packages \pkg{mlbench} \citep{mlbench} and \pkg{kernlab} \citep{kernlab}. The $3$ real-world data-sets from the Austrian DRG system are marked with a $(^\diamond)$. } 
+\caption{Description of the evaluated benchmark data-sets. The data-sets marked with a $(^*)$ originate from the UCI machine learning repository \citep{Frank+Asuncion:2010} and are made available in the \pkg{evtree} package. Data-sets marked with a $(^\#)$ and $(^{+})$ are from the \proglang{R} packages \pkg{mlbench} \citep{mlbench} and \pkg{kernlab} \citep{kernlab}. The $3$ real-world data-sets from the Austrian DRG system are marked with a $(^\diamond)$. } 
 \label{tab:dataDescription}
 \end{table}
 
