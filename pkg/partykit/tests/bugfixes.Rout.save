@@ -1,7 +1,8 @@
 
-R version 2.10.1 (2009-12-14)
-Copyright (C) 2009 The R Foundation for Statistical Computing
+R version 2.13.1 (2011-07-08)
+Copyright (C) 2011 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
@@ -337,7 +338,6 @@ Type 'q()' to quit R.
 > 
 > library("partykit")
 Loading required package: grid
-Loading required package: mvtnorm
 > library("rpart")
 > 
 > fac <- c(1,3,6)
@@ -369,5 +369,12 @@ NULL
 
 attr(,"class")
 [1] "partysplit"
+> 
+> ### factors with empty levels in learning sample
+> library("mlbench")
+> data("Vowel")
+> ct <- ctree(V2 ~ V1, data = Vowel[1:200,]) ### only levels 1:4 in V1
+Loading required package: Formula
+> p1 <- predict(ct, newdata = Vowel) ### 14 levels in V1
 > 
 > 

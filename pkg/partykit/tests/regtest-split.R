@@ -1,5 +1,5 @@
-
 library("partykit")
+set.seed(1)
 
 dat <- data.frame(v1 = as.double(1:100))
 

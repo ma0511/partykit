@@ -1,11 +1,11 @@
-
 library("partykit")
+set.seed(1)
 
-foo <- function(x) partysplit(1L, breaks = as.double(x))
+mysplit <- function(x) partysplit(1L, breaks = as.double(x))
 x <- vector(mode = "list", length = 5)
-x[[1]] <- list(id = 1L, split = foo(1 / 3), kids = 2:3, info = "one")
+x[[1]] <- list(id = 1L, split = mysplit(1 / 3), kids = 2:3, info = "one")
 x[[2]] <- list(id = 2L, info = "two")
-x[[3]] <- list(id = 3L, split = foo(2 / 3), kids = 4:5, info = "three")
+x[[3]] <- list(id = 3L, split = mysplit(2 / 3), kids = 4:5, info = "three")
 x[[4]] <- list(id = 4L, info = "four")
 x[[5]] <- list(id = 5L, info = "five")
 
