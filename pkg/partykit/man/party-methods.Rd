@@ -17,7 +17,7 @@
 \usage{
 \method{print}{party}(x, 
     terminal_panel = function(node)
-      characterinfo_node(node, default = "*", prefix = ": "),
+      formatinfo_node(node, default = "*", prefix = ": "),
     tp_args = list(),
     inner_panel = function(node) "", ip_args = list(),
     header_panel = function(party) "",

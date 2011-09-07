@@ -7,7 +7,7 @@
 \alias{surrogates_node}
 \alias{kids_node}
 \alias{info_node}
-\alias{characterinfo_node}
+\alias{formatinfo_node}
 \title{ Inner and Terminal Nodes }
 \description{
 
@@ -27,7 +27,7 @@ split_node(node)
 surrogates_node(node)
 kids_node(node)
 info_node(node)
-characterinfo_node(node, default = "", prefix = NULL, \dots)
+formatinfo_node(node, FUN = NULL, default = "", prefix = NULL, \dots)
 }
 \arguments{
   \item{id}{ integer, a unique identifier for a node. }
@@ -44,6 +44,7 @@ characterinfo_node(node, default = "", prefix = NULL, \dots)
                to be permuted prior before splitting (i.e., for
                computing permutation variable importances). The
                default \code{NULL} doesn't alter the data.}
+  \item{FUN}{ function for formatting the \code{info}, for default see below.}
   \item{default}{ a character used if the \code{info} in \code{node}
                   is \code{NULL}.}
   \item{prefix}{ an optional prefix to be added to the returned character. }
@@ -82,12 +83,12 @@ characterinfo_node(node, default = "", prefix = NULL, \dots)
   \code{data[obs,]} belongs to. Arguments \code{vmatch}, 
   \code{obs} and \code{perm} are passed to \code{\link{kidids_split}}.
 
-  Function \code{characterinfo_node()} extracts the the \code{info}
-  from \code{node} and turns it into \code{character} using the following
-  strategy: If \code{info} is a already character it is returned.
-  Otherwise if \code{is.null(info)}, the \code{default} is returned.
-  Otherwise, \code{\link[utils]{capture.output}} is applied to
-  \code{print(info)}. Optionally, a \code{prefix} can be added
+  Function \code{formatinfo_node()} extracts the the \code{info}
+  from \code{node} and formats it to a \code{character} vector using the following
+  strategy: If \code{is.null(info)}, the \code{default} is returned.  
+  Otherwise, \code{FUN} is applied for formatting. The default function uses
+  \code{as.character} for atomic objects and applies \code{\link[utils]{capture.output}}
+  to \code{print(info)} for other objects. Optionally, a \code{prefix} can be added
   to the computed character string.
 
   All other functions are accessor functions for
