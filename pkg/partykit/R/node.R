@@ -134,19 +134,25 @@ info_node <- function(node) {
     node$info
 }
 
-characterinfo_node <- function(node, default = "", prefix = NULL, ...) {
-    stopifnot(inherits(node, "partynode"))
-    info <- node$info
-    if(is.null(info)) info <- default
-    if(is.atomic(info)) info <- as.character(info) ## has class?
-    if(!is.character(info)) info <- capture.output(print(info), ...)
-    ## FIXME: check re-using of print method
+formatinfo_node <- function(node, FUN = NULL, default = "", prefix = NULL, ...) {
+    info <- info_node(node)
+    
+    ## FIXME: better dispatch to workhorse FUN probably needed in the future, e.g.:
+    ## (1) formatinfo() generic with formatinfo.default() as below,
+    ## (2) supply default FUN from party$info$formatinfo() or similar.
+    if(is.null(FUN)) FUN <- function(x, ...) {
+      if(is.null(x)) x <- ""
+      if(!is.object(x) & is.atomic(x)) x <- as.character(x)
+      if(!is.character(x)) x <- capture.output(print(x), ...)
+      x
+    }
+    
+    info <- if(is.null(info)) default else FUN(info, ...)
     if(!is.null(prefix)) {
       info <- if(length(info) > 1L) c(prefix, info) else paste(prefix, info, sep = "")
     }
     info
 }
-
 
 ### FIXME: permutation and surrogate splits: is only the primary
 ### variable permuted?

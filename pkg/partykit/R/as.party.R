@@ -100,9 +100,6 @@ model.frame.rpart <- function(formula, ...) {
   return(mf)
 }
 
-## ## FIXME: in RWeka since 0.3-13
-## model.frame.Weka_classifier <- model.frame.rpart
-
 as.party.J48 <- function(obj, ...) {
 
   ## construct metadata

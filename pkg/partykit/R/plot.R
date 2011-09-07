@@ -83,7 +83,7 @@ node_terminal <- function(obj,
 {
   nam <- names(obj)
 
-  extract_label <- function(node) characterinfo_node(node, default = c("terminal", "panel"))
+  extract_label <- function(node) formatinfo_node(node, default = c("terminal", "node"))
 
   maxstr <- function(node) {
       lab <- extract_label(node)

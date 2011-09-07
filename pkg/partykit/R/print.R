@@ -46,7 +46,7 @@ print.partynode <- function(x, data = NULL, names = NULL,
 }
 
 print.party <- function(x,
-  terminal_panel = function(node) characterinfo_node(node, default = "*", prefix = ": "), tp_args = list(),
+  terminal_panel = function(node) formatinfo_node(node, default = "*", prefix = ": "), tp_args = list(),
   inner_panel = function(node) "", ip_args = list(),
   header_panel = function(party) "",
   footer_panel = function(party) "",

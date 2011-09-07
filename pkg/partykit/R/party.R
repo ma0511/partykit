@@ -409,14 +409,6 @@ predict_party.constparty <- function(party, id, newdata = NULL,
     ret
 }
 
-#print_party <- function(party, id, ...)
-#    UseMethod("print_party")
-#
-#
-#print_party.default <- function(party, id, newdata = NULL, ...) {
-#
-#}
-
 data_party <- function(party, id = 1L)
     UseMethod("data_party")
 
