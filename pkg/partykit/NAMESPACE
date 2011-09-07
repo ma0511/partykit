@@ -30,6 +30,7 @@ export(
   ## workhorse infrastructure
   "breaks_split",
   "character_split",
+  "characterinfo_node",
   "data_party",
   "data_party.default",
   "edge_simple",
