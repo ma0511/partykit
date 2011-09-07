@@ -8,6 +8,9 @@ print.partynode <- function(x, data = NULL, names = NULL,
   }
 
   if (length(x) > 0) {
+    ## add indentation
+    nextprefix <- paste(prefix, "|   ", sep = "")
+  
     ## split labels
     slabs <- character_split(split_node(x), data = data, digits = digits, ...)
     slabs <- ifelse(substr(slabs$levels, 1, 1) %in% c("<", ">"),
@@ -18,8 +21,18 @@ print.partynode <- function(x, data = NULL, names = NULL,
     knodes <- kids_node(x)    
     knam <- sapply(knodes, function(z) names[id_node(z)])
     klabs <- sapply(knodes, function(z)
-      if(is.terminal(z)) paste(terminal_panel(z), collapse = "\n")
-        else paste(inner_panel(z), collapse = "\n"))
+      if(is.terminal(z)) {
+        char <- terminal_panel(z)
+        if(length(char) > 1L) {
+	  paste(char[1L], "\n",
+	    paste(nextprefix, "    ", char[-1L], sep = "", collapse = "\n"),
+	    sep = "")
+	} else {
+	  char
+	}
+      } else {
+        paste(inner_panel(z), collapse = "\n")
+      })
 
     ## merge, cat, and call recursively
     labs <- paste("|   ", prefix, "[", knam, "] ", slabs, klabs, "\n", sep = "")          
@@ -27,13 +40,13 @@ print.partynode <- function(x, data = NULL, names = NULL,
       cat(labs[i])
       print.partynode(x[i], data = data, names = names,
         inner_panel = inner_panel, terminal_panel = terminal_panel,
-        prefix = paste(prefix, "|   ", sep = ""),  first = FALSE, digits = digits, ...)
+        prefix = nextprefix,  first = FALSE, digits = digits, ...)
     }
   }
 }
 
 print.party <- function(x,
-  terminal_panel = function(node) " *", tp_args = list(),
+  terminal_panel = function(node) characterinfo_node(node, default = "*", prefix = ": "), tp_args = list(),
   inner_panel = function(node) "", ip_args = list(),
   header_panel = function(party) "",
   footer_panel = function(party) "",

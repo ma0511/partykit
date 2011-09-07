@@ -134,6 +134,20 @@ info_node <- function(node) {
     node$info
 }
 
+characterinfo_node <- function(node, default = "", prefix = NULL, ...) {
+    stopifnot(inherits(node, "partynode"))
+    info <- node$info
+    if(is.null(info)) info <- default
+    if(is.atomic(info)) info <- as.character(info) ## has class?
+    if(!is.character(info)) info <- capture.output(print(info), ...)
+    ## FIXME: check re-using of print method
+    if(!is.null(prefix)) {
+      info <- if(length(info) > 1L) c(prefix, info) else paste(prefix, info, sep = "")
+    }
+    info
+}
+
+
 ### FIXME: permutation and surrogate splits: is only the primary
 ### variable permuted?
 kidids_node <- function(node, data, vmatch = 1:ncol(data), obs = NULL, 

@@ -30,7 +30,10 @@
         X2 <- crossprod(tmp, Xplus$Xplus) %*% tmp
         df <- Xplus$rank
     }
-    if (pval) 
+    
+    X2 <- pmax(0, X2) ## Z: X2 may be slightly negative...
+    
+    if (pval)
         return(c(log(X2), pchisq(X2, df = df, lower.tail = TRUE, 
                                  log.p = TRUE)))
     return(c(log(X2), NA))
@@ -191,7 +194,7 @@
         kidids[xna] <- kidids_node(ret, data, obs = xna)
     }
 
-    kids <- vector(mode = "list", length = 1:max(kidids))
+    kids <- vector(mode = "list", length = max(kidids)) ## Z: was 1:max(kidids)
     nextid <- id + 1
     for (k in 1:max(kidids)) {
         w <- weights

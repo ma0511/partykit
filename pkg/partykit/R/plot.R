@@ -83,10 +83,7 @@ node_terminal <- function(obj,
 {
   nam <- names(obj)
 
-  extract_label <- function(node) {
-    return(c("terminal", "node"))
-    ## FIXME: re-use print method
-  }
+  extract_label <- function(node) characterinfo_node(node, default = c("terminal", "panel"))
 
   maxstr <- function(node) {
       lab <- extract_label(node)
@@ -102,20 +99,24 @@ node_terminal <- function(obj,
   rval <- function(node) {
     fill <- rep(fill, length.out = 2)	    
 
+    lab <- extract_label(node)
+
     node_vp <- viewport(x = unit(0.5, "npc"),	
       y = unit(0.5, "npc"),   
       width = unit(1, "strwidth", nstr) * 1.1,
-      height = unit(3, "lines"),
+      height = unit(length(lab) + 1, "lines"),
       name = paste("node_terminal", id_node(node), sep = ""),
       gp = gp
     )
     pushViewport(node_vp)
 
-    lab <- extract_label(node)
-
     grid.rect(gp = gpar(fill = fill[1]))
-    grid.text(y = unit(2, "lines"), lab[1])
-    grid.text(y = unit(1, "lines"), lab[2])
+    center <- TRUE ## FIXME: justification?
+    if(center) {    
+      for(i in seq_along(lab)) grid.text(y = unit(length(lab) - i + 1, "lines"), lab[i])
+    } else {
+      for(i in seq_along(lab)) grid.text(x = unit(1, "strwidth", "a"), y = unit(length(lab) - i + 1, "lines"), lab[i], just = "left")    
+    }    
 
     if(id) {
       nodeIDvp <- viewport(x = unit(0.5, "npc"), y = unit(1, "npc"),
