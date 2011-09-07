@@ -2,7 +2,7 @@
 
 %\VignetteIndexEntry{partykit: A Toolkit for Recursive Partytioning}
 %\VignetteDepends{partykit}
-%\VignetteKeywords{recursive partitioning}
+%\VignetteKeywords{recursive partitioning, regression trees, classification trees, decision trees}
 %\VignettePackage{partykit}
 
 %% packages
@@ -13,7 +13,13 @@
 \usepackage{rotating}
 %% need no \usepackage{Sweave}
 
-%% commands
+%% additional commands
+\newcommand{\squote}[1]{`{#1}'}
+\newcommand{\dquote}[1]{``{#1}''}
+\newcommand{\fct}[1]{{\texttt{#1()}\index{#1@\texttt{#1()}}}}
+\newcommand{\class}[1]{\dquote{\texttt{#1}}}
+
+%% further commands
 \renewcommand{\Prob}{\mathbb{P} }
 \renewcommand{\E}{\mathbb{E}}
 \newcommand{\V}{\mathbb{V}}
@@ -68,31 +74,40 @@
 \Plaintitle{partykit: A Toolkit for Recursive Partytioning}
 
 \author{Torsten Hothorn\\Ludwig-Maximilians-Universit\"at \\ M\"unchen
-   \And Achim Zeileis\\Leopold-Franzens-Universit\"at \\ Innsbruck}
+   \And Achim Zeileis\\Universit\"at \\ Innsbruck}
 \Plainauthor{Torsten Hothorn, Achim Zeileis}
 
 \Abstract{
-  The \pkg{partykit} package 
+  This vignette is intended to be a short technical introduction to the \pkg{partykit} package.
+  It is still unfinished but hopefully already helpful to some interested users.
+  
+  The purpose of the package is to provide a toolkit with infrastructure for representing,
+  summarizing, and visualizing tree-structured regression and classification models.
+  Thus, the focus is not on \emph{inferring} such a tree structure from data but
+  to \emph{represent} a given tree so that print/plotting and computing predictions
+  can be performed in a standardized way. In particular, this unified infrastructure can be
+  used for reading/coercing tree models from different sources
+  (\pkg{rpart}, \pkg{RWeka}, PMML) yielding objects that share functionality for
+  \code{print}/\code{plot}/\code{predict} methods.
 }
-\Keywords{recursive partitioning}
+\Keywords{recursive partitioning, regression trees, classification trees, decision trees}
 
 \Address{
   Torsten Hothorn\\
   Institut f\"ur Statistik\\
   Ludwig-Maximilians-Universit\"at M\"unchen\\
-  Ludwigstra{\ss}e 33\\
+  Ludwigstr.~33\\
   80539 M\"unchen, Germany\\
   E-mail: \email{Torsten.Hothorn@R-project.org}\\
   URL: \url{http://www.stat.uni-muenchen.de/~hothorn/}\\
 
   Achim Zeileis\\
-  Institut f\"ur Statistik \\
-  Fakult\"at f\"ur Volkswirtschaft und Statistik \\
-  Leopold-Franzens-Universit\"at Innsbruck \\
-  Universit\"atsstra{\ss}e 15 \\
-  6020 Innsbruck, \"Osterreich \\
+  Department of Statistics \\
+  Universit\"at Innsbruck \\
+  Universit\"atsstr.~15 \\
+  6020 Innsbruck, Austria \\
   E-mail: \email{Achim.Zeileis@R-project.org}\\
-  URL: \url{http://statmath.wu.ac.at/~zeileis/}
+  URL: \url{http://eeecon.uibk.ac.at/~zeileis/}
 }
 
 
@@ -102,35 +117,160 @@
 \SweaveOpts{eps=FALSE, keep.source=TRUE, eval = TRUE}
 
 <<setup, echo = FALSE, results = hide>>=
-options(width = 70, SweaveHooks = list(leftpar = 
-    function() par(mai = par("mai") * c(1, 1.1, 1, 1))))
-require("partykit")
+options(width = 70)
+library("partykit")
 set.seed(290875)
 data("iris")
 @
 
-\setkeys{Gin}{width=\textwidth}
-
 
 \section{Introduction}
 
-%%% Aufbau: erstmal Baum zusammenbauen, den plotten (ohne code) und diesen
-%%% Baum dann Schritt fuer Schritt zusammensetzen vielleicht:
-
-<<weather-data, echo = FALSE>>=
-weather <-
-structure(list(outlook = structure(c(1L, 1L, 2L, 3L, 3L, 3L, 
-2L, 1L, 1L, 3L, 1L, 2L, 2L, 3L), .Label = c("sunny", "overcast", 
-"rainy"), class = "factor"), temperature = c(85, 80, 83, 70, 
-68, 65, 64, 72, 69, 75, 75, 72, 81, 71), humidity = c(85, 90, 
-86, 96, 80, 70, 65, 95, 70, 80, 70, 90, 75, 91), windy = c(FALSE, 
-TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, 
-TRUE, FALSE, TRUE), play = structure(c(2L, 2L, 1L, 1L, 1L, 2L, 
-1L, 2L, 1L, 1L, 1L, 1L, 1L, 2L), .Label = c("yes", "no"), class = "factor")), .Names = c("outlook", 
-"temperature", "humidity", "windy", "play"), row.names = c(NA, 
--14L), class = "data.frame")
+To illustrate how \pkg{partykit} can be used to represent trees,
+a simple artificial data set from Witten \& Frank's book
+\emph{Data Mining: Practical Machine Learning Tools and Techniques}
+is used. It concerns the conditions suitable for playing some
+unspecified game.
+<<weather-data>>=
+data("WeatherPlay", package = "partykit")
+WeatherPlay
 @
-%%% response: play siehe Witten/Frank im Weka Buch
+To represent the \code{play} decision based on the corresponding
+weather condition variables one could use the tree displayed in
+Figure~\ref{weather-plot}. For now, it is ignored how this tree
+was \emph{inferred} and it is simply assumed to be given.
+
+\setkeys{Gin}{width=0.8\textwidth}
+\begin{figure}[t!]
+\centering
+<<weather-plot0, echo=FALSE, fig=TRUE, height=5, width=7.5>>=
+py <- party(
+  partynode(1L,
+    split = partysplit(1L, index = 1:3),
+    kids = list(
+      partynode(2L,
+        split = partysplit(3L, breaks = 75),
+        kids = list(
+          partynode(3L, info = "yes"),
+          partynode(4L, info = "no"))),
+      partynode(5L, info = "yes"),
+      partynode(6L,
+        split = partysplit(4L, index = 1:2),
+        kids = list(
+          partynode(7L, info = "yes"),
+          partynode(8L, info = "no"))))),
+  WeatherPlay)
+plot(py)
+@
+\caption{\label{weather-plot} Decision tree for \code{play} decision based on
+  weather conditions in \code{WeatherPlay} data.}
+\end{figure}
+\setkeys{Gin}{width=\textwidth}
+
+To represent this tree (also known as recursive partition) in \pkg{partykit},
+two basic building blocks are used: splits of class \class{partysplit} and
+nodes of class \class{partynode}. The resulting recursive partition can then
+be associated with a data set in an object of class \class{party}.
+
+\subsubsection*{Splits}
+
+First, we employ the \fct{partysplit} function to creat the three
+splits in the ``weather tree'' from Figure~\ref{weather-plot}. The
+function takes the following arguments
+\begin{Code}
+  partysplit(varid, breaks = NULL, index = NULL, ..., info = NULL)
+\end{Code}
+where \code{varid} is an integer id of the variable used for splitting
+e.g., \code{1L} for \code{outlook}, \code{3L} for \code{humidity},
+\code{4L} for \code{windy} etc. Then, \code{breaks} and \code{index}
+determine which observations are sent to which of the branches, e.g.,
+\code{breaks = 75} for the humidity split. Apart from further arguments
+not shown above (and just comprised under `\code{...}'), some arbitrary
+information can be associated with a \class{partysplit} object by passing
+it to the \code{info} argument. The three splits from Figure~\ref{weather-plot}
+can then be created via
+<<weather-splits>>=
+sp_o <- partysplit(1L, index = 1:3)
+sp_h <- partysplit(3L, breaks = 75)
+sp_w <- partysplit(4L, index = 1:2)
+@
+For the numeric \code{humidity} variable the \code{breaks} are set while
+for the factor variables \code{outlook} and \code{windy} the information
+is supplied which of the levels should be associated with which of the
+branches of the tree.
+
+\subsubsection*{Nodes}
+
+Second, we use these splits in the creation of the whole decision tree.
+In \pkg{partykit} a tree is represented by a \class{partynode} object
+which is recursive in that it may have ``kids'' that are again \class{partynode}
+objects. These can be created with the function
+\begin{Code}
+  partynode(id, split = NULL, kids = NULL, ..., info = NULL)
+\end{Code}
+where \code{id} is an integer identifier of the node number, \code{split}
+is a \class{partysplit} object, and \code{kids} is a list of \class{partynode}
+objects. Again, there are further arguments not shown (\code{...}) and
+arbitrary information can be supplied in \code{info}. The whole tree
+from Figure~\ref{weather-plot} can then be created via
+<<weather-nodes>>=
+pn <- partynode(1L, split = sp_o, kids = list(
+  partynode(2L, split = sp_h, kids = list(
+    partynode(3L, info = "yes"),
+    partynode(4L, info = "no"))),
+  partynode(5L, info = "yes"),
+  partynode(6L, split = sp_w, kids = list(
+    partynode(7L, info = "yes"),
+    partynode(8L, info = "no")))))
+@
+where the previously created \class{partysplit} objects are used as splits
+and the nodes are simply numbered from~1 to~8. For the terminal nodes of the
+tree there are no \code{kids} and the corresponding \code{play} decision
+is stored in the \code{info} argument. Printing the \class{partynode} object
+reflects the recursive structure stored.
+<<weather-nodes-print>>=
+pn
+@
+However, the displayed information is still rather raw as it has not yet
+been associated with the \code{WeatherPlay} data set.
+
+\subsubsection*{Trees (or recursive partitions)}
+
+Hence, in a third step the recursive tree structure stored
+in \code{pn} is coupled with the corresponding data in a \class{party}
+object.
+<<weather-party>>=
+py <- party(pn, WeatherPlay)
+py
+@
+In addition to the \class{partynode} and the \class{data.frame},
+the function \fct{party} takes several further arguments including
+\code{fitted} values, a \code{terms} object, arbitrary additional
+\code{info}, and some further arguments (\code{...}):
+\begin{Code}
+  party(node, data, fitted = NULL, terms = NULL, ..., info = NULL)
+\end{Code}
+
+The tree \code{py} can then be easily visualized by
+<<weahter-plot, eval=FALSE>>=
+plot(py)
+@
+yielding Figure~\ref{weather-plot}.
+
+
+\subsubsection*{More}
+
+<<weather-party-print>>=
+print(py,
+  terminal_panel = function(node) paste(": play=", node$info, sep = ""))
+@
+
+%foo_node
+%foo_split
+
+%kidids_node(partynode_object)
+%kidids_split(partynode_object)
+
 
 \section{Splits}
 
@@ -141,8 +281,7 @@ such functions and are set-up by the \code{partysplit()}
 constructor:
 <<partysplit-1, echo = TRUE>>=
 ## binary split in numeric variable `Sepal.Length'
-sl5 <- partysplit(which(names(iris) == "Sepal.Length"),
-    breaks = 5)
+sl5 <- partysplit(which(names(iris) == "Sepal.Length"), breaks = 5)
 class(sl5)
 @
 The internal structure of class \code{partysplit} contains
@@ -218,8 +357,7 @@ variable at three levels where the first two levels go to the left
 daugther node and the third one to the right daugther node:
 <<partysplit-6, echo = TRUE>>=
 ## binary split in factor `Species'
-sp <- partysplit(which(names(iris) == "Species"),
-    index = c(1L, 1L, 2L))
+sp <- partysplit(which(names(iris) == "Species"), index = c(1L, 1L, 2L))
 character_split(sp, data = iris)
 table(kidids_split(sp, data = iris), iris$Species)
 @
@@ -234,17 +372,17 @@ representing multiway splits:
 ## multiway split in numeric variable `Sepal.Width',    
 ## higher values go to the first kid, smallest values
 ## to the last kid
-sw23 <- partysplit(which(names(iris) == "Sepal.Width"),       
-    breaks = c(3, 3.5), index = 3:1)    
+sw23 <- partysplit(which(names(iris) == "Sepal.Width"),
+  breaks = c(3, 3.5), index = 3:1)
 character_split(sw23, data = iris)
 table(kidids_split(sw23, data = iris),
-    cut(iris$Sepal.Width, breaks = c(-Inf, 2, 3, Inf)))
+  cut(iris$Sepal.Width, breaks = c(-Inf, 2, 3, Inf)))
 @
 The mapping of classes of the categorized numeric variable
 to daugther nodes can be changed by modifying \code{index}:
 <<partysplit-8, echo = TRUE>>=
 sw23 <- partysplit(which(names(iris) == "Sepal.Width"),
-    breaks = c(3, 3.5), index = c(1L, 3L, 2L))
+  breaks = c(3, 3.5), index = c(1L, 3L, 2L))
 character_split(sw23, data = iris)
 @
 
@@ -344,14 +482,16 @@ for all nodes in \code{node}.
 
 <<party-1, echo = TRUE>>=
 t1 <- party(n1, 
-   data = iris,
-   fitted = data.frame("(fitted)" = fitted_node(n1, data = iris),
-                       "(response)" = iris$Species,
-                       check.names = FALSE))
+  data = iris,
+  fitted = data.frame(
+    "(fitted)" = fitted_node(n1, data = iris),
+    "(response)" = iris$Species,
+    check.names = FALSE)
+)
 t1
 @
 
-\section{My first Tree}
+\section{My first tree}
 
 Package \pkg{partykit} does not offer unified infrastructure for growing trees. However,
 once you know how to estimate splits from data, it is fairly straightforward to
@@ -368,49 +508,49 @@ and \code{data} is a data frame with all variables):
 <<mytree-1, echo = TRUE>>=
 findsplit <- function(response, data, weights) {
 
-    ### extract response values from data
-    y <- data[[response]]
+  ### extract response values from data
+  y <- data[[response]]
 
-    logpmin <- 0
-    xselect <- NULL
+  logpmin <- 0
+  xselect <- NULL
 
-    ### cycle through all features
-    for (i in which(names(data) != response)) {
+  ### cycle through all features
+  for (i in which(names(data) != response)) {
 
-        ### expand data
-        x <- data[[i]]
-        xt <- rep(x, weights)
-        yt <- rep(y, weights)
+    ### expand data
+    x <- data[[i]]
+    xt <- rep(x, weights)
+    yt <- rep(y, weights)
 
-        ### potential split points (not too many)
-        qx <- unique(quantile(xt, 
-                     prob = seq(from = 0.1, to = 0.9, by = 0.05)))
+    ### potential split points (not too many)
+    qx <- unique(quantile(xt, 
+        	 prob = seq(from = 0.1, to = 0.9, by = 0.05)))
 
-        ### assess all potential splits by their t-test
-        ### log-p-value
-        logp <- sapply(qx, function(q) {
-            tt <- t.test(yt[xt <= q], yt[xt > q])
-            pt(-abs(tt$statistic), tt$parameter, log = TRUE) + log(2)
-        })
+    ### assess all potential splits by their t-test
+    ### log-p-value
+    logp <- sapply(qx, function(q) {
+      tt <- t.test(yt[xt <= q], yt[xt > q])
+      pt(-abs(tt$statistic), tt$parameter, log = TRUE) + log(2)
+    })
 
-        ### if the best split in variable i significant AND
-        ### better than what we already had store this information
-        if (min(logp) < logpmin & min(logp) < log(0.05)) {
-            logpmin <- min(logp)
-            xselect <- i
-            splitpoint <- qx[which.min(logp)]
-        }
+    ### if the best split in variable i significant AND
+    ### better than what we already had store this information
+    if (min(logp) < logpmin & min(logp) < log(0.05)) {
+      logpmin <- min(logp)
+      xselect <- i
+      splitpoint <- qx[which.min(logp)]
     }
+  }
 
-    ### no significant split found, give up
-    if (is.null(xselect)) return(NULL)
+  ### no significant split found, give up
+  if (is.null(xselect)) return(NULL)
 
-    ### return split as partysplit object
-    return(partysplit(
-        varid = as.integer(xselect),       ### which variable?
-        breaks = as.numeric(splitpoint),   ### which split point?
-        info = list(pvalue = exp(logpmin)  ### save p-value in addition
-    )))
+  ### return split as partysplit object
+  return(partysplit(
+      varid = as.integer(xselect),	 ### which variable?
+      breaks = as.numeric(splitpoint),   ### which split point?
+      info = list(pvalue = exp(logpmin)  ### save p-value in addition
+  )))
 }
 @
 
@@ -420,37 +560,35 @@ we have to set-up the recursion for growing a recursive
 <<mytree-2, echo = TRUE>>=
 growtree <- function(id = 1L, response, data, weights) {
 
-    ### for less than 30 obs. stop here
-    if (sum(weights) < 30) return(partynode(id = id))
+  ### for less than 30 obs. stop here
+  if (sum(weights) < 30) return(partynode(id = id))
 
-    ### find best split
-    sp <- findsplit(response, data, weights)
-    ### no split found, stop here
-    if (is.null(sp)) return(partynode(id = id))
+  ### find best split
+  sp <- findsplit(response, data, weights)
+  ### no split found, stop here
+  if (is.null(sp)) return(partynode(id = id))
 
-    ### actually split the data
-    kidids <- kidids_split(sp, data = data)
+  ### actually split the data
+  kidids <- kidids_split(sp, data = data)
 
-    ### set-up all daugther nodes
-    kids <- vector(mode = "list", length = max(kidids))
-    for (kidid in 1:max(kidids)) {
-          ### select obs for current node
-          w <- weights
-          w[kidids != kidid] <- 0
-          ### get next node id
-          if (kidid > 1) {
-              myid <- max(nodeids(kids[[kidid - 1]]))
-          } else {
-              myid <- id
-          }
-          ### start recursion on this daugther node
-          kids[[kidid]] <- growtree(id = as.integer(myid + 1), 
-              response, data, w)
-    }
+  ### set-up all daugther nodes
+  kids <- vector(mode = "list", length = max(kidids))
+  for (kidid in 1:max(kidids)) {
+  ### select obs for current node
+  w <- weights
+  w[kidids != kidid] <- 0
+  ### get next node id
+  if (kidid > 1) {
+    myid <- max(nodeids(kids[[kidid - 1]]))
+  } else {
+    myid <- id
+  }
+  ### start recursion on this daugther node
+  kids[[kidid]] <- growtree(id = as.integer(myid + 1), response, data, w)
+  }
 
-    ### return nodes
-    return(partynode(id = as.integer(id), 
-                     split = sp, kids = kids))
+  ### return nodes
+  return(partynode(id = as.integer(id), split = sp, kids = kids))
 }
 @
 
@@ -459,33 +597,33 @@ to set-up the data and call \code{growtree()}:
 <<mytree-3, echo = TRUE>>=
 mytree <- function(formula, data, weights = NULL) {
 
-    ### name of the response variable
-    response <- all.vars(formula)[1]
-    ### data without missing values, response comes last
-    data <- data[complete.cases(data), 
-                 c(all.vars(formula)[-1], response)]
-    ### data is numeric
-    stopifnot(all(sapply(data, is.numeric)))
+  ### name of the response variable
+  response <- all.vars(formula)[1]
+  ### data without missing values, response comes last
+  data <- data[complete.cases(data), c(all.vars(formula)[-1], response)]
+  ### data is numeric
+  stopifnot(all(sapply(data, is.numeric)))
 
-    if (is.null(weights)) weights <- rep(1, nrow(data))
-    ### weights are case weights, i.e., integers
-    stopifnot(length(weights) == nrow(data) &
-              max(abs(weights - floor(weights))) < .Machine$double.eps)
+  if (is.null(weights)) weights <- rep(1, nrow(data))
+  ### weights are case weights, i.e., integers
+  stopifnot(length(weights) == nrow(data) &
+    max(abs(weights - floor(weights))) < .Machine$double.eps)
 
-    ### grow tree
-    nodes <- growtree(id = 1L, response, data, weights)
+  ### grow tree
+  nodes <- growtree(id = 1L, response, data, weights)
 
-    ### compute terminal node number for each obs.
-    fitted <- fitted_node(nodes, data = data)
-    ### return rich object
-    ret <- party(nodes, 
-        data = data,
-        fitted = data.frame("(fitted)" = fitted,
-                            "(response)" = data[[response]],
-                            "(weights)" = weights,
-                            check.names = FALSE),
-        terms = terms(formula))
-    as.constparty(ret)
+  ### compute terminal node number for each obs.
+  fitted <- fitted_node(nodes, data = data)
+  ### return rich object
+  ret <- party(nodes, 
+    data = data,
+    fitted = data.frame(
+      "(fitted)" = fitted,
+      "(response)" = data[[response]],
+      "(weights)" = weights,
+      check.names = FALSE),
+    terms = terms(formula))
+  as.constparty(ret)
 }
 @
 
@@ -497,13 +635,12 @@ aqt <- mytree(Ozone ~ Solar.R + Wind + Temp, data = airquality)
 aqt
 @
 
-\begin{figure}
-\begin{center}
+\begin{figure}[t!]
+\centering
 <<mytree-5, echo = TRUE, fig = TRUE, width = 10, height = 6>>=
 plot(aqt)
 @
 \caption{Tree. \label{plottree}}
-\end{center}
 \end{figure}
 
 We depict the model graphically using \code{plot()} (see Figure~\ref{plottree})
@@ -520,21 +657,19 @@ aqt4
 which again are objects inheriting from \code{party} and thus
 can be plotted easily (see Figure~\ref{subtree}).
 
-\begin{figure}
-\begin{center}
+\begin{figure}[t!]
+\centering
 <<mytree-8, echo = TRUE, fig = TRUE, width = 10, height = 6>>=
 plot(aqt4)
 @
 \caption{Subtree. \label{subtree}}
-\end{center}
 \end{figure}
 
 We also might be interested in extracting the $p$-values in the
 inner nodes in a nicely formatted way:
 <<mytree-10, echo = TRUE>>=
-fun <- function(x) 
-    format.pval(info_split(split_node(x))$pvalue, 
-                digits = 3, eps = 0.001)
+fun <- function(x) format.pval(info_split(split_node(x))$pvalue,
+  digits = 3, eps = 0.001)
 nid <- nodeids(aqt)
 iid <- nid[!(nid %in% nodeids(aqt, terminal = TRUE))]
 unlist(nodeapply(aqt, ids = iid, FUN = fun))
