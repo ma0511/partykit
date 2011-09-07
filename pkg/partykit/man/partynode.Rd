@@ -7,6 +7,7 @@
 \alias{surrogates_node}
 \alias{kids_node}
 \alias{info_node}
+\alias{characterinfo_node}
 \title{ Inner and Terminal Nodes }
 \description{
 
@@ -26,6 +27,7 @@ split_node(node)
 surrogates_node(node)
 kids_node(node)
 info_node(node)
+characterinfo_node(node, default = "", prefix = NULL, \dots)
 }
 \arguments{
   \item{id}{ integer, a unique identifier for a node. }
@@ -42,6 +44,11 @@ info_node(node)
                to be permuted prior before splitting (i.e., for
                computing permutation variable importances). The
                default \code{NULL} doesn't alter the data.}
+  \item{default}{ a character used if the \code{info} in \code{node}
+                  is \code{NULL}.}
+  \item{prefix}{ an optional prefix to be added to the returned character. }
+  \item{\dots}{ further arguments passed to
+                \code{\link[utils]{capture.output}}.}
 }
 \details{
 
@@ -74,6 +81,14 @@ info_node(node)
   of the terminal node each observation in
   \code{data[obs,]} belongs to. Arguments \code{vmatch}, 
   \code{obs} and \code{perm} are passed to \code{\link{kidids_split}}.
+
+  Function \code{characterinfo_node()} extracts the the \code{info}
+  from \code{node} and turns it into \code{character} using the following
+  strategy: If \code{info} is a already character it is returned.
+  Otherwise if \code{is.null(info)}, the \code{default} is returned.
+  Otherwise, \code{\link[utils]{capture.output}} is applied to
+  \code{print(info)}. Optionally, a \code{prefix} can be added
+  to the computed character string.
 
   All other functions are accessor functions for
   extracting information from objects of class \code{partynode}.
