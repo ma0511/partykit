@@ -1,3 +1,4 @@
-^inst$
-tests/regtest-ctree.R
+inst/pmml/auto.pmml
+inst/slides
+inst/soc09
 WISHLIST

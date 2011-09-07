@@ -27,10 +27,14 @@ export(
   "nodeids",
   "width",
 
+  ## exported methods (to facilitate re-use)
+  "plot.party",
+  "print.party",
+
   ## workhorse infrastructure
   "breaks_split",
   "character_split",
-  "characterinfo_node",
+  "formatinfo_node",
   "data_party",
   "data_party.default",
   "edge_simple",
@@ -78,9 +82,7 @@ S3method("names", "party")
 S3method("names<-", "party")
 S3method("nodeapply", "party")
 S3method("nodeids", "party")
-S3method("plot", "party")
 S3method("predict", "party")
-S3method("print", "party")
 S3method("width", "party")
 
 ## methods for class partynode

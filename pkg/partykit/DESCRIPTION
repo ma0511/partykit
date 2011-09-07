@@ -1,8 +1,10 @@
 Package: partykit
 Title: A Toolkit for Recursive Partytioning
-Date: 2010-02-01
-Version: 0.1-0
-Author: Torsten Hothorn, Achim Zeileis
+Date: 2011-09-07
+Version: 0.1-1
+Authors@R: c(person(given = "Torsten", family = "Hothorn", role = c("aut", "cre"), email = "Torsten.Hothorn@R-project.org"),
+             person(given = "Achim", family = "Zeileis", role = "aut", email = "Achim.Zeileis@R-project.org"))
+Author: Torsten Hothorn [aut, cre], Achim Zeileis [aut]
 Maintainer: Torsten Hothorn <Torsten.Hothorn@R-project.org>
 Description: A toolkit with infrastructure for representing,
   summarizing, and visualizing tree-structured regression and
@@ -16,6 +18,5 @@ Depends: R (>= 2.5.0), graphics, stats, grid
 Imports: survival
 Suggests: XML, pmml, mlbench, RWeka, rJava, rpart, mvtnorm, Formula
 Enhances: ipred
-LazyLoad: yes
 LazyData: yes
 License: GPL-2
