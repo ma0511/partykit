@@ -421,7 +421,7 @@ load(file="./results/bostonhousing.RData")
 load(file="./results/servo.RData")
 
 preprocess <- function(d, dname = "datasetname", isclassification = TRUE){
-    if(isclassification == TRUE)
+    if(isclassification)
         d[,1:3] <- 1-d[,1:3]
     d <- as.data.frame(d)
     colnames(d) <- c("evtree", "rpart", "ctree","evtree", "rpart", "ctree")
@@ -440,23 +440,23 @@ preprocess <- function(d, dname = "datasetname", isclassification = TRUE){
     return( cbind(x,y) )
 }
 
-r <- preprocess(d = rglass, dname = "Glass Identification", isclassification = T)
-r <- rbind(r, preprocess(d = rheart, dname = "Statlog Heart", isclassification = T))
-r <- rbind(r, preprocess(d = rionosphere, dname = "Ionosphere", isclassification = T))
-r <- rbind(r, preprocess(d = rmusk, dname = "Musk", isclassification = T))
-r <- rbind(r, preprocess(d = rbreastcancer, dname = "Breast Cancer Database", isclassification = T))
-r <- rbind(r, preprocess(d = rpima, dname = "Pima Indians Diabetes", isclassification = T))
-r <- rbind(r, preprocess(d = rvowel, dname = "Vowel", isclassification = T))
-r <- rbind(r, preprocess(d = rcredit, dname = "Statlog German Credit", isclassification = T))
-r <- rbind(r, preprocess(d = rcontraceptive, dname = "Contraceptive Method", isclassification = T))
-r <- rbind(r, preprocess(d = rdna, dname = "DNA", isclassification = T))
-r <- rbind(r, preprocess(d = rspam, dname = "Spam", isclassification = T))
-r <- rbind(r, preprocess(d = rmagicgamma, dname = "Magic Gamma Telescope", isclassification = T))
-r <- rbind(r, preprocess(d = rservo, dname = "Servo", isclassification = F))
-r <- rbind(r, preprocess(d = rbostonhousing, dname = "Boston Housing", isclassification = F))
-r <- rbind(r, preprocess(d = rmel0101, dname = "MEL0101", isclassification = F))
-r <- rbind(r, preprocess(d = rhdg0202, dname = "HDG0202", isclassification = F))
-r <- rbind(r, preprocess(d = rhdg0502, dname = "HDG0502", isclassification = F))
+r <- preprocess(d = rglass, dname = "Glass Identification", isclassification = TRUE)
+r <- rbind(r, preprocess(d = rheart, dname = "Statlog Heart", isclassification = TRUE))
+r <- rbind(r, preprocess(d = rionosphere, dname = "Ionosphere", isclassification = TRUE))
+r <- rbind(r, preprocess(d = rmusk, dname = "Musk", isclassification = TRUE))
+r <- rbind(r, preprocess(d = rbreastcancer, dname = "Breast Cancer Database", isclassification = TRUE))
+r <- rbind(r, preprocess(d = rpima, dname = "Pima Indians Diabetes", isclassification = TRUE))
+r <- rbind(r, preprocess(d = rvowel, dname = "Vowel", isclassification = TRUE))
+r <- rbind(r, preprocess(d = rcredit, dname = "Statlog German Credit", isclassification = TRUE))
+r <- rbind(r, preprocess(d = rcontraceptive, dname = "Contraceptive Method", isclassification = TRUE))
+r <- rbind(r, preprocess(d = rdna, dname = "DNA", isclassification = TRUE))
+r <- rbind(r, preprocess(d = rspam, dname = "Spam", isclassification = TRUE))
+r <- rbind(r, preprocess(d = rmagicgamma, dname = "Magic Gamma Telescope", isclassification = TRUE))
+r <- rbind(r, preprocess(d = rservo, dname = "Servo", isclassification = FALSE))
+r <- rbind(r, preprocess(d = rbostonhousing, dname = "Boston Housing", isclassification = FALSE))
+r <- rbind(r, preprocess(d = rmel0101, dname = "MEL0101", isclassification = FALSE))
+r <- rbind(r, preprocess(d = rhdg0202, dname = "HDG0202", isclassification = FALSE))
+r <- rbind(r, preprocess(d = rhdg0502, dname = "HDG0502", isclassification = FALSE))
 
 ra <- r[,1:4]
 rc <- r[,5:8]
@@ -499,14 +499,14 @@ plotd <- function(alg){
     dummy <- c(1:17)
     names(dummy) <- uniquedatasetlabels
     stats <- cstats(ra, alg)
-    plotCI(stats$mean, dummy, li=stats$lower, ui=stats$upper, err="x", xlim=c(-11,46), axes=F, ann=T, ylab= "", xlab= "difference in predictive accuracy [%]", lwd=1.5 )
+    plotCI(stats$mean, dummy, li=stats$lower, ui=stats$upper, err="x", xlim=c(-11,46), axes=FALSE, ann=TRUE, ylab= "", xlab= "difference in predictive accuracy [%]", lwd=1.5 )
     axis(side = 2, at = c(1:length(dummy)), labels= names(dummy), lwd=0.1)
     axis(side = 1, lwd=0.1, lwd.ticks=1, at=c(-10,-5,0,5,10,15,20,25,30,35,40,45))
     box(lwd=1)
     abline(v=0, lty=2)
     abline(h=5.5, lty=1, lwd=0.5)
     stats <- cstats(rc, alg)
-    plotCI(stats$mean, dummy, li= stats$lower, ui= stats$upper, err="x", xlim=c(-110,210), axes=F, ann=T, ylab= "", xlab= "difference in complexity [%]", lwd=1.5 )
+    plotCI(stats$mean, dummy, li= stats$lower, ui= stats$upper, err="x", xlim=c(-110,210), axes=FALSE, ann=TRUE, ylab= "", xlab= "difference in complexity [%]", lwd=1.5 )
     axis(side = 1, lwd=0.1, lwd.ticks=1, at=c(-150,-100,-50,0,50,100,150,200))
     box(lwd=1)
     abline(v=0, lty=2)
@@ -555,7 +555,7 @@ chessboard44 <- function(totalpoints = 4000, noisevariables = 6, noise = 0){
         chess44[(y <= k & y > k-1 & x <= k+2 & x > k+1), ncol(chess44)] <- 1
 
      if( noise > 0){
-        flipclasslist <- sample(totalpoints, totalpoints * (noise / 100), replace = F)
+        flipclasslist <- sample(totalpoints, totalpoints * (noise / 100), replace = FALSE)
 
         for(i in 1:length(flipclasslist)){
             if(chess44[flipclasslist[i], ncol(chess44)] == 1)
