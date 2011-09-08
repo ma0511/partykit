@@ -58,9 +58,10 @@ pn
 ## couple with data
 py <- party(pn, WeatherPlay)
 
-## plot and print
+## print/plot/predict
+print(py)
 plot(py)
-py
+predict(py, newdata = WeatherPlay)
 
 ## customize printing
 print(py,

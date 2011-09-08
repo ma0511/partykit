@@ -247,6 +247,12 @@ And Figure~\ref{weather-plot} can easily be created by
 <<weahter-plot, eval=FALSE>>=
 plot(py)
 @
+In addition to \fct{print} and \fct{plot}, the \fct{predict} method can now
+be applied, yielding the predicted terminal node IDs.
+<<weahter-predict, eval=FALSE>>=
+predict(py, newdata = WeatherPlay)
+@
+
 In addition to the \class{partynode} and the \class{data.frame},
 the function \fct{party} takes several further arguments 
 \begin{Code}
