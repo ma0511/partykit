@@ -1,5 +1,4 @@
 \name{MAGICGammaTelescope}
-\docType{data}
 \alias{MAGICGammaTelescope}
 \title{MAGIC Gamma Telescope}
 
@@ -42,7 +41,7 @@ A data frame containing 19,020 observations on 11 variables.
 	savicky '@' cs.cas.cz 
 
 
-	The data-set has been taken from the UCI Repository Of Machine Learning Databases at
+	The dataset has been taken from the UCI Repository Of Machine Learning Databases at
 
 
 	\url{http://archive.ics.uci.edu/ml/}.
@@ -72,7 +71,4 @@ plot(mgtt)
 }
 }
 
-
-
-
-
+\keyword{datasets}

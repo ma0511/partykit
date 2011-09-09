@@ -1,10 +1,11 @@
 \name{GermanCredit}
-\docType{data}
 \alias{GermanCredit}
 \title{Statlog German Credit}
 
 \description{
-The data-set contains data of past credit applicants. The applicants are rated as \emph{good} or \emph{bad}. Models of this data can be used to determine if new applicants present a \emph{good} or \emph{bad} credit risk. 
+The dataset contains data of past credit applicants. The applicants are rated
+as \emph{good} or \emph{bad}. Models of this data can be used to determine if
+new applicants present a \emph{good} or \emph{bad} credit risk. 
 }
 
 \usage{data("GermanCredit")}
@@ -48,13 +49,13 @@ FB Wirtschaftswissenschaften,
 Von-Melle-Park 5,    
 2000 Hamburg 13
    
-The data-set has been taken from the UCI Repository Of Machine Learning Databases at
+The dataset has been taken from the UCI Repository Of Machine Learning Databases at
 
 \url{http://archive.ics.uci.edu/ml/}.
 }
 
 \details{
-The use of a cost matrix is suggested for this data-set. It is worse to class a customer as good when they are bad (cost = 5), than it is to class a customer as bad when they are good (cost = 1). 
+The use of a cost matrix is suggested for this dataset. It is worse to class a customer as good when they are bad (cost = 5), than it is to class a customer as bad when they are good (cost = 1). 
 }
 
 \examples{
@@ -70,7 +71,4 @@ plot(gct)
 }
 }
 
-
-
-
-
+\keyword{datasets}

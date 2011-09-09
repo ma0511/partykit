@@ -1,10 +1,11 @@
 \name{BBBClub}
-\docType{data}
 \alias{BBBClub}
+
 \title{Bookbinder's Book Club}
 
-\description{Data from a case study of an (fictitious) American book club. In this case study, a brochure of the book "The Art History of Florence" was sent to 20,000 customers. 1,806 of the brochure's addresses bought the book. 
-The Bookbinder's book club collected several variables of its customers with the purpose of building a prognosis model for the customer's purchase decision. This data-set is a subset of the described case study, containing 1,300 observations on 11 Variables.
+\description{
+  Marketing case study about a (fictitious) American book club to whose
+  customers a book about \dQuote{The Art History of Florence} was advertised.
 }
 
 \usage{data("BBBClub")}
@@ -12,8 +13,8 @@ The Bookbinder's book club collected several variables of its customers with the
 \format{
 A data frame containing 1,300 observations on 11 variables.
 \describe{
-  \item{choice}{binary variable indicating the customers purchase decision, with levels \code{yes} and \code{no}.}
-  \item{gender}{binary variable indicating gender.}  
+  \item{choice}{factor. Did the customer buy the advertised book?}
+  \item{gender}{factor indicating gender.}  
   \item{amount}{total amount of money spent at the BBB Club.}  
   \item{freq}{number of books purchased at the BBB Club.}  
   \item{last}{number of months since the last purchase.}  
@@ -26,14 +27,27 @@ A data frame containing 1,300 observations on 11 variables.
 }
 }
 
-\source{
-Lilien GL, Rangaswamy A (2004). Marketing Engineering: Computer-Assisted Marketing Analysis and Planning, 2nd edition. Victoria, BC: Trafford Publishing. 
-}
-
 \details{
-The use of a cost matrix is suggested for this data-set.	Classifying a customer that purchased the book as a non-buyer is worse (cost = 5), than it is to classify a costumer that did not purchase the book as a buyer (cost = 1). 
+  The data is a marketing case study about a (fictitious) American book club. 
+  taken from the \emph{Marketing Engineering} textbook of Lilien and Rangaswamy (2004).  
+  In this case study, a brochure of the book \dQuote{The Art History of Florence} was
+  sent to 20,000 customers and 1,806 of which bought the book. A subsample of 1,300
+  customers is provided in \code{BBBClub} for building a predictive model for \code{choice}.
+
+  The use of a cost matrix is suggested for this dataset.	
+  Classifying a customer that purchased the book as a non-buyer is worse (cost = 5),
+  than it is to classify a custumer that did not purchase the book as a buyer (cost = 1). 
 }
 
+\source{
+  Complements to Lilien and Rangaswamy (2004).
+}
+
+\references{
+  Lilien GL, Rangaswamy A (2004).
+    \emph{Marketing Engineering: Computer-Assisted Marketing Analysis and Planning},
+    2nd edition. Victoria, BC: Trafford Publishing. 
+}
 
 \examples{
 data("BBBClub")
@@ -65,7 +79,4 @@ plot(ev2)
 table(predict(ev2), BBBClub$choice)
 }
 
-
-
-
-
+\keyword{datasets}

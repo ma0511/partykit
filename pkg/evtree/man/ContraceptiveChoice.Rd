@@ -1,10 +1,13 @@
 \name{ContraceptiveChoice}
-\docType{data}
 \alias{ContraceptiveChoice}
 \title{Contraceptive Method Choice}
 
 \description{
-Data of married women who were either not pregnant or do not know if they were at the time of interview. The task is to predict the women's current contraceptive method choice (\emph{no use}, \emph{long-term methods}, \emph{short-term methods}) based on her demographic and socio-economic characteristics.
+Data of married women who were either not pregnant or do not know if they were
+at the time of interview. The task is to predict the women's current
+contraceptive method choice (\emph{no use}, \emph{long-term methods},
+\emph{short-term methods}) based on her demographic and socio-economic
+characteristics.
 }
 
 \usage{data("ContraceptiveChoice")}
@@ -26,7 +29,7 @@ A data frame containing 1,437 observations on 10 variables.
 }
 
 \source{
-This data-set is a subset of the 1987 National Indonesia Contraceptive Prevalence Survey and was created by Tjen-Sien Lim.
+This dataset is a subset of the 1987 National Indonesia Contraceptive Prevalence Survey and was created by Tjen-Sien Lim.
     
 It has been taken from the UCI Repository Of Machine Learning Databases at
 
@@ -48,7 +51,4 @@ plot(contt)
 }
 }
 
-
-
-
-
+\keyword{datasets}

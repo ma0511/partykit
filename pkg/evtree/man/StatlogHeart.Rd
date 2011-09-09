@@ -1,5 +1,4 @@
 \name{StatlogHeart}
-\docType{data}
 \alias{StatlogHeart}
 \title{Statlog Heart}
 
@@ -30,13 +29,13 @@ A data frame containing 270 observations on 14 variables.
 }
 
 \source{
-The data-set has been taken from the UCI Repository Of Machine Learning Databases at
+The dataset has been taken from the UCI Repository Of Machine Learning Databases at
 
 \url{http://archive.ics.uci.edu/ml/}.
 }
 
 \details{
-The use of a cost matrix is suggested for this data-set. It is worse to class patients with heart disease as patients without heart disease (cost = 5), than it is to class patients without heart disease as having heart disease (cost = 1). 
+The use of a cost matrix is suggested for this dataset. It is worse to class patients with heart disease as patients without heart disease (cost = 5), than it is to class patients without heart disease as having heart disease (cost = 1). 
 }
 
 \examples{
@@ -50,7 +49,4 @@ table(predict(sht), StatlogHeart$heart_disease)
 plot(sht)
 }
 
-
-
-
-
+\keyword{datasets}
