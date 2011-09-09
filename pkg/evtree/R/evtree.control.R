@@ -1,7 +1,7 @@
 evtree.control <- function(minbucket = 7L, minsplit = 20L, maxdepth = 9L,
   niterations = 10000L, ntrees = 100L, alpha = 1,
   operatorprob = list(pmutatemajor = 0.2, pmutateminor = 0.2, pcrossover = 0.2, psplit = 0.2, pprune = 0.2),
-  seed = -1L, ...)
+  seed = NULL, ...)
 {
   minbucket <- as.integer(minbucket)
   if(minbucket < 1L) {
@@ -36,6 +36,7 @@ evtree.control <- function(minbucket = 7L, minsplit = 20L, maxdepth = 9L,
     alpha <- 1
   }
 
+  if(is.null(seed)) seed <- as.integer(runif(1, max = 2^16))
   if(!is.integer(seed)) seed <- as.integer(seed)
   if(seed < -1L) {
     warning("parameter \"seed\" must be non-negative, default used instead")
