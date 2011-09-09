@@ -1,7 +1,7 @@
 evtree <- function(formula, data = list(), weights = NULL, subset = NULL, control = evtree.control(...), ...){
     start <- proc.time()
 
-    call <- match.call(expand.dots = FALSE)
+    call <- ocall <- match.call(expand.dots = FALSE)
     m <- match(c("formula", "data"), names(call), 0L)
     call[[1L]] <- as.name("model.frame")
     call <- call[c(1L,m)]
@@ -186,7 +186,8 @@ evtree <- function(formula, data = list(), weights = NULL, subset = NULL, contro
             prediction[ mtree$prediction == gid[i] ] <- i
         fitted <- data.frame(prediction, mtree$weights, mf[nVariables])
         names(fitted) <- c("(fitted)", "(weights)" ,"(response)")
-        partyObject <- party(node, mf, fitted = fitted, terms = terms, info = list(method = "evtree", nIterations = out[[14]], seed = mtree$seed))
+        partyObject <- party(node, mf, fitted = fitted, terms = terms,
+	  info = list(method = "evtree", nIterations = out[[14]], seed = mtree$seed, call = ocall))
         class(partyObject) <- c("constparty", "party")
         return(partyObject)
 }

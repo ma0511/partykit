@@ -5,7 +5,7 @@
   Various parameters that control aspects of the \code{evtree} fit.
 }
 \usage{
-evtree.control(minbucket = 7L, minsplit = 20L, maxdepth = 9L, 
+evtree.control(minbucket = 7L, minsplit = 20L, maxdepth = 10L, 
   niterations = 10000L, ntrees = 100L, alpha = 1,
   operatorprob = list(pmutatemajor = 0.2, pmutateminor = 0.2,
     pcrossover = 0.2, psplit = 0.2, pprune = 0.2),
