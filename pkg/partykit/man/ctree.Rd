@@ -7,7 +7,7 @@
 }
 \usage{
 ctree(formula, data, weights, subset, na.action = na.pass,
-    control = ctree_control())
+    control = ctree_control(\dots), \dots)
 }
 \arguments{
   \item{formula}{ a symbolic description of the model to be fit. }
@@ -21,6 +21,7 @@ ctree(formula, data, weights, subset, na.action = na.pass,
                    contain missing value.}
   \item{control}{a list with control parameters, see
                  \code{\link{ctree_control}}.}
+  \item{\dots}{arguments passed to \code{\link{ctree_control}}.}
 }
 \details{
 

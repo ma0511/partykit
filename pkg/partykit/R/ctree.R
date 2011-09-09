@@ -226,7 +226,7 @@ ctree_control <- function(teststat = c("quad", "max"),
 }
 
 ctree <- function(formula, data, weights, subset, na.action = na.pass, 
-                  control = ctree_control()) {
+                  control = ctree_control(...), ...) {
 
     if (missing(data))
         data <- environment(formula)
