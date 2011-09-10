@@ -1,79 +1,67 @@
-evtree <- function(formula, data = list(), weights = NULL, subset = NULL, control = evtree.control(...), ...){
-    start <- proc.time()
+evtree <- function(formula, data, subset, na.action, weights, control = evtree.control(...), ...)
+{
+    ## original call
+    ocall <- match.call()
 
-    call <- ocall <- match.call(expand.dots = FALSE)
-    m <- match(c("formula", "data"), names(call), 0L)
-    call[[1L]] <- as.name("model.frame")
-    call <- call[c(1L,m)]
-    call$control <- NULL
-    call <- eval(call, parent.frame())
-    terms <- (attr(call,"terms"))
-    if(any(attr(terms, "order") > 1L))
-	stop("Trees cannot handle interaction terms")
+    ## build model.frame
+    if(missing(data)) data <- environment(formula)
+    mf <- match.call(expand.dots = FALSE)
+    m <- match(c("formula", "data", "subset", "na.action", "weights"), names(mf), 0L)
+    mf <- mf[c(1L, m)]
+    mf$drop.unused.levels <- TRUE
+    mf[[1L]] <- as.name("model.frame")
+    mf <- eval(mf, parent.frame())
 
-    mf <- model.frame(formula = formula, data = data, drop.unused.levels = FALSE, na.action = NULL)
-    mf <- mf[,c(2:ncol(mf),1)]
-
-    if(length(unique(mf[,ncol(mf)])) == 1)
-        stop('dependend variable has no variation')
-
-    mf <- mf[,sapply(sapply(mf, unique), length) > 1] ## drop variables with only one level
-    if(is.null(dim(mf)))
-        stop('independend variables are all constant')
-    if(is.null(weights)){
-        weights <- array(1,nrow(mf))
-    }else{
-       if(sum(weights %% 1) != 0)
-         stop('weights must be integers')
+    ## check terms
+    mt <- attr(mf, "terms")
+    if(any(attr(mt, "order") > 1L))
+	warning("interaction terms are ignored")
+    
+    ## extract weights
+    weights <- model.weights(mf)
+    if(is.null(weights)) {
+        weights <- rep.int(1L, nrow(mf))
+    } else {
+       if(!isTRUE(all.equal(as.vector(weights), round(as.vector(weights)))))
+           warning('weights must be integers')
        weights <- as.integer(weights)
-       if(is.numeric(weights) == FALSE)
-         stop('weights must be of type numeric')
-       if(min(weights < 0) == TRUE)
-         stop('weights must be defined as a positive number')
-       if((min(weights) == 0) == TRUE){
-         mf <- subset(mf, weights > 0)
-         weights <- subset(weights, weights > 0)
+       if(!is.numeric(weights))
+           stop('weights must be numeric')
+       if(any(weights < 0))
+           stop('all weights must be positive')
+       if(any(weights == 0L)) {
+           mf <- mf[weights > 0, , drop = FALSE]
+	   weights <- weights[weights > 0]
        }
-       if(nrow(mf) != length(weights))
-         stop('length of "weights" does not match training data')
     }
-
-    if(is.null(subset) == FALSE){
-       mf <- mf[subset,]
-       weights <- weights[subset]
-    }
-
-    if( sum(is.na(mf)) > 0 ){
-        warning(sum(FALSE==(complete.cases(mf))), " rows are removed due to missing values" )
-        # remove weights of incomplete cases
-        weights <- weights[complete.cases(mf)]
-        # remove missing values
-        mf <- na.omit(mf)
-    }
+    mf[["(weights)"]] <- NULL
+    
+    ## reorder and check all variables
+    mf <- mf[, c(2:ncol(mf), 1L), drop = FALSE]
+    if(length(unique(mf[,ncol(mf)])) == 1L)
+        stop('dependent variable has no variation')
+    mf <- mf[,sapply(sapply(mf, unique), length) > 1L] ## drop variables with only one level
+    if(is.null(dim(mf)))
+        stop('independent variables are all constant')
 
     nVariables <- ncol(mf)
     nInstances <- nrow(mf)
-    prediction <- array(as.integer(0),nInstances)
-    if(is.null(control$method)){
-         if(is.factor(mf[,nVariables])){
-            control$method <- 1
-         }else{
-            control$method <- 6
-         }
+    prediction <- array(0L, nInstances)
+    if(is.null(control$method)) {
+         control$method <- if(is.factor(mf[,nVariables])) 1 else 6
     }
 
      if(control$method < 6){
-        if(is.factor(mf[,nVariables]) == FALSE)
-            stop('dependend variable is not a factor')
-        if(length(levels(mf[,nVariables]))<2)
-            stop("dependend variable has only", length(levels(mf[,nVariables])), " level(s)")
-    }else{
-        if(is.factor(mf[,nVariables]) == TRUE)
-            stop('dependend variable is a factor')
+        if(!is.factor(mf[,nVariables]))
+            stop('dependent variable is not a factor')
+        if(length(levels(mf[,nVariables])) < 2L)
+            stop("dependent variable has only", length(levels(mf[,nVariables])), " level(s)")
+    } else {
+        if(is.factor(mf[,nVariables]))
+            stop('dependent variable is a factor')
         if(var(mf[,nVariables]) <= 0)
-            stop("variance of the denpendend variable is 0")
+            stop("variance of the denpendent variable is 0")
     }
-
 
     for (i in 1:(nVariables-1)){
         if(is.character(mf[,i])){
@@ -93,11 +81,11 @@ evtree <- function(formula, data = list(), weights = NULL, subset = NULL, contro
         maxNode <- maxNode*2+1
     }
     
-     if(2*control$minbucket > sum(weights)-1)
-    	 stop(paste("no split could be found \n \"minbucket\" is larger than half the weighted number of observations in the training data"))
-    	     
-     if(control$minsplit > sum(weights))
-         stop(paste("no split could be found \n \"minsplit\" is larger than the weighted number of observations in the training data"))
+    if(2*control$minbucket > sum(weights)-1)
+        stop(paste("no split could be found \n \"minbucket\" is larger than half the weighted number of observations in the training data"))
+            
+    if(control$minsplit > sum(weights))
+    	stop(paste("no split could be found \n \"minsplit\" is larger than the weighted number of observations in the training data"))
 
 
     # splitvariables and splitpoints
@@ -137,7 +125,7 @@ evtree <- function(formula, data = list(), weights = NULL, subset = NULL, contro
 
     #specification of function tree
     tree <- function(nInstances,nVariables,varType,ndata,weights,prediction, splitV,splitP,
-                csplit,maxNode, operatorprob, control){
+                csplit,maxNode, control){
             out <-  .C( "tree", PACKAGE="evtree",
                 as.integer(nInstances), 
                 as.integer(nVariables), 
@@ -166,7 +154,7 @@ evtree <- function(formula, data = list(), weights = NULL, subset = NULL, contro
     }
     #Call of the tree function
     out <- tree(nInstances, nVariables, varType, ndata, weights, prediction, splitV, splitP, csplit,
-            maxNode, operatorprob, control)
+            maxNode, control)
         mtree = list()
         mtree$varType <-varType
         mtree$splitV <- out[[7]]
@@ -186,12 +174,8 @@ evtree <- function(formula, data = list(), weights = NULL, subset = NULL, contro
             prediction[ mtree$prediction == gid[i] ] <- i
         fitted <- data.frame(prediction, mtree$weights, mf[nVariables])
         names(fitted) <- c("(fitted)", "(weights)" ,"(response)")
-        partyObject <- party(node, mf, fitted = fitted, terms = terms,
+        partyObject <- party(node, mf, fitted = fitted, terms = mt,
 	  info = list(method = "evtree", nIterations = out[[14]], seed = mtree$seed, call = ocall))
         class(partyObject) <- c("constparty", "party")
         return(partyObject)
 }
-
-
-
-

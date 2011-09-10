@@ -1,66 +1,80 @@
 \name{evtree}
 \alias{evtree}
 \alias{evtree-package}
+\encoding{latin1}
+
 \title{
 Evolutionary Learning of Globally Optimal Trees
 }
+
 \description{
-	evtree: learning of globally optimal classification and regression trees by using evolutionary algorithms.	
+Learning of globally optimal classification and regression trees by
+using evolutionary algorithms.	
 }
-\usage{evtree(formula, data=list(), weights=NULL, subset = NULL, 
-control = evtree.control(...), ...)}
+
+\usage{
+evtree(formula, data, subset, na.action, weights,
+  control = evtree.control(\dots), \dots)
+}
 
 \arguments{
-  \item{formula}{ a symbolic description of the model to be fit.}
-  \item{data}{ a data frame containing the variables in the model. }
-  \item{subset}{ an optional vector specifying a subset of observations to be
-                 used in the fitting process.}
-  \item{weights}{ an optional vector of weights to be used in the fitting
-                  process. Only non-negative integer valued weights are
-                  allowed.}
-  \item{control}{ a list with control parameters, see
-                 \code{\link{evtree.control}}.}
-  \item{...}{ arguments to \code{evtree.control} may also be specified in the
-          call to \code{evtree}.}
-  }
+  \item{formula}{a symbolic description of the model to be fit,
+    no interactions should be used.}
+  \item{data, subset, na.action}{arguments controlling formula processing
+    via \code{\link[stats]{model.frame}}.}
+  \item{weights}{optional integer vector of case weights.}
+  \item{control}{a list of control arguments specified via
+    \code{\link{evtree.control}}.}
+  \item{\dots}{arguments passed to \code{\link{evtree.control}}.}
+}
 
 \details{
-Globally optimal classification and regression trees are learned by using evolutionary algorithm. Roughly, the algorithm works as follows. First, a set of trees is initialized with random split rules in the root nodes. Second, mutation and crossover operators are applied to modify the trees' structure and the tests that are applied in the internal nodes. After each modification step a survivor selection mechanism selects the best candidate models for the next iteration. In this evolutionary process the mean quality of the population increases over time. The algorithm terminates when the quality of the best trees does not improve further, but not later than a maximum number of iterations specified by \code{niterations} in \code{\link{evtree.control}}.
+Globally optimal classification and regression trees are learned by using
+evolutionary algorithm. Roughly, the algorithm works as follows. First, a set of
+trees is initialized with random split rules in the root nodes. Second, mutation
+and crossover operators are applied to modify the trees' structure and the tests
+that are applied in the internal nodes. After each modification step a survivor
+selection mechanism selects the best candidate models for the next iteration. In
+this evolutionary process the mean quality of the population increases over
+time. The algorithm terminates when the quality of the best trees does not
+improve further, but not later than a maximum number of iterations specified by
+\code{niterations} in \code{\link{evtree.control}}.
 
+More details on the algorithm are provided Grubinger et al. (2011) which is also
+provided as \code{vignette("evtree", package = "evtree")}. 
 
-More details on the algorithm are provided by \code{vignette("evtree")}. 
-
-
-The resulting trees can be summarized and visualized by \code{print()}, \code{summary()}, and \code{plot()} functions provided by the \code{partykit} package. A \code{predict()} function is utilized to predict the class labels of new data. 
+The resulting trees can be summarized and visualized by the \code{\link[partykit]{print.constparty}},
+and \code{\link[partykit]{plot.constparty}} methods provided by the \pkg{partykit} package.
+Moreover, the \code{\link[partykit]{predict.party}} method can be used to compute fitted responses,
+probabilities (for classification trees), and nodes.
 }
-
 
 \value{
-  An object of class \code{\link{party}}.
+  An object of class \code{\link[partykit]{party}}.
 }
 
-%\references{
-%% ~put references to the literature/web site here ~
-%}
-
-\author{
-Thomas Grubinger, Achim Zeileis, Karl-Peter Pfeiffer
+\references{
+  Grubinger T, Zeileis A, Pfeiffer KP (2011). evtree: Evolutionary Learning of Globally
+  Optimal Classification and Regression Trees in R. Working Paper 2011-xx.
+  Working Papers in Economics and Statistics, Research Platform Empirical and
+  Experimental Economics, Universität Innsbruck.
+  \url{http://EconPapers.RePEc.org/RePEc:inn:wpaper:2011-xx}
 }
 
 \examples{
-    ### regression
-    airq <- subset(airquality, !is.na(Ozone) & complete.cases(airquality))
-    airct <- evtree(Ozone ~ ., data = airq)
-    airct
-    plot(airct)
-    mean((airq$Ozone - predict(airct))^2)
+## regression
+airq <- subset(airquality, !is.na(Ozone) & complete.cases(airquality))
+ev_air <- evtree(Ozone ~ ., data = airq)
+ev_air
+plot(ev_air)
+mean((airq$Ozone - predict(ev_air))^2)
 
-    ### classification
-    irisct <- evtree(Species ~ .,data = iris)
-    irisct
-    plot(irisct)
-    table(predict(irisct), iris$Species)
+## classification
+ev_iris <- evtree(Species ~ .,data = iris)
+ev_iris
+plot(ev_iris)
+table(predict(ev_iris), iris$Species)
+1 - mean(predict(ev_iris) == iris$Species)
 }
 
 \keyword{tree}
-

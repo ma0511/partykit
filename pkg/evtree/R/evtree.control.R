@@ -11,7 +11,7 @@ evtree.control <- function(minbucket = 7L, minsplit = 20L, maxdepth = 10L,
 
   minsplit <- as.integer(minsplit)
   if(minsplit < 2 * minbucket) {
-    warning("parameter \"minsplit\" must be at least twice as large as \"minbucket\", changed")
+    if(!missing(minsplit)) warning("parameter \"minsplit\" must be at least twice as large as \"minbucket\", changed")
     minsplit <- 2 * minbucket
   }
 
