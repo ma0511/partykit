@@ -50,33 +50,38 @@ A data frame containing 1,300 observations on 11 variables.
 }
 
 \examples{
-data("BBBClub")
-summary(BBBClub)
-ev <- evtree(choice ~ ., BBBClub, control = evtree.control(maxdepth = 3, 
-minbucket = 65, seed = 1000))
-ev
+## data, packages, random seed
+data("BBBClub", package = "evtree")
+library("rpart")
+set.seed(1090)
+
+## learn trees
+ev <- evtree(choice ~ ., data = BBBClub, maxdepth = 3)
+rp <- as.party(rpart(choice ~ ., data = BBBClub, minsplit = 50))
+ct <- ctree(choice ~ ., data = BBBClub, mincrit = 0.99)
+
+## visualization
 plot(ev)
-table(predict(ev), BBBClub$choice)
-# the use of a different seeds can result in different solutions.  
-ev2 <- evtree(choice ~ ., BBBClub, control = evtree.control(maxdepth = 3, 
-minbucket = 65, seed = 2000))
-ev2
-plot(ev2)
-table(predict(ev2), BBBClub$choice)
-#with case weigths
-gcw <- array(1, nrow(BBBClub))
-gcw[BBBClub$choice == "yes"] <- 5
-ev <- evtree(choice ~ ., BBBClub, control = evtree.control(maxdepth = 3, 
-minbucket = ceiling(sum(gcw) * 0.05), seed = 100), weights = gcw)
-ev
-plot(ev)
-table(predict(ev), BBBClub$choice)
-# the use of a different seeds can result in different solutions.  
-ev2 <- evtree(choice ~ ., BBBClub, control = evtree.control(maxdepth = 3, 
-minbucket = ceiling(sum(gcw) * 0.05), seed = 200), weights = gcw)
-ev2
-plot(ev2)
-table(predict(ev2), BBBClub$choice)
+plot(rp)
+plot(ct)
+
+## accuracy: misclassification rate
+mc <- function(obj) 1 - mean(predict(obj) == BBBClub$choice)
+c("evtree" = mc(ev), "rpart" = mc(rp), "ctree" = mc(ct))
+
+## complexity: number of terminal nodes
+c("evtree" = width(ev), "rpart" = width(rp), "ctree" = width(ct))
+
+## compare structure of predictions
+ftable(tab <- table(evtree = predict(ev), rpart  = predict(rp),
+  ctree  = predict(ct), observed = BBBClub$choice))
+
+## compare customer predictions only (absolute, proportion correct)
+sapply(c("evtree", "rpart", "ctree"), function(nam) {
+  mt <- margin.table(tab, c(match(nam, names(dimnames(tab))), 4))
+  c(abs = as.vector(rowSums(mt))[2],
+    rel = round(100 * prop.table(mt, 1)[2, 2], digits = 3))
+})
 }
 
 \keyword{datasets}
