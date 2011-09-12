@@ -2,31 +2,31 @@
 
 Tree::Tree(int* nInstances, int* nVariables, double** data, int* weights, int *splitV, double *splitP, int** csplit, int* maxCat, int* nNodes, variable** variables, int* maxNode){
         // constructor used by crossover
-        this->nInstances= nInstances;
-        this->nVariables= nVariables;
-        this->nNodes= *nNodes;
-        this->maxNode= maxNode;
-        this->maxCat= maxCat;
-        this->splitV= new int[*this->maxNode];
-        this->splitP= new double[*this->maxNode];
-        this->variables= variables;
-        this->nodes= new Node*[*this->maxNode];
+        this->nInstances = nInstances;
+        this->nVariables = nVariables;
+        this->nNodes = *nNodes;
+        this->maxNode = maxNode;
+        this->maxCat = maxCat;
+        this->splitV = new int[*this->maxNode];
+        this->splitP = new double[*this->maxNode];
+        this->variables = variables;
+        this->nodes = new Node*[*this->maxNode];
         this->classification = new int[*this->nInstances];
-        this->data= data;
-        this->performance= 999999;
-        this->csplit= new int*[*this->maxCat];
-        this->weights= weights;
+        this->data = data;
+        this->performance = 999999;
+        this->csplit = new int*[*this->maxCat];
+        this->weights = weights;
 	for (int i = 0; i < *this->maxCat; i++)
             this->csplit[i] = new int[(*this->maxNode)];
-        for (int v = 0; v < *this->maxNode ; v++){
-            for(int i=0; i< *this->maxCat; i++){
-                this->csplit[i][v]= csplit[i][v];
+        for (int v = 0; v < *this->maxNode; v++){
+            for(int i = 0; i <  *this->maxCat; i++){
+                this->csplit[i][v] = csplit[i][v];
             }
             this->splitV[v] = splitV[v];
             this->splitP[v] = splitP[v];
         }
         for (int nodeNumber = *this->maxNode-1; nodeNumber >= 0; nodeNumber--){
-               this->nodes[nodeNumber]= NULL;
+               this->nodes[nodeNumber] = NULL;
                this->initNode(nodeNumber);
         }
 
@@ -35,51 +35,51 @@ Tree::Tree(int* nInstances, int* nVariables, double** data, int* weights, int *s
 
 Tree::Tree(int* nInstances, int* nVariables, double** data, int* weights, int* maxCat, variable** variables, int* maxNode, int* minbucket, int* minsplit){
          // initializes a tree with a random root node
-        this->nInstances= nInstances;
-        this->nVariables= nVariables;
-        this->nNodes= 1;
-        this->maxNode= maxNode;
-        this->maxCat= maxCat;
-        this->splitV= new int[*this->maxNode];
-        this->splitP= new double[*this->maxNode];
-        this->variables= variables;
-        this->nodes= new Node*[*this->maxNode];
+        this->nInstances = nInstances;
+        this->nVariables = nVariables;
+        this->nNodes = 1;
+        this->maxNode = maxNode;
+        this->maxCat = maxCat;
+        this->splitV = new int[*this->maxNode];
+        this->splitP = new double[*this->maxNode];
+        this->variables = variables;
+        this->nodes = new Node*[*this->maxNode];
         this->classification = new int[*this->nInstances];
-        this->data= data;
-        this->performance= 999999;
-        this->csplit= new int*[*this->maxCat];
-        this->weights= weights;
+        this->data = data;
+        this->performance = 999999;
+        this->csplit = new int*[*this->maxCat];
+        this->weights = weights;
         
 	for (int i = 0; i < *this->maxCat; i++)
             this->csplit[i] = new int[(*this->maxNode)];
-        for (int v = 0; v < *this->maxNode ; v++){
-            for(int i=0; i< *this->maxCat; i++){
-                this->csplit[i][v]= 2;
+        for (int v = 0; v < *this->maxNode; v++){
+            for(int i = 0; i< *this->maxCat; i++){
+                this->csplit[i][v] = 2;
             }
-            this->splitV[v]= -999999;
-            this->splitP[v]= -999999;
-            this->nodes[v]= NULL;
+            this->splitV[v] = -999999;
+            this->splitP[v] = -999999;
+            this->nodes[v] = NULL;
         }
-        this->splitV[0]= (rand()%(*this->nVariables-1));
-        this->nodes[0]= NULL;
+        this->splitV[0] = (rand()%(*this->nVariables-1));
+        this->nodes[0] = NULL;
         this->initNode(0);
 
         if(variables[this->splitV[0]]->isCat==false){
-              if((this->variables[this->splitV[0]]->nCats-1) > 1 )
-                   this->splitP[0]= variables[this->splitV[0]]->sortedValues[(rand()%(this->variables[this->splitV[0]]->nCats-1))+1];
+              if((this->variables[this->splitV[0]]->nCats-1) > 1)
+                   this->splitP[0] = variables[this->splitV[0]]->sortedValues[(rand()%(this->variables[this->splitV[0]]->nCats-1))+1];
               else
-                   this->splitP[0]= variables[this->splitV[0]]->sortedValues[0];
+                   this->splitP[0] = variables[this->splitV[0]]->sortedValues[0];
         }else{
               this->randomizeCategories(0);
         }
         
-        for(int i = 0; i <= 5000 && this->predictClass(*minbucket, *minsplit, false, 0)==false; i++){
-	         this->splitV[0]= (rand()%(*this->nVariables-1));
-             	 if(variables[this->splitV[0]]->isCat==false){
+        for(int i = 0; i <= 5000 && this->predictClass(*minbucket, *minsplit, false, 0) == false; i++){
+	         this->splitV[0] = (rand()%(*this->nVariables-1));
+             	 if(variables[this->splitV[0]]->isCat == false){
                 	 if((this->variables[this->splitV[0]]->nCats-1) > 1 )
-                      		 this->splitP[0]= variables[this->splitV[0]]->sortedValues[(rand()%(this->variables[this->splitV[0]]->nCats-1))+1];
+                      		 this->splitP[0] = variables[this->splitV[0]]->sortedValues[(rand()%(this->variables[this->splitV[0]]->nCats-1))+1];
                		 else
-                      		 this->splitP[0]= variables[this->splitV[0]]->sortedValues[0];
+                      		 this->splitP[0] = variables[this->splitV[0]]->sortedValues[0];
             	 }else{
                	   	 this->randomizeCategories(0);
              	 }     	
@@ -94,32 +94,32 @@ Tree::~Tree(){
            delete nodes[i];
 	}
 	delete [] nodes;
-        nodes= NULL;
+        nodes = NULL;
 	delete [] classification;
-        classification=NULL;
+        classification = NULL;
 	delete [] splitP;
-        splitP=NULL;
+        splitP = NULL;
 	delete [] splitV;
-        splitV=NULL;
+        splitV = NULL;
         for (int i = 0; i < *this->maxCat; i++)
             delete [] csplit[i];
         delete [] csplit;
-        csplit= NULL;
-        variables= NULL;
-        data=NULL;
-	maxNode= NULL;
-        maxCat= NULL;
-        nInstances= NULL;
-        nVariables= NULL;
-        weights= NULL;
+        csplit = NULL;
+        variables = NULL;
+        data = NULL;
+	maxNode = NULL;
+        maxCat = NULL;
+        nInstances = NULL;
+        nVariables = NULL;
+        weights = NULL;
 } // end ~Tree
 
 
 void Tree::initNode(int nodeNumber){
     // initializes a node
     if(this->splitV[nodeNumber] >= 0 && nodeNumber >= 0 ){
-        int leftChild= -1;
-        int rightChild=-1;
+        int leftChild = -1;
+        int rightChild = -1;
         // is leaf node?
         if( nodeNumber*2+2 < *this->maxNode){
             if( (this->splitV[nodeNumber*2+1]  ) >=  0 ){
@@ -131,17 +131,17 @@ void Tree::initNode(int nodeNumber){
         }
 
         if( leftChild <= 0 && rightChild <= 0){
-                this->nodes[nodeNumber]= new Node(nodeNumber, &this->splitV[nodeNumber], &this->splitP[nodeNumber], this->csplit, NULL, NULL,
+                this->nodes[nodeNumber] = new Node(nodeNumber, &this->splitV[nodeNumber], &this->splitP[nodeNumber], this->csplit, NULL, NULL,
 this->data, this->nInstances, this->nVariables,  this->variables);
         }else if( leftChild <= 0 ){
-                this->nodes[nodeNumber]= new Node(nodeNumber, &this->splitV[nodeNumber], &this->splitP[nodeNumber], this->csplit, NULL, this->nodes[rightChild] ,
+                this->nodes[nodeNumber] = new Node(nodeNumber, &this->splitV[nodeNumber], &this->splitP[nodeNumber], this->csplit, NULL, this->nodes[rightChild] ,
 this->data, this->nInstances, this->nVariables,   this->variables);
         }else if( rightChild <= 0){
-                this->nodes[nodeNumber]= new Node(nodeNumber, &this->splitV[nodeNumber], &this->splitP[nodeNumber], this->csplit,this->nodes[leftChild], NULL,
+                this->nodes[nodeNumber] = new Node(nodeNumber, &this->splitV[nodeNumber], &this->splitP[nodeNumber], this->csplit,this->nodes[leftChild], NULL,
 this->data, this->nInstances, this->nVariables,  this->variables);
         }else{
-                this->nodes[nodeNumber]= new Node(nodeNumber, &this->splitV[nodeNumber], &this->splitP[nodeNumber],this->csplit, this->nodes[leftChild], this->nodes[rightChild],
-this->data, this->nInstances, this->nVariables, this->variables );
+                this->nodes[nodeNumber] = new Node(nodeNumber, &this->splitV[nodeNumber], &this->splitP[nodeNumber],this->csplit, this->nodes[leftChild], this->nodes[rightChild],
+this->data, this->nInstances, this->nVariables, this->variables);
         }
     }else{
         this->nodes[nodeNumber] = NULL;
@@ -151,12 +151,12 @@ this->data, this->nInstances, this->nVariables, this->variables );
 
 
 int Tree::predictClass(int minbucket, int minsplit, bool pruneIfInvalid, int nodeNumber){
-    // predict the class membership
+    // calculate predictions
     // if pruneIfInvalid == TRUE non-valid nodes a pruned
     // otherwise -1 is returned for non-valid nodes
     if(nodeNumber == 0){
-        for(int i =0; i<*this->nInstances; i++){
-            this->classification[i]=0;
+        for(int i = 0; i < *this->nInstances; i++){
+            this->classification[i] = 0;
         }
     }else{
         this->reverseClassification(nodeNumber, nodeNumber);
@@ -169,7 +169,7 @@ int Tree::predictClass(int minbucket, int minsplit, bool pruneIfInvalid, int nod
         return returnValue;
     }else{
        this->deleteChildNodes(returnValue); // call recursion delete node and everything below it
-       return predictClass(minbucket, minsplit, true, 0 );
+       return predictClass(minbucket, minsplit, true, 0);
     }
 } // end  predictClass
 
@@ -177,10 +177,10 @@ int Tree::predictClass(int minbucket, int minsplit, bool pruneIfInvalid, int nod
 bool Tree::reverseClassification(int startNode, int nodeNumber){
     // all observations which are in the subtree below "startNode" are classified to be in node "startNode"
     // this saves computation time when the split-rule in startNode is changed. after the call of "reverseClassification" only the instances in
-    // node "startnode" are newly evaluated. The rest of the tree stays the same
-    for(int i=0; i<*this->nInstances; i++){
+    // node "startNode" are newly evaluated. The rest of the tree stays the same
+    for(int i = 0; i < *this->nInstances; i++){
         if(this->classification[i] == (nodeNumber*2+1) || this->classification[i] == (nodeNumber*2+2) ){
-            this->classification[i]= startNode;
+            this->classification[i] = startNode;
         }
     }
     if(nodeNumber*2+1 < *this->maxNode){
@@ -207,12 +207,12 @@ bool Tree::deleteChildNodes(int nodeNumber){
             this->deleteChildNodes(nodeNumber*2+2);
         }
         if(nodeNumber%2 == 0){
-            this->nodes[(int) ((nodeNumber-1) /2)  ]->rightChild= NULL;
+            this->nodes[(int) ((nodeNumber-1)/2)]->rightChild= NULL;
         }else{
-            this->nodes[(int) ((nodeNumber-1) /2)  ]->leftChild= NULL;
+            this->nodes[(int) ((nodeNumber-1)/2)]->leftChild= NULL;
         }
-        this->splitV[nodeNumber]= -999999;
-        this->splitP[nodeNumber]= -999999;
+        this->splitV[nodeNumber] = -999999;
+        this->splitP[nodeNumber] = -999999;
         this->nNodes--;
         delete this->nodes[nodeNumber];
         this->nodes[nodeNumber]= NULL;
@@ -226,18 +226,18 @@ bool Tree::deleteChildNodes(int nodeNumber){
 
 void Tree::randomizeCategories(int nodeNumber){
     // assigns random categories of a categorical variable
-    bool left=false;
-    bool right=false;
+    bool left = false;
+    bool right = false;
     for(int i=0; i< this->variables[ *this->nodes[nodeNumber]->splitV ]->nCats ; i++){
-        if( i==this->variables[ *this->nodes[nodeNumber]->splitV ]->nCats-1 && left == false){
-            this->csplit[i][nodeNumber]=1;
-        }else if( i==this->variables[ *this->nodes[nodeNumber]->splitV ]->nCats-1 && right == false){
-            this->csplit[i][nodeNumber]=3;
-        }else if( rand()%2==1 ){
-            this->csplit[i][nodeNumber]=1;
+        if(i == this->variables[*this->nodes[nodeNumber]->splitV ]->nCats-1 && left == false){
+            this->csplit[i][nodeNumber] = 1;
+        }else if(i == this->variables[*this->nodes[nodeNumber]->splitV]->nCats-1 && right == false){
+            this->csplit[i][nodeNumber] = 3;
+        }else if(rand()%2 == 1){
+            this->csplit[i][nodeNumber] = 1;
             left=true;
         }else{
-            this->csplit[i][nodeNumber]=3;
+            this->csplit[i][nodeNumber] = 3;
             right=true;
         }
     }
@@ -246,11 +246,12 @@ void Tree::randomizeCategories(int nodeNumber){
 
 
 bool Tree::calculateTotalCosts(int method, double alpha, int sumWeights, double populationMSE){
+     // calculates tree quality
     if(method == 1){
-       this->performance= 2.0*(((double) sumWeights)-this->calculateTotalMC(0)) + alpha*(this->nNodes+1.0)*log(((double)sumWeights));
+       this->performance = 2.0*(((double) sumWeights)-this->calculateTotalMC(0)) + alpha*(this->nNodes+1.0)*log(((double)sumWeights));
     }else{
-               double SMSE= max(this->calculateTotalSE(0)/(populationMSE), 0.001);
-               this->performance= (
+               double SMSE = max(this->calculateTotalSE(0)/(populationMSE), 0.001);
+               this->performance = (
                   ((double) sumWeights)*log(SMSE)+alpha*4.0*log(((double) sumWeights))*((double)this->nNodes+2.0)
                +  ((double) sumWeights)*7.0  // constant such that formula is alway positive
                );
@@ -260,7 +261,8 @@ bool Tree::calculateTotalCosts(int method, double alpha, int sumWeights, double 
 
 
 double Tree::calculateTotalSE(int nodeNumber){
-    double performance=0;
+    // calculates the total squared error 
+    double performance = 0;
     if(this->nodes[nodeNumber]->leftChild != NULL)
         performance += this->calculateTotalSE(nodeNumber*2+1);
     if(this->nodes[nodeNumber]->rightChild != NULL)
@@ -276,7 +278,8 @@ double Tree::calculateTotalSE(int nodeNumber){
 
 
 double Tree::calculateTotalMC(int nodeNumber){
-    double performance=0;
+    // calculates total number of correctly classified weights
+    double performance = 0;
     if(this->nodes[nodeNumber]->leftChild != NULL)
         performance += this->calculateTotalMC(nodeNumber*2+1);
     if(this->nodes[nodeNumber]->rightChild != NULL)

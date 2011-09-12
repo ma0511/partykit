@@ -31,9 +31,9 @@ class Container{
          double *performanceHistory; // average performance of the trees in the elitism list, is used for the termination of the algorithm
          Tree **trees;
          int elitismRange; // number of trees in the elitism list
-         int method; // method=1 for classification, and method=6 for regression / other criteria are not sufficently tested yet
+         int method; // method=1 for classification, and method=6 for regression / other criteria are not implemented at the moment
          double alpha;  // weights the complexity part of the cost function
-         int sumWeights; // weighted variance for regression, sum of weights for classification
+         int sumWeights; //  sum of weights 
          double populationMSE; // population variance; used for regression trees only
          public:
          Container(int* nInst, int* nVar, int *varType, double* ndata, int* weights, int* prediction, int *splitV, double *splitP, int* csplit, int *maxNode, int *minbucket, int* minsplit,
