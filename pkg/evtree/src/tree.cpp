@@ -72,25 +72,20 @@ Tree::Tree(int* nInstances, int* nVariables, double** data, int* weights, int* m
         }else{
               this->randomizeCategories(0);
         }
-        int dint;
-        int check=0;
-        while(this->predictClass(*minbucket, *minsplit, false, 0)==false){
-            dint= (rand()%(*this->nVariables-1));
-            this->splitV[0]= dint;
-            if(variables[this->splitV[0]]->isCat==false){
-                  if((this->variables[this->splitV[0]]->nCats-1) > 1 )
-                       this->splitP[0]= variables[this->splitV[0]]->sortedValues[(rand()%(this->variables[this->splitV[0]]->nCats-1))+1];
-                  else
-                       this->splitP[0]= variables[this->splitV[0]]->sortedValues[0];
-            }else{
-                 this->randomizeCategories(0);
-             }
-            check++;
-            if(check==1000){
-                cout << "tree could not be initialized!" << endl;
-                exit(0);
-            }
-        }
+        
+        for(int i = 0; i <= 5000 && this->predictClass(*minbucket, *minsplit, false, 0)==false; i++){
+	         this->splitV[0]= (rand()%(*this->nVariables-1));
+             	 if(variables[this->splitV[0]]->isCat==false){
+                	 if((this->variables[this->splitV[0]]->nCats-1) > 1 )
+                      		 this->splitP[0]= variables[this->splitV[0]]->sortedValues[(rand()%(this->variables[this->splitV[0]]->nCats-1))+1];
+               		 else
+                      		 this->splitP[0]= variables[this->splitV[0]]->sortedValues[0];
+            	 }else{
+               	   	 this->randomizeCategories(0);
+             	 }     	
+   	         if(i==5000)
+                 	 this->splitV[0] = -999999;  
+      }
 } // end Tree
 
 

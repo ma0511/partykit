@@ -41,7 +41,7 @@ int* nIter, int* nTrees, int* pMutateMajor, int* pMutateMinor, int* pCrossover, 
     for(int i=0; i<this->elitismRange; i++)
         this->elitismList[i]= 999999;
 
-    // transform data in vector format into a 2x2 matrix
+    // transform data in vector format into a nxp matrix
     this->sumWeights= 0;
     for (int i = 0; i < this->nInstances; i++){
         this->data[i] = new double[this->nVariables];
@@ -84,11 +84,17 @@ int* nIter, int* nTrees, int* pMutateMajor, int* pMutateMinor, int* pCrossover, 
         this->trees[i]= new Tree(&this->nInstances, &this->nVariables, this->data, this->weights, &this->maxCat, this->variables, &this->maxNode, &this->minbucket, &this->minsplit);
     }
 
+    bool allTreesInitialized = TRUE;
     for(int i=0; i<this->nTrees; i++){
-        this->evaluateTree(i, true, 0);
+        if(this->trees[i]->splitV[0] < 0)
+        	allTreesInitialized = FALSE;
+        else
+       		this->evaluateTree(i, true, 0);
     }
-    // start evolving the initial solution
-    this->evolution();
+
+    if(allTreesInitialized == TRUE){
+    // start evolving the initial solution    
+	    this->evolution();
 
     // write the information of the best tree into the variables passed from R
     if(this->elitismList[0] < this->nTrees){
@@ -124,6 +130,7 @@ int* nIter, int* nTrees, int* pMutateMajor, int* pMutateMinor, int* pCrossover, 
          }
     }else{
          cout << "to few iterations" << endl;
+    }
     }
 } // end Container
 

@@ -15,9 +15,12 @@ evtree.control <- function(minbucket = 7L, minsplit = 20L, maxdepth = 10L,
     minsplit <- 2 * minbucket
   }
 
-  maxdepth <- as.integer(maxdepth) - 1L ## because C code does not count the root node
-  if(maxdepth > 12) {
+  maxdepth <- as.integer(maxdepth) 
+  if(maxdepth > 13) {
     warning("computations may take extremely long for \"maxdepth\" > 13 (or even be infeasible)")
+  }else if(maxdepth < 2) {
+    warning("parameter \"maxdepth\" must be equal or larger than 2, default used")
+    maxdepth <- 10
   }
 
   if(!is.integer(niterations)) niterations <- as.integer(niterations)
@@ -26,7 +29,10 @@ evtree.control <- function(minbucket = 7L, minsplit = 20L, maxdepth = 10L,
   }
 
   if(!is.integer(ntrees)) ntrees <- as.integer(ntrees)
-  if(ntrees < 10L) {
+  if(ntrees < 2L) {
+    warning("parameter \"ntrees\" must be equal or larger than 2, default used")	
+    ntrees <- 100
+  }else if(ntrees < 10L) {
     warning("computations may be unreliable for \"ntrees\" < 10")
   }
 

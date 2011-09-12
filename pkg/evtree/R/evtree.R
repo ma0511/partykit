@@ -75,18 +75,17 @@ evtree <- function(formula, data, subset, na.action, weights, control = evtree.c
     }
 
     # calculate the maximum number of internal nodes a tree with size control$maxdepth can have
-    maxNode <- 1
-    if (control$maxdepth > 1)
-    for(i in 1:(control$maxdepth-1) ){
+    maxNode <- 1 # number of internal nodes
+    if (control$maxdepth > 2)
+    for(i in 1:(control$maxdepth-2) ){
         maxNode <- maxNode*2+1
     }
     
     if(2*control$minbucket > sum(weights)-1)
-        stop(paste("no split could be found \n \"minbucket\" is larger than half the weighted number of observations in the training data"))
+        stop(paste("no split could be found \n \"minbucket\" must be smaller than half the weighted number of observations in the training data"))
             
-    if(control$minsplit > sum(weights))
-    	stop(paste("no split could be found \n \"minsplit\" is larger than the weighted number of observations in the training data"))
-
+    if(control$minsplit > sum(weights)-1)
+    	stop(paste("no split could be found \n \"minsplit\" must be smaller than the weighted number of observations in the training data"))
 
     # splitvariables and splitpoints
     splitV <- array(-999999, maxNode)
@@ -152,12 +151,17 @@ evtree <- function(formula, data, subset, na.action, weights, control = evtree.c
                 )
             return(out)
     }
+    
     #Call of the tree function
     out <- tree(nInstances, nVariables, varType, ndata, weights, prediction, splitV, splitP, csplit,
             maxNode, control)
+ 
+   	 if(out[[7]][1] < 0L) #trees could not be initialized
+    	    stop("no split could be found")
+                            
         mtree = list()
         mtree$varType <-varType
-        mtree$splitV <- out[[7]]
+        mtree$splitV <- out[[7]]        
         mtree$splitP <- out[[8]]
         mtree$csplit <- out[[9]]
         mtree$maxdepth <- control$maxdepth
