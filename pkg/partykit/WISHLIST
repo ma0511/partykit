@@ -59,3 +59,25 @@ include these new developments in the next release of our package.
 Many thanks for partykit and your answers.
 Matthias Studer
 
+Max Kuhn:
+
+I noticed that edge_simple() in partykit does not use the ‘digits’ or
+‘abbreviate’ arguments when writing
+text:
+
+> library(partykit)
+Loading required package: grid
+> edge_simple
+function (obj, digits = 3, abbreviate = FALSE)
+{
+    meta <- obj$data
+    function(node, i) {
+        split <- character_split(split_node(node), meta)$levels[i]
+        grid.rect(gp = gpar(fill = "white", col = 0), width = unit(1,
+"strwidth", split))
+        grid.text(split, just = "center")
+    }
+}
+<environment: namespace:partykit>
+attr(,"class")
+[1] "grapcon_generator"
