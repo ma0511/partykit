@@ -10,9 +10,9 @@
 
 }
 \usage{
-nodeids(obj, ...)
-\method{nodeids}{partynode}(obj, from = NULL, terminal = FALSE, ...)
-\method{nodeids}{party}(obj, from = NULL, terminal = FALSE, ...)
+nodeids(obj, \dots)
+\method{nodeids}{partynode}(obj, from = NULL, terminal = FALSE, \dots)
+\method{nodeids}{party}(obj, from = NULL, terminal = FALSE, \dots)
 }
 \arguments{
   \item{obj}{ an object of class \code{\link{partynode}} 

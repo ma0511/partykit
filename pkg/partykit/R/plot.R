@@ -259,7 +259,7 @@ plot.party <- function(x, main = NULL,
     ### total number of terminal nodes
     nx <- width(node)
     ### maximal depth of the tree
-    ny <- depth(node)
+    ny <- depth(node, root = TRUE)
 
     ## setup newpage
     if (newpage) grid.newpage()

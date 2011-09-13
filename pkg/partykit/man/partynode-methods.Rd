@@ -23,29 +23,30 @@
 }
 \usage{
 is.partynode(x)
-as.partynode(x, ...)
-\method{as.partynode}{partynode}(x, from = NULL, ...)
-\method{as.partynode}{list}(x, ...)
-\method{as.list}{partynode}(x, ...)
+as.partynode(x, \dots)
+\method{as.partynode}{partynode}(x, from = NULL, \dots)
+\method{as.partynode}{list}(x, \dots)
+\method{as.list}{partynode}(x, \dots)
 \method{length}{partynode}(x)
-\method{[}{partynode}(x, i, ...)
-\method{[[}{partynode}(x, i, ...)
-is.terminal(x, ...)
-\method{is.terminal}{partynode}(x, ...)
-depth(x, ...)
-\method{depth}{partynode}(x, ...)
-width(x, ...)
-\method{width}{partynode}(x, ...)
+\method{[}{partynode}(x, i, \dots)
+\method{[[}{partynode}(x, i, \dots)
+is.terminal(x, \dots)
+\method{is.terminal}{partynode}(x, \dots)
+depth(x, \dots)
+\method{depth}{partynode}(x, root = FALSE, \dots)
+width(x, \dots)
+\method{width}{partynode}(x, \dots)
 \method{print}{partynode}(x, data = NULL, names = NULL,
     inner_panel = function(node) "", 
     terminal_panel = function(node) " *",
     prefix = "", first = TRUE, digits = getOption("digits") - 2, 
-    ...)
+    \dots)
 }
 \arguments{
   \item{x}{ an object of class \code{partynode} or \code{list}.}
   \item{from}{ an integer giving the identifier of the root node.}
   \item{i}{ an integer specifying the kid to extract.}
+  \item{root}{ a logical. Should the root count be counted in \code{depth}? }
   \item{data}{ an optional \code{data.frame}.}
   \item{names}{ a vector of names for nodes.}
   \item{terminal_panel}{ a panel function for printing terminal nodes.}

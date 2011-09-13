@@ -237,9 +237,9 @@ is.terminal.partynode <- function(x, ...) {
 depth <- function(x, ...)
     UseMethod("depth")
 
-depth.partynode <- function(x, ...) {
-    if (is.terminal(x)) return(1)
-    max(sapply(kids_node(x), depth)) + 1
+depth.partynode <- function(x, root = FALSE, ...) {
+    if (is.terminal(x)) return(as.integer(root))
+    max(sapply(kids_node(x), depth, root = root)) + 1L
 }
 
 width <- function(x, ...)

@@ -22,16 +22,16 @@
     inner_panel = function(node) "", ip_args = list(),
     header_panel = function(party) "",
     footer_panel = function(party) "",
-    digits = getOption("digits") - 2, ...)
+    digits = getOption("digits") - 2, \dots)
 \method{print}{simpleparty}(x, digits = getOption("digits") - 4,
-    header = NULL, footer = TRUE, ...)
+    header = NULL, footer = TRUE, \dots)
 \method{print}{constparty}(x, FUN = NULL, digits = getOption("digits") - 4,
-    header = NULL, footer = TRUE, ...)
+    header = NULL, footer = TRUE, \dots)
 \method{length}{party}(x)
-\method{[}{party}(x, i, ...)
-\method{[[}{party}(x, i, ...)
-\method{depth}{party}(x, ...)
-\method{width}{party}(x, ...)
+\method{[}{party}(x, i, \dots)
+\method{[[}{party}(x, i, \dots)
+\method{depth}{party}(x, root = FALSE, \dots)
+\method{width}{party}(x, \dots)
 }
 \arguments{
   \item{x}{ an object of class \code{\link{party}}.}
@@ -46,6 +46,7 @@
   \item{header}{ header to be printed.}
   \item{footer}{ footer to be printed.}
   \item{FUN}{ a function to be applied to nodes.}
+  \item{root}{ a logical. Should the root count be counted in \code{depth}? }
   \item{\dots}{ additional arguments.}
 }
 \details{

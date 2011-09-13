@@ -7,7 +7,7 @@
 
 }
 \usage{
-\method{model.frame}{rpart}(formula, ...)
+\method{model.frame}{rpart}(formula, \dots)
 }
 \arguments{
   \item{formula}{ an object of class \code{\link{rpart}}.}

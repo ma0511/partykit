@@ -12,14 +12,14 @@
 
 }
 \usage{
-\method{predict}{party}(object, newdata = NULL, ...)
-predict_party(party, id, newdata = NULL, ...)
-\method{predict_party}{default}(party, id, newdata = NULL, ...) 
+\method{predict}{party}(object, newdata = NULL, \dots)
+predict_party(party, id, newdata = NULL, \dots)
+\method{predict_party}{default}(party, id, newdata = NULL, \dots) 
 \method{predict_party}{constparty}(party, id, newdata = NULL,
     type = c("response", "prob", "node"), FUN = NULL, 
-    simplify = TRUE, ...)
+    simplify = TRUE, \dots)
 \method{predict_party}{simpleparty}(party, id, newdata = NULL,
-    type = c("response", "prob", "node"), ...)
+    type = c("response", "prob", "node"), \dots)
 }
 \arguments{
   \item{object}{ objects of class \code{\link{party}}. }

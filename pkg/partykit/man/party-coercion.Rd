@@ -18,17 +18,17 @@
 
 }
 \usage{
-as.party(obj, ...)
-\method{as.party}{rpart}(obj, ...)
-\method{as.party}{J48}(obj, ...)
-\method{as.party}{XMLNode}(obj, ...)
-pmmlTreeModel(file, ...)
-as.constparty(obj, ...)
-as.simpleparty(obj, ...)
-\method{as.simpleparty}{party}(obj, ...)
-\method{as.simpleparty}{simpleparty}(obj, ...)
-\method{as.simpleparty}{constparty}(obj, ...)
-\method{as.simpleparty}{XMLNode}(obj, ...)
+as.party(obj, \dots)
+\method{as.party}{rpart}(obj, \dots)
+\method{as.party}{J48}(obj, \dots)
+\method{as.party}{XMLNode}(obj, \dots)
+pmmlTreeModel(file, \dots)
+as.constparty(obj, \dots)
+as.simpleparty(obj, \dots)
+\method{as.simpleparty}{party}(obj, \dots)
+\method{as.simpleparty}{simpleparty}(obj, \dots)
+\method{as.simpleparty}{constparty}(obj, \dots)
+\method{as.simpleparty}{XMLNode}(obj, \dots)
 }
 \arguments{
   \item{obj}{ an object of class \code{\link[rpart]{rpart}},

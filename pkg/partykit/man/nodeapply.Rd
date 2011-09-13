@@ -10,9 +10,9 @@
 
 }
 \usage{
-nodeapply(obj, ids = 1, FUN = NULL, ...)
-\method{nodeapply}{partynode}(obj, ids = 1, FUN = NULL, ...)
-\method{nodeapply}{party}(obj, ids = 1, FUN = NULL, by_node = TRUE, ...)
+nodeapply(obj, ids = 1, FUN = NULL, \dots)
+\method{nodeapply}{partynode}(obj, ids = 1, FUN = NULL, \dots)
+\method{nodeapply}{party}(obj, ids = 1, FUN = NULL, by_node = TRUE, \dots)
 }
 \arguments{
   \item{obj}{ an object of class \code{\link{partynode}} 

@@ -440,8 +440,8 @@ width.party <- function(x, ...) {
   width(node_party(x), ...)
 }
 
-depth.party <- function(x, ...) {
-  depth(node_party(x), ...)
+depth.party <- function(x, root = FALSE, ...) {
+  depth(node_party(x), root = root, ...)
 }
 
 .list.rules.party <- function(x, i = NULL, ...) {
