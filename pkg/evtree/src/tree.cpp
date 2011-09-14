@@ -64,7 +64,7 @@ Tree::Tree(int* nInstances, int* nVariables, double** data, int* weights, int* m
         this->nodes[0] = NULL;
         this->initNode(0);
 
-        if(variables[this->splitV[0]]->isCat==false){
+        if(variables[this->splitV[0]]->isCat == false){
               if((this->variables[this->splitV[0]]->nCats-1) > 1)
                    this->splitP[0] = variables[this->splitV[0]]->sortedValues[(rand()%(this->variables[this->splitV[0]]->nCats-1))+1];
               else
@@ -83,7 +83,7 @@ Tree::Tree(int* nInstances, int* nVariables, double** data, int* weights, int* m
             	 }else{
                	   	 this->randomizeCategories(0);
              	 }     	
-   	         if(i==5000)
+   	         if(i == 5000)
                  	 this->splitV[0] = -999999;  
       }
 } // end Tree
@@ -123,10 +123,10 @@ void Tree::initNode(int nodeNumber){
         // is leaf node?
         if( nodeNumber*2+2 < *this->maxNode){
             if( (this->splitV[nodeNumber*2+1]  ) >=  0 ){
-                    leftChild=nodeNumber*2+1;
+                    leftChild = nodeNumber*2+1;
             }
             if( (this->splitV[nodeNumber*2+2]) >=  0){
-                    rightChild=nodeNumber*2+2;
+                    rightChild = nodeNumber*2+2;
             }
         }
 
@@ -162,7 +162,7 @@ int Tree::predictClass(int minbucket, int minsplit, bool pruneIfInvalid, int nod
         this->reverseClassification(nodeNumber, nodeNumber);
     }
 
-    int returnValue=  this->nodes[nodeNumber]->partition( this->classification, this->weights, this->variables, &this->nNodes, minbucket, minsplit );
+    int returnValue = this->nodes[nodeNumber]->partition( this->classification, this->weights, this->variables, &this->nNodes, minbucket, minsplit);
     if(returnValue == -1){
         return -1;
     }else if(returnValue <= 0 || pruneIfInvalid == false){
@@ -207,15 +207,15 @@ bool Tree::deleteChildNodes(int nodeNumber){
             this->deleteChildNodes(nodeNumber*2+2);
         }
         if(nodeNumber%2 == 0){
-            this->nodes[(int) ((nodeNumber-1)/2)]->rightChild= NULL;
+            this->nodes[(int) ((nodeNumber-1)/2)]->rightChild = NULL;
         }else{
-            this->nodes[(int) ((nodeNumber-1)/2)]->leftChild= NULL;
+            this->nodes[(int) ((nodeNumber-1)/2)]->leftChild = NULL;
         }
         this->splitV[nodeNumber] = -999999;
         this->splitP[nodeNumber] = -999999;
         this->nNodes--;
         delete this->nodes[nodeNumber];
-        this->nodes[nodeNumber]= NULL;
+        this->nodes[nodeNumber] = NULL;
         return true;
     }else{
         cout << "warning: node could not be deleted " << endl;
@@ -228,17 +228,17 @@ void Tree::randomizeCategories(int nodeNumber){
     // assigns random categories of a categorical variable
     bool left = false;
     bool right = false;
-    for(int i=0; i< this->variables[ *this->nodes[nodeNumber]->splitV ]->nCats ; i++){
+    for(int i = 0; i < this->variables[ *this->nodes[nodeNumber]->splitV ]->nCats ; i++){
         if(i == this->variables[*this->nodes[nodeNumber]->splitV ]->nCats-1 && left == false){
             this->csplit[i][nodeNumber] = 1;
         }else if(i == this->variables[*this->nodes[nodeNumber]->splitV]->nCats-1 && right == false){
             this->csplit[i][nodeNumber] = 3;
         }else if(rand()%2 == 1){
             this->csplit[i][nodeNumber] = 1;
-            left=true;
+            left = true;
         }else{
             this->csplit[i][nodeNumber] = 3;
-            right=true;
+            right = true;
         }
     }
 

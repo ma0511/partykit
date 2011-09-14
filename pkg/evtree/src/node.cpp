@@ -12,7 +12,7 @@ int* nInst, int* nVar, variable** variables){
     this->rightChild = rightChild;
     this->variables = variables;
     this->localClassification = new int[*this->nInst];
-    for(int i = 0; i< *this->nInst; i++)
+    for(int i = 0; i < *this->nInst; i++)
         this->localClassification[i] = 0;
     this->sumLocalWeights = 0;
     this->sumLeftLocalWeights = 0;
@@ -27,7 +27,7 @@ int* nInst, int* nVar, variable** variables){
 
 int Node::partition( int* classification, int* weights, variable** variables, int* nNodes, int minbucket, int minsplit ){
     // assigns instances to belong to the right or the left child node
-    for(int i=0; i< *this->nInst; i++)
+    for(int i = 0; i < *this->nInst; i++)
             this->localClassification[i] = classification[i];
     this->sumLeftLocalWeights = 0;
     this->sumRightLocalWeights = 0;
@@ -47,7 +47,7 @@ int Node::partition( int* classification, int* weights, variable** variables, in
                            this->localClassification[i] = classification[i];
                            this->sumRightLocalWeights++;
                        }
-                       flag=true;
+                       flag = true;
                     }
                }
            }
@@ -105,7 +105,7 @@ double Node::calculateNodeMC(int* weights){
     // calculate the fraction of correctly classified weights
     double sumWeights = 0;
     double *sumsClassification = new double[*this->nClassesDependendVar];
-    for(int i=0; i<*this->nClassesDependendVar; i++){
+    for(int i = 0; i < *this->nClassesDependendVar; i++){
         sumsClassification [i] = 0.0;
     }
     for(int i = 0; i < *this->nInst; i++){
@@ -118,13 +118,13 @@ double Node::calculateNodeMC(int* weights){
     this->predictionInternalNode = 0;
     for(int j = 1; j < *this->nClassesDependendVar; j++){
         if(  sumsClassification [j] > correctClassified  ){
-            correctClassified= sumsClassification [j];
-            this->predictionInternalNode= j;
+            correctClassified = sumsClassification [j];
+            this->predictionInternalNode = j;
         }
     }
 
     delete [] sumsClassification;
-    sumsClassification= NULL;
+    sumsClassification = NULL;
     return ((double)correctClassified) / ((double)sumWeights);
 } // end calculateNodeMC
 
@@ -135,7 +135,7 @@ double Node::calculateNodeSE(int* weights){
         double squaredSum=0;
         int sumWeights= 0;
 
-        for(int i=0; i<*this->nInst; i++){
+        for(int i = 0; i < *this->nInst; i++){
             if( this->localClassification[i] == (this->pos)*2+1 || this->localClassification[i] == (this->pos)*2+2){
                  nodeMean += data[i][*this->nVar-1]*weights[i];
                  squaredSum += data[i][*this->nVar-1]*data[i][*this->nVar-1]*weights[i];
@@ -176,7 +176,7 @@ double Node::calculateChildNodeMC(bool leftNode, int* weights){
         int localMajorityClassVariable = 0;
         performance_cc = sumsClassification[0];
 
-        for(int i=1; i<*this->nClassesDependendVar; i++){
+        for(int i = 1; i < *this->nClassesDependendVar; i++){
             if(  sumsClassification [i] > performance_cc  ){  
                 performance_cc = sumsClassification [i];
                 localMajorityClassVariable = i;
@@ -186,7 +186,7 @@ double Node::calculateChildNodeMC(bool leftNode, int* weights){
         delete [] sumsClassification;
         sumsClassification = NULL;
 
-        if(leftNode==true){
+        if(leftNode == true){
             this->predictionLeftTerminal = localMajorityClassVariable;
             this->performanceLeftTerminal = performance_cc/((double)sumWeights);
         }else{
@@ -248,16 +248,16 @@ int Node::factorial( int n ){
 
 Node::~Node(){
        delete [] localClassification;
-       localClassification= NULL;
-       leftChild= NULL;
-       rightChild= NULL;
-       splitV= NULL;
-       splitP= NULL;
-       csplit= NULL;
-       leftChild= NULL;
-       rightChild= NULL;
-       nInst= NULL;
-       nVar= NULL;
-       data= NULL;
+       localClassification = NULL;
+       leftChild = NULL;
+       rightChild = NULL;
+       splitV = NULL;
+       splitP = NULL;
+       csplit = NULL;
+       leftChild = NULL;
+       rightChild = NULL;
+       nInst = NULL;
+       nVar = NULL;
+       data = NULL;
 } // ~end Node
 

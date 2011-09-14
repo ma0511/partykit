@@ -30,7 +30,7 @@
               split = partysplit(as.integer(mtree$splitV[id]), index = index)
         }
         node <- partynode(id = length(.evtree_gid), split = split,
-        if( id*2 < 2^(mtree$maxdepth-1) ){
+        if( id*2 < 2^(mtree$maxdepth) ){
               kids = list(
                         if( mtree$splitV[id*2] >= 0 ){
                             .initNode(id = id*2, mtree)

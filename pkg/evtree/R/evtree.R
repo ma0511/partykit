@@ -76,8 +76,8 @@ evtree <- function(formula, data, subset, na.action, weights, control = evtree.c
 
     # calculate the maximum number of internal nodes a tree with size control$maxdepth can have
     maxNode <- 1 # number of internal nodes
-    if (control$maxdepth > 2)
-    for(i in 1:(control$maxdepth-2) ){
+    if (control$maxdepth > 1)
+    for(i in 1:(control$maxdepth-1) ){
         maxNode <- maxNode*2+1
     }
     
