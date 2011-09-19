@@ -323,9 +323,9 @@ where the parameters \code{minbucket}, \code{minsplit}, and \code{maxdepth} cons
 
 An interesting application for classification tree analysis is target marketing, where limited resources are aimed at a distinct group of potential customers. An example of a marketing case study is provided by the \textit{Bookbinder's Book Club} \citep{lilien2004} dataset. The data is a marketing case study about a (fictitious) American book club. In this case study, a brochure of the book \textit{The Art History of Florence} was sent to 20,000 customers and 1,806 of which bought the book. The dataset contains a subsample of 1,300 customers for building a predictive model for the customers choice of buying the advertised book. Besides predictive accuracy, model complexity is a crucial issue in this application. More simple trees are easier to interpret and communicable to marketing experts and management professionals. 
 
-In the following analysis of the \textit{Bookbinder's Book Club} data \code{evtree} is used in conjunction with \code{rpart} and \code{ctree}. All trees are constrained to have a minimum number of 26 observations per terminal node ($2\%$ of the total number of observations). To avoid excessively large trees \code{ctree} is called with $\alpha = 1\%$. To provide uniform visualizations and predictions of the fitted models the \code{as.party()} function is used to convert \pkg{rpart} objects into objects of class \pkg{party}. The sample session starts with the construction and visualization of trees using the \code{rpart} and \code{ctree} methods. 
+This section continues with a sample session where \code{evtree} is used, in conjunction with \code{rpart} and \code{ctree}, to analyse the \textit{Bookbinder's Book Club} data. In this session, all trees are constrained to have a minimum number of $26$ observations per terminal node ($2\%$ of the total number of observations). To avoid excessively large trees \code{ctree} is called with $\alpha = 1\%$. To provide uniform visualizations and predictions of the fitted models the \code{as.party()} function is used to convert \pkg{rpart} objects into objects of class \pkg{party}. The sample session starts with the construction and visualization of trees using the \code{rpart} and \code{ctree} methods.
 %
-<<recursive-trees>>=
+<<rpart-ctree>>=
 data("BBBClub", package = "evtree")
 library("rpart")
 set.seed(1090)
@@ -354,11 +354,11 @@ plot(rp)
 plot(ct)
 @
 \end{minipage}
-\caption{\label{fig:example_rpart_ctree} Trees constructed by \code{rpart} (upper panel) and \code{ctree} (lower panel). Target variable is the customers choice of buying the book. The variables used for splitting are: \code{art} number of art books purchased; \code{first} number of months since the first purchase; \code{freq} number of books purchased at the BBB Club; \code{gender} the costumers gender.
+\caption{\label{fig:example_rpart_ctree} Trees constructed by \code{rpart} (upper panel) and \code{ctree} (lower panel). The target variable is the customers choice of buying the book. The variables used for splitting are: \code{art} number of art books purchased; \code{first} number of months since the first purchase; \code{freq} number of books purchased at the Bookbinder's Book Club; \code{gender} the customers gender.
 }
 \end{figure}
 %
-With the objective of building a smaller, but at least equally accurate tree, \code{evtree} is constrained to a maximum tree depth of $2$. The resulting tree is displayed in Figure~\ref{fig:example_evtree}. Alternatively the tree can be examined by the textual output provided by the \code{print()} function.
+With the objective of building a smaller, but at least equally accurate tree, \code{evtree} is constrained to a maximum tree depth of $2$. The resulting tree is displayed in Figure~\ref{fig:example_evtree}. Alternatively, the tree can be examined by the textual output provided by the \code{print()} function.
 %
 <<evtree-plot>>=
 ev <- evtree(choice ~ ., data = BBBClub, minbucket = 26, maxdepth = 2)
@@ -373,7 +373,7 @@ print(ev)
 <<iris-plot, fig=TRUE, echo=FALSE, width=12, height=7>>=
 plot(ev)
 @
-\caption{\label{fig:example_evtree} Tree constructed by \code{evtree}. Target variable is the customers choice of buying the book. The variables used for splitting are: \code{art} number of art books purchased; \code{first} number of months since the first purchase}
+\caption{\label{fig:example_evtree} Tree constructed by \code{evtree}. The target variable is the customers choice of buying the book. The variables used for splitting are: \code{art} number of art books purchased; \code{first} number of months since the first purchase.}
 \end{figure}
 %
 While the \code{rpart} model has $5$ terminal nodes and a tree depth of $4$, the tree constructed by \code{ctree} has $7$ terminal nodes and a tree depth of $3$. With a tree depth of $2$ and $4$ terminal nodes the \code{evtree} model is much simpler. 
@@ -401,7 +401,7 @@ sapply(c("evtree", "rpart", "ctree"), function(nam) {
 })
 @
 %
-Although the constructed trees are considerably different, the structure of the predictions are relatively similar. In this case, \code{evtree} classifies less customers ($186$) as buyers as \code{rpart} ($216$) and \code{ctree} ($278$). Of the customers classified as buyers, $72.6\%$ (\code{evtree}), $70.8\%$ (\code{rpart}) and $63.7\%$ (\code{ctree}) actually bought the book. 
+Although the constructed trees are considerably different, the structure of the predictions are relatively similar. In this case, \code{evtree} classifies less customers ($186$) as buyers as \code{rpart} ($216$) and \code{ctree} ($278$). Of the customers classified as buyers, $72.6\%$ (\code{evtree}), $70.8\%$ (\code{rpart}) and $63.7\%$ (\code{ctree}) actually bought the book. In a final step \code{rpart} and \code{ctree} models are fitted with the same constrained on the tree's depth (\code{maxdepth = 2}) as the previously fitted \code{evtree} model.
 %
 <<evtree-performance>>=
 rp <- as.party(rpart(choice ~ ., data = BBBClub, minbucket = 26, 
@@ -415,7 +415,7 @@ c("evtree" = mc(ev), "rpart" = mc(rp), "ctree" = mc(ct))
 c("evtree" = width(ev), "rpart" = width(rp), "ctree" = width(ct))
 @
 %
-\code{rpart} and \code{ctree} models are fitted with the same constrained on the tree's depth (\code{maxdepth = 2}) as the previous \code{evtree} model. With a misclassification rate of $24.3\%$, the \code{evtree} model is more accurate than the \code{rpart} model ($26.2\%$) and the \code{ctree} model ($25.5\%$). This shows an particular advantage of \code{evtree}, which is its ability to built the best tree for a given tree size. 
+With a misclassification rate of $24.3\%$, the \code{evtree} model is more accurate than the \code{rpart} model ($26.2\%$) and the \code{ctree} model ($25.5\%$). Due to its unbalanced structure, the \code{rpart} model has only $3$ terminal nodes. Hence, it does not use the maximum tree depth efficiently. In contrast, a global optimization algorithm like \code{evtree} can be used to search the best tree under given constraints.
 
 
 \section{Performance comparison}
