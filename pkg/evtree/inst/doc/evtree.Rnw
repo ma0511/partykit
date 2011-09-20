@@ -330,7 +330,7 @@ data("BBBClub", package = "evtree")
 library("rpart")
 set.seed(1090)
 rp <- as.party(rpart(choice ~ ., data = BBBClub, minbucket = 10))
-ct <- ctree(choice ~ ., data = BBBClub, mincrit = 0.99, minbucket = 10)
+ct <- ctree(choice ~ ., data = BBBClub, minbucket = 10, mincrit = 0.99)
 plot(rp)
 plot(ct)
 @
@@ -400,7 +400,7 @@ Although the constructed trees are considerably different, the structure of the 
 <<evtree-performance>>=
 rp <- as.party(rpart(choice ~ ., data = BBBClub, minbucket = 10, 
 maxdepth = 2))
-ct <- ctree(choice ~ ., data = BBBClub, mincrit = 0.99, minbucket = 10, 
+ct <- ctree(choice ~ ., data = BBBClub, minbucket = 10, mincrit = 0.99, 
 maxdepth = 2)
 
 mc <- function(obj) 1 - mean(predict(obj) == BBBClub$choice)

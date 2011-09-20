@@ -56,9 +56,9 @@ library("rpart")
 set.seed(1090)
 
 ## learn trees
-ev <- evtree(choice ~ ., data = BBBClub, maxdepth = 2)
-rp <- as.party(rpart(choice ~ ., data = BBBClub, minsplit = 50))
-ct <- ctree(choice ~ ., data = BBBClub, mincrit = 0.99)
+ev <- evtree(choice ~ ., data = BBBClub, minbucket = 10, maxdepth = 2)
+rp <- as.party(rpart(choice ~ ., data = BBBClub, minbucket = 10))
+ct <- ctree(choice ~ ., data = BBBClub, minbucket = 10, mincrit = 0.99)
 
 ## visualization
 plot(ev)
