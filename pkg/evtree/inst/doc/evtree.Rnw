@@ -1,5 +1,6 @@
 \documentclass[nojss]{jss}
 \usepackage{amssymb, amsmath, amsthm, booktabs, thumbpdf}
+\newcommand{\argmin}{\operatorname{argmin}\displaylimits}
 
 %% Sweave/vignette information and metadata
 %% need no \usepackage{Sweave}
@@ -90,6 +91,8 @@ results \citep{murthy1995dti}. However, for some problems, greedily induced
 trees can be far from the optimal solution, and a global search over the tree's
 parameter space can lead to much more compact and accurate models.
 
+\pagebreak
+
 The main challenge in growing globally optimal trees is that the search
 space is typically huge rendering full-grid searches computationally infeasible.
 One possibility to solve this problem is to use stochastic
@@ -141,14 +144,14 @@ advantages for the application to classification and regression trees.
 
 The remainder of this paper is structured as follows: Section~\ref{got}
 describes the problem of learning globally optimal decision trees and contrasts
-it to the locally optimal top-down heuristic that is utilized by recursive
+it to the locally optimal forward-search heuristic that is utilized by recursive
 partitioning algorithms. Section~\ref{desc} introduces the \code{evtree} algorithm
 before Section~\ref{impl} addresses implementation details along with an
 overview of the implemented functions. A benchmark comparison -- comprising
-14~benchmark datasets, 3 real-world datasets, and 3 simulated scenarios -- is carried out
+14~benchmark datasets, 3~real-world datasets, and 3~simulated scenarios -- is carried out
 in Section~\ref{comp}, showing that the predictive performance of \code{evtree}
-is often significantly better compared to commonly used algorithms \code{rpart}
-and \code{ctree} (from \pkg{party} package). Finally, Section~\ref{conc} gives
+is often significantly better compared to the commonly used algorithms \code{rpart}
+and \code{ctree} (from the \pkg{party} package). Finally, Section~\ref{conc} gives
 concluding remarks about the implementation and the performance of the new
 algorithm.
 
@@ -156,16 +159,14 @@ algorithm.
 \section{Globally and locally optimal decision trees}
 \label{got}
 
-The aim of classification and regression tree analysis can be stated by
-explaining a response variable $Y$ by a vector of $P$ predictor variables
+Classification and regression tree analysis aims at
+modeling a response variable $Y$ by a vector of $P$ predictor variables
 $X=(X_1,...,X_P)$. For classification trees the output variable $Y$ is
 qualitative and for regression trees $Y$ is quantitative. Tree-based methods
 first partition the input space $X$ into a set of $M$ rectangular regions $R_m$
-where $m = 1,...,M$. In the second step a model is fit to each region. The model
-fitted to the distribution of $\{Y \in R_m\}$ can be any proper measure of the
-location, e.g. the median, or dispersion, e.g. the variance, of a random
-variable. Typically the mode is used for classification trees and the arithmetic
-mean is applied for regression trees. 
+($m = 1,...,M$) then fit a (typically simple) model within each region $\{Y | X \in R_m\}$,
+e.g., the mean, median, or variance etc. Typically, the mode is used for
+classification trees and the arithmetic mean is applied for regression trees. 
 
 In this work only binary tree models are considered, where regions are split
 into two halves at a time. However, this is not a big issue in global tree
@@ -216,7 +217,7 @@ The overall goal of classification and regression tree analysis can be defined
 as finding a set of parameters $\hat{\theta}$, such that
 %
 \begin{equation}
-	\hat{\theta} = \operatorname*{\arg \,\min}_{\theta \in \Theta} \; loss(Y, f(X,\theta)) + comp(\theta).
+	\hat{\theta} = \argmin_{\theta \in \Theta} \; \mathit{loss}(Y, f(X,\theta)) + \mathit{comp}(\theta).
 	\label{generalcostfunction}
 \end{equation}
 %
@@ -252,7 +253,7 @@ position of the new internal node $r$, as well as the corresponding split
 variable $v_r$ and split point $s_r$, are chosen such that:
 %
 \begin{equation}
-		\min_{v_r, s_r} \; loss(Y, f(X, \tilde{\theta}_{i-1} \cup (v_r, s_r) ))
+		\min_{v_r, s_r} \; \mathit{loss}(Y, f(X, \tilde{\theta}_{i-1} \cup (v_r, s_r) ))
 	\label{eq:whichsplit}
 \end{equation}
 %
@@ -274,7 +275,7 @@ used by CART is called \textit{cost-complexity pruning}. Cost-complexity pruning
 iteratively prunes the internal node that:
 %
 \begin{equation}
-		\min_{r=1,...,n_{M-1}} \; loss(Y, f(X,\tilde{\theta}_i \setminus (v_r, s_r )))  + comp(\tilde{\theta}_i \setminus (v_r, s_r)).
+		\min_{r=1,...,n_{M-1}} \; \mathit{loss}(Y, f(X,\tilde{\theta}_i \setminus (v_r, s_r )))  + \mathit{comp}(\tilde{\theta}_i \setminus (v_r, s_r)).
 	\label{eq:pruning}
 \end{equation}
 %
@@ -424,7 +425,7 @@ The evaluation function represents the requirements the population should adapt 
 The quality of a classification tree is most commonly measured as a function of its misclassification loss $MC(Y, f(X, \theta)) = \sum_{n=1}^N I(Y_n \neq \hat{f}(X_{\cdot n}, \theta))$, and the complexity of a tree by a function of the number of its terminal nodes $M$. \code{evtree} uses $2 \cdot MC(Y, f(X, \theta))$ as a loss function. The number of terminal nodes, weighted by $\ln N$ and a user-specified parameter $\alpha$, measures the complexity of trees. With these particular choices, the general definition of the optimization problem in Equation~\ref{generalcostfunction} can be written as:
 
 \begin{equation}
-	 \hat{\theta} = \operatorname*{\arg \,\min}_{\theta \in \Theta} \; 2 \cdot MC(Y, f(X, \theta))+\alpha \cdot M \cdot \ln N.
+	 \hat{\theta} = \argmin_{\theta \in \Theta} \; 2 \cdot MC(Y, f(X, \theta))+\alpha \cdot M \cdot \ln N.
 \label{eq:classification}
 \end{equation}
 
@@ -438,7 +439,7 @@ Other, existing and commonly used choices of evaluation functions include the \t
 For regression trees, accuracy is usually measured by the mean squared error $\mathit{MSE}(Y, f(X, \theta))= \sum_{n=1}^N (Y_n - f(X_{\cdot n}, \theta)^2)$. Using $N \cdot \ln \mathit{MSE}(Y, f(X, \theta))$ as a loss function and $\alpha \cdot 4 \cdot (M+1) \cdot \ln N$ as the complexity part, the general formulation of the optimization problem in Equation~\ref{generalcostfunction} can be rewritten as:
 
 \begin{equation}
-	 \hat{\theta} = \operatorname*{\arg \,\min}_{\theta \in \Theta} \; N \cdot \ln \mathit{MSE}(Y, f(X, \theta))+\alpha \cdot 4 \cdot (M+1) \cdot \ln N.
+	 \hat{\theta} = \argmin_{\theta \in \Theta} \; N \cdot \ln \mathit{MSE}(Y, f(X, \theta))+\alpha \cdot 4 \cdot (M+1) \cdot \ln N.
 \label{eq:regression}
 \end{equation} 
 
