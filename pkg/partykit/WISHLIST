@@ -1,4 +1,7 @@
 
+- test/ctree-ctree.R: check results and make this a permanent test against
+  party (but only doing the troublesome checks) (TH)
+
 x - model.frame.party (Z)
 
 x - model.frame in predict -> na.action?
