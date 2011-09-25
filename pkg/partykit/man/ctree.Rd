@@ -25,6 +25,15 @@ ctree(formula, data, weights, subset, na.action = na.pass,
 }
 \details{
 
+  Function \code{partykit::ctree} is a reimplementation of (most of)
+  \code{party::ctree} employing the new \code{\link{party}} infrastructure
+  of the \pkg{partykit} infrastructure. Although the new code was already 
+  extensively tested, it is not yet as mature as the old code. If you notice
+  differences in the structure/predictions of the resulting trees, please
+  contact the package maintainers. See also below for some remarks about
+  the internals of the different implementations and how they should be
+  merged in future releases.
+  
   Conditional inference trees estimate a regression relationship by binary recursive
   partitioning in a conditional inference framework. Roughly, the algorithm
   works as follows: 1) Test the global null hypothesis of independence between
@@ -62,6 +71,18 @@ ctree(formula, data, weights, subset, na.action = na.pass,
   For a general description of the methodology see Hothorn, Hornik and
   Zeileis (2006) and Hothorn, Hornik, van de Wiel and Zeileis (2006).
 
+  Implementation details and roadmap: As pointed above, the function \code{ctree}
+  is a reimplementation of \code{\link[party]{ctree}}. Not only
+  the R code changed but also the underlying C code which at the moment
+  does not support the \code{xtrafo} and \code{ytrafo} arguments due to
+  efficiency considerations. The roadmap for future releases is the following:
+  (1) Make \pkg{party} depend on \pkg{partykit}. (2) Merge the R code into
+  a single \code{ctree} function but keeping the two underlying C functions
+  separate. (3) The new interface will always return an object of class
+  \code{\link{party}} but call the new and more efficient C code only if
+  \code{xtrafo} was not used (while \code{ytrafo} should be integrated into
+  the new C code).
+
 }
 \value{
   An object of class \code{\link{party}}.
@@ -78,8 +99,8 @@ ctree(formula, data, weights, subset, na.action = na.pass,
    Torsten Hothorn, Kurt Hornik and Achim Zeileis (2006). Unbiased Recursive
    Partitioning: A Conditional Inference Framework. \emph{Journal of
    Computational and Graphical Statistics}, \bold{15}(3), 651--674. 
-   Preprint available
-   from \url{http://statmath.wu-wien.ac.at/~zeileis/papers/Hothorn+Hornik+Zeileis-2006.pdf}
+   Preprint available from 
+   \url{http://eeecon.uibk.ac.at/~zeileis/papers/Hothorn+Hornik+Zeileis-2006.pdf}
 
 }
 \examples{
