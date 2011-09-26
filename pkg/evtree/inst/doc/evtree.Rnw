@@ -2,6 +2,10 @@
 \usepackage{amssymb, amsmath, amsthm, booktabs, thumbpdf}
 \newcommand{\argmin}{\operatorname{argmin}\displaylimits}
 
+%% for internal use
+\newcommand{\fixme}[1]{\emph{\marginpar{FIXME} (#1)}}
+\newcommand{\readme}[1]{\emph{\marginpar{README} (#1)}}
+
 %% Sweave/vignette information and metadata
 %% need no \usepackage{Sweave}
 \SweaveOpts{engine = R, eps = FALSE, keep.source = TRUE}
@@ -161,156 +165,124 @@ algorithm.
 
 Classification and regression tree analysis aims at
 modeling a response variable $Y$ by a vector of $P$ predictor variables
-$X=(X_1,...,X_P)$. For classification trees the output variable $Y$ is
+$X=(X_1,...,X_P)$ where for classification trees $Y$ is
 qualitative and for regression trees $Y$ is quantitative. Tree-based methods
 first partition the input space $X$ into a set of $M$ rectangular regions $R_m$
 ($m = 1,...,M$) then fit a (typically simple) model within each region $\{Y | X \in R_m\}$,
 e.g., the mean, median, or variance etc. Typically, the mode is used for
 classification trees and the arithmetic mean is applied for regression trees. 
 
-In this work only binary tree models are considered, where regions are split
-into two halves at a time. However, this is not a big issue in global tree
-induction. As binary splits are searched globally and any multiway split can be
-represented by a series of binary splits. Based on a set of split rules, binary
-classification and regression trees recursively partition the input space $X$
-into two regions. Samples that fulfill the criterion of a split rule propagate
-down into the descendant left node and the other instances into the right node.
-Split points of a tree are termed \textit{internal nodes} and nodes without
-successors are called \textit{terminal nodes}. A binary tree with $M$ terminal
-nodes has $M-1$ internal nodes. Generally, the maximum number of terminal nodes
-$M_{max}=\infty$. In practice, $M_{max}$ is restricted by the maximum tree depth
-$D_{max}$ as $M_{max} = 2^{D_{max}}-1$. When the trees are constrained to have a
-minimum number of observations in the internal and/or terminal nodes, $M_{max}$
-is also restricted by the finiteness of the training data. 
+To show why forward-search recursive partitioning algorithms typically
+lead to globablly suboptimal solutions, their parameter spaces and optimization
+problems are presented and contrasted in a unified notation. Although all
+arguments hold more generally, only binary tree models with some maximum number
+of splits $M_{\max}$ are considered. Both restrictions make the notation somewhat
+simpler while not really restricting the problem: (a)~Multiway splits are equivalent
+to a sequence of binary splits in predictions and number of resulting subsamples.
+(b)~The maximal size of the tree is always limited by the number of observations
+in the learning sample.
 
-A binary tree model can be uniquely defined by the positions of the internal
-nodes, being a subset of $\{1,...,M_{max}-1\}$, and the corresponding split
-rules. Let the positions of the internal nodes of a tree with $M-1$ terminal
-nodes be indicated by $n_1,...,n_{M-1}$. The positions $\{n_1,...,n_{M-1}\} \in
-\{1,...,M_{max}-1\}$ and $n_i < n_j \Leftrightarrow i < j$. Let the variable
-selected for splitting, at a new position $r \in n_1,...,n_{M_{max}-1}$, be
-denoted as $v_r$, where $v_r=1,...,P$. Depending on the domain of $X_{v_r}$, a
-split point or a set of categories has to be selected, which we denote as $s_r$.
-If $X_{v_r}$ is numerical or ordinal, a binary split rule is defined as $X_{v_r}
-< s_r$. If $X_{v_r}$ has $u$ unique values, then there are $u-1$ possible split
-points and $s_r=1,...,u-1$. In the case of a nominal split variable $X_{v_r}$, a
-split rule is defined as $X_{v_r} \in s_r$, where $s_r \subset \{1,...,K\}$ and
-$s_r \neq \{\emptyset\}$. If $X_{v_r}$ has $K$ categories there are $2^{K-1}-1$
-possible splits. 
+In the following, a binary tree model with $M$ terminal nodes (which consequently has
+$M-1$ internal splits) is denoted by
+%
+\begin{equation}
+  \theta ~=~ (v_{n_1}, s_{n_1},...,v_{n_{M-1}},s_{n_{M-1}} ), \label{eq:tree}
+\end{equation}
+%
+where the $n_r \in \{1,...,M_{\max}-1\}$ are the positions of the
+internal \emph{nodes}, $v_r \in \{1, \dots ,P\}$ the associated splitting
+\emph{variables}, and $s_r$ the associated \emph{split} rules ($r = 1, \dots, M-1$).
+Depending on the domain of $X_{v_r}$, the split rule $s_r$ contains either a cutoff
+(for ordered and numeric variables) or a a nonempty subset of $\{1, \dots, c\}$
+(for a categorical variable with $c$~levels), determining which observations are
+sent to the first or second subsample. In the former case, there are $u-1$ possible
+split rules if $X_{v_r}$ takes $u$ distinct values; and in the latter case, there
+are $2^{c-1} - 1$ possible splits. Thus, the product of all of these combinations
+forms all potential elements $\theta$ from $\Theta_M$, the space of conceivable
+trees with $M$ terminal nodes. The overall parameter space is then 
+$\Theta =\bigcup_{M=1}^{M_{\max}} \Theta_{M}$ (which in practice is often reduced
+by exluding elements $\theta$ resulting in too small subsamples etc.).
+
+Finally, $f(X,\theta)$ denotes the prediction function based on all explanatory
+variables $X$ and the chosen tree structure $\theta$ from Equation~\ref{eq:tree}.
+As pointed out above, this is typically constructed using the means or modes in the respective
+partitions of the learning sample.
 
 
 \subsection{The parameter space of globally optimal decision trees}
 
 As done by \cite{breiman1984cart}, let the complexity of a tree be measured by a
 function of the number of terminal nodes, without further considering the depth
-or the shape of trees. Then the overall parameter space $\Theta$ can be written
-as $\Theta =\bigcup_{M=1}^{M_{max}} \Theta_{M}$, where $\Theta_M$ denotes the
-parameter space of models with $M$ terminal nodes. Let $\theta$ be a generic
-element of $\Theta$, then $\theta$ is fully defined by:
+or the shape of trees. The goal is then to find that classification and regression tree
+which optimizes some tradeoff between predicition performance and complexity:
 %
-\begin{equation}
-	 \theta=(v_{n_1}, s_{n_1},...,v_{n_{M-1}},s_{n_{M-1}} ).
-	\label{treeRep}
+\begin{equation} \label{eq:globally}
+  \hat{\theta} ~=~ \argmin_{\theta \in \Theta} \; \mathrm{loss}\{Y, f(X,\theta)\} ~+~ \mathrm{comp}(\theta).
 \end{equation}
 %
-The overall goal of classification and regression tree analysis can be defined
-as finding a set of parameters $\hat{\theta}$, such that
-%
-\begin{equation}
-	\hat{\theta} = \argmin_{\theta \in \Theta} \; \mathit{loss}(Y, f(X,\theta)) + \mathit{comp}(\theta).
-	\label{generalcostfunction}
-\end{equation}
-%
-Based on the input data $X$ and the parameters $\theta$, $f(X,\theta)$ gives
-predictions for the output $Y$. $loss$ is a suitable loss function for the
-domain of $Y$. Commonly, the misclassification error for classification
-problems, or the squared error for regression problems, is used. $comp$
-quantifies the complexity of trees and penalizes for more complex models in the
-tree selection process. In CART, the complexity is a non-negative function of
-the terminal-nodes. Note that finding $\hat{\theta}$ requires a search over all
-$\Theta_m$.
+where $\mathrm{loss}(\cdot, \cdot)$ is a suitable loss function for the
+domain of $Y$; typically, the misclassification rate MC 
+and the mean squared error MSE are employed for classification and regression,
+respectively. The function $\mathrm{comp}(\cdot)$ is a function that is monotonically
+non-decreasing in the number of terminal nodes $M$ of the tree $\theta$, thus penalizing
+more complex models in the tree selection selection process.
+Note that finding $\hat{\theta}$ requires a search over all $\Theta_M$.
 
 The parameter space $\Theta$ becomes large for already medium sized problems and
 a complete search for larger problems is computationally intractable. In fact,
 \cite{hyafil1976cob} showed that building optimal binary decision trees, such
-that the expected number of tests required to classify an unknown sample is
+that the expected number of splits required to classify an unknown sample is
 minimized, is NP-complete. \cite{zantema2000finding} proved that finding a
-decision tree of minimal size that is decision equivalent to a given decision
-tree is an NP-hard problem. As a consequence the search space is usually limited
+decision tree of minimal size that is decision-equivalent to a given decision
+tree is also NP-hard. As a consequence the search space is usually limited
 by heuristics. 
 
 
 \subsection{The parameter space of locally optimal decision trees}
 
-Instead of searching all combination of $\Theta$ simultaneously, recursive
+Instead of searching all combinations in $\Theta$ simultaneously, recursive
 partitioning algorithms only consider one split at a time. At each internal node
-$r \in \{n_1,..., n_{M-1}\}$, the split variable $X_{v_r}$ and the corresponding
-split point $s_r$ is selected such that it minimizes the impurity in the two
-resulting terminal nodes. Let the parameters of a tree, constructed in
-$i$-steps, be denoted as $\tilde{\theta}_{i}$ and $\tilde{\theta}_{0} =
-(\emptyset)$. Then, for a tree with parameters $\tilde{\theta}_{i}$, the
-position of the new internal node $r$, as well as the corresponding split
-variable $v_r$ and split point $s_r$, are chosen such that:
+$r \in \{n_1,..., n_{M-1}\}$, the split variable $v_r$ and the corresponding
+split point $s_r$ are selected to locally minimize the loss function.
+Starting with an empty tree $\theta_0 = (\emptyset)$, the tree is first grown 
+recursively for and subsequently \emph{pruned} to satisfy the complexity tradeoff:
 %
-\begin{equation}
-		\min_{v_r, s_r} \; \mathit{loss}(Y, f(X, \tilde{\theta}_{i-1} \cup (v_r, s_r) ))
-	\label{eq:whichsplit}
-\end{equation}
+\begin{eqnarray} \label{eq:locally}
+  \bar \theta_r
+    & = & \argmin_{ \theta = \theta_{r-1} \cup (v_r, s_r)} \; \mathrm{loss}\{Y, f(X, \theta)\} 
+    \qquad (r = 1, \dots, M_{\max} -1), \\
+  \bar \theta
+    & = & \argmin_{\bar \theta_r} \; \mathrm{loss}\{Y, f(X, \bar \theta_r)\} ~+~ \mathrm{comp}(\bar \theta_r).
+  \label{eq:pruning}
+\end{eqnarray}
 %
-CART's standard measures for node impurity are the Gini index, for
-classification problems and the mean squared error, for regression problems.
-After the selection of the $i^{th}$ split $\tilde{\theta}_{i}$ is given by
-$\tilde{\theta}_{i} = \tilde{\theta}_{i-1}  \cup (\hat{v}_r, \hat{s}_r)$. This
-process of recursively selecting and executing splits continues until the
-homogeneity of the nodes cannot be further improved. Additionally, often
-additional stopping criteria are defined, e.g. minimum sample sizes in the
-internal nodes and terminal nodes.
+For nontrivial problems, forward-search recursive partitioning methods only search a small
+fraction of the global search space $(v_1, s_1, \dots, v_{M_{\max}-1},
+s_{M_{\max}-1} )$. They only search each $(v_r, s_r)$ once, and independently of
+the subsequent split rules, hence typically leading to a globally suboptimal solution
+$\bar \theta$.
 
-In CART, and many other recursive tree methods, the tree growing step is
-followed by a pruning step. The idea behind pruning is to first grow a large
-tree without or with little restriction on the magnitude of impurity reduction.
-Starting from the bottom of the tree pruning then removes worthless splits. The
-method proposed by Breiman \textit{et al.} \cite[Chapter 2]{breiman1984cart} and
-used by CART is called \textit{cost-complexity pruning}. Cost-complexity pruning
-iteratively prunes the internal node that:
-%
-\begin{equation}
-		\min_{r=1,...,n_{M-1}} \; \mathit{loss}(Y, f(X,\tilde{\theta}_i \setminus (v_r, s_r )))  + \mathit{comp}(\tilde{\theta}_i \setminus (v_r, s_r)).
-	\label{eq:pruning}
-\end{equation}
-%
-The subsequent solution $\tilde{\theta}_{i+j+1} = \tilde{\theta}_{i+j} \setminus
-(\hat{v}_r, \hat{s}_r)$, where $j$ is the number of completed pruning steps.
-
-For nontrivial problems, recursive partitioning methods only search a small
-fraction of the global search space $(v_1, s_1, ..., v_{M_{max}-1},
-s_{M_{max}-1} )$. They only search each $(v_r, s_r)$ once, and independently of
-the other split rules. The selection of $v_r$ and $s_r$ at each step $i$
-requires a search of the locally optimal split over $M=i$ terminal nodes. The
-pruning step requires $j$ selections of an internal node $r$.
-
-In contrast to CART and C4.5, conditional inference trees utilize an unbiased
-variable selection approach that is based on permutation testing. Bias in the
-split variable selection process arises from a preference towards variables with
-many potential split points. The conditional inference framework overcomes this
-problem by separating the variable and split point selection. Although this
-distinction influences the selection of split rules, conditional inference tree
-solve the same minimization problem (Equation~\ref{eq:whichsplit}). The
-\code{ctree} implementation of conditional inference trees does not employ
-pruning, but uses a statistical stopping criterion.
+Note that the notation above uses an exhaustive search for the $r$-th split,
+jointly over $(v_r, s_r)$, as is employed in CART or C4.5. So-called \emph{unbiased}
+recursive partitioning techniques modify this search by first seleting the variable $v_r$ using
+statistical significance tests and subsequently selecting the optimal split $s_r$ for that
+particular variable. This approach is used in conditional inference trees
+\citep[see][for references to other algorithms]{hothorn2006urp} and avoids selecting
+variables with many potential splits more often than those with fewer potential
+splits.
 
 
 \subsection{An illustration of the limitations of locally optimal decision trees}
 
-A very simple example that illustrates the limitation of recursive partitioning
+A very simple example that illustrates the limitation of forward-search recursive partitioning
 methods is depicted in Figure~\ref{fig:illustration}. The example only contains
-two independent variables and can be solved with only three splits that
+two independent variables and can be solved with three splits that
 partition the input space into four regions. As expected the recursive
 partitioning methods \code{rpart} and \code{ctree} fail to find any split at
-all, as the impurity of the resulting subsets cannot be reduced by the first
+all, as the loss function on the resulting subsets cannot be reduced by the first
 split. For methods that explore $\Theta$ in a more global fashion it is
-straightforward to find an optimal solution to this problem. One solution, which
-is the tree constructed by \code{evtree} is given by: 
+straightforward to find an optimal solution to this problem. One solution
+is the tree constructed by \code{evtree}: 
 %
 <<chess22, echo=FALSE>>=
 X1 <- rep(seq(0.25, 1.75, 0.5), each = 4)
@@ -331,22 +303,58 @@ plot(X2 ~ X1, data = chess22, xlim = c(0, 2), ylim = c(0, 2), pch = c(1, 4)[Y], 
 \caption{\label{fig:illustration} Class distribution of  the $(X_1, X_2)$-plane. The two classes are indicated by black circles and gray crosses.}
 \end{figure}
 
-All instances all are classified correctly. Each of the terminal nodes~3 and~7 contain four instances of the class \code{X}. Four instances of class
+All instances are classified correctly. Each of the terminal nodes~3 and~7 contain four instances of the class \code{X}. Four instances of class
 \code{O} are assigned to each of the terminal nodes~4 and~6.
 
 
 \subsection{Approaches for learning globally optimal decision trees}
 
-When compared with the described forward stepwise search, a less greedy approach is to calculate the effects of the choice of the split rule deeper down in the tree. In this way optimal trees can be found for simple problems. However, feature selection at a node of greedily induced trees has complexity  $O(PN)$. Through a search of the optimal split up to $d-1$ levels the complexity increases to $O(P^dN^d)$ \citep{papagelis2001bdt}. Therefore, for more difficult problems the search space at each node must be limited by the depth of the search. Additionally, the search space can be reduced, limiting the number of possible split points of the selected variables and/or other heuristics. These methods are known as \textit{look-ahead algorithms} \citep{esmeir2007ald}. Another class of algorithms is given by stochastic optimization methods. Given an initial tree, these methods seek improved solutions through stochastic changes to the tree structure. Besides evolutionary algorithms \citep{koza1991concept}, \textit{Bayesian CART} \citep{denison1998bca} and \textit{simulated annealing} \citep{sutton1992ict} were used successfully to solve difficult classification and regression tree problems. \cite{koza1991concept} first formulated the concept of using evolutionary algorithms as a stochastic optimization method to build classification and regression trees. \cite{papagelis2001bdt} presented a classification tree algorithm and provided results on several datasets from the UCI machine learning repository \citep{Frank+Asuncion:2010}. A method for the construction of regression trees via evolutionary algorithms was introduced by \cite{fan2005rta}.  \cite{cantu2003inducing} used an evolutionary algorithm to induce oblique classification trees. \cite{gray2008cta} introduced a classification tree algorithm that allows univariate splits, but also splits defined by linear combinations of two or three variables. 
+When compared with the described forward stepwise search, a less greedy approach
+is to calculate the effects of the split rules deeper down in the
+tree. In this way optimal trees can be found for simple problems. However,
+split selection at a given node in Equation~\ref{eq:locally} has complexity  $O(PN)$
+(if all $P$ variables are numeric/ordered with $N$ distinct values).
+Through a global search up to $M-1$ levels (\ref{eq:globally}) the complexity
+increases to $O(P^M N^M)$ \citep{papagelis2001bdt}. One conceivable compromise
+between these two extremes is to look ahead $d$~steps with $1 < d < M$
+\citep[see e.g.,][]{esmeir2007ald}, also yielding a locally optimal tree but
+less constrained than that from a 1-step-ahead search.
+Another class of algorithms is given by stochastic optimization methods that,
+given an initial tree, seek improved solutions through stochastic changes to
+the tree structure. Thus, these algorithms try to explore the full parameter
+space $\Theta$ but cannot be guaranteed to find the globally optimal solution
+but only an approximation thereof. Besides evolutionary algorithms
+\citep{koza1991concept}, \textit{Bayesian CART} \citep{denison1998bca} and
+\textit{simulated annealing} \citep{sutton1992ict} were used successfully to
+solve difficult classification and regression tree problems.
+\cite{koza1991concept} first formulated the concept of using evolutionary
+algorithms as a stochastic optimization method to build classification and
+regression trees. \cite{papagelis2001bdt} presented a classification tree
+algorithm and provided results on several datasets from the UCI machine learning
+repository \citep{Frank+Asuncion:2010}. Another method for the construction of
+classification and regression trees via evolutionary algorithms was introduced by
+\cite{gray2008cta} and \cite{fan2005rta}, respectively.
+\cite{cantu2003inducing} used an evolutionary algorithm to induce so-called oblique
+classification trees.
+
 
 \section[The evtree algorithm]{The \code{evtree} algorithm}
 \label{desc}
 
-The general framework of evolutionary algorithms emerged from different representatives. \cite{Holland} called his method \textit{genetic algorithms}, \cite{rechenberg} invented \textit{evolution strategies}, and \cite{Fogel} introduced \textit{evolutionary programming}. More recently, \cite{Koza} introduced a fourth stream and called it \textit{genetic programming}. All four representatives only differ in the technical details, for example the encoding of the individual solutions, but follow the same general outline \citep{eiben2003iec}. Evolutionary algorithms are being increasingly widely applied to a variety of optimization and search problems. Common areas of application include data mining \citep{freitas2002sea,cano2003uea}, statistics \citep{de34glmulti}, signal and image processing \citep{man1997gac}, and planning and scheduling \citep{jensen2001raf}. 
- 
-The pseudocode for the general scheme of an evolutionary algorithm is depicted in Table~\ref{pc:genericEA}. With the description of these components together with the definition of individuals, the most important aspects of an evolutionary algorithm are specified. The representation of an individual is given by a binary tree structure, which is fully defined with the definition of $\theta$ in Equation~\ref{treeRep}. This section continues with the description of the remaining components following the general outline displayed in Table~\ref{pc:genericEA}. 
+The general framework of evolutionary algorithms emerged from different
+representatives. \cite{Holland} called his method \textit{genetic algorithms},
+\cite{rechenberg} invented \textit{evolution strategies}, and \cite{Fogel}
+introduced \textit{evolutionary programming}. More recently, \cite{Koza}
+introduced a fourth stream and called it \textit{genetic programming}. All four
+representatives only differ in the technical details, for example the encoding
+of the individual solutions, but follow the same general outline
+\citep{eiben2003iec}. Evolutionary algorithms are being increasingly widely
+applied to a variety of optimization and search problems. Common areas of
+application include data mining \citep{freitas2002sea,cano2003uea}, statistics
+\citep{de34glmulti}, signal and image processing \citep{man1997gac}, and
+planning and scheduling \citep{jensen2001raf}. 
 
-\begin{table}[t!]
+\begin{table}[b!]
 \centering
 \hrulefill
 \begin{enumerate}
@@ -361,120 +369,305 @@ The pseudocode for the general scheme of an evolutionary algorithm is depicted i
   \end{itemize}
 \end{enumerate}
 \hrulefill
-\caption{Pseudocode of the general schema of an evolutionary algorithm.} 
+\caption{Pseudocode of the general evolutionary algorithm.} 
 \label{pc:genericEA}
 \end{table}
 
-This section describes the general functioning of the \code{evtree} algorithm. Implementation details as user-specified parameters, including their default values and their possible ranges, are discussed in the subsequent section. These implementation details also include parameters that specify a minimum number of observation that are required in each internal node and  terminal node of a tree. In the following, the term \textit{invalid node} refers to a node that do not contain enough observations. 
+The pseudocode for the general evolutionary algorithm is provided
+in Table~\ref{pc:genericEA}. In the context of classification and regression trees,
+all \emph{individuals} from the population (of some given size) are $\theta$s as defined in 
+Equation~\ref{eq:tree}. The details of their evolutionary selection is
+given below following the general outline displayed in Table~\ref{pc:genericEA}.
+
+As pointed out in Section~\ref{got}, some elements $\theta \in \Theta$ are typically
+excluded in practice to satisfy minimal subsample size requirements.
+In the following, the term \emph{invalid node} refers to such excluded cases,
+not meeting sample size restrictions.
 
 
 \subsection{Initialization}
 \label{init}
 
-Each tree of the population is initialized with a valid, randomly generated, split rule in the root node. First, $v_1$ is selected with uniform probability from $1,...,P$. Second, a split point $s_1$ is selected. If $X_{v_1}$ is numeric or ordinal with $u$ unique values, a split point $s_1$ is selected with uniform probability from the $u-1$ possible spit points of $X_{v_1}$. If $X_{v_1}$ is nominal and has $K$ categories, each $k=1,...,K$ has a probability of $50\%$ to be assigned to the left or the right terminal node. In cases where all $k$ are allocated to the same terminal node, the assignment of one category is flipped to the other terminal node. If this procedure results in a non-valid split rule, the two steps of random split variable selection and split point selection are repeated. With the definition of $r=1$ and the selection of $v_1$ and $s_1$, the initialized tree is fully described by $\tilde{\theta}_{1}= (v_1, s_1)$. 
+Each tree of the population is initialized with a valid, randomly generated,
+split rule in the root node. First, $v_1$ is selected with uniform probability
+from $1,...,P$. Second, a split point $s_1$ is selected. If $X_{v_1}$ is numeric
+or ordinal with $u$ unique values, a split point $s_1$ is selected with uniform
+probability from the $u-1$ possible spit points of $X_{v_1}$. If $X_{v_1}$ is
+nominal and has $c$ categories, each $k=1,...,c$ has a probability of $50\%$ to
+be assigned to the left or the right daughter node. In cases where all $k$ are
+allocated to the same terminal node, the assignment of one category is flipped
+to the other terminal node. If this procedure results in a non-valid split rule,
+the two steps of random split variable selection and split point selection are
+repeated. With the definition of $r=1$ and the selection of $v_1$ and $s_1$, the
+initialization is complete and each individual of the population of trees is of
+type $\tilde{\theta}_{1}= (v_1, s_1)$. 
 
 
 \subsection{Parent selection}
 \label{parent}
 
-In every iteration, each tree is selected once to be modified by one of the variation operators. In cases where the crossover operator is applied, the second parent is selected randomly from the remaining population. In this way, some trees are selected more than once in each iteration. 
+In every iteration, each tree is selected once to be modified by one of the
+variation operators. In cases where the crossover operator is applied, the
+second parent is selected randomly from the remaining population. In this way,
+some trees are selected more than once in each iteration. 
 
 
 \subsection{Variation operators}
 \label{vari}
 
-Four types of mutation operators and one crossover operator are utilized by our algorithm. In each modification step, one of the variation operators is randomly selected for each tree. The mutation and crossover operators are described below. 
+Four types of mutation operators and one crossover operator are utilized by our
+algorithm. In each modification step, one of the variation operators is randomly
+selected for each tree. The mutation and crossover operators are described
+below. 
 
 \subsubsection{Split}
 
-\textit{Split} selects a random terminal-node and assigns a valid, randomly generated, split rule to it. As a consequence, the selected terminal node becomes an internal node $r$ and two new terminal nodes are generated. 
+\textit{Split} selects a random terminal-node and assigns a valid, randomly
+generated, split rule to it. As a
+consequence, the selected terminal node becomes an internal node $r$ and
+two new terminal nodes are generated. 
 
-The split rule of the new internal node is chosen as follows. First, $v_r$ is selected with uniform probability from $1,...,P$. Second, a split point $s_r$ is selected. If $X_{v_r}$ is numeric or ordinal, a split point $s_r$ is selected with uniform probability from the $u-1$ possible spit points of $X_{v_r}$. If $X_{v_r}$ is nominal, each category of $X_{v_r}$, has a probability of $50\%$ to be assigned to the left or the right terminal node. In cases where all $k$ are allocated to the same terminal node, one of them is changed to the other terminal node. If this procedure results in a non-valid split rule, the two steps of random split variable selection and split point selection are repeated for a maximum of $P$ iterations. 
-
-In cases where no valid split rule can be assigned to the internal node at position $r$, the search for a valid split rule is carried out on another randomly selected terminal node. If, after $10$ attempts, no valid split rule can be found, then $\tilde{\theta}_{i+1} = \tilde{\theta}_{i}$. Otherwise, the set of parameters in iteration $i+1$ are given by $\tilde{\theta}_{i+1}= \tilde{\theta}_i \cup (v_{r},s_{r})$.
+The search for a valid split rule is conducted as in see Section~\ref{init}
+for a maximum of $P$ iterations. 
+In cases where no valid split rule can be assigned to the internal node at
+position $r$, the search for a valid split rule is carried out on another
+randomly selected terminal node. If, after 10~attempts, no valid split rule
+can be found, then $\tilde{\theta}_{i+1} = \tilde{\theta}_{i}$. Otherwise, the
+set of parameters in iteration $i+1$ are given by $\tilde{\theta}_{i+1}=
+\tilde{\theta}_i \cup (v_{r},s_{r})$.
 
 \subsubsection{Prune}
-\textit{Prune} chooses a random internal node $r$, where $r>1$, which has two terminal nodes as successors and prunes it into a terminal node. The tree's parameters at iteration $i+1$ are $\tilde{\theta}_{i+1}=\tilde{\theta}_{i} \setminus (v_{r},s_{r})$. If $\tilde{\theta}_{i}$ only comprises one internal node, i.e., the root node, than $\tilde{\theta}_{i+1} = \tilde{\theta}_{i}$.
+
+\textit{Prune} chooses a random internal node $r$, where $r>1$, which has two
+terminal nodes as successors and prunes it into a terminal node. The tree's
+parameters at iteration $i+1$ are $\tilde{\theta}_{i+1}=\tilde{\theta}_{i}
+\setminus (v_{r},s_{r})$. If $\tilde{\theta}_{i}$ only comprises one internal
+node, i.e., the root node, then $\tilde{\theta}_{i+1} = \tilde{\theta}_{i}$.
 
 \subsubsection{Major split rule mutation}
-\textit{Major split rule mutation} selects a random internal node $r$ and changes the split rule, defined by the corresponding split variable $v_r$, and the split point $s_r$. With a probability of $50\%$, a value from the range $1,...,P$ is assigned to $v_r$. Otherwise $v_r$ remains unchanged and only $s_r$ is modified. Again, depending on the domain of $X_{v_r}$, either a random split point from the range of possible values of $X_{v_r}$ is selected, or a non-empty set of categories is assigned to each of the two terminal nodes. If the split rule at $r$ becomes invalid, the mutation operation is reversed and the procedure, starting with the selection of $r$, is repeated for a maximum of $3$ attempts. Subsequent nodes that become invalid are pruned. 
 
-If no pruning occurs, $\tilde{\theta}_{i}$ and $\tilde{\theta}_{i+1}$ contain the same set of parameters. Otherwise, the set of parameters $(v_{m_1}, s_{m_1}, ..., v_{m_f}, s_{m_f})$, corresponding to invalid nodes, is removed from $\tilde{\theta}_i$. Thus, $\tilde{\theta}_{i+1} = \tilde{\theta}_{i} \setminus (v_{m_1}, s_{m_1}, ..., v_{m_f}, s_{m_f})$. 
+\textit{Major split rule mutation} selects a random internal node $r$ and
+changes the split rule, defined by the corresponding split variable $v_r$, and
+the split point $s_r$. With a probability of $50\%$, a value from the range
+$1,...,P$ is assigned to $v_r$. Otherwise $v_r$ remains unchanged and only $s_r$
+is modified. Again, depending on the domain of $X_{v_r}$, either a random split
+point from the range of possible values of $X_{v_r}$ is selected, or a non-empty
+set of categories is assigned to each of the two terminal nodes. If the split
+rule at $r$ becomes invalid, the mutation operation is reversed and the
+procedure, starting with the selection of $r$, is repeated for a maximum of
+3~attempts. Subsequent nodes that become invalid are pruned. 
+
+If no pruning occurs, $\tilde{\theta}_{i}$ and $\tilde{\theta}_{i+1}$ contain
+the same set of parameters. Otherwise, the set of parameters $(v_{m_1}, s_{m_1},
+..., v_{m_f}, s_{m_f})$, corresponding to invalid nodes, is removed from
+$\tilde{\theta}_i$. Thus, $\tilde{\theta}_{i+1} = \tilde{\theta}_{i} \setminus
+(v_{m_1}, s_{m_1}, ..., v_{m_f}, s_{m_f})$. 
 
 \subsubsection{Minor split rule mutation}
 
-\textit{minor split rule mutation} is similar to the \textit{major split rule mutation} operator, but it does not alter $v_r$ and only changes the split point $s_r$ by a minor degree.
-If $X_{v_r}$ is numerical or ordinal the split point $s_r$ is changed by a non-zero number of unique values of $X_{v_r}$. In cases where $X_{v_r}$ has less then $20$ unique values, the split point is change to to the next larger, or the next lower, unique value of $X_{v_r}$. Otherwise, $s_r$ is randomly shifted by a number of unique values that is not larger than $10\%$ of the range of unique values of $X_{v_r}$. If $X_{v_r}$ is a nominal variable, with less than $20$ categories, one of the categories is randomly modified. Otherwise, at least one and at most $10\%$ of the variable's categories are changed. In cases where subsequent nodes become invalid, further split points are searched that preserve the tree's topology. After five non-successful attempts at finding a topology preserving split point, the non-valid nodes are pruned.
+\textit{Minor split rule mutation} is similar to the \textit{major split rule
+mutation} operator, but it does not alter $v_r$ and only changes the split point
+$s_r$ by a minor degree. If $X_{v_r}$ is numerical or ordinal the split point
+$s_r$ is changed by a non-zero number of unique values of $X_{v_r}$. In cases
+where $X_{v_r}$ has less then $20$ unique values, the split point is change to
+to the next larger, or the next lower, unique value of $X_{v_r}$. Otherwise,
+$s_r$ is randomly shifted by a number of unique values that is not larger than
+$10\%$ of the range of unique values of $X_{v_r}$. If $X_{v_r}$ is a nominal
+variable, with less than $20$ categories, one of the categories is randomly
+modified. Otherwise, at least one and at most $10\%$ of the variable's
+categories are changed. In cases where subsequent nodes become invalid, further
+split points are searched that preserve the tree's topology. After five
+non-successful attempts at finding a topology preserving split point, the
+non-valid nodes are pruned.
 
-Equivalently to the \textit{major split rule mutation} operator the subsequent solution $\tilde{\theta}_{i+1} = \tilde{\theta}_{i} \setminus (v_{m_1}, s_{m_1}, ..., v_{m_f}, s_{m_f})$.
+Equivalently to the \textit{major split rule mutation} operator the subsequent
+solution $\tilde{\theta}_{i+1} = \tilde{\theta}_{i} \setminus (v_{m_1}, s_{m_1},
+..., v_{m_f}, s_{m_f})$.
 
 \subsubsection{Crossover}
 
-\textit{Crossover} exchanges, randomly selected, subtrees between two trees. Let $\tilde{\theta}_{i}^1$ and $\tilde{\theta}_{i}^2$ be the parameters of the trees that are chosen for crossover. First, an internal node is selected randomly from each of $\tilde{\theta}_{i}^1$ and $\tilde{\theta}_{i}^2$, which we denote as $n_k^1$ and $n_k^2$. Let $sub1(\tilde{\theta}_i^j, n^j_k)$ denote the subtrees rooted by $n_k^j$, where $j=1,2$. Then, $sub1(\tilde{\theta}_i^j)$ contains the parameters $(v_{n^j_k}, s_{n^j_k},  v_{n^j_{k1}}, s_{n^j_{k1}}, ...,v_{n^j_{km}}, s_{n^j_{km}})$, where $(n^j_{k1}, ..., n^j_{km})$ are the set of descendent node positions of $n^j_k$. Now, the two selected subtrees can be written as $sub1(\tilde{\theta}_{i}^1, n^1_k) $ and $sub1(\tilde{\theta}_{i}^2, n^2_k)$. Furthermore, $sub2(\tilde{\theta}_{i}^1, n^1_k) = \tilde{\theta}_{i}^1 \setminus sub1(\tilde{\theta}_{i}^1, n^1_k)$ and $sub2(\tilde{\theta}_{i}^2, n^2_k) = \tilde{\theta}_{i}^2 \setminus sub1(\tilde{\theta}_{i}^2, n^2_k)$. 
+\fixme{I really had problems following this section. The sub-operator is useful
+but is it possible to introduce this with fewer sub- and super-scripts? It makes
+it very challenging to read.}
 
-After the application of the \textit{crossover} operator, the trees' parameter spaces are given by $\tilde{\theta}_{i+1}^1= sub2(\tilde{\theta}_{i}^1, n^1_k) \cup sub1(\tilde{\theta}_{i}^2, n^2_k) \setminus (v_{m^2_{1}}, s_{m^2_{1}}, ..., v_{m^2_{f}}, s_{m^2_{f}})$ and $\tilde{\theta}_{i+1}^2= sub2(\tilde{\theta}_{i}^2, n^2_k) \cup sub1(\tilde{\theta}_{i}^1, n^1_k) \setminus (v_{m^1_{1}}, s_{m^1_{1}}, ..., v_{m^1_{f}}, s_{m^1_{f}})$. Here, $(v_{m^1_{1}}, s_{m^1_{1}}, ..., v_{m^1_{f}}, s_{m^1_{f}}) \subset sub1(\tilde{\theta}_i^1, n^1_k)$ and $(v_{m^2_{1}}, s_{m^2_{1}}, ..., v_{m^2_{f}}, s_{m^2_{f}}) \subset sub1(\tilde{\theta}_i^2, n^2_k)$ are the parameters of the invalid nodes.
+\textit{Crossover} exchanges, randomly selected, subtrees between two trees. Let
+$\tilde{\theta}_{i}^1$ and $\tilde{\theta}_{i}^2$ be the parameters of the trees
+that are chosen for crossover. First, an internal node is selected randomly from
+each of $\tilde{\theta}_{i}^1$ and $\tilde{\theta}_{i}^2$, which we denote as
+$n_k^1$ and $n_k^2$. Let $\mathrm{sub}1(\tilde{\theta}_i^j, n^j_k)$ denote the subtrees
+rooted by $n_k^j$ ($j=1,2$). Then, $\mathrm{sub}1(\tilde{\theta}_i^j) =
+(v_{n^j_k}, s_{n^j_k},  v_{n^j_{k1}}, s_{n^j_{k1}}, \dots ,v_{n^j_{km}}, s_{n^j_{km}})$, where $(n^j_{k1}, ..., n^j_{km})$ are the set
+of descendent node positions of $n^j_k$. Now, the two selected subtrees can be
+written as $\mathrm{sub}1(\tilde{\theta}_{i}^1, n^1_k) $ and $\mathrm{sub}1(\tilde{\theta}_{i}^2,
+n^2_k)$. Furthermore, $\mathrm{sub}2(\tilde{\theta}_{i}^1, n^1_k) = \tilde{\theta}_{i}^1
+\setminus \mathrm{sub}1(\tilde{\theta}_{i}^1, n^1_k)$ and $\mathrm{sub}2(\tilde{\theta}_{i}^2,
+n^2_k) = \tilde{\theta}_{i}^2 \setminus \mathrm{sub}1(\tilde{\theta}_{i}^2, n^2_k)$. 
+
+After the application of the \textit{crossover} operator, the trees' parameter
+spaces are given by $\tilde{\theta}_{i+1}^1= \mathrm{sub}2(\tilde{\theta}_{i}^1, n^1_k)
+\cup \mathrm{sub}1(\tilde{\theta}_{i}^2, n^2_k) \setminus (v_{m^2_{1}}, s_{m^2_{1}}, ...,
+v_{m^2_{f}}, s_{m^2_{f}})$ and $\tilde{\theta}_{i+1}^2=
+\mathrm{sub}2(\tilde{\theta}_{i}^2, n^2_k) \cup \mathrm{sub}1(\tilde{\theta}_{i}^1, n^1_k)
+\setminus (v_{m^1_{1}}, s_{m^1_{1}}, ..., v_{m^1_{f}}, s_{m^1_{f}})$. Here,
+$(v_{m^1_{1}}, s_{m^1_{1}}, ..., v_{m^1_{f}}, s_{m^1_{f}}) \subset
+\mathrm{sub}1(\tilde{\theta}_i^1, n^1_k)$ and $(v_{m^2_{1}}, s_{m^2_{1}}, ...,
+v_{m^2_{f}}, s_{m^2_{f}}) \subset \mathrm{sub}1(\tilde{\theta}_i^2, n^2_k)$ are the
+parameters of the invalid nodes.
 
 
 \subsection{Evaluation function}
 \label{eval}
 
-The evaluation function represents the requirements the population should adapt to. In general, these requirements are formulated by Equation~\ref{generalcostfunction}. A suitable evaluation function for classification and regression trees minimizes the models' accuracy on the training data, and the models' complexity. This subsection describes the currently implemented choices of evaluation functions for classification and for regression. 
+The evaluation function represents the requirements the population should adapt
+to. In general, these requirements are formulated by Equation~\ref{eq:globally}.
+A suitable evaluation function for classification and regression trees minimizes
+the models' accuracy on the training data, and the models' complexity. This
+subsection describes the currently implemented choices of evaluation functions
+for classification and for regression. 
 
 \subsubsection{Classification}
 
-The quality of a classification tree is most commonly measured as a function of its misclassification loss $MC(Y, f(X, \theta)) = \sum_{n=1}^N I(Y_n \neq \hat{f}(X_{\cdot n}, \theta))$, and the complexity of a tree by a function of the number of its terminal nodes $M$. \code{evtree} uses $2 \cdot MC(Y, f(X, \theta))$ as a loss function. The number of terminal nodes, weighted by $\ln N$ and a user-specified parameter $\alpha$, measures the complexity of trees. With these particular choices, the general definition of the optimization problem in Equation~\ref{generalcostfunction} can be written as:
+The quality of a classification tree is most commonly measured as a function of
+its misclassification MC and the complexity of a tree by a function
+of the number of its terminal nodes $M$. \code{evtree} uses $2 N \cdot
+\mathrm{MC}(Y, f(X, \theta))$ as a loss function. The number of terminal nodes,
+weighted by $\log N$ and a user-specified parameter $\alpha$, measures the
+complexity of trees.
+%
+\begin{eqnarray}
+  \mathrm{loss}(Y, f(X, \theta)) & = & 2 N \cdot \mathrm{MC}(Y, f(X, \theta)) \nonumber \\
+                                 & = & 2 \cdot \sum_{n=1}^N I(Y_n \neq f(X_{\cdot n}, \theta)),  \label{eq:classification} \\
+  \mathrm{comp}(\theta)          & = & \alpha \cdot M \cdot \log N. \nonumber
+\end{eqnarray}
+%
+With these particular choices, Equation~\ref{eq:globally} seeks trees
+$\hat{\theta}$ that minimize the misclassification loss at a BIC-type tradeoff
+with the number of terminal nodes.
 
-\begin{equation}
-	 \hat{\theta} = \argmin_{\theta \in \Theta} \; 2 \cdot MC(Y, f(X, \theta))+\alpha \cdot M \cdot \ln N.
-\label{eq:classification}
-\end{equation}
-
-Equation~\ref{eq:classification} seeks parameters $\hat{\theta}$ that minimize the misclassification loss and the number of terminal nodes. Increasing values of $\alpha$ encourage decreasing tree sizes. 
-
-Other, existing and commonly used choices of evaluation functions include the \textit{Bayesian information criterion} \citep[BIC, as in][]{gray2008cta} and
-\textit{minimum description length} \citep[MDL, as in][]{quinlan1989inferring}. For both evaluation functions deviance is used for accuracy estimation. Deviance is usually preferred over the misclassification rate in recursive partitioning methods, as it is more sensitive to changes in the node probabilities \citep[pp.~308--310]{hastie}. However this is not necessarily an advantage for global tree building methods like evolutionary algorithms.
+Other, existing and commonly used choices of evaluation functions include the
+\textit{Bayesian information criterion} \citep[BIC, as in][]{gray2008cta} and
+\textit{minimum description length} \citep[MDL, as in][]{quinlan1989inferring}.
+For both evaluation functions deviance is used for accuracy estimation. Deviance
+is usually preferred over the misclassification rate in recursive partitioning
+methods, as it is more sensitive to changes in the node probabilities
+\citep[pp.~308--310]{hastie}. However, this is not necessarily an advantage for
+global tree building methods like evolutionary algorithms.
 
 \subsubsection{Regression}
 
-For regression trees, accuracy is usually measured by the mean squared error $\mathit{MSE}(Y, f(X, \theta))= \sum_{n=1}^N (Y_n - f(X_{\cdot n}, \theta)^2)$. Using $N \cdot \ln \mathit{MSE}(Y, f(X, \theta))$ as a loss function and $\alpha \cdot 4 \cdot (M+1) \cdot \ln N$ as the complexity part, the general formulation of the optimization problem in Equation~\ref{generalcostfunction} can be rewritten as:
+For regression trees, accuracy is usually measured by the mean squared error MSE.
+Here, it is again coupled with a BIC-type complexity measure:
 
-\begin{equation}
-	 \hat{\theta} = \argmin_{\theta \in \Theta} \; N \cdot \ln \mathit{MSE}(Y, f(X, \theta))+\alpha \cdot 4 \cdot (M+1) \cdot \ln N.
-\label{eq:regression}
-\end{equation} 
-
-Here, $M+1$ is the effective number of estimated parameters, taking into account the estimates of a mean parameter in each of the terminal nodes and the constant error variance term. With $\alpha = 0.25$ the criteria is, up to a constant, equivalent to the BIC used by \cite{fan2005rta}. However, the effective number of parameters estimated for is actually much higher than $M+1$ due to the selection of parameters in the split variable and the selection of the variable itself. It is however unclear how these should be counted \citep[p.~222]{gray2008cta, ripley}. Therefore, a more conservative default value of $\alpha=1$ is assumed.
+Using $N \cdot \log \mathrm{MSE}$ as a loss function and
+$\alpha \cdot 4 \cdot (M+1) \cdot \log N$ as the complexity part, the general
+formulation of the optimization problem in  can be
+rewritten as:
+%
+\begin{eqnarray} 
+  \mathrm{loss}(Y, f(X, \theta)) & = & N \log \mathrm{MSE}(Y, f(X, \theta)) \nonumber \\
+                                 & = & N \log \left\{ \sum_{n=1}^N (Y_n - f(X_{\cdot n}, \theta)^2) \right\}, \label{eq:regression} \\
+  \mathrm{comp}(\theta)          & = & \alpha \cdot 4 \cdot (M+1) \cdot \log N. \nonumber
+\end{eqnarray}
+%
+Here, $M+1$ is the effective number of estimated parameters, taking into account
+the estimates of a mean parameter in each of the terminal nodes and the constant
+error variance term. With $\alpha = 0.25$ the criteria is, up to a constant,
+equivalent to the BIC used by \cite{fan2005rta}. However, the effective number
+of parameters estimated for is actually much higher than $M+1$ due to the
+selection of parameters in the split variable and the selection of the variable
+itself. It is however unclear how these should be counted
+\citep[p.~222]{gray2008cta, ripley}. Therefore, a more conservative default
+value of $\alpha=1$ is assumed.
 
 
 \subsection{Survivor selection}
 \label{evo}
 
-The population size stays constant during the evolution and only a fixed subset of the candidate solution can be kept in memory. A common strategy is the $(\mu + \lambda)$ selection, where $\mu$ survivors for the next generation are selected from the union of $\mu$ parents and $\lambda$ offsprings. An alternative approach is the $(\mu,\lambda)$ strategy. In this schema $\mu$ survivors for the next generation are selected from $\lambda$ offsprings.
+The population size stays constant during the evolution and only a fixed subset
+of the candidate solutions can be kept in memory. A common strategy is the $(\mu
++ \lambda)$ selection, where $\mu$ survivors for the next generation are
+selected from the union of $\mu$ parents and $\lambda$ offsprings. An
+alternative approach is the $(\mu,\lambda)$ strategy where $\mu$
+survivors for the next generation are selected from $\lambda$ offsprings.
 
-Our algorithm uses a $(1+1)$ selection schema, where one parent solution competes with one offspring for a place in the population. In the case of a mutation operator either the solution before $\tilde{\theta}_i$ or after modification $\tilde{\theta}_{i+1}$ is kept in memory. In the case of the crossover operator, the initial solutions of $\tilde{\theta}_i^1$ competes with its subsequent solutions $\tilde{\theta}_{i+1}^1$. Correspondingly, one of the two solutions $\tilde{\theta}_i^2$ and $\tilde{\theta}_{i+1}^2$ is rejected. The survivor selection is done deterministically. The tree with lower fitness, according to the evaluation function, is rejected. Note that, due to the definition of the crossover operator, that some trees are selected more than once in an iteration. Correspondingly, these trees undergo the survival selection process more than once in an iteration.
+Our algorithm uses $(1+1)$ selection, where one parent solution
+competes with one offspring for a place in the population. In the case of a
+mutation operator either the solution before $\tilde{\theta}_i$ or after
+modification $\tilde{\theta}_{i+1}$ is kept in memory. In the case of the
+crossover operator, the initial solutions of $\tilde{\theta}_i^1$ competes with
+its subsequent solutions $\tilde{\theta}_{i+1}^1$. Correspondingly, one of the
+two solutions $\tilde{\theta}_i^2$ and $\tilde{\theta}_{i+1}^2$ is rejected. The
+survivor selection is done deterministically. The tree with lower fitness,
+according to the evaluation function, is rejected. Note that, due to the
+definition of the crossover operator, some trees are selected more than
+once in an iteration. Correspondingly, these trees undergo the survival
+selection process more than once in an iteration.
 
-As in classification and regression tree analysis the individual solutions are represented by trees. This design offers computational advantages over $(\mu + \lambda)$, with $\mu>1 \;  \& \; \lambda>1$, and $(\mu,\lambda)$ strategies. In particular, for the application of mutation operators no new trees have to be constructed. The tree after modification is simply accepted or reversed to the previous solution.
+As in classification and regression tree analysis the individual solutions are
+represented by trees. This design offers computational advantages over $(\mu +
+\lambda)$, with $\mu>1$ and $\lambda>1$, and $(\mu,\lambda)$ strategies. In
+particular, for the application of mutation operators no new trees have to be
+constructed. The tree after modification is simply accepted or reversed to the
+previous solution.
 
-There are two important issues in the evolution process of an evolutionary algorithm: population diversity and selective pressure \citep{michalewicz1994genetic}. These factors are related, as with increasing selective pressure the search is focused more around the currently best solutions. An overly strong selective pressure can cause the algorithm to converge early in a local optima. On the other hand, an overly weak selective pressure can make the search ineffective. Using a $(\mu + \lambda)$ strategy, a strong selective pressure can occur in situations as follows. Suppose the $b^{th}$ tree of the population is one of the fittest trees in iteration $i$, and in iteration $i$  one split rule of the $b^{th}$ tree is changed only by a minor degree. Then very few instances are classified differently and the overall misclassification might not even change. However, as they represent one of the best solutions in iteration $i$, they are both selected for the subsequent population. This situation can occur frequently, especially when a fine-tuning operator like the \textit{minor split rule mutation} is used. Then, the diversity of different trees is lost quickly and the algorithm likely terminates in a local optimum. The $(1+1)$ selection mechanism clearly avoids these situations, as only the parent or the offspring can be part of the subsequent population.
+There are two important issues in the evolution process of an evolutionary
+algorithm: population diversity and selective pressure
+\citep{michalewicz1994genetic}. These factors are related, as with increasing
+selective pressure the search is focused more around the currently best
+solutions. An overly strong selective pressure can cause the algorithm to
+converge early in local optima. On the other hand, an overly weak selective
+pressure can make the search ineffective. Using a $(\mu + \lambda)$ strategy, a
+strong selective pressure can occur in situations as follows. Suppose the $b$-th
+tree of the population is one of the fittest trees in iteration $i$, and in
+iteration $i$  one split rule of the $b$-th tree is changed only by a minor
+degree. Then very few instances are classified differently and the overall
+misclassification might not even change. However, as they represent one of the
+best solutions in iteration $i$, they are both selected for the subsequent
+population. This situation can occur frequently, especially when a fine-tuning
+operator like the \textit{minor split rule mutation} is used. Then, the
+diversity of different trees is lost quickly and the algorithm likely terminates
+in a local optimum. The $(1+1)$ selection mechanism clearly avoids these
+situations, as only the parent or the offspring can be part of the subsequent
+population.
 
 
 \subsection{Termination}
 \label{term}
 
-The algorithm terminates when the quality of the best $5\%$ of trees stabilizes for $100$ iterations, but not before $1000$ iterations. If the run does not converge the algorithm terminates after a user-specified number of iterations. In cases where the algorithm does not converge, a warning message is written to the command line. The tree with the highest quality according to the evaluation function is returned.
+Using the default parameters,
+the algorithm terminates when the quality of the best $5\%$ of trees stabilizes
+for $100$ iterations, but not before $1000$ iterations. If the run does not
+converge the algorithm terminates after a user-specified number of iterations.
+In cases where the algorithm does not converge, a warning message is written to
+the command line. The tree with the highest quality according to the evaluation
+function is returned.
 
 
 \section{Implementation and application in practice}
 \label{impl}
 
-\code{evtree} provides an efficient implementation of an evolutionary algorithm that builds classification trees in \proglang{R}. CPU- and memory- intensive tasks are fully computed in \proglang{C++}, while the user interfaces and plot functions are written in \proglang{R}. The \code{.C()} interface \citep{chambers2008software} was used to pass arguments between the two languages. \code{evtree} depends on the \pkg{partykit} package  \citep{hothorn2009partykit}, which provides an infrastructure for representing, summarizing, and visualizing tree-structured models. The supplied functionality includes standard \code{print()}, \code{summary()}, and \code{plot()} functions to display trees and a \code{predict()} function to predict the class labels of new data. The arguments of  \code{evtree()} are
+Package \pkg{evtree} provides an efficient implementation of an evolutionary
+algorithm that builds classification trees in \proglang{R}. CPU- and memory-
+intensive tasks are fully computed in \proglang{C++}, while the user interfaces
+and plot functions are written in \proglang{R}. The \code{.C()} interface
+\citep{chambers2008software} was used to pass arguments between the two
+languages. \pkg{evtree} depends on the \pkg{partykit} package 
+\citep{hothorn2009partykit}, which provides an infrastructure for representing,
+summarizing, and visualizing tree-structured models. 
+
+\subsection{User interface}
+
+The principal function of the \pkg{evtree} package is the eponymous function
+\code{evtree()} taking arguments
 %
 \begin{Code}
   evtree(formula, data = list(), weights = NULL, subset = NULL,
     control = evtree.control(...), ...)
 \end{Code}
 %
-where \code{formula} and \code{data} are a standard \proglang{R} formula of type \code{y ~ x1 + x2} with the respective data. \code{weights} is an optional vector specifying weights to be used in the fitting process. The option vector subset specifies a subset of observations to be used in the fitting process. \code{control} comprises a list of control parameters
+where \code{formula}, \code{data}, \code{weights}, and \code{subset} specify
+the data in the usual way, e.g., via \code{formula = y ~ x1 + x2}.
+Additionally, \code{control} comprises a list of control parameters
 %
 \begin{Code}
   evtree.control(minbucket = 7L, minsplit = 20L, maxdepth = 9L, 
@@ -484,25 +677,76 @@ where \code{formula} and \code{data} are a standard \proglang{R} formula of type
     seed = NULL, ...)
 \end{Code}
 %
-where the parameters \code{minbucket}, \code{minsplit}, and \code{maxdepth} constrain the solution to a minimum number of observations in each terminal node, a minimum number of observation in each internal node and a maximum tree depth. Note that the memory requirements increase by the square of the maximum tree depth. Parameter \code{alpha} regulates the complexity part of the evaluation function and refers to $\alpha$ in Equation~\ref{eq:classification} for classification trees and Equation~\ref{eq:regression} for regression trees. \code{niterations} and \code{ntrees} specify the maximum number of iterations and the number of trees in the population. With the argument \code{operatorprob}, user-specified probabilities for the variation operators can be defined. Argument \code{seed} is an optional seed for the random number generator, which allows models to be reproduced by re-using the same seed. If not specified, the random number generator is initialized by the system time. In this case, iterative calls of \code{evtree} will possibly result in different models. 
+where the parameters \code{minbucket}, \code{minsplit}, and \code{maxdepth}
+constrain the solution to a minimum number of observations in each terminal
+node, a minimum number of observation in each internal node and a maximum tree
+depth. Note that the memory requirements increase by the square of the maximum
+tree depth. Parameter \code{alpha} regulates the complexity parameter
+$\alpha$ in Equation~\ref{eq:classification} and~\ref{eq:regression}, respectively.
+\code{niterations} and \code{ntrees} specify the maximum number of iterations
+and the number of trees in the population, respectively. With the argument
+\code{operatorprob}, user-specified probabilities for the variation operators
+can be defined. For making computations reproducible, argument \code{seed} is
+an optional integer seed for the random number generator (at \proglang{C++} level).
+If not specified, the random number generator is initialized by \verb|as.integer(runif(1, max = 2^16))|
+in order to inherit the state of \code{.Random.seed} (at \proglang{R} level).
+If set to \code{-1L}, the seed is initializied by the system time.
 
-An interesting application for classification tree analysis is target marketing, where limited resources are aimed at a distinct group of potential customers. An example of a marketing case study is provided by the \textit{Bookbinder's Book Club} \citep{lilien2004} dataset. The data is a marketing case study about a (fictitious) American book club. In this case study, a brochure of the book \textit{The Art History of Florence} was sent to 20,000 customers and 1,806 of which bought the book. The dataset contains a subsample of 1,300 customers for building a predictive model for the customers choice of buying the advertised book. Besides predictive accuracy, model complexity is a crucial issue in this application. More simple trees are easier to interpret and communicable to marketing experts and management professionals. 
+The trees computed by \code{evtree} inherit from class `\code{party}' supplied
+by the \pkg{partykit} package. The methods inherited in this way
+include standard \code{print()}, \code{summary()}, and \code{plot()} functions
+to display trees and a \code{predict()} function to compute the fitted response
+or node number etc.
 
-This section continues with a sample session where \code{evtree} is used, in conjunction with \code{rpart} and \code{ctree}, to analyze the \textit{Bookbinder's Book Club} data. In this session, all trees are constrained to have a minimum number of $10$ observations per terminal node. To avoid excessively large trees \code{ctree} is called with $\alpha = 1\%$. To provide uniform visualizations and predictions of the fitted models the \code{as.party()} function is used to convert \pkg{rpart} objects into objects of class \pkg{party}. The sample session starts with the construction and visualization of trees using the \code{rpart} and \code{ctree} methods.
+
+\subsection{Case study: Customer targeting}
+
+An interesting application for classification tree analysis is target marketing,
+where limited resources are aimed at a distinct group of potential customers. An
+example is provided by \cite{lilien2004} in the \textit{Bookbinder's Book Club}
+marketing case study about a (fictitious) American book club. In this case study, a brochure of the book
+``The Art History of Florence'' was sent to 20,000~customers, 1,806~of
+which bought the book. The dataset contains a subsample of 1,300~customers for
+building a predictive model of customer choice. 
+
+Besides predictive accuracy,
+model complexity is a crucial issue in this application: Smaller trees are easier to
+interpret and communicable to marketing experts and management professionals. 
+Hence, we use \code{evtree} with a maximal depth of two levels of splits only.
+This is contrasted with \code{rpart} and \code{ctree} with and without such a restriction
+of tree depth to show that the evolutionary search of the global parameter space
+can be much more effective in balancing predictive accuracy and complexity
+compared to forward-search recursive partitioning. 
+
+All trees are constrained to have a minimum number of 10~observations per terminal node.
+Additionally, a significance level of $1\%$ is employed in the construction of
+conditional inference trees which is more appropriate than the default 5\%~level for
+$1,300$~observations. To provide uniform visualizations and predictions of the
+fitted models, `\code{party}' objects are used to represent all trees. For, `\code{rpart}'
+trees \pkg{partykit} provides a suitable \code{as.party()} method while a
+reimplementation of \code{ctree()} is provided in \pkg{partykit} (as opposed to
+the original in \pkg{party}) that directly leverages the `\code{party}' infrastructure.
+
+First, the data is loaded and the forward-search trees are grown
+with and without depth restriction, visualizing the unrestricted trees
+in Figure~\ref{fig:example_rpart_ctree}.
 %
 <<BBBClub-rpart-ctree, echo=TRUE, eval=FALSE>>=
 data("BBBClub", package = "evtree")
 library("rpart")
-rp <- as.party(rpart(choice ~ ., data = BBBClub, minbucket = 10))
-ct <- ctree(choice ~ ., data = BBBClub, minbucket = 10, mincrit = 0.99)
+rp  <- as.party(rpart(choice ~ ., data = BBBClub, minbucket = 10))
+rp2 <- as.party(rpart(choice ~ ., data = BBBClub, minbucket = 10,
+  maxdepth = 2))
+ct  <- ctree(choice ~ ., data = BBBClub, minbucket = 10, mincrit = 0.99)
+ct2 <- ctree(choice ~ ., data = BBBClub, minbucket = 10, mincrit = 0.99,
+  maxdepth = 2)
 plot(rp)
 plot(ct)
 @
 %
-The resulting trees are displayed in Figure~\ref{fig:example_rpart_ctree}.
-%
-With the objective of building a smaller, but at least equally accurate tree,
-\code{evtree} is constrained to a maximum tree depth of $2$.
+With the objective of building a smaller, but at still accurate tree,
+\code{evtree} is constrained to a maximum tree depth of $2$,
+see Figure~\ref{fig:example_evtree}.
 %
 <<BBBClub-evtree, echo=TRUE, eval=FALSE>>=
 set.seed(1090)
@@ -516,7 +760,7 @@ load("BBBClub-trees.rda")
 <<BBBClub-rpart-ctree>>
 <<BBBClub-evtree>>
 if(cache) {
-  save(rp, ct, ev, file = "BBBClub-trees.rda")
+  save(rp, rp2, ct, ct2, ev, file = "BBBClub-trees.rda")
 } else {
   if(file.exists("BBBClub-trees.rda")) file.remove("BBBClub-trees.rda")
 }
@@ -542,11 +786,14 @@ plot(rp)
 plot(ct)
 @
 \end{minipage}
-\caption{\label{fig:example_rpart_ctree} Trees constructed by \code{rpart} (upper panel) and \code{ctree} (lower panel). The target variable is the customers choice of buying the book. The variables used for splitting are: \code{art} number of art books purchased; \code{first} number of months since the first purchase; \code{freq} number of books purchased at the Bookbinder's Book Club; \code{gender} the customers gender.
-}
+\caption{\label{fig:example_rpart_ctree} Trees for customer targeting constructed by \code{rpart}
+  (upper panel) and \code{ctree} (lower panel). The target variable is the customer's choice of buying the book.
+  The variables used for splitting are the number of art books purchased previously (\code{art}), the number
+  of months since the first purchase (\code{first}), the frequency of previous purchases at the Bookbinder's Book Club
+  (\code{freq}) and the customer's \code{gender}.}
 \end{figure}
 %
-The resulting tree is displayed in the printed output below and visualized in
+The resulting evolutionary tree is printed output below and visualized in
 Figure~\ref{fig:example_evtree}.
 %
 <<BBBClub-evtree-display>>=
@@ -562,27 +809,53 @@ ev
 <<BBBClub-evtree-plot, fig=TRUE, echo=FALSE, width=7.5, height=4.9>>=
 plot(ev)
 @
-\caption{\label{fig:example_evtree} Tree constructed by \code{evtree}. The target variable is the customers choice of buying the book. The variables used for splitting are: \code{art} number of art books purchased; \code{first} number of months since the first purchase.}
+\caption{\label{fig:example_evtree} Tree for customer targeting constructed by \code{evtree}
+   The target variable is the customer's choice of buying the book. The variables used for splitting are
+   the number of art books purchased previously (\code{art}) and the number of months since the first purchase
+    \code{first}.}
 \end{figure}
-%
-While the \code{rpart} model has \Sexpr{width(rp)}~terminal nodes and a tree depth
-of~\Sexpr{depth(rp)}, the tree constructed by \code{ctree} has
-\Sexpr{width(ct)}~terminal nodes and a tree depth of~\Sexpr{depth(ct)}.
-With a tree depth of~\Sexpr{depth(ev)} and \Sexpr{width(ev)}~terminal nodes
-the \code{evtree} model is much simpler. 
+
+Not surprisingly, the explanatory variable \code{art} -- the number of art books purchased previously at the
+book club -- plays a key role in all constructed classification trees along with the number
+of months since the first purchase (\code{first}), the frequency of previous purchases
+(\code{freq}) and the customer's \code{gender}. Interestingly, though, the forward-search trees select
+the arguably most important variable in the first split while the evolutionary tree uses \code{first}
+in the first split and \code{art} in both second splits. Thus, the evolutionary tree
+uses a different cutoff in \code{art} for bookclub members that joined in the last year as opposed
+to older customers. While the former are predicted to be buyers if they previously bought
+at least one art book, the latter are predicted to purchase the advertised art book only if they
+previously bought at least two other art books. Certainly, this classification is easy to understand
+and communicate (helped by Figure~\ref{fig:example_evtree}) to practitioners.
+
+However, we still need to answer the question how well it performs in contrast to the other trees.
+Hence, we set up a function \code{mc()} the computes the misclassification rate as a measure of
+predictive accuracy and a function \code{evalfun()} that computes the evaluation function
+(i.e., penalized by tree complexity) from Equation~\ref{eq:classification}.
 %
 <<evtree-performance>>=
 mc <- function(obj) 1 - mean(predict(obj) == BBBClub$choice)
-c("evtree" = mc(ev), "rpart" = mc(rp), "ctree" = mc(ct))
+evalfun <- function(obj) 2 * nrow(BBBClub) * mc(obj) +
+  width(obj) * log(nrow(BBBClub))
+trees <- list("evtree" = ev, "rpart" = rp, "ctree" = ct, "rpart2" = rp2,
+  "ctree2" = ct2)
+round(sapply(trees, function(obj) c("misclassification" = mc(obj),
+  "evaluation function" = evalfun(obj))), digits = 3)
 @
-The accuracy of the three models are similar. With a misclassification rate of
-$24.3\%$, the \code{evtree} model is slightly worse than the \code{rpart} model
-($23.8\%$) and better than the \code{ctree} model ($24.8\%$). 
+%
+Not surprisingly the evolutionary tree \code{ev} outperforms the depth-restricted
+trees \code{rp2} and \code{ct2}, both in terms of misclassification and the penalized
+evaluation function. However, it is interesting to see that \code{ev} performs even better
+than the unrestricted conditional inference tree \code{ct} and is comparable in performance
+to the unrestricted CART tree \code{rp}. Hence, the practitioner may choose the evolutionary
+tree \code{ev} as it is the easiest to communicate.
+
+Although the constructed trees are considerably different, the code above shows
+that the predictive accuracy is rather similar. Moreover, below we see that the
+structure of the individual predictions on the dataset are rather similar as well:
 %
 <<evtree-structure>>=
 ftable(tab <- table(evtree = predict(ev), rpart  = predict(rp),
   ctree  = predict(ct), observed = BBBClub$choice))
-
 sapply(c("evtree", "rpart", "ctree"), function(nam) {
   mt <- margin.table(tab, c(match(nam, names(dimnames(tab))), 4))
   c(abs = as.vector(rowSums(mt))[2],
@@ -590,37 +863,77 @@ sapply(c("evtree", "rpart", "ctree"), function(nam) {
 })
 @
 %
-Although the constructed trees are considerably different, the structure of the predictions are relatively similar. In this case, \code{evtree} classifies less customers ($186$) as buyers as \code{rpart} ($216$) and \code{ctree} ($238$). Of the customers classified as buyers, $72.6\%$ (\code{evtree}), $70.8\%$ (\code{rpart}) and $66.4\%$ (\code{ctree}) actually bought the book. In a final step \code{rpart} and \code{ctree} models are fitted with the same constrained on the tree's depth (\code{maxdepth = 2}) as the previously fitted \code{evtree} model.
-%
-<<evtree-performance>>=
-rp <- as.party(rpart(choice ~ ., data = BBBClub, minbucket = 10, 
-maxdepth = 2))
-ct <- ctree(choice ~ ., data = BBBClub, minbucket = 10, mincrit = 0.99, 
-maxdepth = 2)
+In this case, \code{evtree} classifies less
+customers ($186$) as buyers as \code{rpart} ($216$) and \code{ctree} ($238$). However,
+\code{evtree} achieves the highest proportion of correct classification among
+the declared buyers: $72.6\%$ compared to $70.8\%$
+(\code{rpart}) and $66.4\%$ (\code{ctree}).
 
-mc <- function(obj) 1 - mean(predict(obj) == BBBClub$choice)
-c("evtree" = mc(ev), "rpart" = mc(rp), "ctree" = mc(ct))
-
-c("evtree" = width(ev), "rpart" = width(rp), "ctree" = width(ct))
-@
-%
-With a misclassification rate of $24.3\%$, the \code{evtree} model is more accurate than the \code{rpart} model ($26.2\%$) and the \code{ctree} model ($25.5\%$). Due to its unbalanced structure, the \code{rpart} model has only $3$ terminal nodes. Hence, it does not use the maximum tree depth efficiently. In contrast, a global optimization algorithm like \code{evtree} can be used to search the best tree under given constraints.
+In summary, this illustrates how \code{evtree} can be employed to better balance
+predictive accuracy and complexity by searching a larger space of potential trees.
+As a final note, it is worth pointing out that in this setup, several runs of
+\code{evtree()} with the same parameters typically lead to the same tree. However,
+this may not always be the case. Due to the stochastic nature of the search algorithm and
+the vast search space, trees with very different structures but similar evaluation
+function values may be found by subsequent runs of \code{evtree()}. Here, this
+problem is alleviated by restricting the maximal depth of the tree, yielding a
+clear solution.
 
 
 \section{Performance comparison}
 \label{comp}
 
-In this Section we compare \code{evtree} with \code{rpart} and \code{ctree}. All models are constrained to a minimum number of 7 observations per terminal node, 20 observations per internal node and a maximum tree depth of 9. Apart from that, the default settings of the algorithms are used. 
+In this section, we compare \code{evtree} with \code{rpart} and \code{ctree}
+in a more rigorous benchmark comparison.
 
-In the first part of the analysis (Section~\ref{comp1}) the algorithms are compared on 14 benchmark datasets that are publicly available and $3$ real-world datasets from the Austrian \textit{Diagnosis Related Group (DRG)} system \citep{LKF2009}. The analysis is based on the evaluation of 250 bootstrap samples for each of the 20 datasets. The misclassification rate on the \textit{out-of-bag} \citep{hothorn2005design} samples is used as a measure of predictive accuracy. Furthermore, the complexity is estimated by the number of terminal nodes. Missing values are currently not supported by \code{evtree}. The only dataset with missing values is the \textit{Breast Cancer Database} with a total of 16 missing values, which were removed before analysis. Dunnett's correction from \proglang{R} package \pkg{multcomp} \citep{multcomp} was used to calculate simultaneous $95\%$ confidence intervals for the individual datasets .
+In the first part of the analysis (Section~\ref{comp1}) the algorithms are
+compared on 14~benchmark datasets that are publicly available and $3$ real-world
+datasets from the Austrian \textit{Diagnosis Related Group (DRG)} system
+\citep{LKF2009}. The analysis is based on the evaluation of 250~bootstrap
+samples for each of the 20~datasets. The misclassification rate on the
+\textit{out-of-bag} \citep{hothorn2005design} samples is used as a measure of
+predictive accuracy. Furthermore, the complexity is estimated by the number of
+terminal nodes. 
 
-In the second part (Section~\ref{comp2}) the algorithms' performances are assessed on an artificial problem that is simulated with different noise levels. The estimation of predictive accuracy and the number of terminal nodes is based on $250$ realizations for each simulation.
+In the second part (Section~\ref{comp2}) the algorithms' performances are
+assessed on an artificial chessboard problem that is simulated with different noise levels.
+The estimation of predictive accuracy and the number of terminal nodes is based
+on $250$ realizations for each simulation.
+
+All models are constrained to a minimum number of 7~observations per terminal node,
+20~observations per internal node and a maximum tree depth of~9. Apart from
+that, the default settings of the algorithms are used. For assessment
+of significant differences in predictive accuracy and complexity, respectively,
+Dunnett's correction from \proglang{R}~package \pkg{multcomp} \citep{multcomp} was used
+for calculating simultaneous $95\%$ confidence intervals on the individual datasets.
  
+As missing values are currently not supported by \code{evtree} (e.g., by surrogate splits),
+the 16~missing values in the \textit{Breast Cancer Database} -- the only dataset in the
+study with missing values -- were removed before analysis.
 
 \subsection{Benchmark and real-world problems}
 \label{comp1}
 
-In Table~\ref{tab:dataDescription} the benchmark and real-world datasets from the Austrian DRG-system are described. In the Austrian DRG-system, resources are allocated to hospitals by simple rules regarding diagnosis, selected individual services, and patient characteristics. Within this system regression tree analysis is performed to classify hospital patients into clinically meaningful and comprehensible groups that consume similar hospital resources. The datasets MEL0101 (intervention on the skull), HDG0202 (malignant neoplasms), and HDG0502 (acute affections of the respiratory tract and middle atelectasis) contain patient groups with the same main diagnosis or procedure. The task of the regression tree analysis is to further divide these groups with the intention of finding groups with similar resource consumption. Possible split-variables are the patients' diagnoses, procedures, age, and gender. The dependent variable is the patients' length of stay, which has a good relationship with the total costs and is available \citep{theurl2007ihf}. Permission to use the data was granted by the \citet{BMG2009}. A more detailed description of the application can be found in \citet{grubinger2010regression}.
+In Table~\ref{tab:dataDescription} the benchmark and real-world datasets from
+the Austrian DRG-system are described. 
+\fixme{The DRG description is far too long. All readers are waiting for the results
+of the benchmark now. One explanatory sentence -- or maybe two at most -- should be
+used to state the general problem and point to the manual pages.}
+In the Austrian DRG-system, resources are
+allocated to hospitals by simple rules regarding diagnosis, selected individual
+services, and patient characteristics. Within this system regression tree
+analysis is performed to classify hospital patients into clinically meaningful
+and comprehensible groups that consume similar hospital resources. The datasets
+MEL0101 (intervention on the skull), HDG0202 (malignant neoplasms), and HDG0502
+(acute affections of the respiratory tract and middle atelectasis) contain
+patient groups with the same main diagnosis or procedure. The task of the
+regression tree analysis is to further divide these groups with the intention of
+finding groups with similar resource consumption. Possible split-variables are
+the patients' diagnoses, procedures, age, and gender. The dependent variable is
+the patients' length of stay, which has a good relationship with the total costs
+and is available \citep{theurl2007ihf}. Permission to use the data was granted
+by the \citet{BMG2009}. A more detailed description of the application can be
+found in \citet{grubinger2010regression}.
 
 \begin{table}[t!]
 \centering
@@ -770,10 +1083,11 @@ ciplot(com_ctree, xlim = xlim2, main = "",      ylab = FALSE,
   The complexity (right panels) is compared by the relative difference of the number of terminal nodes.}
 \end{figure}
 
-The disadvantages of our algorithm are computation time and memory requirements. While the smallest of the analyzed datasets, \textit{Glass identification},
+The disadvantages of the \code{evtree} algorithm are computation time and memory requirements. While the smallest of the analyzed datasets, \textit{Glass identification},
 only needed approximately 4--6~seconds to fit, larger datasets demanded several minutes. The fit of a model from the largest dataset, \textit{MAGIC gamma telescope}, required approximately 40--50 minutes and a main memory of 400 Mbit. The required resources were measured on an Intel Core 2 Duo with 2.2 GHz and 2 GB RAM using the 64-bit version of Ubuntu 10.10.
+\fixme{also briefly discuss the issue of instability of the evolutionary trees even for large populations and number of runs}
 
-\subsection{Artificial Problem}
+\subsection{Artificial problem}
 \label{comp2}
 
 In this section we demonstrate the ability of \code{evtree} to solve an artificial problem that is difficult to solve for most recursive classification tree algorithms \citep{loh2009improving}. The data was simulated with $2000$ instances for both the training-set and the test-set. Predictor variables $X_1$ and $X_2$ are simulated to be uniformly distributed in the interval $[0,4]$. The classes are distributed in alternating squares forming a $4 \times 4$ chessboard in the $(X_1, X_2)$-plane. One realization of the simulated data is shown in Figure~\ref{fig:chess}. Furthermore, variables $X_3-X_8$ are noise variables that are uniformly distributed on the interval [0, 1]. The ideal model for this problem only uses variables $X_1$ and $X_2$ and has 16 terminal nodes, whereas each terminal node comprises the observations that are in the region of one square. Two further simulations are done in the same way, but $5\%$ and $10\%$ percent of the class labels are randomly changed to the other class. 
@@ -870,11 +1184,27 @@ c("\\multicolumn{1}{l}{Noise (\\%)} & \\multicolumn{3}{l}{Accuracy}  & \\multico
 \section{Conclusions}
 \label{conc}
 
-In this paper, we presented the \pkg{evtree} package, which implements classification and regression trees that are evolved by through an evolutionary algorithm. The package uses standard \code{print()}, \code{summary()}, and \code{plot()} functions to display trees and a \code{predict()} function to predict the class labels of new data from the \pkg{partykit} package. As the learning step of our algorithm is computationally demanding, most calculations are conducted in \proglang{C++}. At the moment our algorithm does not support parallelism. However, we intend to extend \pkg{evtree} to parallel computing.
+In this paper, we presented the \pkg{evtree} package, which implements
+classification and regression trees that are grown by through an evolutionary
+algorithm. The package uses standard \code{print()}, \code{summary()}, and
+\code{plot()} functions to display trees and a \code{predict()} function to
+predict the class labels of new data from the \pkg{partykit} package. As evolutionary
+learning of trees is computationally demanding, most calculations
+are conducted in \proglang{C++}. At the moment our algorithm does not support
+parallelism. However, we intend to extend \pkg{evtree} to parallel computing.
 
-In Section~\ref{comp} we compared \code{evtree} with \code{rpart} and \code{ctree} on 14 benchmark and 3 real-world datasets. The datasets varied by sample size, the number of classes, and by the number and types of attributes. \code{evtree} models offered at least comparable and, for the majority of the datasets, improved predictive accuracy. In an artificial problem of a $4 \times 4$ chessboard we demonstrated \code{evtree}'s performance in the presence of a higher order of interactions and noise. 
+The comparisons with recursive partitioning methods \code{rpart}
+and \code{ctree} in Sections~\ref{impl} and~\ref{comp} shows that \code{evtree}
+performs very well in a wide variety of settings, often balancing predictive
+accuracy and complexity better than the forward-search methods.
 
-The goal of this package is not to replace the well-established algorithms like \code{rpart} and \code{ctree}. We rather want to provide \proglang{R} users with an alternative which, given sufficient amounts of time and main memory, is often more accurate than recursive partitioning methods. By the nature of the algorithm it is able to discover patterns which cannot be modeled by a greedy algorithm. As \code{evtree} models can be substantially different to recursively fitted models, it can be beneficial to use both approaches, as this may reveal additional relationships in the data.  
+However, the goal of \code{evtree} is not to replace the well-established algorithms like
+\code{rpart} and \code{ctree} but rather to complement the tree toolbox with
+an alternative method which may perform better given sufficient amounts of time and main memory.
+By the nature of the algorithm it is able to discover patterns which cannot be modeled by a greedy
+forward-search algorithm. As \code{evtree} models can be substantially different to recursively
+fitted models, it can be beneficial to use both approaches, as this may reveal
+additional relationships in the data.  
 
 \bibliography{evtree} 
 
