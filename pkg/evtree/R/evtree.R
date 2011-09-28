@@ -156,9 +156,11 @@ evtree <- function(formula, data, subset, na.action, weights, control = evtree.c
     out <- tree(nInstances, nVariables, varType, ndata, weights, prediction, splitV, splitP, csplit,
             maxNode, control)
  
-   	 if(out[[7]][1] < 0L) #trees could not be initialized
+   	if(out[[7]][1] < 0L) #trees could not be initialized
     	    stop("no split could be found")
-                            
+        if(out[[14]] == control$niterations)
+            warning("algorithm did not converge, computations may be unreliable")
+        	                    
         mtree = list()
         mtree$varType <-varType
         mtree$splitV <- out[[7]]        

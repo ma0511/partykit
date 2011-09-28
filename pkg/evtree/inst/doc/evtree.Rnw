@@ -245,7 +245,7 @@ partitioning algorithms only consider one split at a time. At each internal node
 $r \in \{n_1,..., n_{M-1}\}$, the split variable $v_r$ and the corresponding
 split point $s_r$ are selected to locally minimize the loss function.
 Starting with an empty tree $\theta_0 = (\emptyset)$, the tree is first grown 
-recursively for and subsequently \emph{pruned} to satisfy the complexity tradeoff:
+recursively and subsequently \emph{pruned} to satisfy the complexity tradeoff:
 %
 \begin{eqnarray} \label{eq:locally}
   \bar \theta_r
@@ -261,6 +261,7 @@ fraction of the global search space $(v_1, s_1, \dots, v_{M_{\max}-1},
 s_{M_{\max}-1} )$. They only search each $(v_r, s_r)$ once, and independently of
 the subsequent split rules, hence typically leading to a globally suboptimal solution
 $\bar \theta$.
+
 
 Note that the notation above uses an exhaustive search for the $r$-th split,
 jointly over $(v_r, s_r)$, as is employed in CART or C4.5. So-called \emph{unbiased}
@@ -314,9 +315,9 @@ is to calculate the effects of the split rules deeper down in the
 tree. In this way optimal trees can be found for simple problems. However,
 split selection at a given node in Equation~\ref{eq:locally} has complexity  $O(PN)$
 (if all $P$ variables are numeric/ordered with $N$ distinct values).
-Through a global search up to $M-1$ levels (\ref{eq:globally}) the complexity
-increases to $O(P^M N^M)$ \citep{papagelis2001bdt}. One conceivable compromise
-between these two extremes is to look ahead $d$~steps with $1 < d < M$
+Through a global search up to $D-1$ levels (\ref{eq:globally}) the complexity
+increases to $O(P^D N^D)$ \citep{papagelis2001bdt}. One conceivable compromise
+between these two extremes is to look ahead $d$~steps with $1 < d < D$
 \citep[see e.g.,][]{esmeir2007ald}, also yielding a locally optimal tree but
 less constrained than that from a 1-step-ahead search.
 Another class of algorithms is given by stochastic optimization methods that,
@@ -486,33 +487,27 @@ solution $\tilde{\theta}_{i+1} = \tilde{\theta}_{i} \setminus (v_{m_1}, s_{m_1},
 
 \subsubsection{Crossover}
 
-\fixme{I really had problems following this section. The sub-operator is useful
-but is it possible to introduce this with fewer sub- and super-scripts? It makes
-it very challenging to read.}
-
 \textit{Crossover} exchanges, randomly selected, subtrees between two trees. Let
 $\tilde{\theta}_{i}^1$ and $\tilde{\theta}_{i}^2$ be the parameters of the trees
 that are chosen for crossover. First, an internal node is selected randomly from
 each of $\tilde{\theta}_{i}^1$ and $\tilde{\theta}_{i}^2$, which we denote as
-$n_k^1$ and $n_k^2$. Let $\mathrm{sub}1(\tilde{\theta}_i^j, n^j_k)$ denote the subtrees
-rooted by $n_k^j$ ($j=1,2$). Then, $\mathrm{sub}1(\tilde{\theta}_i^j) =
-(v_{n^j_k}, s_{n^j_k},  v_{n^j_{k1}}, s_{n^j_{k1}}, \dots ,v_{n^j_{km}}, s_{n^j_{km}})$, where $(n^j_{k1}, ..., n^j_{km})$ are the set
-of descendent node positions of $n^j_k$. Now, the two selected subtrees can be
-written as $\mathrm{sub}1(\tilde{\theta}_{i}^1, n^1_k) $ and $\mathrm{sub}1(\tilde{\theta}_{i}^2,
-n^2_k)$. Furthermore, $\mathrm{sub}2(\tilde{\theta}_{i}^1, n^1_k) = \tilde{\theta}_{i}^1
-\setminus \mathrm{sub}1(\tilde{\theta}_{i}^1, n^1_k)$ and $\mathrm{sub}2(\tilde{\theta}_{i}^2,
-n^2_k) = \tilde{\theta}_{i}^2 \setminus \mathrm{sub}1(\tilde{\theta}_{i}^2, n^2_k)$. 
+$r_1$ and $r_2$. Let $\mathrm{sub}1(\tilde{\theta}_i^j, r_j)$ denote the subtrees
+rooted by $r_j$ ($j=1,2$). Thus, $\mathrm{sub}1(\tilde{\theta}_i^j, r_j)$ contains $r_j$, 
+and its descendant nodes. Then, the complementary part of $\tilde{\theta}_{i}^j$ can be 
+defined as 
+$\mathrm{sub}2(\tilde{\theta}_{i}^j, r_j) =  \tilde{\theta}_{i}^j \setminus \mathrm{sub}1(\tilde{\theta}_{i}^j, r_j)$. 
 
 After the application of the \textit{crossover} operator, the trees' parameter
-spaces are given by $\tilde{\theta}_{i+1}^1= \mathrm{sub}2(\tilde{\theta}_{i}^1, n^1_k)
-\cup \mathrm{sub}1(\tilde{\theta}_{i}^2, n^2_k) \setminus (v_{m^2_{1}}, s_{m^2_{1}}, ...,
-v_{m^2_{f}}, s_{m^2_{f}})$ and $\tilde{\theta}_{i+1}^2=
-\mathrm{sub}2(\tilde{\theta}_{i}^2, n^2_k) \cup \mathrm{sub}1(\tilde{\theta}_{i}^1, n^1_k)
-\setminus (v_{m^1_{1}}, s_{m^1_{1}}, ..., v_{m^1_{f}}, s_{m^1_{f}})$. Here,
-$(v_{m^1_{1}}, s_{m^1_{1}}, ..., v_{m^1_{f}}, s_{m^1_{f}}) \subset
-\mathrm{sub}1(\tilde{\theta}_i^1, n^1_k)$ and $(v_{m^2_{1}}, s_{m^2_{1}}, ...,
-v_{m^2_{f}}, s_{m^2_{f}}) \subset \mathrm{sub}1(\tilde{\theta}_i^2, n^2_k)$ are the
-parameters of the invalid nodes.
+spaces are given by $\tilde{\theta}_{i+1}^1= \mathrm{sub}2(\tilde{\theta}_{i}^1, r_1)
+\cup \mathrm{sub}1(\tilde{\theta}_{i}^2, r_2) \setminus (v_{m_{21}}, s_{m_{21}}, ...,
+v_{m_{2f}}, s_{m_{2f}})$ and $\tilde{\theta}_{i+1}^2=
+\mathrm{sub}2(\tilde{\theta}_{i}^2, r_2) \cup \mathrm{sub}1(\tilde{\theta}_{i}^1, r_1)
+\setminus (v_{m_{11}}, s_{m_{11}}, ..., v_{m_{1f}}, s_{m_{1f}})$. Here,
+$(v_{m_{11}}, s_{m_{11}}, ..., v_{m_{1f}}, s_{m_{1f}}) \subset
+\mathrm{sub}1(\tilde{\theta}_i^1, r_1)$ and   
+$(v_{m_{21}}, s_{m_{21}}, ...,v_{m_{2f}}, s_{m_{2f}}) \subset \mathrm{sub}1(\tilde{\theta}_i^2, r_2)$ 
+are the parameters of the invalid nodes.
+
 
 
 \subsection{Evaluation function}
@@ -793,7 +788,7 @@ plot(ct)
   (\code{freq}) and the customer's \code{gender}.}
 \end{figure}
 %
-The resulting evolutionary tree is printed output below and visualized in
+The resulting evolutionary tree is printed below and visualized in
 Figure~\ref{fig:example_evtree}.
 %
 <<BBBClub-evtree-display>>=
@@ -889,7 +884,7 @@ in a more rigorous benchmark comparison.
 In the first part of the analysis (Section~\ref{comp1}) the algorithms are
 compared on 14~benchmark datasets that are publicly available and $3$ real-world
 datasets from the Austrian \textit{Diagnosis Related Group (DRG)} system
-\citep{LKF2009}. The analysis is based on the evaluation of 250~bootstrap
+\citep{LKF2011}. The analysis is based on the evaluation of 250~bootstrap
 samples for each of the 20~datasets. The misclassification rate on the
 \textit{out-of-bag} \citep{hothorn2005design} samples is used as a measure of
 predictive accuracy. Furthermore, the complexity is estimated by the number of
@@ -915,25 +910,11 @@ study with missing values -- were removed before analysis.
 \label{comp1}
 
 In Table~\ref{tab:dataDescription} the benchmark and real-world datasets from
-the Austrian DRG-system are described. 
-\fixme{The DRG description is far too long. All readers are waiting for the results
-of the benchmark now. One explanatory sentence -- or maybe two at most -- should be
-used to state the general problem and point to the manual pages.}
-In the Austrian DRG-system, resources are
-allocated to hospitals by simple rules regarding diagnosis, selected individual
-services, and patient characteristics. Within this system regression tree
-analysis is performed to classify hospital patients into clinically meaningful
-and comprehensible groups that consume similar hospital resources. The datasets
-MEL0101 (intervention on the skull), HDG0202 (malignant neoplasms), and HDG0502
-(acute affections of the respiratory tract and middle atelectasis) contain
-patient groups with the same main diagnosis or procedure. The task of the
-regression tree analysis is to further divide these groups with the intention of
-finding groups with similar resource consumption. Possible split-variables are
-the patients' diagnoses, procedures, age, and gender. The dependent variable is
-the patients' length of stay, which has a good relationship with the total costs
-and is available \citep{theurl2007ihf}. Permission to use the data was granted
-by the \citet{BMG2009}. A more detailed description of the application can be
-found in \citet{grubinger2010regression}.
+the Austrian DRG system are described. In the Austrian DRG system, resources are 
+allocated to hospitals by simple rules mainly regarding the patients' diagnoses, procedures, and age. 
+Regression tree analysis is performed to model patient groups with similar resource consumption. 
+A more detailed description of the datasets and the application can 
+be found in \citet{grubinger2010regression}.
 
 \begin{table}[t!]
 \centering
@@ -966,7 +947,6 @@ HDG0502$^\diamond$ & 8251 &  1 & 7 & 1 &   91  & -               \\
   Datasets marked with $\#$ and $+$ are from the \proglang{R} packages \pkg{mlbench} \citep{mlbench} and
   \pkg{kernlab} \citep{kernlab}, respectively. The three real-world datasets from the Austrian DRG system are marked with $\diamond$.} 
 \end{table}
-
 
 The relative performance of \code{evtree} and \code{rpart} is summarized in Figure~\ref{fig:benchmark} (upper panels). Performance differences are displayed relative to \code{evtree}'s performance. For example, on the \textit{Glass} dataset, the average misclassification rate of \code{rpart} is $2.7\%$ higher than the misclassification rate of \code{evtree}. It can be observed that on $12$ out of $17$ datasets \code{evtree} significantly outperforms \code{rpart} in terms of predictive accuracy. Only on the \textit{Contraceptive Method} dataset \code{evtree} performs slightly worse.  In terms of complexity, \code{evtree} models are significantly more complex on $10$ and less complex on $7$ datasets. 
 
@@ -1083,9 +1063,10 @@ ciplot(com_ctree, xlim = xlim2, main = "",      ylab = FALSE,
   The complexity (right panels) is compared by the relative difference of the number of terminal nodes.}
 \end{figure}
 
-The disadvantages of the \code{evtree} algorithm are computation time and memory requirements. While the smallest of the analyzed datasets, \textit{Glass identification},
-only needed approximately 4--6~seconds to fit, larger datasets demanded several minutes. The fit of a model from the largest dataset, \textit{MAGIC gamma telescope}, required approximately 40--50 minutes and a main memory of 400 Mbit. The required resources were measured on an Intel Core 2 Duo with 2.2 GHz and 2 GB RAM using the 64-bit version of Ubuntu 10.10.
-\fixme{also briefly discuss the issue of instability of the evolutionary trees even for large populations and number of runs}
+Disadvantages of the \code{evtree} algorithm are computation time and memory requirements. While the smallest of the analyzed datasets, \textit{Glass identification}, only needed approximately 4--6~seconds to fit, larger datasets demanded several minutes. The fit of a model from the largest dataset, \textit{MAGIC gamma telescope}, required approximately 40--50 minutes and a main memory of 400 Mbit. The required resources were measured on an Intel Core 2 Duo with 2.2 GHz and 2 GB RAM using the 64-bit version of Ubuntu 10.10.
+
+Another important issue to be considered is the random nature of evolutionary algorithms. For larger datasets, frequently, considerable different solutions exist that yield a similar or even the same evaluation function value. Therefore, subsequent runs of \code{evtree} can result in very different tree structures. This is not a problem if the tree is intended only for predictive purposes, and it is also not a big issue for many decision and prognosis tasks. Typically, in such applications, the resulting model has to be accurate, compact, and meaningful in its interpretation, but the particular tree structure is of secondary importance. Examples of such applications include the presented marketing case study and the Austrian DRG system. In cases where a model is not meaningful in its interpretation, the possibility of constructing different trees can even be beneficial. However, if the primary goal is to interpret relationships in the data, based on the selected splits, the random nature of the algorithm has to be considered.
+
 
 \subsection{Artificial problem}
 \label{comp2}
@@ -1185,7 +1166,7 @@ c("\\multicolumn{1}{l}{Noise (\\%)} & \\multicolumn{3}{l}{Accuracy}  & \\multico
 \label{conc}
 
 In this paper, we presented the \pkg{evtree} package, which implements
-classification and regression trees that are grown by through an evolutionary
+classification and regression trees that are grown by an evolutionary
 algorithm. The package uses standard \code{print()}, \code{summary()}, and
 \code{plot()} functions to display trees and a \code{predict()} function to
 predict the class labels of new data from the \pkg{partykit} package. As evolutionary
