@@ -95,7 +95,7 @@ results \citep{murthy1995dti}. However, for some problems, greedily induced
 trees can be far from the optimal solution, and a global search over the tree's
 parameter space can lead to much more compact and accurate models.
 
-\pagebreak
+\pagebreak %%FIXME
 
 The main challenge in growing globally optimal trees is that the search
 space is typically huge rendering full-grid searches computationally infeasible.
@@ -164,7 +164,7 @@ algorithm.
 \label{got}
 
 Classification and regression tree analysis aims at
-modeling a response variable $Y$ by a vector of $P$ predictor variables
+modeling a response variable $Y$ by a vector of $P$~predictor variables
 $X=(X_1,...,X_P)$ where for classification trees $Y$ is
 qualitative and for regression trees $Y$ is quantitative. Tree-based methods
 first partition the input space $X$ into a set of $M$ rectangular regions $R_m$
@@ -248,11 +248,11 @@ Starting with an empty tree $\theta_0 = (\emptyset)$, the tree is first grown
 recursively and subsequently \emph{pruned} to satisfy the complexity tradeoff:
 %
 \begin{eqnarray} \label{eq:locally}
-  \bar \theta_r
+  \tilde \theta_r
     & = & \argmin_{ \theta = \theta_{r-1} \cup (v_r, s_r)} \; \mathrm{loss}\{Y, f(X, \theta)\} 
     \qquad (r = 1, \dots, M_{\max} -1), \\
-  \bar \theta
-    & = & \argmin_{\bar \theta_r} \; \mathrm{loss}\{Y, f(X, \bar \theta_r)\} ~+~ \mathrm{comp}(\bar \theta_r).
+  \tilde \theta
+    & = & \argmin_{\tilde \theta_r} \; \mathrm{loss}\{Y, f(X, \tilde \theta_r)\} ~+~ \mathrm{comp}(\tilde \theta_r).
   \label{eq:pruning}
 \end{eqnarray}
 %
@@ -260,7 +260,7 @@ For nontrivial problems, forward-search recursive partitioning methods only sear
 fraction of the global search space $(v_1, s_1, \dots, v_{M_{\max}-1},
 s_{M_{\max}-1} )$. They only search each $(v_r, s_r)$ once, and independently of
 the subsequent split rules, hence typically leading to a globally suboptimal solution
-$\bar \theta$.
+$\tilde \theta$.
 
 
 Note that the notation above uses an exhaustive search for the $r$-th split,
@@ -314,7 +314,7 @@ When compared with the described forward stepwise search, a less greedy approach
 is to calculate the effects of the split rules deeper down in the
 tree. In this way optimal trees can be found for simple problems. However,
 split selection at a given node in Equation~\ref{eq:locally} has complexity  $O(PN)$
-(if all $P$ variables are numeric/ordered with $N$ distinct values).
+(if all $P$~variables are numeric/ordered with $N$ distinct values).
 Through a global search up to $D-1$ levels (\ref{eq:globally}) the complexity
 increases to $O(P^D N^D)$ \citep{papagelis2001bdt}. One conceivable compromise
 between these two extremes is to look ahead $d$~steps with $1 < d < D$
@@ -401,7 +401,7 @@ to the other terminal node. If this procedure results in a non-valid split rule,
 the two steps of random split variable selection and split point selection are
 repeated. With the definition of $r=1$ and the selection of $v_1$ and $s_1$, the
 initialization is complete and each individual of the population of trees is of
-type $\tilde{\theta}_{1}= (v_1, s_1)$. 
+type ${\theta}_{1}= (v_1, s_1)$. 
 
 
 \subsection{Parent selection}
@@ -429,21 +429,21 @@ consequence, the selected terminal node becomes an internal node $r$ and
 two new terminal nodes are generated. 
 
 The search for a valid split rule is conducted as in see Section~\ref{init}
-for a maximum of $P$ iterations. 
+for a maximum of $P$~iterations. 
 In cases where no valid split rule can be assigned to the internal node at
-position $r$, the search for a valid split rule is carried out on another
+position~$r$, the search for a valid split rule is carried out on another
 randomly selected terminal node. If, after 10~attempts, no valid split rule
-can be found, then $\tilde{\theta}_{i+1} = \tilde{\theta}_{i}$. Otherwise, the
-set of parameters in iteration $i+1$ are given by $\tilde{\theta}_{i+1}=
-\tilde{\theta}_i \cup (v_{r},s_{r})$.
+can be found, then ${\theta}_{i+1} = {\theta}_{i}$. Otherwise, the
+set of parameters in iteration $i+1$ are given by ${\theta}_{i+1}=
+{\theta}_i \cup (v_{r},s_{r})$.
 
 \subsubsection{Prune}
 
 \textit{Prune} chooses a random internal node $r$, where $r>1$, which has two
 terminal nodes as successors and prunes it into a terminal node. The tree's
-parameters at iteration $i+1$ are $\tilde{\theta}_{i+1}=\tilde{\theta}_{i}
-\setminus (v_{r},s_{r})$. If $\tilde{\theta}_{i}$ only comprises one internal
-node, i.e., the root node, then $\tilde{\theta}_{i+1} = \tilde{\theta}_{i}$.
+parameters at iteration $i+1$ are ${\theta}_{i+1}={\theta}_{i}
+\setminus (v_{r},s_{r})$. If ${\theta}_{i}$ only comprises one internal
+node, i.e., the root node, then ${\theta}_{i+1} = {\theta}_{i}$.
 
 \subsubsection{Major split rule mutation}
 
@@ -458,10 +458,10 @@ rule at $r$ becomes invalid, the mutation operation is reversed and the
 procedure, starting with the selection of $r$, is repeated for a maximum of
 3~attempts. Subsequent nodes that become invalid are pruned. 
 
-If no pruning occurs, $\tilde{\theta}_{i}$ and $\tilde{\theta}_{i+1}$ contain
+If no pruning occurs, ${\theta}_{i}$ and ${\theta}_{i+1}$ contain
 the same set of parameters. Otherwise, the set of parameters $(v_{m_1}, s_{m_1},
 ..., v_{m_f}, s_{m_f})$, corresponding to invalid nodes, is removed from
-$\tilde{\theta}_i$. Thus, $\tilde{\theta}_{i+1} = \tilde{\theta}_{i} \setminus
+${\theta}_i$. Thus, ${\theta}_{i+1} = {\theta}_{i} \setminus
 (v_{m_1}, s_{m_1}, ..., v_{m_f}, s_{m_f})$. 
 
 \subsubsection{Minor split rule mutation}
@@ -482,32 +482,24 @@ non-successful attempts at finding a topology preserving split point, the
 non-valid nodes are pruned.
 
 Equivalently to the \textit{major split rule mutation} operator the subsequent
-solution $\tilde{\theta}_{i+1} = \tilde{\theta}_{i} \setminus (v_{m_1}, s_{m_1},
+solution ${\theta}_{i+1} = {\theta}_{i} \setminus (v_{m_1}, s_{m_1},
 ..., v_{m_f}, s_{m_f})$.
 
 \subsubsection{Crossover}
 
 \textit{Crossover} exchanges, randomly selected, subtrees between two trees. Let
-$\tilde{\theta}_{i}^1$ and $\tilde{\theta}_{i}^2$ be the parameters of the trees
-that are chosen for crossover. First, an internal node is selected randomly from
-each of $\tilde{\theta}_{i}^1$ and $\tilde{\theta}_{i}^2$, which we denote as
-$r_1$ and $r_2$. Let $\mathrm{sub}1(\tilde{\theta}_i^j, r_j)$ denote the subtrees
-rooted by $r_j$ ($j=1,2$). Thus, $\mathrm{sub}1(\tilde{\theta}_i^j, r_j)$ contains $r_j$, 
-and its descendant nodes. Then, the complementary part of $\tilde{\theta}_{i}^j$ can be 
-defined as 
-$\mathrm{sub}2(\tilde{\theta}_{i}^j, r_j) =  \tilde{\theta}_{i}^j \setminus \mathrm{sub}1(\tilde{\theta}_{i}^j, r_j)$. 
-
-After the application of the \textit{crossover} operator, the trees' parameter
-spaces are given by $\tilde{\theta}_{i+1}^1= \mathrm{sub}2(\tilde{\theta}_{i}^1, r_1)
-\cup \mathrm{sub}1(\tilde{\theta}_{i}^2, r_2) \setminus (v_{m_{21}}, s_{m_{21}}, ...,
-v_{m_{2f}}, s_{m_{2f}})$ and $\tilde{\theta}_{i+1}^2=
-\mathrm{sub}2(\tilde{\theta}_{i}^2, r_2) \cup \mathrm{sub}1(\tilde{\theta}_{i}^1, r_1)
-\setminus (v_{m_{11}}, s_{m_{11}}, ..., v_{m_{1f}}, s_{m_{1f}})$. Here,
-$(v_{m_{11}}, s_{m_{11}}, ..., v_{m_{1f}}, s_{m_{1f}}) \subset
-\mathrm{sub}1(\tilde{\theta}_i^1, r_1)$ and   
-$(v_{m_{21}}, s_{m_{21}}, ...,v_{m_{2f}}, s_{m_{2f}}) \subset \mathrm{sub}1(\tilde{\theta}_i^2, r_2)$ 
-are the parameters of the invalid nodes.
-
+${\theta}_{i}^1$ and ${\theta}_{i}^2$ be the two trees
+chosen from the population for crossover. First, an internal nodes $r_1$ and $r_2$
+are selected randomly from ${\theta}_{i}^1$ and ${\theta}_{i}^2$, respectively.
+Let $\mathrm{sub}1({\theta}_i^j, r_j)$ denote the subtree of $\theta_j$ rooted
+by $r_j$ ($j=1,2$), i.e., the tree containing $r_j$ and its descendant nodes.
+Then, the complementary part of ${\theta}_{i}^j$ can be defined as 
+$\mathrm{sub}2({\theta}_{i}^j, r_j) = {\theta}_{i}^j \setminus \mathrm{sub}1({\theta}_{i}^j, r_j)$. 
+The crossover operator creates two new trees
+${\theta}_{i+1}^1 = \mathrm{sub}2({\theta}_{i}^1, r_1) \cup \mathrm{sub}1({\theta}_{i}^2, r_2)$ and
+${\theta}_{i+1}^2 = \mathrm{sub}2({\theta}_{i}^2, r_2) \cup \mathrm{sub}1({\theta}_{i}^1, r_1)$.
+If the crossover creates some invalid nods in either one of the new trees ${\theta}_{i+1}^1$
+or ${\theta}_{i+1}^2$, these are omitted.
 
 
 \subsection{Evaluation function}
@@ -587,11 +579,11 @@ survivors for the next generation are selected from $\lambda$ offsprings.
 
 Our algorithm uses $(1+1)$ selection, where one parent solution
 competes with one offspring for a place in the population. In the case of a
-mutation operator either the solution before $\tilde{\theta}_i$ or after
-modification $\tilde{\theta}_{i+1}$ is kept in memory. In the case of the
-crossover operator, the initial solutions of $\tilde{\theta}_i^1$ competes with
-its subsequent solutions $\tilde{\theta}_{i+1}^1$. Correspondingly, one of the
-two solutions $\tilde{\theta}_i^2$ and $\tilde{\theta}_{i+1}^2$ is rejected. The
+mutation operator either the solution before ${\theta}_i$ or after
+modification ${\theta}_{i+1}$ is kept in memory. In the case of the
+crossover operator, the initial solutions of ${\theta}_i^1$ competes with
+its subsequent solutions ${\theta}_{i+1}^1$. Correspondingly, one of the
+two solutions ${\theta}_i^2$ and ${\theta}_{i+1}^2$ is rejected. The
 survivor selection is done deterministically. The tree with lower fitness,
 according to the evaluation function, is rejected. Note that, due to the
 definition of the crossover operator, some trees are selected more than
@@ -800,7 +792,7 @@ ev
 \begin{figure}[t!]
 \begin{flushleft} \code{evtree} \end{flushleft}
 \centering
-\setkeys{Gin}{width=0.7\textwidth}
+\setkeys{Gin}{width=0.75\textwidth} %FIXME: 0.75 just to avoid \pagebreak, should be 0.7
 <<BBBClub-evtree-plot, fig=TRUE, echo=FALSE, width=7.5, height=4.9>>=
 plot(ev)
 @
@@ -1067,6 +1059,7 @@ Disadvantages of the \code{evtree} algorithm are computation time and memory req
 
 Another important issue to be considered is the random nature of evolutionary algorithms. For larger datasets, frequently, considerable different solutions exist that yield a similar or even the same evaluation function value. Therefore, subsequent runs of \code{evtree} can result in very different tree structures. This is not a problem if the tree is intended only for predictive purposes, and it is also not a big issue for many decision and prognosis tasks. Typically, in such applications, the resulting model has to be accurate, compact, and meaningful in its interpretation, but the particular tree structure is of secondary importance. Examples of such applications include the presented marketing case study and the Austrian DRG system. In cases where a model is not meaningful in its interpretation, the possibility of constructing different trees can even be beneficial. However, if the primary goal is to interpret relationships in the data, based on the selected splits, the random nature of the algorithm has to be considered.
 
+\pagebreak %%FIXME
 
 \subsection{Artificial problem}
 \label{comp2}
