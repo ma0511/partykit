@@ -302,6 +302,7 @@ print(evtree(Y ~ ., data = chess22, minbucket = 1, minsplit = 2))
 plot(X2 ~ X1, data = chess22, xlim = c(0, 2), ylim = c(0, 2), pch = c(1, 4)[Y], col = c("black", "slategray")[Y])
 @
 \caption{\label{fig:illustration} Class distribution of  the $(X_1, X_2)$-plane. The two classes are indicated by black circles and gray crosses.}
+\vspace*{-0.3cm} %%FIXME: to avoid \pagebreak
 \end{figure}
 
 All instances are classified correctly. Each of the terminal nodes~3 and~7 contain four instances of the class \code{X}. Four instances of class
@@ -315,11 +316,13 @@ is to calculate the effects of the split rules deeper down in the
 tree. In this way optimal trees can be found for simple problems. However,
 split selection at a given node in Equation~\ref{eq:locally} has complexity  $O(PN)$
 (if all $P$~variables are numeric/ordered with $N$ distinct values).
-Through a global search up to $D-1$ levels (\ref{eq:globally}) the complexity
+Through a global search up to $D$ levels -- i.e., corresponding to a full binary
+tree with $M = 2^D$ terminal nodes -- the complexity
 increases to $O(P^D N^D)$ \citep{papagelis2001bdt}. One conceivable compromise
 between these two extremes is to look ahead $d$~steps with $1 < d < D$
 \citep[see e.g.,][]{esmeir2007ald}, also yielding a locally optimal tree but
 less constrained than that from a 1-step-ahead search.
+
 Another class of algorithms is given by stochastic optimization methods that,
 given an initial tree, seek improved solutions through stochastic changes to
 the tree structure. Thus, these algorithms try to explore the full parameter
