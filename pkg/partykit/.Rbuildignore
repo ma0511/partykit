@@ -1,4 +1,5 @@
 inst/pmml/auto.pmml
 inst/slides
 inst/soc09
+test/ctree-ctree.R
 WISHLIST

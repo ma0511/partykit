@@ -2,8 +2,6 @@
 ### compare partykit::ctree and party::ctree wrt predictions
 ### and computing time. But not during R CMD check
 
-if (interactive()) {
-
 library("partykit")
 library("party")
 library("multicore")
@@ -79,4 +77,3 @@ err <- sapply(ret, function(x) x$error)
 
 save(ret, tm, tgr, fun, gr, dgp, err, file = "results-regtest.Rda")
 
-}
