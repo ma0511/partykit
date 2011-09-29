@@ -152,36 +152,36 @@ evtree <- function(formula, data, subset, na.action, weights, control = evtree.c
             return(out)
     }
     
-    #Call of the tree function
-    out <- tree(nInstances, nVariables, varType, ndata, weights, prediction, splitV, splitP, csplit,
-            maxNode, control)
- 
-   	if(out[[7]][1] < 0L) #trees could not be initialized
-    	    stop("no split could be found")
-        if(out[[14]] == control$niterations)
+    # Call of the tree function
+     out <- tree(nInstances, nVariables, varType, ndata, weights, prediction, splitV, splitP, csplit,
+     maxNode, control)
+
+     if(out[[7]][1] < 0L) 
+ 	    stop("no split could be found")
+     if(out[[14]] == control$niterations)
             warning("algorithm did not converge, computations may be unreliable")
         	                    
-        mtree = list()
-        mtree$varType <-varType
-        mtree$splitV <- out[[7]]        
-        mtree$splitP <- out[[8]]
-        mtree$csplit <- out[[9]]
-        mtree$maxdepth <- control$maxdepth
-        mtree$weights <- weights
-        mtree$prediction <- out[[6]]+1
-        mtree$maxCat <- maxCat
-        mtree$seed <- out[[22]]
-        init <- .initializeNode(mtree)
-        node <- init[[1]]
-        gid  <- init[[2]]
+     mtree = list()
+     mtree$varType <-varType
+     mtree$splitV <- out[[7]]        
+     mtree$splitP <- out[[8]]
+     mtree$csplit <- out[[9]]
+     mtree$maxdepth <- control$maxdepth
+     mtree$weights <- weights
+     mtree$prediction <- out[[6]]+1
+     mtree$maxCat <- maxCat
+     mtree$seed <- out[[22]]
+     init <- .initializeNode(mtree)
+     node <- init[[1]]
+     gid  <- init[[2]]
         
-        prediction <- array(-999999, length(mtree$prediction))
-        for(i in 1:length(gid))
-            prediction[ mtree$prediction == gid[i] ] <- i
-        fitted <- data.frame(prediction, mtree$weights, mf[nVariables])
-        names(fitted) <- c("(fitted)", "(weights)" ,"(response)")
-        partyObject <- party(node, mf, fitted = fitted, terms = mt,
-	  info = list(method = "evtree", nIterations = out[[14]], seed = mtree$seed, call = ocall))
-        class(partyObject) <- c("constparty", "party")
-        return(partyObject)
+     prediction <- array(-999999, length(mtree$prediction))
+     for(i in 1:length(gid))
+     	prediction[ mtree$prediction == gid[i] ] <- i
+     fitted <- data.frame(prediction, mtree$weights, mf[nVariables])
+     names(fitted) <- c("(fitted)", "(weights)" ,"(response)")
+     partyObject <- party(node, mf, fitted = fitted, terms = mt,
+info = list(method = "evtree", nIterations = out[[14]], seed = mtree$seed, call = ocall))
+     class(partyObject) <- c("constparty", "party")
+     return(partyObject)
 }
