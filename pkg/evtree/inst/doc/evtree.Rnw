@@ -492,7 +492,7 @@ solution ${\theta}_{i+1} = {\theta}_{i} \setminus (v_{m_1}, s_{m_1},
 
 \textit{Crossover} exchanges, randomly selected, subtrees between two trees. Let
 ${\theta}_{i}^1$ and ${\theta}_{i}^2$ be the two trees
-chosen from the population for crossover. First, an internal nodes $r_1$ and $r_2$
+chosen from the population for crossover. First, the internal nodes $r_1$ and $r_2$
 are selected randomly from ${\theta}_{i}^1$ and ${\theta}_{i}^2$, respectively.
 Let $\mathrm{sub}1({\theta}_i^j, r_j)$ denote the subtree of $\theta_j$ rooted
 by $r_j$ ($j=1,2$), i.e., the tree containing $r_j$ and its descendant nodes.
