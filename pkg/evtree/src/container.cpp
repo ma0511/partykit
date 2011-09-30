@@ -1,12 +1,25 @@
 #include "container.h"
 
+static Container* container;
+
 extern "C"{
 void tree(int* nInst, int* nVar, int *varType, double* ndata, int* weights, int* prediction, int *splitV, double *splitP, int* csplit, int* maxNode, int* minbucket, int* minsplit, int* nIter, int* nTrees, int* pMutateMajor, int* pMutateMinor,int *pCrossover, int *pSplit, int *pPrune, int* method, double* alpha, int* seed){
-	Container* container = new Container(nInst, nVar, varType, ndata, weights, prediction, splitV, splitP, csplit, maxNode, minbucket, minsplit, nIter,nTrees, pMutateMajor, pMutateMinor, pCrossover, pSplit, pPrune, method, alpha, seed);
+	container = new Container(nInst, nVar, varType, ndata, weights, prediction, splitV, splitP, csplit, maxNode, minbucket, minsplit, nIter,nTrees, pMutateMajor, pMutateMinor, pCrossover, pSplit, pPrune, method, alpha, seed);
+}//tree
+
+void freememory(void){
     delete container;
     container = NULL;
-    }
+}// cleanup
 }//extern C 
+
+static void chkIntFn(void *dummy) {
+     R_CheckUserInterrupt();
+}
+
+bool Container::checkInterrupt(void){
+  return (R_ToplevelExec(chkIntFn, NULL) == FALSE);
+}
 
 Container::Container(int* nInstances, int* nVariables, int *varType, double* ndata, int* weights, int* prediction, int *splitV, double *splitP, int* csplit, int* maxNode, int *minbucket,int* minsplit, int* nIter, int* nTrees, int* pMutateMajor, int* pMutateMinor, int* pCrossover, int* pSplit, int* pPrune, int* method, double* alpha, int* seed ){
     // constructor
@@ -50,7 +63,7 @@ Container::Container(int* nInstances, int* nVariables, int *varType, double* nda
             data[i][v] = ndata[v*this->nInstances+i];
         }
     }
-     // calculate variance of the dependend variable for regression trees
+    // calculate variance of the dependend variable for regression trees
     if(this->method == 6){
         double mean = 0;
         double squaredSum = 0;
@@ -90,53 +103,63 @@ Container::Container(int* nInstances, int* nVariables, int *varType, double* nda
     }
 
     if(allTreesInitialized == TRUE){
-    // start evolving the initial solution    
-	    this->evolution();
+        // start evolving the initial solution    
+    	bool succ =  this->evolution();
 
-    // write the information of the best tree into the variables passed from R
-    if(this->elitismList[0] < this->nTrees){
-         *nIter = this->nIterations;
-         for(int i = 0; i < *this->trees[this->elitismList[0]]->maxNode; i++){
-             if(this->trees[this->elitismList[0]]->splitV[i] >= 0 ){
-                 splitV[i] = this->trees[this->elitismList[0]]->splitV[i]+1;
-                 splitP[i] = this->trees[this->elitismList[0]]->splitP[i];
+    	// write the information of the best tree into the variables passed from R
+         if(succ == true){
+   	 	if(this->elitismList[0] < this->nTrees){
+              		*nIter = this->nIterations;
+       	      		for(int i = 0; i < *this->trees[this->elitismList[0]]->maxNode; i++){
+		              if(this->trees[this->elitismList[0]]->splitV[i] >= 0 ){
+            			   splitV[i] = this->trees[this->elitismList[0]]->splitV[i]+1;
+			           splitP[i] = this->trees[this->elitismList[0]]->splitP[i];
 
-                 for(int k = 0; k < this->maxCat; k++){
-                    if( variables[*this->trees[this->elitismList[0]]->nodes[i]->splitV]->isCat == true
-            && k < variables[*this->trees[this->elitismList[0]]->nodes[i]->splitV]->nCats ){
-                         csplit[i* this->maxCat + k] = this->trees[this->elitismList[0]]->csplit[k][i];
-                    }else if(this->maxCat > 1){
-                         csplit[i* this->maxCat + k] = 2;
-                    }
-                 }
-             }else{
-                 splitV[i] = -999999;
-                 splitP[i] = -999999;
+                	    	   for(int k = 0; k < this->maxCat; k++){
+               			 	if( variables[*this->trees[this->elitismList[0]]->nodes[i]->splitV]->isCat == true
+	           			 && k < variables[*this->trees[this->elitismList[0]]->nodes[i]->splitV]->nCats ){
+        	                	 	csplit[i* this->maxCat + k] = this->trees[this->elitismList[0]]->csplit[k][i];
+                	   		}else if(this->maxCat > 1){
+                        			csplit[i* this->maxCat + k] = 2;
+                         		}
+                    	    	   }
+             		      }else{
+		                      splitV[i] = -999999;
+        	   		      splitP[i] = -999999;
 
-                 // if there is only one independend variabe, and the variable is numeric, csplit
-                 // is not a vector. in this cas csplit is not used.
-                 if(this->maxCat > 1){
-                     for(int k = 0; k < this->maxCat; k++){
-                             csplit[i * this->maxCat + k] = 2;
-                     }
-                 }
-             }
-         }
-         for(int i = 0; i < this->nInstances; i++){
-             prediction[i] = this->trees[this->elitismList[0]]->classification[i];
-         }
-    }
-    }
+                		       // if there is only one independend variabe, and the variable is numeric, csplit
+		            	       // is not a vector. in this cas csplit is not used.
+			      	       if(this->maxCat > 1){
+		               	       	      for(int k = 0; k < this->maxCat; k++){
+                			             csplit[i * this->maxCat + k] = 2;
+		                	     }
+                	      		}
+              		      }
+           		}
+           	 	for(int i = 0; i < this->nInstances; i++){
+                       		prediction[i] = this->trees[this->elitismList[0]]->classification[i];
+                 	}
+       	    } // if elitism
+       } // if succ
+   }// if allTreeInitialized
 } // end Container
 
 
-void Container::evolution(){
+bool Container::evolution(){
     // evolves the initial solution
     double evalValue; // stores the return value from variation operators
     int randomNumber = 0; // random number calculated for each tree in each iteration. used for operator selection
     bool elitismFlag = false;
     for(int i = 0; i < this->nIterations; i++){
         // checks for user interupts via control-c
+        
+      // your code somewhere ...
+	if (checkInterrupt()) { 
+	// user interrupted ... 
+		return false;
+	}
+        
+        
         R_CheckUserInterrupt();
         for(int j = 0; j < nTrees; j++){
             // check if tree j is in the elitism list
@@ -208,7 +231,8 @@ void Container::evolution(){
    }
     // pruning of all trees 
     for(int i = 0; i < this->nTrees; i++)
-      this->pruneAllNodes(i);
+        this->pruneAllNodes(i);
+    return true;
 } // end evolution
 
 
@@ -241,7 +265,7 @@ double Container::pruneNode(int treeNumber){
 	this->trees[treeNumber]->nNodes--;
 
         if( this->evaluateTree(treeNumber, false, parent) == false){
-                cout << "warning: invalid tree is replaced by a random tree (1)" << endl;
+                // cout << "warning: invalid tree is replaced by a random tree (1)" << endl;
                 this->overwriteTree(treeNumber);
             return -5;
         }
@@ -252,7 +276,7 @@ double Container::pruneNode(int treeNumber){
             delete this->trees[treeNumber]->nodes[nodeNumber];
             this->trees[treeNumber]->nodes[nodeNumber] = NULL;
             if( this->evaluateTree(treeNumber, false, parent) == false){
-                cout << "warning: invalid tree is replaced by a random tree (2)" << endl;
+                // cout << "warning: invalid tree is replaced by a random tree (2)" << endl;
                 this->overwriteTree(treeNumber);
                 return -5;
             }
@@ -267,13 +291,13 @@ double Container::pruneNode(int treeNumber){
             this->trees[treeNumber]->splitV[nodeNumber] = oldSplitV;
             this->trees[treeNumber]->splitP[nodeNumber] = oldSplitP;
             if( this->evaluateTree(treeNumber, false, parent) == false){
-                cout << "warning: invalid tree is replaced by a random tree (3)" << endl;
+                // cout << "warning: invalid tree is replaced by a random tree (3)" << endl;
                 this->overwriteTree(treeNumber);
                 return -5;
             }
             return -1;
 	}else{
-            cout << "warning: invalid tree is replaced by a random tree (4) " << endl;
+            // cout << "warning: invalid tree is replaced by a random tree (4) " << endl;
             this->overwriteTree(treeNumber);
             return -2;
         }
@@ -316,7 +340,7 @@ int Container::pruneAllNodes(int treeNumber){
                     }
                     this->trees[treeNumber]->nNodes--;
                     if( this->evaluateTree(treeNumber, false, parent) == false){
-                        cout << "warning: invalid tree is replaced by a random tree (5)" << endl;
+                        // cout << "warning: invalid tree is replaced by a random tree (5)" << endl;
                         this->overwriteTree(treeNumber);
                         return -5;
                     }else{
@@ -325,7 +349,7 @@ int Container::pruneAllNodes(int treeNumber){
                             delete this->trees[treeNumber]->nodes[nodeNumber];
                             this->trees[treeNumber]->nodes[nodeNumber] = NULL;
                             if( this->evaluateTree(treeNumber, false, parent) == false){
-                                cout << "warning: invalid tree is replaced by a random tree (7)" << endl;
+                                // cout << "warning: invalid tree is replaced by a random tree (7)" << endl;
                                 this->overwriteTree(treeNumber);
                                 return -5;
                             }
@@ -341,7 +365,7 @@ int Container::pruneAllNodes(int treeNumber){
                             this->trees[treeNumber]->splitV[nodeNumber] = oldSplitV;
                             this->trees[treeNumber]->splitP[nodeNumber] = oldSplitP;
                             if( this->evaluateTree(treeNumber, false, parent) == false){
-                                cout << "warning: invalid tree is replaced by a random tree (8)" << endl;
+                                // cout << "warning: invalid tree is replaced by a random tree (8)" << endl;
                                 this->overwriteTree(treeNumber);
                                 return -5;
                             }
@@ -396,7 +420,7 @@ double Container::splitNode(int treeNumber){
             if(flagValid == false){
                if(this->trees[treeNumber]->nodes[terminalNode] != NULL){
                   if(this->trees[treeNumber]->deleteChildNodes(terminalNode) == false ){
-                      cout << "warning: invalid tree is replaced by a random tree (9)" << endl;
+                      // cout << "warning: invalid tree is replaced by a random tree (9)" << endl;
                       this->overwriteTree(treeNumber);
                       return -10;
                   }
@@ -405,7 +429,7 @@ double Container::splitNode(int treeNumber){
                       this->trees[treeNumber]->splitV[terminalNode] = -999999;
                }
                if(this->evaluateTree(treeNumber, false , (int) floor((terminalNode - 1) / 2) ) == false) {
-                      cout << "warning: invalid tree is replaced by a random tree (10) " << endl;
+                      // cout << "warning: invalid tree is replaced by a random tree (10) " << endl;
                       this->overwriteTree(treeNumber);
                       return -10;
                }
@@ -420,12 +444,12 @@ double Container::splitNode(int treeNumber){
             return accept;
         }else if(accept == -1){
             if(this->trees[treeNumber]->deleteChildNodes(terminalNode) == false){
-                cout << "warning: invalid tree is replaced by a random tree (12)" << endl;
+                // cout << "warning: invalid tree is replaced by a random tree (12)" << endl;
                 this->overwriteTree(treeNumber);
                 return -5;
             }
             if( this->evaluateTree(treeNumber, false, (int)((terminalNode-1)/2)) == false){
-                cout << "warning: invalid tree is replaced by a random tree (13)" << endl;
+                // cout << "warning: invalid tree is replaced by a random tree (13)" << endl;
                 this->overwriteTree(treeNumber);
                 return -5;
             }
@@ -490,7 +514,7 @@ double Container::initMutateNode(int treeNumber, bool isMinorChange){
             accept = this->mutateNode(treeNumber, changedNode, isMinorChange);
         }
         if( this->evaluateTree(treeNumber, false, 0) == false){
-            cout << "warning: invalid tree is replaced by a random tree (14)" << endl;
+            // cout << "warning: invalid tree is replaced by a random tree (14)" << endl;
             this->overwriteTree(treeNumber);
             return -5;
         }
@@ -552,7 +576,7 @@ double Container::mutateNode(int treeNumber, int nodeNumber, bool isMinorChange)
             delete [] oldCsplit;
             oldCsplit = NULL;
             if(this->evaluateTree(treeNumber, false, nodeNumber ) == false){
-                cout << "warning: invalid tree is replaced by a random tree (15)" << endl;
+                // cout << "warning: invalid tree is replaced by a random tree (15)" << endl;
                 this->overwriteTree(treeNumber);
             }
             return -5;
@@ -592,7 +616,7 @@ double Container::mutateNode(int treeNumber, int nodeNumber, bool isMinorChange)
            oldCsplit = NULL;
 
            if(this->evaluateTree(treeNumber, false, nodeNumber ) == false){
-                cout << "warning: invalid tree is replaced by a random tree (16)" << endl;
+                // cout << "warning: invalid tree is replaced by a random tree (16)" << endl;
                 this->overwriteTree(treeNumber);
            }
            return -5;
@@ -630,14 +654,14 @@ double Container::mutateNode(int treeNumber, int nodeNumber, bool isMinorChange)
             if(evaluation >= 0 ){
                 this->trees[treeNumber]->deleteChildNodes(returnValue);
                 if(this->evaluateTree(treeNumber, false, nodeNumber) == false){
-                cout << "warning: invalid tree is replaced by a random tree (17)" << endl;
+                // cout << "warning: invalid tree is replaced by a random tree (17)" << endl;
                     this->overwriteTree(treeNumber);
                     return -5;
                 }
                 return evaluation;
             }else{ // mutation was not accepted; tree stays the same; in this case splitV and splitP alread have been reversed earlier
                 if(this->evaluateTree(treeNumber, false, nodeNumber) == false){
-                cout << "warning: invalid tree is replaced by a random tree (18)" << endl;
+                // cout << "warning: invalid tree is replaced by a random tree (18)" << endl;
                     this->overwriteTree(treeNumber);
                     return -5;
                 }
@@ -1076,13 +1100,13 @@ double Container::crossover(int treeNumber1){
 
        if( this->evaluateTree(treeNumber1, true, 0) == false){
             accept1 = -1;
-            cout << "warning: invalid tree is replaced by a random tree (co 1)" << endl;
+            // cout << "warning: invalid tree is replaced by a random tree (co 1)" << endl;
             this->overwriteTree(treeNumber1);
        }
 
        if( this->evaluateTree(treeNumber2, true, 0) == false){
             accept2 = -1;
-            cout << "warning: invalid tree is replaced by a random tree (co 2)" << endl;
+            // cout << "warning: invalid tree is replaced by a random tree (co 2)" << endl;
             this->overwriteTree(treeNumber1);
        }
 

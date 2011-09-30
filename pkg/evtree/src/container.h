@@ -40,7 +40,8 @@ class Container{
               int* nIter, int* nTrees, int* pMutateMajor, int* pMutateMinor, int* pCrossover, int *pSplit, int* pPrune, int* evCriteria, double* evParameter, int* seed);
          ~Container();
          void initVariables(int* varType);
-         void evolution();
+         bool evolution();
+         bool checkInterrupt(void);
          bool evaluateTree(int treeNumber, bool pruneIfInvalid, int nodeNumber);
          double initMutateNode(int treeNumber, bool minorChange);
          double mutateNode(int treeNumber, int node, bool minorChange);

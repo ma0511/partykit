@@ -218,7 +218,7 @@ bool Tree::deleteChildNodes(int nodeNumber){
         this->nodes[nodeNumber] = NULL;
         return true;
     }else{
-        cout << "warning: node could not be deleted " << endl;
+        // cout << "warning: node could not be deleted " << endl;
         return false;
     }
 } // end deleteChildNodes

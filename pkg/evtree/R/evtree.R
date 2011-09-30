@@ -125,7 +125,8 @@ evtree <- function(formula, data, subset, na.action, weights, control = evtree.c
     #specification of function tree
     tree <- function(nInstances,nVariables,varType,ndata,weights,prediction, splitV,splitP,
                 csplit,maxNode, control){
-            out <-  .C( "tree", PACKAGE="evtree",
+            on.exit(.C("freememory", PACKAGE = "evtree"))
+            out <-  .C( "tree", PACKAGE = "evtree",
                 as.integer(nInstances), 
                 as.integer(nVariables), 
                 as.integer(varType), 
@@ -151,7 +152,7 @@ evtree <- function(formula, data, subset, na.action, weights, control = evtree.c
                 )
             return(out)
     }
-    
+      
     # Call of the tree function
      out <- tree(nInstances, nVariables, varType, ndata, weights, prediction, splitV, splitP, csplit,
      maxNode, control)
