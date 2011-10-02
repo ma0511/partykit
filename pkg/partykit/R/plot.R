@@ -266,9 +266,9 @@ plot.party <- function(x, main = NULL,
 
     ## setup root viewport
     root_vp <- viewport(layout = grid.layout(3, 3, 
-    			height = unit(c(ifelse(is.null(main), 0, 3), 1, 1), 
+    			heights = unit(c(ifelse(is.null(main), 0, 3), 1, 1), 
                                       c("lines", "null", "lines")),
-    			width = unit(c(1, 1, 1), 
+    			widths = unit(c(1, 1, 1), 
                                      c("lines", "null", "lines"))), 
     			name = "root",
 			gp = gp)       
