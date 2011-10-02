@@ -1,8 +1,8 @@
 #include "container.h"
 
+extern "C"{
 static Container* container;
 
-extern "C"{
 void tree(int* nInst, int* nVar, int *varType, double* nData, int* weights, int* prediction, int *splitV, double *splitP, int* csplit, int* maxNode, int* minBucket, int* minSplit, int* nIterations, int* nTrees, int* pMutateMajor, int* pMutateMinor, int *pCrossover, int *pSplit, int *pPrune, int* method, double* alpha, int* seed){
 	container = new Container(nInst, nVar, varType, nData, weights, prediction, splitV, splitP, csplit, maxNode, minBucket, minSplit, nIterations, nTrees, pMutateMajor, pMutateMinor, pCrossover, pSplit, pPrune, method, alpha, seed);
 }//tree
@@ -11,14 +11,15 @@ void freememory(void){
     delete container;
     container = NULL;
 }// cleanup
-}//extern C 
+}//extern "C"
 
 static void chkIntFn(void *dummy) {
      R_CheckUserInterrupt();
 }
 
 bool Container::checkInterrupt(void){
-  return (R_ToplevelExec(chkIntFn, NULL) == FALSE);
+  void *temp = NULL;
+  return (R_ToplevelExec(chkIntFn, temp) == FALSE);
 }
 
 Container::Container(int* R_nInstances, int* R_nVariables, int *R_varType, double* R_nData, int* R_weights, int* R_prediction, int *R_splitV, double *R_splitP, int* R_csplit, int* R_maxNode, int *R_minBucket, int* R_minSplit, int* R_nIterations, int* R_nTrees, int* R_pMutateMajor, int* R_pMutateMinor, int* R_pCrossover, int* R_pSplit, int* R_pPrune, int* R_method, double* R_alpha, int* R_seed ){
@@ -150,16 +151,12 @@ bool Container::evolution(){
     int randomNumber = 0; // random number calculated for each tree in each iteration. used for operator selection
     bool elitismFlag = false;
     for(int i = 0; i < this->nIterations; i++){
-        // checks for user interupts via control-c
-        
 
+	//check for user interrupts
 	if (checkInterrupt()) { 
-	// user interrupted ... 
 		return false;
 	}
         
-        
-
         for(int j = 0; j < this->nTrees; j++){
             // check if tree j is in the elitism list
             // if it is; with a small probability a copy of tree j is placed in the population
