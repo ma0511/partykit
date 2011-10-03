@@ -1,6 +1,6 @@
 ###################################################
 ### This file reproduces the benchmarks experiments and plots of the evtree paper.
-### Note that the full analysis takes extremely long (our analysis on a mainframe with 
+### Note that the full analysis takes rather long (our analysis on a mainframe with 
 ### 6 parallel processes took 1-2 weeks). 
 ###################################################
 
