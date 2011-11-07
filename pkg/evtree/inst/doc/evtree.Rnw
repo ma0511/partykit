@@ -176,7 +176,7 @@ To show why forward-search recursive partitioning algorithms typically
 lead to globablly suboptimal solutions, their parameter spaces and optimization
 problems are presented and contrasted in a unified notation. Although all
 arguments hold more generally, only binary tree models with some maximum number
-of splits $M_{\max}$ are considered. Both restrictions make the notation somewhat
+of terminal nodes $M_{\max}$ are considered. Both restrictions make the notation somewhat
 simpler while not really restricting the problem: (a)~Multiway splits are equivalent
 to a sequence of binary splits in predictions and number of resulting subsamples.
 (b)~The maximal size of the tree is always limited by the number of observations
@@ -431,7 +431,7 @@ generated, split rule to it. As a
 consequence, the selected terminal node becomes an internal node $r$ and
 two new terminal nodes are generated. 
 
-The search for a valid split rule is conducted as in see Section~\ref{init}
+The search for a valid split rule is conducted as in Section~\ref{init}
 for a maximum of $P$~iterations. 
 In cases where no valid split rule can be assigned to the internal node at
 position~$r$, the search for a valid split rule is carried out on another
@@ -473,8 +473,8 @@ ${\theta}_i$. Thus, ${\theta}_{i+1} = {\theta}_{i} \setminus
 mutation} operator, but it does not alter $v_r$ and only changes the split point
 $s_r$ by a minor degree. If $X_{v_r}$ is numerical or ordinal the split point
 $s_r$ is changed by a non-zero number of unique values of $X_{v_r}$. In cases
-where $X_{v_r}$ has less then $20$ unique values, the split point is change to
-to the next larger, or the next lower, unique value of $X_{v_r}$. Otherwise,
+where $X_{v_r}$ has less then $20$ unique values, the split point is changed to
+the next larger, or the next lower, unique value of $X_{v_r}$. Otherwise,
 $s_r$ is randomly shifted by a number of unique values that is not larger than
 $10\%$ of the range of unique values of $X_{v_r}$. If $X_{v_r}$ is a nominal
 variable, with less than $20$ categories, one of the categories is randomly
@@ -945,7 +945,7 @@ HDG0502$^\diamond$ & 8251 &  1 & 7 & 1 &   91  & -               \\
 
 The relative performance of \code{evtree} and \code{rpart} is summarized in Figure~\ref{fig:benchmark} (upper panels). Performance differences are displayed relative to \code{evtree}'s performance. For example, on the \textit{Glass} dataset, the average misclassification rate of \code{rpart} is $2.7\%$ higher than the misclassification rate of \code{evtree}. It can be observed that on $12$ out of $17$ datasets \code{evtree} significantly outperforms \code{rpart} in terms of predictive accuracy. Only on the \textit{Contraceptive Method} dataset \code{evtree} performs slightly worse.  In terms of complexity, \code{evtree} models are significantly more complex on $10$ and less complex on $7$ datasets. 
 
-Figure~\ref{fig:benchmark} (lower panels) summarizes the relative performance of \code{evtree} and \code{ctree}. For 15 out of 17 datasets \code{evtree} shows a better predictive performance. The algorithms' performances  is significantly worse on the \textit{MEL0101} dataset, where the average misclassifiation rate of \code{ctree} is $5.6\%$ lower. However, on this dataset, \code{ctree} models are on average $86.5\%$ larger than \code{evtree} models. The relative complexity of \code{evtree} models is significantly smaller for 15 and larger for 1 dataset. 
+Figure~\ref{fig:benchmark} (lower panels) summarizes the relative performance of \code{evtree} and \code{ctree}. For 15 out of 17 datasets \code{evtree} shows a better predictive performance. The algorithms' performances  is significantly worse on the \textit{MEL0101} dataset, where the mean squarred error of \code{ctree} is $5.6\%$ lower. However, on this dataset, \code{ctree} models are on average $86.5\%$ larger than \code{evtree} models. The relative complexity of \code{evtree} models is significantly smaller for 15 and larger for 1 dataset. 
 
 <<benchmark-results, echo=FALSE>>=
 ## load results
