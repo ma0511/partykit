@@ -193,7 +193,7 @@ where the $n_r \in \{1,...,M_{\max}-1\}$ are the positions of the
 internal \emph{nodes}, $v_r \in \{1, \dots ,P\}$ the associated splitting
 \emph{variables}, and $s_r$ the associated \emph{split} rules ($r = 1, \dots, M-1$).
 Depending on the domain of $X_{v_r}$, the split rule $s_r$ contains either a cutoff
-(for ordered and numeric variables) or a a nonempty subset of $\{1, \dots, c\}$
+(for ordered and numeric variables) or a nonempty subset of $\{1, \dots, c\}$
 (for a categorical variable with $c$~levels), determining which observations are
 sent to the first or second subsample. In the former case, there are $u-1$ possible
 split rules if $X_{v_r}$ takes $u$ distinct values; and in the latter case, there
