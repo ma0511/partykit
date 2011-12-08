@@ -79,11 +79,12 @@ node_terminal <- function(obj,
 		          abbreviate = FALSE,
 		          fill = c("lightgray", "white"),
 		          id = TRUE,
-			  gp = gpar())
+			  gp = gpar(),
+			  FUN = NULL)
 {
   nam <- names(obj)
 
-  extract_label <- function(node) formatinfo_node(node, default = c("terminal", "node"))
+  extract_label <- function(node) formatinfo_node(node, FUN = FUN, default = c("terminal", "node"))
 
   maxstr <- function(node) {
       lab <- extract_label(node)
