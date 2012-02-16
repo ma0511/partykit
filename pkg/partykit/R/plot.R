@@ -641,7 +641,7 @@ node_surv <- function(obj, col = "black", ylines = 2,
 	dat <- data_party(obj, nid)
 	yn <- dat[["(response)"]]
 	wn <- dat[["(weights)"]]
-	if(is.null(wn)) wn <- rep(1, length(yn))
+	if(is.null(wn)) wn <- rep(1, NROW(yn))
 
         ## get Kaplan-Meier curver in node
         km <- mysurvfit(yn, weights = wn, ...)
