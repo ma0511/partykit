@@ -333,12 +333,16 @@ plot.constparty <- function(x, main = NULL,
         if (is.null(tnex)) tnex <- 1
         if (is.null(drop_terminal)) drop_terminal <- FALSE
     } else {
-        if (is.null(terminal_panel))
-            terminal_panel <- switch(class(x$fitted[["(response)"]])[1],
-	                             "Surv" = node_surv,
-                                     "factor" = node_barplot,
-                                     "ordered" = node_barplot,
-                                     node_boxplot)
+        if (is.null(terminal_panel)) {
+	    cl <- class(x$fitted[["(response)"]])
+	    terminal_panel <- if("factor" %in% cl) {
+	        node_barplot 
+	    } else if("Surv" %in% cl) {
+	        node_surv
+            } else {
+	        node_boxplot
+	    }
+	}
         if (is.null(tnex)) tnex <- 2
         if (is.null(drop_terminal)) drop_terminal <- TRUE
     }

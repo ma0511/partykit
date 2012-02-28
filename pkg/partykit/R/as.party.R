@@ -23,10 +23,10 @@ as.party.rpart <- function(obj, ...) {
     mf <- model.frame(obj)
 
     rpart_fitted <- function() {
-        y <- model.response(mf)
-        weights <- model.weights(mf)
-        ret <- data.frame("(fitted)" = obj$where, "(response)" = y, check.names = FALSE)
-        if (!is.null(weights)) ret[["(weights)"]] <- weights
+	ret <- as.data.frame(matrix(nrow = NROW(mf), ncol = 0))
+	ret[["(fitted)"]] <- obj$where
+        ret[["(response)"]] <- model.response(mf)        
+        ret[["(weights)"]] <- model.weights(mf)
         ret
     }
     fitted <- rpart_fitted()
