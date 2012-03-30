@@ -40,11 +40,11 @@ We cleaned-up the notation and wording according to the reviewer's recommendatio
 
 We added the following paragraph to the ``Conclusions'', as an explanation as to when and why evtree outperforms its competitors:
 
-No obvious relationship between the data characteristics and evtree's 
-relative performance could be observed. However, one reason is that for some datasets,
-the recursive partitioning trees are already (nearly) optimal. For other datasets, 
- evtree's global search strategy can find more complex interactions, 
-resulting in better predictive accuracy and/or sparser trees.
+No obvious relationship between the data characteristics and evtree's
+relative performance could be observed. Probably, one explanation is that for some datasets,
+the recursive partitioning algorithms already yield (nearly) optimal trees, leaving little room for further
+improvements. For other datasets, evtree's global search strategy can find more
+complex interactions, resulting in better predictive accuracy and/or sparser trees.
 \\ \\
 \textbf{2 Spelling/Grammatical Errors}
 
@@ -68,15 +68,14 @@ We changed all spelling- and grammatical errors as suggested.
 \textit{In Section 2, the authors introduce some notation for the tree setup, but the notation seems inconsistent in the paper. The authors write $\theta=(v_{n_1}, s_{n_1},\dots,v_{n_{M-1}},s_{n_{M-1}})$, where $n_r \in \{1,\dots, M_{max}-1\}$ but then also write $v_r$ and $s_r$ where $r=1,\dots,M-1$. Further, in Section 2.2, the authors talk about $s_r$ and $v_r$ where $r \in \{n_1, \dots, n_{M-1} \}$, which is immediately different from the indexing given
 in equation (3). The authors should use a consistent notation for indexing the $v$ and $s$.}
 
-We cleaned up the notation and made it consistent. A binary tree is now denoted as $\theta=(v_1, s_1, \dots, v_{M-1}, s_{M-1})$. Here, $r \in \{1,...,M_{\max}-1\}$ are the internal \emph{nodes}, $v_r \in \{1, \dots ,P\}$ the associated splitting \emph{variables}, and $s_r$ the associated \emph{split} rules ($r = 1, \dots, M-1$). Now, in order to simplify the notation, the positions of the internal nodes are no longer made explicit. 
+We cleaned up the notation and made it consistent. A binary tree is now denoted as $\theta=(v_1, s_1, \dots, v_{M-1}, s_{M-1})$, were $r \in \{1,...,M-1\}$ are the internal \emph{nodes}, $v_r \in \{1, \dots ,P\}$ the associated splitting \emph{variables}, and $s_r$ the associated \emph{split} rules ($r = 1, \dots, M-1$). Now, in order to simplify the notation, the positions of the internal nodes are no longer made explicit. 
 \\  \\
 \textbf{4 Case Study}
 
-\textit{
-The authors have provided very minimal information on the dataset. (p.14) The authors write
+\textit{The authors have provided very minimal information on the dataset. (p.14) The authors write
 ``Thus, the evolutionary tree uses a different cutoff in art for book club members that joined in the last year as opposed to older customers." The text does not explain which variable corresponds to ``join date", but based on Figure 3, one can indirectly infer that this variable is first. The authors have described te variable first as the number of months since the first purchase, but do not say that members join the book club upon making their first purchase.}
 
-We added a Table, which shortly describes the variables of the Bookbinder's Book Club dataset. We assumed the join date to be equal to the data of the first purchase. To avoid confusions we changed the sentence: 
+We added a table (Table 2), which shortly describes the variables of the Bookbinder's Book Club dataset. We assumed the join date to be equal to the data of the first purchase. To avoid confusions we changed the sentence: 
 
 ``Thus, the evolutionary tree uses a different cutoff in art for book club members that joined in the last year as opposed to older customers." 
 
@@ -109,7 +108,7 @@ We changed the sentence according to the recommendations.
 
 \textit{\item (p.8) Minor split rule mutation paragraph: The description of the mutation rules is rather complex, with really 4 different cases to consider (nominal/$<$ 20 values, nominal/$\ge$ 20 values, continuous/$<$ 20 values, continuous/$\ge$ 20 values). It might be good to present this set of rules in a tabular format.}
 
-The rules are now presented in tabular format and are now easier to read.
+The rules are now presented in an easy to read tabular format.
 
 \textit{\item (p.8) Crossover paragraph, last sentence: ``these are omitted" might be better written as ``they are omitted" to be clear that ``these" refers to the invalid nodes.}
 
