@@ -1083,6 +1083,12 @@ ciplot(com_ctree, xlim = xlim2, main = "",      ylab = FALSE,
   The complexity (right panels) is compared by the relative difference of the number of terminal nodes.}
 \end{figure}
 
+No obvious relationship between the data characteristics and \code{evtree}'s relative
+performance could be observed. Probably, one explanation is that for some datasets,
+the recursive partitioning algorithms already yield (nearly) optimal trees, leaving little room for further
+improvements. For other datasets, \code{evtree}'s global search strategy can find more
+complex interactions, resulting in better predictive accuracy and/or sparser trees.
+
 Disadvantages of the \code{evtree} algorithm are computation time and memory requirements. While the smallest of the analyzed datasets, \textit{Glass identification}, only needed approximately 4--6~seconds to fit, larger datasets demanded several minutes. The fit of a model from the largest dataset, \textit{MAGIC gamma telescope}, required approximately 40--50 minutes and a main memory of 400 MB. The required resources were measured on an Intel Core 2 Duo with 2.2 GHz and 2 GB RAM using the 64-bit version of Ubuntu 10.10.
 
 Another important issue to be considered is the random nature of evolutionary algorithms. For larger datasets, frequently, considerably different solutions exist that yield a similar or even the same evaluation function value. Therefore, subsequent runs of \code{evtree} can result in very different tree structures. This is not a problem if the tree is intended only for predictive purposes, and it is also not a big issue for many decision and prognosis tasks. Typically, in such applications, the resulting model has to be accurate, compact, and meaningful in its interpretation, but the particular tree structure is of secondary importance. Examples of such applications include the presented marketing case study and the Austrian DRG system. In cases where a model is not meaningful in its interpretation, the possibility of constructing different trees can even be beneficial. However, if the primary goal is to interpret relationships in the data, based on the selected splits, the random nature of the algorithm has to be considered.
@@ -1199,12 +1205,6 @@ The comparisons with recursive partitioning methods \code{rpart}
 and \code{ctree} in Sections~\ref{impl} and~\ref{comp} shows that \code{evtree}
 performs very well in a wide variety of settings, often balancing predictive
 accuracy and complexity better than the forward-search methods. 
-
-No obvious relationship between the data characteristics and \code{evtree}'s
-relative performance could be observed. Probably, one explanation is that for some datasets,
-the recursive partitioning algorithms already yield (nearly) optimal trees, leaving little room for further
-improvements. For other datasets, \code{evtree}'s global search strategy can find more
-complex interactions, resulting in better predictive accuracy and/or sparser trees.
 
 However, the goal of \code{evtree} is not to replace the well-established algorithms like
 \code{rpart} and \code{ctree} but rather to complement the tree toolbox with
