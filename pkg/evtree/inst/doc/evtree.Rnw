@@ -189,8 +189,8 @@ $M-1$ internal splits) is denoted by
   \theta ~=~ (v_{1}, s_{1},...,v_{M-1},s_{M-1} ), \label{eq:tree}
 \end{equation}
 %
-where $r \in \{1,...,M-1\}$ are the internal \emph{nodes}, $v_r \in \{1, \dots ,P\}$ the associated splitting
-\emph{variables}, and $s_r$ the associated \emph{split} rules ($r = 1, \dots, M-1$).
+where $v_r \in \{1, \dots ,P\}$ are the splitting \emph{variables} and $s_r$ the
+associated \emph{split} rules for the internal \emph{nodes} $r \in \{1,...,M-1\}$.
 Depending on the domain of $X_{v_r}$, the split rule $s_r$ contains either a cutoff
 (for ordered and numeric variables) or a non-empty subset of $\{1, \dots, c\}$
 (for a categorical variable with $c$~levels), determining which observations are
@@ -823,7 +823,7 @@ ev
 <<BBBClub-evtree-plot, fig=TRUE, echo=FALSE, width=7.5, height=4.9>>=
 plot(ev)
 @
-\caption{\label{fig:example_evtree} Tree for customer targeting constructed by \code{evtree}
+\caption{\label{fig:example_evtree} Tree for customer targeting constructed by \code{evtree}.
    The target variable is the customer's choice of buying the book. The variables used for splitting are
    the number of art books purchased previously (\code{art}), and the number of months since the first purchase
     (\code{first}).}
