@@ -72,7 +72,7 @@ options(prompt = "R> ", continue = "+  ", width = 70, useFancyQuotes = FALSE)
 library("rpart")
 library("evtree")
 data("BBBClub", package = "evtree")
-cache <- FALSE
+cache <- TRUE
 @
 
 \begin{document}
@@ -136,7 +136,7 @@ evolutionary process the mean quality of the population increases over time
 \citep{baeck,eiben2003iec}.  
 In the case of learning decision trees, this means that the variation
 operators can be applied to modify the tree structure (e.g., number of splits, splitting
-variables, and corresponding splitpoints etc.) in order to optimize a
+variables, and corresponding split points etc.) in order to optimize a
 fitness functions such as the misclassificaion or error rate penalized by
 the complexity of the tree.
 A notable difference to comparable algorithms is the survivor selection
@@ -173,7 +173,7 @@ e.g., the mean, median, or variance etc. Typically, the mode is used for
 classification trees and the arithmetic mean is applied for regression trees. 
 
 To show why forward-search recursive partitioning algorithms typically
-lead to globablly suboptimal solutions, their parameter spaces and optimization
+lead to globally suboptimal solutions, their parameter spaces and optimization
 problems are presented and contrasted in a unified notation. Although all
 arguments hold more generally, only binary tree models with some maximum number
 of terminal nodes $M_{\max}$ are considered. Both restrictions make the notation somewhat
@@ -200,7 +200,7 @@ are $2^{c-1} - 1$ possible splits. Thus, the product of all of these combination
 forms all potential elements $\theta$ from $\Theta_M$, the space of conceivable
 trees with $M$ terminal nodes. The overall parameter space is then 
 $\Theta =\bigcup_{M=1}^{M_{\max}} \Theta_{M}$ (which in practice is often reduced
-by exluding elements $\theta$ resulting in too small subsamples etc.).
+by excluding elements $\theta$ resulting in too small subsamples etc.).
 
 Finally, $f(X,\theta)$ denotes the prediction function based on all explanatory
 variables $X$ and the chosen tree structure $\theta$ from Equation~\ref{eq:tree}.
@@ -301,7 +301,6 @@ print(evtree(Y ~ ., data = chess22, minbucket = 1, minsplit = 2))
 plot(X2 ~ X1, data = chess22, xlim = c(0, 2), ylim = c(0, 2), pch = c(1, 4)[Y], col = c("black", "slategray")[Y])
 @
 \caption{\label{fig:illustration} Class distribution of  the $(X_1, X_2)$-plane. The two classes are indicated by black circles and gray crosses.}
-%%\vspace*{-0.3cm} %%FIXME: to avoid \pagebreak
 \end{figure}
 
 All instances are classified correctly. Each of the terminal nodes~3 and~7 contain four instances of the class \code{X}. Four instances of class
@@ -507,6 +506,7 @@ ${\theta}_{i+1}^2 = \mathrm{sub}2({\theta}_{i}^2, r_2) \cup \mathrm{sub}1({\thet
 If the crossover creates some invalid nodes in either one of the new trees ${\theta}_{i+1}^1$
 or ${\theta}_{i+1}^2$, they are omitted.
 
+\pagebreak %% FIXME
 
 \subsection{Evaluation function}
 \label{eval}
@@ -684,7 +684,7 @@ can be defined. For making computations reproducible, argument \code{seed} is
 an optional integer seed for the random number generator (at \proglang{C++} level).
 If not specified, the random number generator is initialized by \verb|as.integer(runif(1, max = 2^16))|
 in order to inherit the state of \code{.Random.seed} (at \proglang{R} level).
-If set to \code{-1L}, the seed is initializied by the system time.
+If set to \code{-1L}, the seed is initialized by the system time.
 
 The trees computed by \code{evtree} inherit from class `\code{party}' supplied
 by the \pkg{partykit} package. The methods inherited in this way
@@ -706,21 +706,22 @@ which bought the book. The dataset contains a subsample of 1,300~customers with 
 \centering
 \begin{tabular}{ll}
 \toprule	
-     \textbf{Variable} & Description\\
+     Variable & Description\\
 \midrule	
-     \textbf{amount} & total amount of money spent at the BBB Club. \\
-     \textbf{art} & number of art books purchased. \\
-     \textbf{child} & number of children's books purchased. \\
-     \textbf{cook} & number of cookbooks purchased. \\
-     \textbf{diy} & number of do-it-yourself books purchased. \\    
-     \textbf{first} & number of months since the first purchase. \\   
-     \textbf{freq} & number of books purchased at the BBB Club. \\          
-     \textbf{gender} & factor indicating gender. \\
-     \textbf{last} & number of months since the last purchase. \\         
-     \textbf{youth} & number of youth books purchased. \\
+     \code{choice} & Did the customer buy the advertised book? \\
+     \code{amount} & Total amount of money spent at the book Club. \\
+     \code{art}    & Number of art books purchased. \\
+     \code{child}  & Number of children's books purchased. \\
+     \code{cook}   & Number of cookbooks purchased. \\
+     \code{diy}    & Number of do-it-yourself books purchased. \\    
+     \code{first}  & Number of months since the first purchase. \\   
+     \code{freq}   & Number of books purchased at the book Club. \\          
+     \code{gender} & Factor indicating gender. \\
+     \code{last}   & Number of months since the last purchase. \\         
+     \code{youth}  & Number of youth books purchased. \\
 \bottomrule
 \end{tabular}
-\caption{\label{tab:BBBClubDescription} This table describes the predictor variables of the \textit{Bookbinder's Book Club} dataset.} 
+\caption{\label{tab:BBBClubDescription} Variables of the Bookbinder's Book Club data.} 
 \end{table}
 
 
@@ -835,8 +836,8 @@ of months since the first purchase (\code{first}), the frequency of previous pur
 (\code{freq}), and the customer's \code{gender}. Interestingly, though, the forward-search trees select
 the arguably most important variable in the first split while the evolutionary tree uses \code{first}
 in the first split and \code{art} in both second splits.
-Thus, the evolutionary tree uses a different cutoff in \code{art} for book club members that bought there
-first book in the last year as opposed to older customers.
+Thus, the evolutionary tree uses a different cutoff in \code{art} for book club members that made their
+first purchase during the last year as opposed to older customers.
 While the former are predicted to be buyers if they had previously bought
 at least one art book, the latter are predicted to purchase the advertised art book only if they
 had previously bought at least two other art books. Certainly, this classification is easy to understand
@@ -970,7 +971,7 @@ HDG0502$^\diamond$ & 8251 &  1 & 7 & 1 &   91  & -               \\
 
 The relative performance of \code{evtree} and \code{rpart} is summarized in Figure~\ref{fig:benchmark} (upper panels). Performance differences are displayed relative to \code{evtree}'s performance. For example, on the \textit{Glass} dataset, the average misclassification rate of \code{rpart} is $2.7\%$ higher than the misclassification rate of \code{evtree}. It can be observed that on $12$ out of $17$ datasets \code{evtree} significantly outperforms \code{rpart} in terms of predictive accuracy. Only on the \textit{Contraceptive method} dataset does \code{evtree} perform slightly worse.  In terms of complexity, \code{evtree} models are significantly more complex on $10$ and less complex on $7$ datasets. 
 
-Figure~\ref{fig:benchmark} (lower panels) summarizes the relative performance of \code{evtree} and \code{ctree}. For 15 out of 17 datasets \code{evtree} shows a better predictive performance. The algorithms' performances  is significantly worse on the \textit{MEL0101} dataset, where the mean squarred error of \code{ctree} is $5.6\%$ lower. However, on this dataset, \code{ctree} models are on average $86.5\%$ larger than \code{evtree} models. The relative complexity of \code{evtree} models is significantly smaller for 15 and larger for 1 dataset. 
+Figure~\ref{fig:benchmark} (lower panels) summarizes the relative performance of \code{evtree} and \code{ctree}. For 15 out of 17 datasets \code{evtree} shows a better predictive performance. The algorithms' performances  is significantly worse on the \textit{MEL0101} dataset, where the mean squared error of \code{ctree} is $5.6\%$ lower. However, on this dataset, \code{ctree} models are on average $86.5\%$ larger than \code{evtree} models. The relative complexity of \code{evtree} models is significantly smaller for 15 and larger for 1 dataset. 
 
 <<benchmark-results, echo=FALSE>>=
 ## load results
@@ -1083,17 +1084,17 @@ ciplot(com_ctree, xlim = xlim2, main = "",      ylab = FALSE,
   The complexity (right panels) is compared by the relative difference of the number of terminal nodes.}
 \end{figure}
 
-No obvious relationship between the data characteristics and \code{evtree}'s relative
-performance could be observed. Probably, one explanation is that for some datasets,
-the recursive partitioning algorithms already yield (nearly) optimal trees, leaving little room for further
-improvements. For other datasets, \code{evtree}'s global search strategy can find more
-complex interactions, resulting in better predictive accuracy and/or sparser trees.
+From these results, it is not obvious which characteristics drive \code{evtree}'s
+relative performance. Presumably, for some datasets the forward-search algorithms already
+yield trees that are close to optimal, thus leaving little room for further
+improvements. In contrast, for other datasets with more complex interaction patterns
+(and possibly low main effects) \code{evtree}'s global-search strategy is probably
+able to provide better predictive accuracy and/or sparser trees.
 
 Disadvantages of the \code{evtree} algorithm are computation time and memory requirements. While the smallest of the analyzed datasets, \textit{Glass identification}, only needed approximately 4--6~seconds to fit, larger datasets demanded several minutes. The fit of a model from the largest dataset, \textit{MAGIC gamma telescope}, required approximately 40--50 minutes and a main memory of 400 MB. The required resources were measured on an Intel Core 2 Duo with 2.2 GHz and 2 GB RAM using the 64-bit version of Ubuntu 10.10.
 
 Another important issue to be considered is the random nature of evolutionary algorithms. For larger datasets, frequently, considerably different solutions exist that yield a similar or even the same evaluation function value. Therefore, subsequent runs of \code{evtree} can result in very different tree structures. This is not a problem if the tree is intended only for predictive purposes, and it is also not a big issue for many decision and prognosis tasks. Typically, in such applications, the resulting model has to be accurate, compact, and meaningful in its interpretation, but the particular tree structure is of secondary importance. Examples of such applications include the presented marketing case study and the Austrian DRG system. In cases where a model is not meaningful in its interpretation, the possibility of constructing different trees can even be beneficial. However, if the primary goal is to interpret relationships in the data, based on the selected splits, the random nature of the algorithm has to be considered.
 
-%%\pagebreak %%FIXME
 
 \subsection{Artificial problem}
 \label{comp2}

@@ -1,154 +1,179 @@
-  	
-
 \documentclass[DIN, pagenumber=false, parskip=half,% 
                fromalign=left, fromphone=true,%  
                fromemail=true, fromurl=false, %
                fromlogo=true, fromrule=false, fromrule=afteraddress]{scrlttr2}
-
 \usepackage[latin1]{inputenc}
-
 \usepackage{graphicx}
 \usepackage{amsmath}
 
 \setkomavar{fromname}{Thomas Grubinger\\ Department of Medical Statistics, Informatics and Health Economics \\ Innsbruck Medical University}
 \setkomavar{fromaddress}{Sch\"opfstrasse 41/1, 6020 Innsbruck, Austria}
-\setkomavar{backaddress}{Dept. of Med. Statistics \\ Innsbruck Medical University\\ Sch\"opfstr. 41/1, A-6020 Innsbruck}
+\setkomavar{backaddress}{Dept.~of Med.~Statistics \\ Innsbruck Medical University\\ Sch\"opfstr. 41/1, A-6020 Innsbruck}
 \setkomavar{fromphone}{+43 512 9003 70906}
-\setkomavar{fromemail}{thomas.grubinger@i-med.ac.at}
-\setkomavar{signature}{Thomas Grubinger, Achim Zeileis und Karl-Peter Pfeiffer}
+\setkomavar{fromemail}{Thomas.Grubinger@i-med.ac.at}
+\setkomavar{signature}{Thomas Grubinger, Achim Zeileis, Karl-Peter Pfeiffer}
 \setkomavar{fromlogo}{ \includegraphics*[width=2.8cm]{logo}}
-\setkomavar{subject}[]{Author's response to the review of ``evtree: 
-Evolutionary Learning of Globally Optimal Classification and Regression Trees in R'' (JSS 817)}
+\setkomavar{subject}[]{Revision of  JSS 817}
 
 \begin{document}
 
 
-\begin{letter}{The Editor \\ Journal of Statistical Software}
-
-\opening{Dear Editor}
-
-we would like to thank the reviewer for the careful review and the constructive comments on our paper. We have revised our manuscript based on the reviewer's comments and respond on them below. 
-\\ \\
-\textbf{1. Overall Thoughts}
-
-\textit{The paper did a good job of introducing a new tree-based algorithm overall. A lot of details pertaining to traditional tree models and the concept of evolutionary algorithms were covered, some of which could be clarified further. A clean-up in notation and wording would be greatly beneficial. The code appears easy-to-read and uses parameters consistent with other tree packages.}
-
-We cleaned-up the notation and wording according to the reviewer's recommendations.
-\\ \\
-
-\textit{In the end, the authors gave honest comparisons of their methods to the traditional rpart and ctree methods, but it is unclear as to when and why evtree outperforms its competitors apart from the specific chessboard example given in Section 5.2.}
-
-We added the following paragraph to the ``5.1 Benchmark and real-world problemss'', as an explanation as to when and why evtree outperforms its competitors:
-
-No obvious relationship between the data characteristics and evtree's
-relative performance could be observed. Probably, one explanation is that for some datasets,
-the recursive partitioning algorithms already yield (nearly) optimal trees, leaving little room for further
-improvements. For other datasets, evtree's global search strategy can find more
-complex interactions, resulting in better predictive accuracy and/or sparser trees.
-\\ \\
-\textbf{2 Spelling/Grammatical Errors}
-
-\textit{
-\begin{enumerate}
-\item (p.3) Above equation (2), ``predicition" should be ``prediction".
-\item (p.7) First paragraph, midway, ``spit points" should be ``split points"
-\item (p.8) Minor split rule mutation paragraph: ``less then" should be ``less than", and ``the split
-point is change to to..." should be ``the split point is changed to".
-\item (p.8) Crossover paragraph, last sentence: ``nods" should be ``nodes".
-\item (p.8) Evaluation function first paragraph: should be ``The evaluation function represents the
-requirements to which the population should adapt."
-\item (p.14) Middle of first pararaph: ``bookclub" should be ``book club".
-\end{enumerate}
+\begin{letter}{
+  Jan de Leeuw\\
+  Department of Statistics\\
+  University of California, Los Angeles\\
+  United States of America
 }
 
-We changed all spelling- and grammatical errors as suggested.
-\\  \\
-\textbf{3 Notation}
+\opening{Dear Prof.~de Leeuw,}
 
-\textit{In Section 2, the authors introduce some notation for the tree setup, but the notation seems inconsistent in the paper. The authors write $\theta=(v_{n_1}, s_{n_1},\dots,v_{n_{M-1}},s_{n_{M-1}})$, where $n_r \in \{1,\dots, M_{max}-1\}$ but then also write $v_r$ and $s_r$ where $r=1,\dots,M-1$. Further, in Section 2.2, the authors talk about $s_r$ and $v_r$ where $r \in \{n_1, \dots, n_{M-1} \}$, which is immediately different from the indexing given
-in equation (3). The authors should use a consistent notation for indexing the $v$ and $s$.}
+please find attached the revised version of our manuscript
+``evtree: Evolutionary Learning of Globally Optimal Classification and Regression Trees in R''
+(JSS 817). We would like to thank the reviewer for the careful review and the constructive
+comments. We have incorporated all of the reviewer's recommendations, in particular by
+cleaning up the notation and providing some more discussion of the illustrations. We
+hope to have addressed all concerns in our revision and provide a detailed
+point-to-point reply below.
 
-We cleaned up the notation and made it consistent. A binary tree is now denoted as $\theta=(v_1, s_1, \dots, v_{M-1}, s_{M-1})$, were $r \in \{1,...,M-1\}$ are the internal \emph{nodes}, $v_r \in \{1, \dots ,P\}$ the associated splitting \emph{variables}, and $s_r$ the associated \emph{split} rules ($r = 1, \dots, M-1$). Now, in order to simplify the notation, the positions of the internal nodes are no longer made explicit. 
-\\  \\
-\textbf{4 Case Study}
+Sincerely,\\[-2cm]
+\closing{}
 
-\textit{The authors have provided very minimal information on the dataset. (p.14) The authors write
-``Thus, the evolutionary tree uses a different cutoff in art for book club members that joined in the last year as opposed to older customers." The text does not explain which variable corresponds to ``join date", but based on Figure 3, one can indirectly infer that this variable is first. The authors have described te variable first as the number of months since the first purchase, but do not say that members join the book club upon making their first purchase.}
+\end{letter}
 
-We added a table (Table 2), which shortly describes the variables of the Bookbinder's Book Club dataset. We assumed the join date to be equal to the data of the first purchase. To avoid confusions we changed the sentence: 
 
-``Thus, the evolutionary tree uses a different cutoff in art for book club members that joined in the last year as opposed to older customers." 
+\newpage
 
-to: 
 
-``Thus, the evolutionary tree uses a different cutoff in art for book club members that bought there first book in the last year as opposed to older customers.".
-\\ \\
+\textbf{\large Point-to-Point Reply}
 
-\textit{The table comparing the misclassification and evaluation function values for the different methods identify the methods as evtree, rpart, ctree, rpart2, and ctree2. The paragraph which describes this table instead identifies the methods as ev, rp, ct, rp2, and ct2. It would be better to make sure the two are consistent.}
+\bigskip
 
-We changed the identifiers in the describing paragraph to evtree, rpart, ctree, rpart2, and ctree2. The notation is now consistent.
-\\  \\
-\textbf{5 Miscellaneous}
+\textbf{1. Overall Thoughts}
 
-In addition to the above, I have the following suggestions.
+\textit{The paper did a good job of introducing a new tree-based algorithm
+overall. A lot of details pertaining to traditional tree models and the concept
+of evolutionary algorithms were covered, some of which could be clarified
+further. A clean-up in notation and wording would be greatly beneficial. The
+code appears easy-to-read and uses parameters consistent with other tree
+packages.}
 
-\begin{enumerate}
+Thanks for pointing these issues out. In fact, providing a unifying but still
+simple and easily accessible notation for presenting the framework was one
+important objective of the manuscript. While preparing the manuscript, we had
+revised the notation a couple of times and apparently did not clean it up
+carefully enough. Hence, we appreciate the thorough review and followed
+all of its recommendations in this revision. Details of the revision are
+provided below.
 
-\item \textit{(p.7) Section 3.1, ``the assignment of one category is flipped to the other terminal node" might be adjusted to ``one of the c categories is allocated to the other terminal node, to have the effect of ensuring both terminal nodes are nonempty".}
+\medskip
 
-We changed the sentence according to the recommendations.
+\textit{In the end, the authors gave honest comparisons of their methods to the
+traditional rpart and ctree methods, but it is unclear as to when and why evtree
+outperforms its competitors apart from the specific chessboard example given in
+Section~5.2.}
 
-\textit{\item (p.7) Split operator paragraphs use r again in 2 different ways: ``internal node r" vs. ``internal node at position r". As with the remainder of the paper, r is the internal node, not the position.}
+As the forward-search algorithms just optimze over a subset of conceivable
+trees in each step compared to global-search algorithms, the latter are in principle
+able to outperform the former when the optimal solution contains more complex
+interaction patterns with low main effects. This is now discussed explicitly
+in the following new paragraph in Section~5.1:
 
-We changed the notation accordingly.
+``From these results, it is not obvious which characteristics drive \texttt{evtree}'s
+relative performance. Presumably, for some datasets the forward-search algorithms already
+yield trees that are close to optimal, thus leaving little room for further
+improvements. In contrast, for other datasets with more complex interaction patterns
+(and possibly low main effects) \texttt{evtree}'s global-search strategy is probably
+able to provide better predictive accuracy and/or sparser trees.''
 
-\textit{\item (p.7) Prune paragraph: We might append to the end of the sentence for clarity: ``...and no pruning occurs."}
+\bigskip
 
-We changed the sentence according to the recommendations.
+\textbf{2. Spelling/Grammatical Errors}
 
-\textit{\item (p.8) Minor split rule mutation paragraph: The description of the mutation rules is rather complex, with really 4 different cases to consider (nominal/$<$ 20 values, nominal/$\ge$ 20 values, continuous/$<$ 20 values, continuous/$\ge$ 20 values). It might be good to present this set of rules in a tabular format.}
+Thanks for catching these. We have corrected all of them and ran again a spell
+checker on the manuscript.
 
-The rules are now presented in an easy to read tabular format.
+\bigskip
 
-\textit{\item (p.8) Crossover paragraph, last sentence: ``these are omitted" might be better written as ``they are omitted" to be clear that ``these" refers to the invalid nodes.}
+\textbf{3. Notation}
 
-We changed the sentence according to the recommendations.
+\textit{In Section 2, the authors introduce some notation for the tree setup,
+but the notation seems inconsistent in the paper. The authors write
+$\theta=(v_{n_1}, s_{n_1},\dots,v_{n_{M-1}},s_{n_{M-1}})$, where $n_r \in
+\{1,\dots, M_{max}-1\}$ but then also write $v_r$ and $s_r$ where
+$r=1,\dots,M-1$. Further, in Section 2.2, the authors talk about $s_r$ and $v_r$
+where $r \in \{n_1, \dots, n_{M-1} \}$, which is immediately different from the
+indexing given in equation (3). The authors should use a consistent notation for
+indexing the $v$ and $s$.}
 
-\textit{\item Evaluation function paragraph: ``A suitable evaluation function... minimizes the models' accuracy...and the models' complexity." It appears that ``minimizes" should be ``optimizes".}
+We cleaned up the notation and a binary tree is now consistently denoted
+as $\theta=(v_1, s_1, \dots, v_{M-1}, s_{M-1})$, 
+where $v_r \in \{1, \dots ,P\}$ are the splitting \emph{variables} and $s_r$ the
+associated \emph{split} rules for the internal \emph{nodes} $r \in \{1,...,M-1\}$.
+Thus, in order to keep the notation as simple as possible, the internal nodes of the
+tree are just labeled with their number $r \in \{1,...,M-1\}$.
 
-We change the sentence to: ``A suitable evaluation function for classification and regression trees maximizes the models' accuracy on the training data, and minimizes the models' complexity." 
 
-\textit{\item (p.8) Classification paragraph: ``misclassification MC" should be ``misclassification rate MC". }
+\bigskip
 
-We changed the sentence according to the recommendations.
+\textbf{4. Case Study}
 
-\textit{\item (p.9) Survivor selection paragraph, last sentence on the page: This sentence is worded awkwardly. Perhaps the authors meant ``In the case of a mutation operator, either the solution before modification, $\theta_i$, or after modification, $\theta_{i+1}$, is kept in memory." Without the commas, the sentence is unclear.}
+\textit{The authors have provided very minimal information on the dataset.
+(p.~14) The authors write ``Thus, the evolutionary tree uses a different cutoff
+in art for book club members that joined in the last year as opposed to older
+customers." The text does not explain which variable corresponds to ``join
+date", but based on Figure 3, one can indirectly infer that this variable is
+first. The authors have described te variable first as the number of months
+since the first purchase, but do not say that members join the book club upon
+making their first purchase.}
 
-We changed the sentence according to the recommendations.
+We added a table (Table 2), which describes the variables of the
+Bookbinder's Book Club dataset. Also, we avoid the formulation ``join date''
+in the text and use ``first purchase'' instead.
 
-\textit{\item (p.10) Third paragraph: Ambiguous ``they" in ``However, as they represent one of the best..., they are both...". Does ``they" refer to the parent and offspring trees? Does this mean that despite the $(1+1)$ rule, both the parent and offspring are both selected to the next generation? This seems unclear.}
+\medskip
 
-Yes, ``they'' refer to the parent and the offspring. However, the sentence explains the strong selective pressure of a $(\mu + \lambda)$ strategy with $\mu>1$ and $\lambda>1$. With a $(1+1)$ strategy, the parent and the offspring can never be selected for the next round (as it is stated in the last sentence of the paragraph). 
+\textit{The table comparing the misclassification and evaluation function values
+for the different methods identify the methods as evtree, rpart, ctree, rpart2,
+and ctree2. The paragraph which describes this table instead identifies the
+methods as ev, rp, ct, rp2, and ct2. It would be better to make sure the two are
+consistent.}
 
-For better clarification, we replaced ``they'' with ``the parent and the offspring" and changed the sentence:
+We changed the identifiers in the describing paragraph to also use \texttt{evtree},
+\texttt{rpart}, \texttt{ctree}, \texttt{rpart2}, and \texttt{ctree2} instead of the
+object names.
 
-"Using a $(\mu + \lambda)$ strategy, a strong selective pressure can occur in situations as follows."
+\bigskip
+
+\textbf{5. Miscellaneous}
+
+Thanks for pointing all of these out. All of the reviewer's recommendations
+have been incorporated into the revised version of the manuscript. The only
+point that needs additional explanation is the following:
+
+\medskip
+
+\textit{(p.~10) Third paragraph: Ambiguous ``they" in ``However, as they
+represent one of the best..., they are both...". Does ``they" refer to the
+parent and offspring trees? Does this mean that despite the $(1+1)$ rule, both
+the parent and offspring are both selected to the next generation? This seems
+unclear.}
+
+Yes, ``they'' refer to the parent and the offspring. However, the sentence
+explains the strong selective pressure of a $(\mu + \lambda)$ strategy with
+$\mu>1$ and $\lambda>1$. With a $(1+1)$ strategy, the parent and the offspring
+can never be selected for the next round (as it is stated in the last sentence
+of the paragraph). 
+
+For better clarification, we replaced ``they'' with ``the parent and the
+offspring" and changed the sentence:
+
+``Using a $(\mu + \lambda)$ strategy, a strong selective pressure can occur in
+situations as follows."
 
 with:
 
-"Using a $(\mu + \lambda)$ strategy with $\mu>1$ and $\lambda>1$, a strong selective pressure can occur in situations as follows.".
+``Using a $(\mu + \lambda)$ strategy with $\mu>1$ and $\lambda>1$, a strong
+selective pressure can occur in situations as follows.".
 
-\textit{\item (p.17) First paragraph: The authors talked about the demanding memory requirements, for which ``400 Mbit" seems very low. Perhaps the authors meant ``400 megabytes"?}
-
-It should be ``400 MB''. We used the wrong abbreviation.
-\end{enumerate}
-\vspace{0.5cm}
-
-Sincerely,
-
-\vspace{0.75cm}
-Thomas Grubinger, Achim Zeileis und Karl-Peter Pfeiffer
-
-\end{letter}
 
 \end{document}
