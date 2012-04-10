@@ -558,7 +558,7 @@ rewritten as:
 %
 \begin{eqnarray} 
   \mathrm{loss}(Y, f(X, \theta)) & = & N \log \mathrm{MSE}(Y, f(X, \theta)) \nonumber \\
-                                 & = & N \log \left\{ \sum_{n=1}^N (Y_n - f(X_{\cdot n}, \theta)^2) \right\}, \label{eq:regression} \\
+                                 & = & N \log \left\{ \sum_{n=1}^N (Y_n - f(X_{\cdot n}, \theta))^2 \right\}, \label{eq:regression} \\
   \mathrm{comp}(\theta)          & = & \alpha \cdot 4 \cdot (M+1) \cdot \log N. \nonumber
 \end{eqnarray}
 %
