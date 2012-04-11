@@ -72,7 +72,7 @@ options(prompt = "R> ", continue = "+  ", width = 70, useFancyQuotes = FALSE)
 library("rpart")
 library("evtree")
 data("BBBClub", package = "evtree")
-cache <- TRUE
+cache <- FALSE
 @
 
 \begin{document}
@@ -291,6 +291,7 @@ Y <- rep(1, 16)
 Y[(X1 < 1 & X2 < 1) | (X1 > 1 & X2 > 1)] <- 2
 Y <- factor(Y, labels = c("O", "X"))
 chess22 <- data.frame(Y, X1, X2)
+set.seed(1090)
 print(evtree(Y ~ ., data = chess22, minbucket = 1, minsplit = 2))
 @
 

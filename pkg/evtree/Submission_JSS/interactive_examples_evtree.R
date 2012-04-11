@@ -22,6 +22,7 @@ chess22 <- data.frame(Y, X1, X2)
 plot(X2 ~ X1, data = chess22, xlim = c(0, 2), ylim = c(0, 2), pch = c(1, 4)[Y], col = c("black", "slategray")[Y])
 
 ## evtree
+set.seed(1090)
 print(evtree(Y ~ ., data = chess22, minbucket = 1, minsplit = 2))
 
 

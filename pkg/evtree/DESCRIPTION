@@ -1,7 +1,7 @@
 Package: evtree
 Title: Evolutionary Learning of Globally Optimal Trees
 Version: 0.1-2
-Date: 2012-03-23
+Date: 2012-04-11
 Authors@R: c(person(given = "Thomas", family = "Grubinger", role = c("aut", "cre"), email = "Thomas.Grubinger@i-med.ac.at"),
              person(given = "Achim", family = "Zeileis", role = "aut", email = "Achim.Zeileis@R-project.org"),
              person(given = "Karl-Peter", family = "Pfeiffer", role = "aut", email = "Karl-Peter.Pfeiffer@i-med.ac.at"))
