@@ -25,7 +25,7 @@ node_boxplot(obj, col = "black", fill = "lightgray", width = 0.5,
 node_barplot(obj, col = "black", fill = NULL, beside = NULL,
     ymax = NULL, ylines = NULL, widths = 1, gap = NULL,
     reverse = NULL, id = TRUE, gp = gpar())
-node_surv(obj, col = "black", ylines = 2, id = TRUE, gp = gpar(), ...)
+node_surv(obj, col = "black", ylines = 2, id = TRUE, gp = gpar(), \dots)
 }
 \arguments{
   \item{obj}{ an object of class \code{party}.}
