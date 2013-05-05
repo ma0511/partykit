@@ -436,7 +436,7 @@ r2$ds <- factor(r2$ds)
 r2$nIter <- factor(r2$nIter)
 r2 <- sort_op(r2)
 
-pdf(file= "~/Desktop/evtree_ntrees.pdf", width=10.3, height=20.45)
+pdf(file= "~/Desktop/evtree_op.pdf", width=10.3, height=20.45)
 b1 <- bwplot (value ~ factor(operatorprob)| nIter+ds , data= as.data.frame(r2), 
 horizontal = FALSE,  
 ylab= list("Accuracy [%]", cex=1.1),
@@ -444,7 +444,7 @@ pch= '|',
 layout = c(3,4),
 ylim=as.data.frame(matrix(c(
 rep(c(55,100),3),
-rep(c(84,96),3),
+rep(c(85,94),3),
 rep(c(60,80),3),
 rep(c(58,90),3)
 ), nrow=2)),
@@ -492,7 +492,7 @@ r$ntrees <- factor(r$ntrees)
 r$ds <- factor(r$ds)
 r <- sort_ntrees(r) 
 par.settings = list(cex=1.2)
-pdf(file= "~/Desktop/evtree_op.pdf", width=10.3, height=5.6)
+pdf(file= "~/Desktop/evtree_ntrees.pdf", width=10.3, height=5.6)
 b1 <- bwplot (value ~ ntrees | ds, data= as.data.frame(r), 
 horizontal = FALSE,  
 ylab= list("Accuracy [%]", cex=1.1),

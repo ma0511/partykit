@@ -385,12 +385,13 @@ ciplot <- function(x, xlim = NULL, main = "", xlab = "", ylab = TRUE) {
   axis(2, at = 1:k, labels = ylab, las = 1, cex = 0.8)  
   axis(2, at = k + 1.5, labels = main, tick = FALSE, las = 1, outer = TRUE, cex.axis = 1.5, xpd = TRUE)
   mtext(xlab, side = 1, line = 3, xpd = TRUE)
-  abline(h = 5.5)
+#abline(h = 5.5)
   abline(v = 0, lty = 2)  
   box()
 }
 
 ## plot the results
+pdf(file= "~/Desktop/evtree_J48.pdf", width=10.3, height=10.6)
 par(mfrow = c(2, 2), oma = c(5, 10, 2, 0), mar = c(1, 1, 2, 1))
 
 xlim1 <- range(cbind(acc_J48, acc_J48_up))
@@ -402,4 +403,4 @@ ciplot(acc_J48_up, xlim = xlim1, main = "J48_up", ylab = TRUE,
   xlab = "relative difference in predictive accuracy (%)")
 ciplot(com_J48_up, xlim = xlim2, main = "",      ylab = FALSE,
   xlab = "relative difference in complexity (%)")
-
+dev.off()
