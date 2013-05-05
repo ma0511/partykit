@@ -353,24 +353,24 @@ bootstrap_evtree_parameter <- function(kdata=1, nboots = 50, seed = 1000){
 data(StatlogHeart)
 rheart <- bootstrap_evtree_parameter(StatlogHeart, nboots = 250)
 apply(apply(rheart, 2, as.numeric),2,mean)
-save(rheart, file="results2/heart_parameter.RData")
+save(rheart, file="results_parameter/heart_parameter.RData")
 
 ### 8. statlogGermanCredit ###
 data(GermanCredit)
 rcredit <- bootstrap_evtree_parameter(GermanCredit, nboots = 250)
 apply(apply(rcredit, 2, as.numeric),2,mean)
-save(rcredit, file="results2/credit_parameter.RData")
+save(rcredit, file="results_parameter/credit_parameter.RData")
 
 ### 11. spam ###
 data(spam)
 rspam <- bootstrap_evtree_parameter(spam, nboots = 250)
 apply(apply(rspam, 2, as.numeric),2,mean)
-save(rspam, file="results2/spam_parameter.RData")
+save(rspam, file="results_parameter/spam_parameter.RData")
 
 ### 3. 4x4 chessboard with 5% noise ###
 rchessboard44_5 <- bootstrap_evtree_parameter(kdata = 1, nboots = 250)
 apply(apply(rchessboard44_5, 2, as.numeric),2,mean)
-save(rchessboard44_5, file="results2/chessboard44_5_parameter.RData")
+save(rchessboard44_5, file="results_parameter/chessboard44_5_parameter.RData")
 
 ###################################################
 ### Visualisation of datasets
@@ -379,10 +379,10 @@ library("plotrix")
 library("lme4")
 library("multcomp")
 
-load("results2/heart_parameter.RData")
-load("results2/credit_parameter.RData")
-load("results2/spam_parameter.RData")
-load("results2/chessboard44_5_parameter.RData")
+load("results_parameter/heart_parameter.RData")
+load("results_parameter/credit_parameter.RData")
+load("results_parameter/spam_parameter.RData")
+load("results_parameter/chessboard44_5_parameter.RData")
 
 
 panel.mean <- function(x,y,...){
@@ -434,25 +434,31 @@ sort_op <- function(x){
 r2$operatorprob <- factor(r2$operatorprob)
 r2$ds <- factor(r2$ds)
 r2$nIter <- factor(r2$nIter)
-r2 <- sort_datasets(r2)
+r2 <- sort_op(r2)
 
 pdf(file= "~/Desktop/evtree_ntrees.pdf", width=10.3, height=20.45)
 b1 <- bwplot (value ~ factor(operatorprob)| nIter+ds , data= as.data.frame(r2), 
 horizontal = FALSE,  
 ylab= list("Accuracy [%]", cex=1.1),
 pch= '|',
-scales= list(x= list(rot=60), y= list(at = c(50, 60, 70, 80, 90, 100),  alternating = F)), 
-ylim=c(55,100), 
 layout = c(3,4),
+ylim=as.data.frame(matrix(c(
+rep(c(55,100),3),
+rep(c(84,96),3),
+rep(c(60,80),3),
+rep(c(58,90),3)
+), nrow=2)),
+#scales= list(x= list(rot=60), alternating = F), 
+scales= list(x= list(rot=60), y=list(relation="free"), alternating = F), 
+#scales=list(y=list(relation="free")),
 panel=function(x,y,...) {
-	panel.abline(h=c(50, 60, 70, 80, 90, 100), lwd = 1, lty = 2, col = "gray27")
+#panel.abline(h=c(60, 70, 80, 90, 100), lwd = 1, lty = 2, col = "gray27")
 	panel.bwplot(x,y,...)
 	panel.mean(x,y,...)
 }
 )
 b1
 dev.off()
-
 
 # functions for the visualisation of different population sizes 
 preprocess_ntrees <- function(d, dname = "datasetname"){
@@ -491,12 +497,18 @@ b1 <- bwplot (value ~ ntrees | ds, data= as.data.frame(r),
 horizontal = FALSE,  
 ylab= list("Accuracy [%]", cex=1.1),
 pch= '|',
-scales= list(x= list(rot=60), y= list(at = c(50, 60, 70, 80, 90, 100),  alternating = F)), 
-ylim=c(55,100), 
+ylim=as.data.frame(matrix(c(
+c(60,90),
+c(65,80),
+c(89,94),
+c(60,95)
+), nrow=2)),
+#scales= list(x= list(rot=60), alternating = F), 
+scales= list(x= list(rot=60), y=list(relation="free"), alternating = F), 
 layout = c(4,1),
 panel=function(x,y,...) {
       #  panel.abline(h=1, lwd= 1, lty= 5)
-        panel.abline(h=c(0, 0.5, 1.5, 2, 3, 4), lwd = 1, lty = 2, col = "gray27")
+		#  panel.abline(h=c(0, 0.5, 1.5, 2, 3, 4), lwd = 1, lty = 2, col = "gray27")
         panel.bwplot(x,y,...)
         panel.mean(x,y,...)
        }
