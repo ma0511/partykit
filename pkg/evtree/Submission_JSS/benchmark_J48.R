@@ -199,7 +199,7 @@ save(rionosphere2, file="results_j48/ionosphere_j48.RData")
 data(musk)
 rmusk2 <- bootstrap_j48(musk, nboots=250)
 apply(apply(rmusk2, 2, as.numeric),2,mean)
-save(rmusk2, file="results_j48/musk.RData_j48")
+save(rmusk2, file="results_j48/musk_j48.RData")
 
 ### 5. BreastCancer ###
 data(BreastCancer)
