@@ -1,5 +1,3 @@
-
-
 ###################################################
 ### Benchmark plots
 ###################################################
@@ -14,21 +12,18 @@ preprocess <- function(d, dname = "datasetname", isclassification = TRUE){
     if(isclassification){
         colnames(d) <- c("evtree", "rpart", "ctree", "J48","evtree", "rpart", "ctree", "J48")
 		d[, 1:4] <- 1 - d[ ,1:4]
-		# evtree complexity was recorded by the number of terminal nodes. J48 by the number of total nodes 
-		# (As J48 allows multiway splits)
-		# evtree and rpart/ctree are compared by the number of terminals
-		# evtree and J48 are compared on the basis of the total number of nodes.  	
-		# For binary trees: "total number of nodes" = "#terminal nodes" * 2 + 1 
-		# As only the ratio of the complexit comp(evtree)/comp(J48) is used we can divide
-		# the results of J48 by the factor(2+1)
-		d[, 8]  <-  d[, 8]/(2+1)    
     }else{
     	colnames(d) <- c("evtree", "rpart", "ctree","evtree", "rpart", "ctree")    	
    	}
     d <- as.data.frame(d)
 	nAlgorithms = dim(d)[2]/2
     for(i in nAlgorithms:1) d[, i] <- d[, i] / d[, 1] * 100
-    for(i in (nAlgorithms*2):(nAlgorithms+1)) d[, i] <- d[, i] / d[, nAlgorithms+1] * 100
+    if(isclassification)  # for J48 the total number of nodes is used
+	    d[, nAlgorithms*2] <- d[, nAlgorithms*2] / (d[, nAlgorithms+1]*2+1) * 100
+	else
+		d[, nAlgorithms*2] <- d[, nAlgorithms*2] / d[, nAlgorithms+1] * 100
+    for(i in (nAlgorithms*2-1):(nAlgorithms+1)) d[, i] <- d[, i] / d[, nAlgorithms+1] * 100
+    
     x <- d[, 1:nAlgorithms]
     y <- d[, (nAlgorithms+1):(nAlgorithms*2)]
     rval <- reshape(x, idvar="samp", times=names(x), timevar = "alg",varying= list(names(x)), direction="long")
@@ -71,7 +66,9 @@ r$dssamp <- r$ds:r$samp
 library("multcomp")
 cstats <- function(alg = "evtree", value = "accuracy", data = r) {
   dlab <- rev(unique(data$ds))
-  if(alg == "J48") dlab <- dlab[-c(1:5)] ## J48: skip regression datasets
+  if(alg == "J48"){ 
+  	dlab <- dlab[-c(1:5)] ## J48: skip regression datasets
+  }
   k <- length(dlab)  
   mean  <- numeric(k)
   lower <- numeric(k)
@@ -129,7 +126,6 @@ ciplot(acc_ctree, xlim = xlim1, main = "ctree", ylab = TRUE,
   xlab = "relative difference in predictive accuracy (%)")
 ciplot(com_ctree, xlim = xlim2, main = "",      ylab = FALSE,
   xlab = "relative difference in complexity (%)")
-
 
 ## plot the results of evtree vs. J48
 par(mfrow = c(1, 2), oma = c(5, 10, 2, 0), mar = c(1, 1, 2, 1))

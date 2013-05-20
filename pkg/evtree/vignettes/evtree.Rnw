@@ -38,12 +38,12 @@
   \citep{hothorn2009partykit} package is leveraged for representing the resulting
   trees in \proglang{R}, providing unified infrastructure for summaries,
   visualizations, and predictions. \code{evtree} is compared to \code{rpart}
-  \citep{therneau1997introduction}, the open-source CART implementation, and
-  conditional inference trees \citep[\code{ctree},][]{hothorn2006urp}. The usefulness
-  of \code{evtree} is illustrated in a textbook customer classification task
-  and a benchmark study of predictive accuracy in which \code{evtree}
-  achieved at least similar and most of the time better results compared to
-  the recursive algorithms \code{rpart} and \code{ctree}.  
+  \citep{therneau1997introduction}, the open-source CART implementation, 
+  conditional inference trees \citep[\code{ctree},][]{hothorn2006urp} and \code{J48}, the 
+  open-source C4.5 implementation . The usefulness of \code{evtree} is illustrated in
+  a textbook customer classification task  and a benchmark study of predictive 
+  accuracy in which \code{evtree} achieved at least similar and most of the time better results compared to
+  the recursive algorithms \code{rpart}, \code{ctree} and \code{J48}.  
 }
 
 \Keywords{machine learning, classification trees, regression trees, evolutionary algorithms, \proglang{R}}
@@ -54,7 +54,7 @@
   Innsbruck Medical University\\
   Department for Medical Statistics, Informatics and Health Economics\\
   6020, Innsbruck, Austria\\
-  E-mail: \email{Thomas.Grubinger@i-med.ac.at}, \email{Karl-Peter.Pfeiffer@i-med.ac.at}\\
+  E-mail: \email{Thomas.Grubinger@utanet.at}, \email{Karl-Peter.Pfeiffer@i-med.ac.at}\\
   URL: \url{http://www.i-med.ac.at/msig/mitarbeiter/grubinger/}\\
   \phantom{URL: }\url{http://www.i-med.ac.at/msig/mitarbeiter/pfeiffer/}\\
 
@@ -154,8 +154,9 @@ before Section~\ref{impl} addresses implementation details along with an
 overview of the implemented functions. A benchmark comparison -- comprising
 14~benchmark datasets, 3~real-world datasets, and 3~simulated scenarios -- is carried out
 in Section~\ref{comp}, showing that the predictive performance of \code{evtree}
-is often significantly better compared to the commonly used algorithms \code{rpart}
-and \code{ctree} (from the \pkg{party} package). Finally, Section~\ref{conc} gives
+is often significantly better compared to the commonly used algorithms \code{rpart}, 
+\code{ctree} (from the \pkg{party} package) and \code{J48} (the  \pkg{RWeka} interface
+is used to call the \code{J48} implementation in \pkg{Weka}). Finally, Section~\ref{conc} gives
 concluding remarks about the implementation and the performance of the new
 algorithm.
 
@@ -278,7 +279,7 @@ A very simple example that illustrates the limitation of forward-search recursiv
 methods is depicted in Figure~\ref{fig:illustration}. The example only contains
 two independent variables and can be solved with three splits that
 partition the input space into four regions. As expected the recursive
-partitioning methods \code{rpart} and \code{ctree} fail to find any split at
+partitioning methods \code{rpart}, \code{ctree} and \code{J48} fail to find any split at
 all, as the loss function on the resulting subsets cannot be reduced by the first
 split. For methods that explore $\Theta$ in a more global fashion it is
 straightforward to find an optimal solution to this problem. One solution
@@ -900,7 +901,7 @@ clear solution.
 \section{Performance comparison}
 \label{comp}
 
-In this section, we compare \code{evtree} with \code{rpart} and \code{ctree}
+In this section, we compare \code{evtree} with \code{rpart}, \code{ctree} and \code{J48} (Classification datasets)
 in a more rigorous benchmark comparison.
 
 In the first part of the analysis (Section~\ref{comp1}) the algorithms are
@@ -917,9 +918,11 @@ assessed on an artificial chessboard problem that is simulated with different no
 The estimation of predictive accuracy and the number of terminal nodes is based
 on $250$ realizations for each simulation.
 
-All models are constrained to a minimum number of 7~observations per terminal node,
-20~observations per internal node, and a maximum tree depth of~9. Apart from
-that, the default settings of the algorithms are used. For the assessment
+\code{evtree}, \code{rpart}  and \code{ctree} models  are constrained to a minimum number of 
+7~observations per terminal node, 20~observations per internal node, and a maximum tree
+depth of~9. \code{J48} is only constrained to  a minimum number of 
+7~observations per terminal node, as other restrictions are not possible via the \pkg{RWeka} interface. 
+Apart from that, the default settings of the algorithms are used. For the assessment
 of significant differences in predictive accuracy and complexity, respectively,
 Dunnett's correction from \proglang{R}~package \pkg{multcomp} \citep{multcomp} was used
 for calculating simultaneous $95\%$ confidence intervals on the individual datasets.
@@ -970,72 +973,94 @@ HDG0502$^\diamond$ & 8251 &  1 & 7 & 1 &   91  & -               \\
   \pkg{kernlab} \citep{kernlab}, respectively. The three real-world datasets from the Austrian DRG system are marked with $\diamond$.} 
 \end{table}
 
-The relative performance of \code{evtree} and \code{rpart} is summarized in Figure~\ref{fig:benchmark} (upper panels). Performance differences are displayed relative to \code{evtree}'s performance. For example, on the \textit{Glass} dataset, the average misclassification rate of \code{rpart} is $2.7\%$ higher than the misclassification rate of \code{evtree}. It can be observed that on $12$ out of $17$ datasets \code{evtree} significantly outperforms \code{rpart} in terms of predictive accuracy. Only on the \textit{Contraceptive method} dataset does \code{evtree} perform slightly worse.  In terms of complexity, \code{evtree} models are significantly more complex on $10$ and less complex on $7$ datasets. 
+The relative performance of \code{evtree} and \code{rpart} is summarized in Figure~\ref{fig:benchmark} (upper panels). Performance differences are displayed relative to \code{evtree}'s performance. For example, on the \textit{Glass} dataset, the average misclassification rate of \code{rpart} is $2.7\%$ higher than the misclassification rate of \code{evtree}. It can be observed that on $12$ out of $17$ datasets \code{evtree} significantly outperforms \code{rpart} in terms of predictive accuracy. Only on the \textit{Contraceptive method} dataset does \code{evtree} perform slightly worse.  In terms of complexity, \code{evtree} models are significantly more complex on $9$ and less complex on $7$ datasets. 
 
 Figure~\ref{fig:benchmark} (lower panels) summarizes the relative performance of \code{evtree} and \code{ctree}. For 15 out of 17 datasets \code{evtree} shows a better predictive performance. The algorithms' performances  is significantly worse on the \textit{MEL0101} dataset, where the mean squared error of \code{ctree} is $5.6\%$ lower. However, on this dataset, \code{ctree} models are on average $86.5\%$ larger than \code{evtree} models. The relative complexity of \code{evtree} models is significantly smaller for 15 and larger for 1 dataset. 
 
-<<benchmark-results, echo=FALSE>>=
+<<benchmark-results, echo=FALSE>>=## load results
 ## load results
+rm(list = ls())
 for(i in Sys.glob("results/*.RData")) load(i)
+for(i in Sys.glob("results_j48/*.RData")) load(i)
 
 ## preprocess for reference evtree
 preprocess <- function(d, dname = "datasetname", isclassification = TRUE){
-    if(isclassification) d[, 1:3] <- 1 - d[ ,1:3]
+    if(isclassification){
+        colnames(d) <- c("evtree", "rpart", "ctree", "J48","evtree", "rpart", "ctree", "J48")
+        d[, 1:4] <- 1 - d[ ,1:4]
+    }else{
+    	colnames(d) <- c("evtree", "rpart", "ctree","evtree", "rpart", "ctree")    	
+    }
     d <- as.data.frame(d)
-    colnames(d) <- c("evtree", "rpart", "ctree","evtree", "rpart", "ctree")
-    for(i in 3:1) d[, i] <- d[, i] / d[, 1] * 100
-    for(i in 6:4) d[, i] <- d[, i] / d[, 4] * 100
-    x <- d[, 1:3]
-    y <- d[, 4:6]
+	nAlgorithms = dim(d)[2]/2
+    for(i in nAlgorithms:1) d[, i] <- d[, i] / d[, 1] * 100
+    if(isclassification)  ## for J48 the total number of nodes is used
+         d[, nAlgorithms*2] <- d[, nAlgorithms*2] / (d[, nAlgorithms+1]*2+1) * 100
+    else
+	d[, nAlgorithms*2] <- d[, nAlgorithms*2] / d[, nAlgorithms+1] * 100
+    
+    for(i in (nAlgorithms*2-1):(nAlgorithms+1)) d[, i] <- d[, i] / d[, nAlgorithms+1] * 100
+    x <- d[, 1:nAlgorithms]
+    y <- d[, (nAlgorithms+1):(nAlgorithms*2)]
     rval <- reshape(x, idvar="samp", times=names(x), timevar = "alg",varying= list(names(x)), direction="long")
     names(rval)[2] <- "accuracy"
     rval$complexity <- reshape(y, idvar="samp", times=names(y), timevar = "alg",varying= list(names(y)), direction="long")[,2]
-    rval$alg <- factor(rval$alg, levels = c("evtree", "ctree", "rpart"))
+    if(isclassification) 
+    	rval$alg <- factor(rval$alg, levels = c("evtree", "ctree", "rpart", "J48"))
+    else 
+    	rval$alg <- factor(rval$alg, levels = c("evtree", "ctree", "rpart"))
     rval$ds <- dname
     rval
 }
 
 ## collect results for all datasets
 r <- rbind(
-  preprocess(d = rglass, dname = "Glass identification", isclassification = TRUE),
-  preprocess(d = rheart, dname = "Statlog heart", isclassification = TRUE),
-  preprocess(d = rionosphere, dname = "Ionosphere", isclassification = TRUE),
-  preprocess(d = rmusk, dname = "Musk", isclassification = TRUE),
-  preprocess(d = rbreastcancer, dname = "Breast cancer database", isclassification = TRUE),
-  preprocess(d = rpima, dname = "Pima Indians diabetes", isclassification = TRUE),
-  preprocess(d = rvowel, dname = "Vowel", isclassification = TRUE),
-  preprocess(d = rcredit, dname = "Statlog German credit", isclassification = TRUE),
-  preprocess(d = rcontraceptive, dname = "Contraceptive method", isclassification = TRUE),
-  preprocess(d = rdna, dname = "DNA", isclassification = TRUE),
-  preprocess(d = rspam, dname = "Spam", isclassification = TRUE),
-  preprocess(d = rmagicgamma, dname = "Magic gamma telescope", isclassification = TRUE),
-  preprocess(d = rservo, dname = "Servo", isclassification = FALSE),
-  preprocess(d = rbostonhousing, dname = "Boston housing", isclassification = FALSE),
-  preprocess(d = rmel0101, dname = "MEL0101", isclassification = FALSE),
-  preprocess(d = rhdg0202, dname = "HDG0202", isclassification = FALSE),
-  preprocess(d = rhdg0502, dname = "HDG0502", isclassification = FALSE)
+preprocess(d = cbind(rglass[,1:3], rglass2[,3], rglass[,4:6], rglass2[,4]), dname = "Glass identification", isclassification = TRUE),
+preprocess(d = cbind(rheart[,1:3], rheart2[,3], rheart[,4:6], rheart2[,4]), dname = "Statlog heart", isclassification = TRUE),
+preprocess(d = cbind(rionosphere[,1:3], rionosphere2[,3], rionosphere[,4:6], rionosphere2[,4]), dname = "Ionosphere", isclassification = TRUE),
+preprocess(d = cbind(rmusk[,1:3], rmusk2[,3], rmusk[,4:6], rmusk2[,4]), dname = "Musk", isclassification = TRUE),
+preprocess(d = cbind(rbreastcancer[,1:3], rbreastcancer2[,3], rbreastcancer[,4:6], rbreastcancer2[,4]), dname = "Breast cancer database", isclassification = TRUE),
+preprocess(d = cbind(rpima[,1:3], rpima2[,3], rpima[,4:6], rpima2[,4]), dname = "Pima Indians diabetes", isclassification = TRUE),
+preprocess(d = cbind(rvowel[,1:3], rvowel2[,3], rvowel[,4:6], rvowel2[,4]), dname = "Vowel", isclassification = TRUE),
+preprocess(d = cbind(rcredit[,1:3], rcredit2[,3], rcredit[,4:6], rcredit2[,4]), dname = "Statlog German credit", isclassification = TRUE),
+preprocess(d = cbind(rcontraceptive[,1:3], rcontraceptive2[,3], rcontraceptive[,4:6], rcontraceptive2[,4]), dname = "Contraceptive method", isclassification = TRUE),
+preprocess(d = cbind(rdna[,1:3], rdna2[,3], rdna[,4:6], rdna2[,4]), dname = "DNA", isclassification = TRUE),
+preprocess(d = cbind(rspam[,1:3], rspam2[,3], rspam[,4:6], rspam2[,4]), dname = "Spam", isclassification = TRUE),
+preprocess(d = cbind(rmagicgamma[,1:3], rmagicgamma2[,3], rmagicgamma[,4:6], rmagicgamma2[,4]), dname = "Magic gamma telescope", isclassification = TRUE),
+preprocess(d = rservo, dname = "Servo", isclassification = FALSE),
+preprocess(d = rbostonhousing, dname = "Boston housing", isclassification = FALSE),
+preprocess(d = rmel0101, dname = "MEL0101", isclassification = FALSE),
+preprocess(d = rhdg0202, dname = "HDG0202", isclassification = FALSE),
+preprocess(d = rhdg0502, dname = "HDG0502", isclassification = FALSE)
 )
+
 r$ds <- factor(r$ds)
 r$samp <- factor(r$samp)
 r$dssamp <- r$ds:r$samp
 
 ## compute multiple comparisons
 library("multcomp")
-cstats <- function(alg = "rpart", value = "accuracy", data = r) {
+cstats <- function(alg = "evtree", value = "accuracy", data = r) {
   dlab <- rev(unique(data$ds))
-  k <- length(dlab)
+  if(alg == "J48"){ 
+  	dlab <- dlab[-c(1:5)] ## J48: skip regression datasets
+  }
+  k <- length(dlab)  
   mean  <- numeric(k)
   lower <- numeric(k)
   upper <- numeric(k)
   names(data)[names(data) == value] <- "value"
+  firstDS <- 1
   for(i in 1:k) {
-    mod1 <- lm(value ~ alg, data = subset(data, ds == dlab[i]))
+  	dsub <- subset(data, ds == dlab[i])
+	dsub$alg <- factor(dsub$alg)
+    mod1 <- lm(value ~ alg, data = dsub)
     pt <- glht(mod1, linfct = mcp(alg = "Dunnett"))
     w <- confint(pt)$confint
-    d <- which(levels(r$alg) == alg) - 2
-    mean[i]  <-  w[1+d]
-    lower[i] <-  w[3+d]
-    upper[i] <-  w[5+d]
+    d <- which(levels(dsub$alg) == alg) - 1
+    mean[i]  <-  w[d]
+    lower[i] <-  w[d + length(levels(dsub$alg))-1]
+    upper[i] <-  w[d + (length(levels(dsub$alg))-1)*2]
   }
   rval <- data.frame(mean, lower, upper)
   rownames(rval) <- dlab
@@ -1046,6 +1071,8 @@ acc_rpart <- cstats("rpart", "accuracy")
 com_rpart <- cstats("rpart", "complexity")
 acc_ctree <- cstats("ctree", "accuracy")
 com_ctree <- cstats("ctree", "complexity")
+acc_J48 <- cstats("J48", "accuracy") 
+com_J48 <- cstats("J48", "complexity") 
 
 ## function for visualization
 ciplot <- function(x, xlim = NULL, main = "", xlab = "", ylab = TRUE) {
@@ -1058,10 +1085,35 @@ ciplot <- function(x, xlim = NULL, main = "", xlab = "", ylab = TRUE) {
   axis(2, at = 1:k, labels = ylab, las = 1, cex = 0.8)  
   axis(2, at = k + 1.5, labels = main, tick = FALSE, las = 1, outer = TRUE, cex.axis = 1.5, xpd = TRUE)
   mtext(xlab, side = 1, line = 3, xpd = TRUE)
-  abline(h = 5.5)
+  if (dim(x) >= 17) abline(h = 5.5)
   abline(v = 0, lty = 2)  
   box()
 }
+
+## plot the results if evtree vs. rpart and evtree vs. ctree
+par(mfrow = c(2, 2), oma = c(5, 10, 2, 0), mar = c(1, 1, 2, 1))
+
+xlim1 <- range(cbind(acc_rpart, acc_ctree))
+xlim2 <- range(cbind(com_rpart, com_ctree))
+
+ciplot(acc_rpart, xlim = xlim1, main = "rpart", ylab = TRUE, xlab = "")
+ciplot(com_rpart, xlim = xlim2, main = "",      ylab = FALSE, xlab = "")
+ciplot(acc_ctree, xlim = xlim1, main = "ctree", ylab = TRUE,
+  xlab = "relative difference in predictive accuracy (%)")
+ciplot(com_ctree, xlim = xlim2, main = "",      ylab = FALSE,
+  xlab = "relative difference in complexity (%)")
+
+
+## plot the results of evtree vs. J48
+par(mfrow = c(1, 2), oma = c(5, 10, 2, 0), mar = c(1, 1, 2, 1))
+
+xlim1 <- range(acc_J48)
+xlim2 <- range(com_J48)
+
+ciplot(acc_J48, xlim = xlim1, main = "J48", ylab = TRUE,
+  xlab = "relative difference in predictive accuracy (%)")
+ciplot(com_J48, xlim = xlim2, main = "",      ylab = FALSE,
+  xlab = "relative difference in complexity (%)")
 @
 
 \setkeys{Gin}{width=1\textwidth}
@@ -1083,6 +1135,27 @@ ciplot(com_ctree, xlim = xlim2, main = "",      ylab = FALSE,
 \caption{\label{fig:benchmark} Performance comparison of \code{evtree} vs.\ \code{rpart} (upper panels) and \code{evtree} vs.\ \code{ctree} (lower panels).
   Prediction error (left panels) is compared by the relative difference of the misclassification rate or the mean squared error.
   The complexity (right panels) is compared by the relative difference of the number of terminal nodes.}
+\end{figure}
+
+The relative performance of \code{evtree} and \code{J48} is summarized in Figure~\ref{fig:benchmark2}. It can be observed that on $8$ out of $11$ classification datasets \code{evtree} significantly outperforms \code{J48} in terms of predictive accuracy. \code{evtree}'s performance is significantly worse on the \textit{Vowel} dataset, where the misclassification error of \code{evtree} is $2.7\%$ higher. \code{evtree} model are significantly less complex on all 11 datesets. -- simulation mit prunden -- 
+
+\setkeys{Gin}{width=1\textwidth}
+\begin{figure}[t!]
+\centering
+<<benchmark-plot2, fig = TRUE, echo = FALSE, width=10, height=5.5>>=
+par(mfrow = c(1, 2), oma = c(5, 10, 2, 0), mar = c(1, 1, 2, 1))
+
+xlim1 <- range(acc_J48)
+xlim2 <- range(com_J48)
+
+ciplot(acc_J48, xlim = xlim1, main = "J48", ylab = TRUE,
+  xlab = "relative difference in predictive accuracy (%)")
+ciplot(com_J48, xlim = xlim2, main = "",      ylab = FALSE,
+  xlab = "relative difference in complexity (%)")
+@
+
+\caption{\label{fig:benchmark2} Performance comparison of \code{evtree} vs.\ \code{J48} .
+  Prediction error (left panel) is compared by the relative difference of the misclassification rate.  The complexity (right panel) is compared by the relative difference of the total number of nodes.}
 \end{figure}
 
 From these results, it is not obvious which characteristics drive \code{evtree}'s
@@ -1154,24 +1227,16 @@ library("xtable")
 load("./results/chessboard44_0.RData")
 load("./results/chessboard44_5.RData")
 load("./results/chessboard44_10.RData")
-load("./results_j48/chessboard44_0_j48.RData")
-load("./results_j48/chessboard44_5_j48.RData")
-load("./results_j48/chessboard44_10_j48.RData")
 
-# append results of J48
-rchessboard44_0 <- cbind(rchessboard44_0[,c(1:3)], rchessboard44_02[,3], rchessboard44_0[,c(4:6)], rchessboard44_02[,4])
-rchessboard44_5 <- cbind(rchessboard44_5[,c(1:3)], rchessboard44_52[,3], rchessboard44_5[,c(4:6)], rchessboard44_52[,4])
-rchessboard44_10 <- cbind(rchessboard44_10[,c(1:3)], rchessboard44_102[,3], rchessboard44_10[,c(4:6)], rchessboard44_102[,4])
-
-chesstable_means  <- as.data.frame( rbind(apply(rchessboard44_0,2,mean), apply(rchessboard44_5,2,mean) , apply(rchessboard44_10,2,mean) )) 
-names(chesstable_means) <-  c("\\code{evtree}", "\\code{rpart}", "\\code{ctree}", "\\code{J48}", "\\code{evtree}", "\\code{rpart}", "\\code{ctree}", "\\code{J48}")
-chesstable_means[,1:4] <-  format(chesstable_means[,1:4]*100, digits=1, nsmall=1)
-chesstable_means[,5:8] <-  format(chesstable_means[,5:8], digits=1, nsmall=1)
+chesstable_means  <- as.data.frame( rbind(apply(rchessboard44_0,2,mean), apply(rchessboard44_5,2,mean) , apply(rchessboard44_10,2,mean) ) ) 
+names(chesstable_means) <-  c("\\code{evtree}", "\\code{rpart}", "\\code{ctree}", "\\code{evtree}", "\\code{rpart}", "\\code{ctree}")
+chesstable_means[,1:3] <-  format(chesstable_means[,1:3]*100, digits=1, nsmall=1)
+chesstable_means[,4:6] <-  format(chesstable_means[,4:6], digits=1, nsmall=1)
 
 chesstable_sd  <- as.data.frame( rbind(apply(rchessboard44_0,2,sd), apply(rchessboard44_5,2,sd) , apply(rchessboard44_10,2,sd) )) 
-names(chesstable_sd) <-  c("\\code{evtree}", "\\code{rpart}", "\\code{ctree}", "\\code{J48}", "\\code{evtree}", "\\code{rpart}", "\\code{ctree}", "\\code{J48}")
-chesstable_sd[,1:4] <-  format(chesstable_sd[,1:4]*100, digits=1, nsmall=1)
-chesstable_sd[,5:8] <-  format(chesstable_sd[,5:8], digits=1, nsmall=1)
+names(chesstable_sd) <-  c("\\code{evtree}", "\\code{rpart}", "\\code{ctree}", "\\code{evtree}", "\\code{rpart}", "\\code{ctree}")
+chesstable_sd[,1:3] <-  format(chesstable_sd[,1:3]*100, digits=1, nsmall=1)
+chesstable_sd[,4:6] <-  format(chesstable_sd[,4:6], digits=1, nsmall=1)
 
 chesstable <- chesstable_means
 for(j in 1:ncol(chesstable_means)){
@@ -1187,11 +1252,52 @@ print(xtable(chesstable,
 caption = "Mean (and standard deviation) of accuracy and number of terminal nodes for simulated $4 \\times 4$ chessboard examples.",
 caption.placement= "bottom",
 label= "tab:resultsChessboard"), 
-include.rownames = FALSE, allign= "rllllllll", hline.after=NULL,
+include.rownames = FALSE, allign= "rllllll", hline.after=NULL,
 sanitize.text.function = identity,
 add.to.row=list(pos=list(-1,-1, 0, 3), command=c(
 "\\toprule", 
-c("\\multicolumn{1}{l}{Noise} & \\multicolumn{4}{l}{Accuracy}  & \\multicolumn{4}{l}{Terminal nodes}\\\\",
+c("\\multicolumn{1}{l}{Noise} & \\multicolumn{3}{l}{Accuracy}  & \\multicolumn{3}{l}{Terminal nodes}\\\\",
+"\\midrule",
+"\\bottomrule"
+)))
+)
+@
+
+<<chessboard-table2, echo=FALSE, results=tex>>=
+load("./results_j48/chessboard44_0_j48.RData")
+load("./results_j48/chessboard44_5_j48.RData")
+load("./results_j48/chessboard44_10_j48.RData")
+
+chesstable_means2  <- as.data.frame( cbind(rbind(mean(rchessboard44_02[,3]), mean(rchessboard44_52[,3]) , mean(rchessboard44_102[,3])), rbind(
+mean(rchessboard44_02[,4]), mean(rchessboard44_52[,4]) , mean(rchessboard44_102[,4])  )) )
+chesstable_means2[,1] <-  format(chesstable_means2[,1]*100, digits=1, nsmall=1)
+chesstable_means2[,2] <-  format(chesstable_means2[,2], digits=1, nsmall=1)
+names(chesstable_means2) <- c("\\code{J48}", "\\code{J48}") 
+
+chesstable_sd2  <- as.data.frame( cbind(rbind(sd(rchessboard44_02[,3]), sd(rchessboard44_52[,3]) , sd(rchessboard44_102[,3])),rbind(
+sd(rchessboard44_02[,4]), sd(rchessboard44_52[,4]) , sd(rchessboard44_102[,4])  ))) 
+chesstable_sd2[,1] <-  format(chesstable_sd2[,1]*100, digits=1, nsmall=1)
+chesstable_sd2[,2] <-  format(chesstable_sd2[,2], digits=1, nsmall=1)
+
+chesstable2 <- chesstable_means2
+for(j in 1:ncol(chesstable_means2)){
+	for(i in 1:nrow(chesstable_means2)){
+		chesstable2[i,j] <- paste(chesstable_means2[i,j] ,  "(", chesstable_sd2[i,j], ")",  sep="")	
+	}
+}
+
+chesstable2 <- cbind(rbind("0\\%","5\\%","10\\%"), chesstable2)
+colnames(chesstable2)[1] <- ""
+
+print(xtable(chesstable2,
+caption = "Mean (and standard deviation) of accuracy and total number of nodes for \\code{J48} on the simulated $4 \\times 4$ chessboard examples.",
+caption.placement= "bottom",
+label= "tab:resultsChessboard2"), 
+include.rownames = FALSE, allign= "rll", hline.after=NULL,
+sanitize.text.function = identity,
+add.to.row=list(pos=list(-1,-1, 0, 3), command=c(
+"\\toprule", 
+c("{Noise} & {Accuracy}  & {Total number of nodes}  \\\\",
 "\\midrule",
 "\\bottomrule"
 )))
@@ -1235,7 +1341,7 @@ preprocess_op_comp <- function(ntrees, colum){
 	rt <- preprocess_op(d = rheart[,colum], dname = "Statlog heart")
 	rt <- rbind(rt, preprocess_op(d = rcredit[,colum], dname = "Statlog German credit"))
 	rt <- rbind(rt, preprocess_op(d = rspam[,colum], dname = "Spam"))
-	rt <- rbind(rt, preprocess_op(d = rchessboard44_5[,colum], dname = "Chessboard 4x4 with 5% noise"))
+	rt <- rbind(rt, preprocess_op(d = rchessboard44_5[,colum], dname = "Chessboard 4x4 (5% noise)"))
 	rt <- cbind(rt, rep( ntrees, dim(rt)[1]))
 	colnames(rt)[5] <- "nIter"
 	rt
@@ -1250,7 +1356,7 @@ sort_op <- function(x){
 	x$ds <- relevel(x$ds, "Statlog heart")
 	x$ds <- relevel(x$ds, "Statlog German credit")
 	x$ds <- relevel(x$ds, "Spam")
-	x$ds <- relevel(x$ds, "Chessboard 4x4 with 5% noise")
+	x$ds <- relevel(x$ds, "Chessboard 4x4 (5% noise)")
 	x
 }
 
@@ -1291,10 +1397,10 @@ preprocess_ntrees <- function(d, dname = "datasetname"){
 r <- preprocess_ntrees(d = rheart[,1:5], dname = "Statlog heart")
 r <- rbind(r, preprocess_ntrees(d = rcredit[,1:5], dname = "Statlog German credit"))
 r <- rbind(r, preprocess_ntrees(d = rspam[,1:5], dname = "Spam"))
-r <- rbind(r, preprocess_ntrees(d = rchessboard44_5[,1:5], dname = "Chessboard 4x4 with 5% noise"))
+r <- rbind(r, preprocess_ntrees(d = rchessboard44_5[,1:5], dname = "Chessboard 4x4 (5% noise)"))
 
 sort_ntrees <- function(x){
-	x$ds <- relevel(x$ds, "Chessboard 4x4 with 5% noise")
+	x$ds <- relevel(x$ds, "Chessboard 4x4 (5% noise)")
 	x$ds <- relevel(x$ds, "Spam")
 	x$ds <- relevel(x$ds, "Statlog German credit")
     x$ds <- relevel(x$ds, "Statlog heart")
@@ -1336,7 +1442,7 @@ In this section, the choice of -- uebersicht
 \setkeys{Gin}{width=1\textwidth}
 \begin{figure}[t!]
 \centering
-<<param-operator-plot, fig = TRUE, echo = FALSE, width=10, height=15.5>>=
+<<param-operator-plot, fig = TRUE, echo = FALSE, width=10.2, height=15.5>>=
 	par(mfrow = c(4, 3), oma = c(5, 10, 2, 0), mar = c(1, 1, 2, 1))
 	plot(b1)
 @
@@ -1350,7 +1456,7 @@ In this section, the choice of -- uebersicht
 \setkeys{Gin}{width=1\textwidth}
 \begin{figure}[t!]
 \centering
-<<param-ntrees-plot, fig = TRUE, echo = FALSE, width=10, height=5.2>>=
+<<param-ntrees-plot, fig = TRUE, echo = FALSE, width=10.2, height=5.2>>=
 	par(mfrow = c(4, 1), oma = c(5, 10, 2, 0), mar = c(1, 1, 2, 1))
 	plot(b2)
 @
