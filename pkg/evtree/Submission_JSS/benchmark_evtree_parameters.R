@@ -379,11 +379,8 @@ library("plotrix")
 library("lme4")
 library("multcomp")
 
-load("results_parameter/heart_parameter.RData")
-load("results_parameter/credit_parameter.RData")
-load("results_parameter/spam_parameter.RData")
-load("results_parameter/chessboard44_5_parameter.RData")
-
+## load results
+for(i in Sys.glob("results_parameter/*.RData")) load(i)
 
 panel.mean <- function(x,y,...){
 	x <- as.numeric(x)
@@ -439,7 +436,7 @@ r2 <- sort_op(r2)
 pdf(file= "~/Desktop/evtree_op.pdf", width=10.3, height=20.45)
 b1 <- bwplot (value ~ factor(operatorprob)| nIter+ds , data= as.data.frame(r2), 
 horizontal = FALSE,  
-ylab= list("Accuracy [%]", cex=1.1),
+ylab= list("Accuracy (%)", cex=1.1),
 pch= '|',
 layout = c(3,4),
 ylim=as.data.frame(matrix(c(
@@ -448,13 +445,10 @@ rep(c(85,94),3),
 rep(c(60,80),3),
 rep(c(58,90),3)
 ), nrow=2)),
-#scales= list(x= list(rot=60), alternating = F), 
 scales= list(x= list(rot=60), y=list(relation="free"), alternating = F), 
-#scales=list(y=list(relation="free")),
 panel=function(x,y,...) {
-#panel.abline(h=c(60, 70, 80, 90, 100), lwd = 1, lty = 2, col = "gray27")
-	panel.bwplot(x,y,...)
-	panel.mean(x,y,...)
+panel.bwplot(x,y,...)
+panel.mean(x,y,...)
 }
 )
 b1
@@ -495,7 +489,7 @@ par.settings = list(cex=1.2)
 pdf(file= "~/Desktop/evtree_ntrees.pdf", width=10.3, height=5.6)
 b1 <- bwplot (value ~ ntrees | ds, data= as.data.frame(r), 
 horizontal = FALSE,  
-ylab= list("Accuracy [%]", cex=1.1),
+ylab= list("Accuracy (%)", cex=1.1),
 pch= '|',
 ylim=as.data.frame(matrix(c(
 c(60,90),
@@ -503,12 +497,9 @@ c(65,80),
 c(89,94),
 c(60,95)
 ), nrow=2)),
-#scales= list(x= list(rot=60), alternating = F), 
 scales= list(x= list(rot=60), y=list(relation="free"), alternating = F), 
 layout = c(4,1),
 panel=function(x,y,...) {
-      #  panel.abline(h=1, lwd= 1, lty= 5)
-		#  panel.abline(h=c(0, 0.5, 1.5, 2, 3, 4), lwd = 1, lty = 2, col = "gray27")
         panel.bwplot(x,y,...)
         panel.mean(x,y,...)
        }
