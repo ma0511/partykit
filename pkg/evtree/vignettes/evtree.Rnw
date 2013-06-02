@@ -943,6 +943,8 @@ depth of~9. Apart from that, the default settings of the algorithms are used. \c
 to  a minimum number of 7~observations per terminal node, as other restrictions are not possible 
 via the \pkg{RWeka} interface. 
 
+The datasets were chosen such that their sample sizes range from 214 instances (\textit{Glass identification} data) to 19020 instances (\emph{MAGIC gamma telescope}). The number of attributes vary between 4 (\textit{Servo}) and 180 (\emph{DNA}). The types of attributes vary among datasets, and include datasets which have both categorical and numerical variables or just one of them. The number of classes for the classification task vary between 2 and 11 classes. 
+
 As missing values are currently not supported by \code{evtree} (e.g., by surrogate splits),
 the 16~missing values in the \textit{Breast cancer database} -- the only dataset in the
 study with missing values -- were removed before analysis.
