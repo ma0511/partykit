@@ -1,0 +1,118 @@
+\documentclass[DIN, pagenumber=false, parskip=half,% 
+               fromalign=left, fromphone=true,%  
+               fromemail=true, fromurl=false, %
+               fromlogo=true, fromrule=false, fromrule=afteraddress]{scrlttr2}
+\usepackage[latin1]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+
+\setkomavar{fromname}{Thomas Grubinger}
+\setkomavar{fromaddress}{Kampm\"ullerweg 22, 4040 Linz, Austria}
+\setkomavar{fromphone}{+43 660 3747597}
+\setkomavar{fromemail}{Thomas.Grubinger@utanet.at}
+\setkomavar{signature}{Thomas Grubinger, Achim Zeileis, Karl-Peter Pfeiffer}
+%\setkomavar{fromlogo}{ \includegraphics*[width=2.8cm]{logo}}
+\setkomavar{subject}[]{Revision of  JSS 817}
+
+\begin{document}
+
+
+\begin{letter}{
+  Jan de Leeuw\\
+  Department of Statistics\\
+  University of California, Los Angeles\\
+  United States of America
+}
+
+\opening{Dear Prof.~de Leeuw,}
+
+please find attached the revised version of our manuscript
+``evtree: Evolutionary Learning of Globally Optimal Classification and Regression Trees in R''
+(JSS 817). We would like to thank the reviewer for the careful review and the constructive
+comments. We have incorporated all of the reviewer's recommendations,
+in particular by including a new section that provides guidance on the parameter selection and
+giving a better description of the simulation setup, which led to misunderstandings.
+We hope to have addressed all concerns in our revision and provide a detailed
+point-to-point reply below.
+
+Sincerely,\\[-2cm]
+\closing{}
+
+\end{letter}
+
+
+\newpage
+
+
+\textbf{\large Point-to-Point Reply}
+
+\bigskip
+
+\textbf{Originality / Previous research}
+
+\textit{The porting of the an EA to the R package is novel.  There islittle or no novelty in the EA itself, as the authors fairly acknowledge. I would like to suggest that they could include the followingreviews or give their readers an up to date survey of the work in the field and current research issues.}
+
+Thank you for your suggestion on the two surveys. We think they useful
+for the reader and referenced them in the paper.
+
+\bigskip
+
+\textbf{Structure}
+
+\textit{It is in general technically correct,  except the description of selection, which is definitely not a (1+1) strategy, since that would imply a population size of 1.It looks to me as if what you actually implement is a steady state EA with  deterministic crowding.} 
+
+We agree that the description of our algorithm as (1+1) strategy was not correct.
+We fixed the issue according to your recommendations and describe the algorithm now
+as a steady state algorithm with deterministic crowding.
+
+\textbf{Structure}
+
+\textit{1 As an introduction to potential users,  it provides little guidance on how to set appropriate parameterssuch as population size,  crossover probabilities etc.,  and what their effect might be on the results they obtain.  It also does not talk at all about the major issue with all  stochastic algorithms, which is that even on the same data set the results might different greatly from run to run. This is confounded by the fact that the variability observed will to no small effect depend on the choice of selection and variation operators.  There is a chapter all about the issue of how to use and compare evolutionary algorithms in the Eiben and Smith book the authors cite.} 
+
+We agree that some guidance on the parameter selection can be very useful to the user.
+Therefore, we added a new section (6.~Parameter optimization) to the paper, where \textit{evtree} is simulated
+with different operator probabilities, number of iterations, and population
+sizes. For each setting, \textit{evtree} results on 250~different bootstrap samples are visualized via
+boxplots, which should give a good estimate of the underlying variability.
+
+
+\textit{2.  the ev-tree is a stochastic algorithm,  so the trees evolved will vary from run to run,  and will depend on the parameters.  This is not addressed in section of the results where the performance of ev-tree is compared to CARt and rtree over 14 data sets and some simulated ones.  Thus this whole section suffers from a  severely flawed methodology.   There should be multiple runs and some indications of the variability in observed performance should be provided. There should be far better discussion of why the suite of datsets was chosen, what sort of characteristics they might, or might not, have.  Ideally appropriate statistical hypothesis tests should be used to see whether the observed differences are statistically significant.  This could then lead to some ideas of the type of problems on which ev-tree does or does not work well.}
+
+We fully understand your concerns on this point. However, we think
+hat a poor description of the simulation setup led to misunderstandings, but 
+the simulation as such was done correctly.
+
+The results presented in the \textit{Performance  comparison} section are based
+on 250~repetition for each algorithm and dataset. Here, we used the common approach of
+bootstrapping to build 250 different version of the original dataset. The confidence intervals
+in Figure~4 are adjusted multiple testing. Confidence intervals that do not cross the zero-line are 
+indicate statistical significance at the $5\%$ level. To avoid misunderstandings, we improved 
+the description in the paper as follows:
+
+"The analysis is based on the evaluation of 250~bootstrap
+samples for each of the 20~datasets. The misclassification rate on the
+\textit{out-of-bag} (Hothorn~2005) samples is used as a measure of
+predictive accuracy. Furthermore, the complexity is estimated by the number of
+terminal nodes. The results are summarized by the mean differences of the 250 runs -- each corresponding to
+one of the 250~different bootstrap samples. For the assessment of significant differences 
+in predictive accuracy and complexity, respectively, 
+Dunnett's correction from \textit{R}~package \textit{multcomp} (Hothorn, Bretz, and Westfall 2008) was used
+for calculating simultaneous $95\%$ confidence intervals on the individual datasets. Confidence intervals
+that do not cross the zero-line indicate significant differences at the $5\%$ level."
+
+We also added following paragraph which describes our thoughts about the dataset selection:
+
+"The datasets were chosen from different domains and cover a wide range of dataset characteristics and complexities. The sample sizes of the selected datasets range from 214 instances (\textit{Glass identification} data) to 19020 instances (\emph{MAGIC gamma telescope}). The number of attributes vary between 4 (\textit{Servo}) and 180 (\emph{DNA}). The types of attributes vary among datasets, and include datasets which have both categorical and numerical variables or just one of them. The number of classes for the classification task vary between 2 and 11 classes. "
+
+
+\textit{3. From the perspective of  a piece of scientific work introducing and benchmarking a new  different algorithm, then results should ideally be provided for some "state of the art algorithms" - at least for reference.  If there is, as suggested, a relatively simpler way of calling weka libraries,  then why is this not done?  Why not compare against J48,  and against more modern classifiers like SVM etc?}
+
+We included J48 into the simulations. We are aware that there are better methods in terms of predictive accuracy. However, these methods do not offer the simple interpretability of classification and regression trees. We added following paragraph which acknowledges this issue and narrows the scope of the paper.
+ 
+"Classification and regression tree models are widely used and is especially attractive for many applications, as tree-structured
+models offer a compact and intuitive representation. The goal of the \textit{evtree} was to maintain this simple tree structure and offer better performance (in terms of predictive accuracy and/or complexity) than commonly used recursive partitioning algorithms. However, in cases where the interpretation of the model is not important, black-box methods including \textit{support vector machines} (SVM; Vapnik~2005) and tree ensemble methods like \textit{Random Forests} (Breiman~2001) offer better predictive performance (Caruana and Niculescu-Mizil~2006;  Hastie, Tibshirani, and Friedman~2009) ."
+
+\end{document}
+
+
+
