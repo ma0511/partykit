@@ -35,15 +35,15 @@
   which implements an evolutionary algorithm for learning globally optimal
   classification and regression trees in \proglang{R}. Computationally intensive
   tasks are fully computed in \proglang{C++} while the \pkg{partykit}
-  \citep{hothorn2009partykit} package is leveraged for representing the resulting
+  package is leveraged for representing the resulting
   trees in \proglang{R}, providing unified infrastructure for summaries,
-  visualizations, and predictions. \code{evtree} is compared to \code{rpart}
-  \citep{therneau1997introduction}, the open-source CART implementation, 
-  conditional inference trees \citep[\code{ctree},][]{hothorn2006urp}, and \code{J48}, the 
-  open-source C4.5 implementation . The usefulness of \code{evtree} is illustrated in
-  a textbook customer classification task  and a benchmark study of predictive 
-  accuracy in which \code{evtree} achieved at least similar and most of the time better results compared to
-  the recursive algorithms \code{rpart}, \code{ctree}, and \code{J48}.  
+  visualizations, and predictions. \code{evtree} is compared to the open-source CART
+  implementation \code{rpart}, conditional inference trees (\code{ctree}), and the
+  open-source C4.5 implementation \code{J48}. A benchmark study of predictive 
+  accuracy and complexity is carried out in which \code{evtree} achieved at least
+  similar and most of the time better results compared to
+  \code{rpart}, \code{ctree}, and \code{J48}. Furthermore, the usefulness of \code{evtree}
+  in practice is illustrated in a textbook customer classification task.  
 }
 
 \Keywords{machine learning, classification trees, regression trees, evolutionary algorithms, \proglang{R}}
@@ -95,9 +95,6 @@ results \citep{murthy1995dti}. However, for some problems, greedily induced
 trees can be far from the optimal solution, and a global search over the tree's
 parameter space can lead to much more compact and accurate models.
 
-
-\pagebreak %%FIXME
-
 The main challenge in growing globally optimal trees is that the search
 space is typically huge, rendering full-grid searches computationally infeasible.
 One possibility to solve this problem is to use stochastic
@@ -118,7 +115,7 @@ of tree algorithms such as \code{J48} and \code{M5P}, which are the open source 
 and \textit{M5}, respecitively \citep{quinlan1992lcc}.
 A notable exception is the \pkg{LogicReg} package \citep{logicreg} for logic regression,
 an algorithm for globally optimal trees based on binary covariates only  and using 
-simulated annealing. The \pkg{GA} \cite{scrucca2013} provides a collection of general 
+simulated annealing. Furthermore, the \pkg{GA} package \cite{scrucca2013} provides a collection of general 
 purpose functions, which allows the application of a wide range of genetic algorithm methods.
 See \cite{hothorn2011ctv} for an overview of further recursive
 partitioning packages for \proglang{R}.
@@ -140,18 +137,19 @@ evolutionary process the mean quality of the population increases over time
 In the case of learning decision trees, this means that the variation
 operators can be applied to modify the tree structure (e.g., number of splits, splitting
 variables, and corresponding split points etc.) in order to optimize a
-fitness functions such as the misclassificaion or error rate penalized by
+fitness function such as the misclassificaion or error rate penalized by
 the complexity of the tree.
 A notable difference to comparable algorithms is the survivor selection
 mechanism where it is important to avoid premature convergence. In the
 following, we use a steady state algorithm with deterministic crowding (i.e., one parent
-solution competes with it's most similar offspring for a place in the population)
+solution competes with its most similar offspring for a place in the population)
 which can be argued to offer computational
 advantages for the application to classification and regression trees.
 
 Classification and regression tree models are widely used and are especially
 attractive for many applications, as tree-structured models offer a compact and
-intuitive representation. The goal of \code{evtree} is to maintain this
+intuitive representation that can be easily interpreted by practitioners.
+The goal of \code{evtree} is to maintain this
 simple tree structure and offer better performance (in terms of predictive
 accuracy and/or complexity) than commonly-used recursive partitioning
 algorithms. However, in cases where the interpretation of the model is not
@@ -168,10 +166,11 @@ before Section~\ref{impl} addresses implementation details along with an
 overview of the implemented functions. A benchmark comparison -- comprising
 14~benchmark datasets, 3~real-world datasets, and 3~simulated scenarios -- is carried out
 in Section~\ref{comp}, showing that the predictive performance of \code{evtree}
-is often significantly better compared to the commonly used algorithms \code{rpart}, 
-\code{ctree} (from the \pkg{party} package) and \code{J48} (the  \pkg{RWeka} interface
-is used to call the \code{J48} implementation in \pkg{Weka}). In Section \ref{param},
-the fine tuning of user defined parameters is investigated. Finally, Section~\ref{conc} gives
+is often significantly better compared to the commonly used algorithms \code{rpart}
+(from the \pkg{rpart} package), 
+\code{ctree} (from the \pkg{party} package) and \code{J48} (from the \pkg{RWeka} interface to \pkg{Weka}).
+Section~\ref{param} investigates how the choice of the user-defined hyperparameters
+influences \code{evtree}'s classification performance. Finally, Section~\ref{conc} gives
 concluding remarks about the implementation and the performance of the new
 algorithm.
 
@@ -186,7 +185,7 @@ qualitative and for regression trees $Y$ is quantitative. Tree-based methods
 first partition the input space $X$ into a set of $M$ rectangular regions $R_m$
 ($m = 1,...,M$) then fit a (typically simple) model within each region $\{Y | X \in R_m\}$,
 e.g., the mean, median, or variance etc. Typically, the mode is used for
-classification trees and the arithmetic mean is applied for regression trees. 
+classification trees and the arithmetic mean is employed for regression trees. 
 
 To show why forward-search recursive partitioning algorithms typically
 lead to globally suboptimal solutions, their parameter spaces and optimization
@@ -236,8 +235,8 @@ which optimizes some tradeoff between prediction performance and complexity:
 \end{equation}
 %
 where $\mathrm{loss}(\cdot, \cdot)$ is a suitable loss function for the
-domain of $Y$; typically, the misclassification rate MC 
-and the mean squared error MSE are employed for classification and regression,
+domain of $Y$; typically, the misclassification (MC) rate 
+and the mean squared error (MSE) are employed for classification and regression,
 respectively. The function $\mathrm{comp}(\cdot)$ is a function that is monotonically
 non-decreasing in the number of terminal nodes $M$ of the tree $\theta$, thus penalizing
 more complex models in the tree selection process.
@@ -311,10 +310,11 @@ set.seed(1090)
 print(evtree(Y ~ ., data = chess22, minbucket = 1, minsplit = 2))
 @
 
-\setkeys{Gin}{width=0.5\textwidth}
+\setkeys{Gin}{width=0.45\textwidth}
 \begin{figure}[t!]
 \centering
-<<chess22-plot, fig=TRUE, echo=FALSE, height=4, width=4>>=
+<<chess22-plot, fig=TRUE, echo=FALSE, height=3.75, width=4>>=
+par(mar = c(4, 4, 1, 1))
 plot(X2 ~ X1, data = chess22, xlim = c(0, 2), ylim = c(0, 2), pch = c(1, 4)[Y], col = c("black", "slategray")[Y])
 @
 \caption{\label{fig:illustration} Class distribution of  the $(X_1, X_2)$-plane. The two classes are indicated by black circles and gray crosses.}
@@ -376,7 +376,7 @@ application include data mining \citep{freitas2002sea,cano2003uea}, statistics
 \citep{de34glmulti}, signal and image processing \citep{man1997gac}, and
 planning and scheduling \citep{jensen2001raf}. 
 
-\begin{table}[b!]
+\begin{table}[t!]
 \centering
 \hrulefill
 \begin{enumerate}
@@ -406,6 +406,7 @@ excluded in practice to satisfy minimal subsample size requirements.
 In the following, the term \emph{invalid node} refers to such excluded cases,
 not meeting sample size restrictions.
 
+\pagebreak %% FIXME
 
 \subsection{Initialization}
 \label{init}
@@ -526,8 +527,6 @@ ${\theta}_{i+1}^2 = \mathrm{sub}2({\theta}_{i}^2, r_2) \cup \mathrm{sub}1({\thet
 If the crossover creates some invalid nodes in either one of the new trees ${\theta}_{i+1}^1$
 or ${\theta}_{i+1}^2$, they are omitted.
 
-\pagebreak %% FIXME
-
 \subsection{Evaluation function}
 \label{eval}
 
@@ -541,9 +540,9 @@ for classification and for regression.
 \subsubsection{Classification}
 
 The quality of a classification tree is most commonly measured as a function of
-its misclassification rate MC and the complexity of a tree by a function
+its misclassification rate (MC) and the complexity of a tree by a function
 of the number of its terminal nodes $M$. \code{evtree} uses $2 N \cdot
-\mathrm{MC}(Y, f(X, \theta))$ as a loss function. The number of terminal nodes,
+\mathrm{MC}(Y, f(X, \theta))$ as the loss function. The number of terminal nodes,
 weighted by $\log N$ and a user-specified parameter $\alpha$, measures the
 complexity of trees.
 %
@@ -568,7 +567,7 @@ global tree building methods like evolutionary algorithms.
 
 \subsubsection{Regression}
 
-For regression trees, accuracy is usually measured by the mean squared error MSE.
+For regression trees, accuracy is usually measured by the mean squared error (MSE).
 Here, it is again coupled with a BIC-type complexity measure:
 
 Using $N \cdot \log \mathrm{MSE}$ as a loss function and
@@ -661,8 +660,8 @@ function is returned.
 \label{impl}
 
 Package \pkg{evtree} provides an efficient implementation of an evolutionary
-algorithm that builds classification trees in \proglang{R}. CPU- and memory-
-intensive tasks are fully computed in \proglang{C++}, while the user interfaces
+algorithm that builds classification trees in \proglang{R}. CPU- and
+memory-intensive tasks are fully computed in \proglang{C++}, while the user interfaces
 and plot functions are written in \proglang{R}. The \code{.C()} interface
 \citep{chambers2008software} was used to pass arguments between the two
 languages. \pkg{evtree} depends on the \pkg{partykit} package 
@@ -720,9 +719,11 @@ where limited resources are aimed at a distinct group of potential customers. An
 example is provided by \cite{lilien2004} in the \textit{Bookbinder's Book Club}
 marketing case study about a (fictitious) American book club. In this case study, a brochure of the book
 ``The Art History of Florence'' was sent to 20,000~customers, 1,806~of
-which bought the book. The dataset contains a subsample of 1,300~customers with 10~exploratory variables (see Table~\ref{tab:BBBClubDescription}) for building a predictive model of customer choice. 
+which bought the book. The dataset contains a subsample of 1,300~customers
+with 10~exploratory variables (see Table~\ref{tab:BBBClubDescription}) for
+building a predictive model of customer choice. 
 
-\begin{table}[t!]
+\begin{table}[b!]
 \centering
 \begin{tabular}{ll}
 \toprule	
@@ -751,9 +752,10 @@ Hence, we use \code{evtree} with a maximal depth of two levels of splits only.
 This is contrasted with \code{rpart} and \code{ctree} with and without such a restriction
 of tree depth to show that the evolutionary search of the global parameter space
 can be much more effective in balancing predictive accuracy and complexity
-compared to forward-search recursive partitioning. Note that, \code{J48} is not included in this section, 
-as with a resulting tree depth of $8$ (also when pruning is turned on), the model is not easily interpretable.
-The \pkg{RWeka} interface does not allow for restriction to the depth of \code{J48} trees.
+compared to forward-search recursive partitioning. Results for \code{J48} on
+this data set are not reported in detail because the tree depth is very large (even
+with pruning the depth is 8) and \code{J48} does not support restriction of the
+tree depth.
 
 All trees are constrained to have a minimum number of 10~observations per terminal node.
 Additionally, a significance level of $1\%$ is employed in the construction of
@@ -925,16 +927,16 @@ clear solution.
 In this section, we compare \code{evtree} with \code{rpart}, \code{ctree}, and \code{J48}
 in a more rigorous benchmark comparison.
 
-In the first part of the analysis (Section~\ref{comp1})  \code{evtree}, \code{rpart}, and \code{ctree} are
+In the first part of the analysis (Section~\ref{comp1}) the tree algorithms are
 compared on 14~benchmark datasets that are publicly available and $3$ real-world
 datasets from the Austrian \textit{Diagnosis Related Group (DRG)} system
-\citep{LKF2011}. As \code{J48} can only be used for classification, the algorithm is only compared 
-on the 12~classification datasets. 
+\citep{LKF2011}. As \code{J48} can only be used for classification, the algorithm is
+only employed for the 12~classification datasets. 
 
 The analysis is based on the evaluation of 250~bootstrap
-samples for each of the 20~datasets. The misclassification rate on the
-\textit{out-of-bag} \citep{hothorn2005design} samples is used as a measure of
-predictive accuracy. Furthermore, the complexity is estimated by the number of
+samples for each of the datasets. The misclassification rate on the
+\textit{out-of-bag} samples is used as a measure of
+predictive accuracy \citep{hothorn2005design}. Furthermore, the complexity is estimated by the number of
 terminal nodes. The results are summarized by the mean differences of the 250 runs -- each corresponding to
 one of the 250~different bootstrap samples. For the assessment of significant differences 
 in predictive accuracy and complexity, respectively, 
@@ -947,11 +949,11 @@ assessed on an artificial chessboard problem that is simulated with different no
 The estimation of predictive accuracy and the number of terminal nodes is based
 on $250$ realizations for each simulation.
 
-\code{evtree}, \code{rpart}  and \code{ctree} models  are constrained to a minimum number of 
+\code{evtree}, \code{rpart},  and \code{ctree} models  are constrained to a minimum number of 
 7~observations per terminal node, 20~observations per internal node, and a maximum tree
 depth of~9. Apart from that, the default settings of the algorithms are used. \code{J48} is only constrained 
-to  a minimum number of 7~observations per terminal node, as other restrictions are not possible 
-via the \pkg{RWeka} interface. 
+to  a minimum number of 7~observations per terminal node, as other restrictions are available
+in this implementation. 
 
 As missing values are currently not supported by \code{evtree} (e.g., by surrogate splits),
 the 16~missing values in the \textit{Breast cancer database} -- the only dataset in the
@@ -1172,7 +1174,19 @@ ciplot(com_ctree, xlim = xlim2, main = "",      ylab = FALSE,
   The complexity (right panels) is compared by the relative difference of the number of terminal nodes.}
 \end{figure}
 
-The relative performance of \code{evtree} and \code{J48} is summarized in Figure~\ref{fig:benchmark2}. It can be observed that on $8$ out of $11$ classification datasets \code{evtree} significantly outperforms \code{J48} in terms of predictive accuracy. \code{evtree}'s performance is significantly worse on the \textit{Vowel} dataset, where the misclassification error of \code{evtree} is $2.7\%$ higher. As \code{J48} allows multiway splits, the complexity of the two algorithms is compared by the total number of nodes (internal nodes + terminal nodes). \code{evtree} model are significantly less complex on all 11 datesets \footnote{Note that, we also simulated \code{J48} with pruning, which resulted in much smaller trees. However, the resulting trees were still much larger than the \code{evtree} trees and the predictive performance were much worse than the results from unpruned simulation of \code{J48} -- with pruning \code{J48} also performed significantly worse on the \textit{Vowel}, \textit{Musk} and \textit{Spam} datasets. Therefore, we included the unpruned version into the results of this paper.}. 
+The relative performance of \code{evtree} and \code{J48} is summarized in
+Figure~\ref{fig:benchmark2}. It can be observed that on $8$ out of $11$
+classification datasets \code{evtree} significantly outperforms \code{J48} in
+terms of predictive accuracy. \code{evtree}'s performance is significantly worse
+on the \textit{Vowel} dataset, where the misclassification error of
+\code{evtree} is $2.7\%$ higher. As \code{J48} allows multiway splits, the
+complexity of the two algorithms is compared by the total number of nodes
+(internal nodes + terminal nodes). \code{evtree} model are significantly less
+complex on all 11 datesets. Note that we also investigated whether the reduced-error
+pruning option in \code{J48} improves the performance of \code{J48}. However,
+pruning only slightly reduced the complexity while deteriorating accurcay on
+the \textit{Vowel}, \textit{Musk}, and \textit{Spam} datasets. Therefore, we
+only report the unpruned results here. 
 
 \setkeys{Gin}{width=1\textwidth}
 \begin{figure}[t!]
@@ -1207,7 +1221,10 @@ Another important issue to be considered is the random nature of evolutionary al
 \subsection{Artificial problem}
 \label{comp2}
 
-In this section we demonstrate the ability of \code{evtree} to solve an artificial problem that is difficult to solve for most recursive classification tree algorithms \citep{loh2009improving}. The data was simulated with $2000$ instances for both the training-set and the test-set. Predictor variables $X_1$ and $X_2$ are simulated to be uniformly distributed in the interval $[0,4]$. The classes are distributed in alternating squares forming a $4 \times 4$ chessboard in the $(X_1, X_2)$-plane. One realization of the simulated data is shown in Figure~\ref{fig:chess}. Furthermore, variables $X_3-X_8$ are noise variables that are uniformly distributed on the interval [0, 1]. The ideal model for this problem only uses variables $X_1$ and $X_2$ and has 16 terminal nodes, whereas each terminal node comprises the observations that are in the region of one square. Two further simulations are done in the same way, but $5\%$ and $10\%$ percent of the class labels are randomly changed to the other class. 
+In this section we demonstrate the ability of \code{evtree} to solve an artificial problem that is difficult to solve for most recursive classification tree
+algorithms \citep{loh2009improving}. The data was simulated with $2000$ instances for both the training-set and the test-set. Predictor variables $X_1$ and
+$X_2$ are simulated to be uniformly distributed in the interval $[0,4]$. The classes are distributed in alternating squares forming a $4 \times 4$ chessboard
+in the $(X_1, X_2)$-plane. One realization of the simulated data is shown in Figure~\ref{fig:chess}. Furthermore, variables $X_3$--$X_8$ are noise variables that are uniformly distributed on the interval [0, 1]. The ideal model for this problem only uses variables $X_1$ and $X_2$ and has 16 terminal nodes, whereas each terminal node comprises the observations that are in the region of one square. Two further simulations are done in the same way, but $5\%$ and $10\%$ percent of the class labels are randomly changed to the other class. 
 
 <<chessboard, echo=FALSE>>=
 chessboard44 <- function(n = 4000, noisevariables = 6, noise = 0) {
@@ -1254,13 +1271,26 @@ plot(X2 ~ X1, data = chess44, xlim = c(0, 4), ylim = c(0, 4), pch = c(1, 4)[Y], 
   plotted on the $(X_1, X_2)$-plane. The two classes are indicated by black circles and gray crosses, respectively.}
 \end{figure}
 
-The results of \code{evtree}, \code{rpart} and \code{ctree} are summarized in Table~\ref{tab:resultsChessboard}. It can be seen that, in the absence of noise, \code{rpart} models on average classify $69.1\%$ of the data points correctly and has $16.6$ terminal nodes. An average \code{ctree} model has only $1.1$ terminal nodes and a classification accuracy of $49.9\%$. In contrast, \code{evtree} classifies $93.2\%$ of the instances correctly and requires $14.4$ terminal nodes. In this comparison, the complexity of  \code{J48} is again measured by the total number of nodes. On average, \code{J48} trees have only $1.2$ nodes and classify $50.0\%$ of the datapoints correctly. In the presence of $5\%$ and $10\%$ noise, \code{evtree} classifies $89.0\%$ and $84.5\%$ of the data correctly. 
+The results are summarized in Table~\ref{tab:resultsChessboard}. It can be seen that, in the absence of noise,
+\code{evtree} classifies $93.2\%$ of the instances correctly and requires $14.4$
+terminal nodes. \code{rpart} models, on the other hand, on average classify
+$69.1\%$ of the data points correctly and have $16.6$ terminal nodes.
+An average \code{ctree} model has only $1.1$ terminal nodes -- i.e., typically
+does not split at all (as expected in an unbiased forward selection) -- and
+consequently a classification accuracy of $49.9\%$. \code{J48} trees on average
+have $1.2$ nodes and classify $50.0\%$ of the datapoints correctly. In the
+presence of $5\%$ and $10\%$ noise, \code{evtree} classifies $89.0\%$ and
+$84.5\%$ of the data correctly but still performs clearly better than the other
+models. 
 
 <<chessboard-table, echo=FALSE, results=tex>>=
 library("xtable")
 load("./results/chessboard44_0.RData")
 load("./results/chessboard44_5.RData")
 load("./results/chessboard44_10.RData")
+load("./results_j48/chessboard44_0_j48.RData")
+load("./results_j48/chessboard44_5_j48.RData")
+load("./results_j48/chessboard44_10_j48.RData")
 
 chesstable_means  <- as.data.frame( rbind(apply(rchessboard44_0,2,mean), apply(rchessboard44_5,2,mean) , apply(rchessboard44_10,2,mean) ) ) 
 names(chesstable_means) <-  c("\\code{evtree}", "\\code{rpart}", "\\code{ctree}", "\\code{evtree}", "\\code{rpart}", "\\code{ctree}")
@@ -1271,36 +1301,6 @@ chesstable_sd  <- as.data.frame( rbind(apply(rchessboard44_0,2,sd), apply(rchess
 names(chesstable_sd) <-  c("\\code{evtree}", "\\code{rpart}", "\\code{ctree}", "\\code{evtree}", "\\code{rpart}", "\\code{ctree}")
 chesstable_sd[,1:3] <-  format(chesstable_sd[,1:3]*100, digits=1, nsmall=1)
 chesstable_sd[,4:6] <-  format(chesstable_sd[,4:6], digits=1, nsmall=1)
-
-chesstable <- chesstable_means
-for(j in 1:ncol(chesstable_means)){
-	for(i in 1:nrow(chesstable_means)){
-		chesstable[i,j] <- paste(chesstable_means[i,j] ,  "(", chesstable_sd[i,j], ")",  sep="")	
-	}
-}
-
-chesstable <- cbind(rbind("0\\%","5\\%","10\\%"), chesstable)
-colnames(chesstable)[1] = ""
-
-print(xtable(chesstable,
-caption = "Mean (and standard deviation) of accuracy and number of terminal nodes for simulated $4 \\times 4$ chessboard examples.",
-caption.placement= "bottom",
-label= "tab:resultsChessboard"), 
-include.rownames = FALSE, allign= "rllllll", hline.after=NULL,
-sanitize.text.function = identity,
-add.to.row=list(pos=list(-1,-1, 0, 3), command=c(
-"\\toprule", 
-c("\\multicolumn{1}{l}{Noise} & \\multicolumn{3}{l}{Accuracy}  & \\multicolumn{3}{l}{Terminal nodes}\\\\",
-"\\midrule",
-"\\bottomrule"
-)))
-)
-@
-
-<<chessboard-table2, echo=FALSE, results=tex>>=
-load("./results_j48/chessboard44_0_j48.RData")
-load("./results_j48/chessboard44_5_j48.RData")
-load("./results_j48/chessboard44_10_j48.RData")
 
 chesstable_means2  <- as.data.frame( cbind(rbind(mean(rchessboard44_02[,3]), mean(rchessboard44_52[,3]) , mean(rchessboard44_102[,3])), rbind(
 mean(rchessboard44_02[,4]), mean(rchessboard44_52[,4]) , mean(rchessboard44_102[,4])  )) )
@@ -1313,32 +1313,38 @@ sd(rchessboard44_02[,4]), sd(rchessboard44_52[,4]) , sd(rchessboard44_102[,4])  
 chesstable_sd2[,1] <-  format(chesstable_sd2[,1]*100, digits=1, nsmall=1)
 chesstable_sd2[,2] <-  format(chesstable_sd2[,2], digits=1, nsmall=1)
 
-chesstable2 <- chesstable_means2
-for(j in 1:ncol(chesstable_means2)){
-	for(i in 1:nrow(chesstable_means2)){
-		chesstable2[i,j] <- paste(chesstable_means2[i,j] ,  "(", chesstable_sd2[i,j], ")",  sep="")	
+chesstable_means <- cbind(chesstable_means, chesstable_means2)
+chesstable_sd <- cbind(chesstable_sd, chesstable_sd2)
+chesstable_means <- chesstable_means[, c(1:3, 7, 4:6, 8)]
+chesstable_sd <- chesstable_sd[, c(1:3, 7, 4:6, 8)]
+
+chesstable <- chesstable_means
+for(j in 1:ncol(chesstable_means)){
+	for(i in 1:nrow(chesstable_means)){
+		chesstable[i,j] <- paste(chesstable_means[i,j] ,  "(", chesstable_sd[i,j], ")",  sep="")	
 	}
 }
 
-chesstable2 <- cbind(rbind("0\\%","5\\%","10\\%"), chesstable2)
-colnames(chesstable2)[1] <- ""
+chesstable <- cbind(rbind("0\\%","5\\%","10\\%"), chesstable)
+colnames(chesstable)[1] = ""
 
-print(xtable(chesstable2,
-caption = "Mean (and standard deviation) of accuracy and total number of nodes for \\code{J48} on the simulated $4 \\times 4$ chessboard examples.",
+print(xtable(chesstable,
+caption = "Mean (and standard deviation) of accuracy and complexity for simulated $4 \\times 4$ chessboard examples.",
 caption.placement= "bottom",
-label= "tab:resultsChessboard2"), 
-include.rownames = FALSE, allign= "rll", hline.after=NULL,
+table.placement="t!",
+label= "tab:resultsChessboard"), 
+include.rownames = FALSE, allign= "rllllll", hline.after=NULL,
 sanitize.text.function = identity,
 add.to.row=list(pos=list(-1,-1, 0, 3), command=c(
 "\\toprule", 
-c("{Noise} & {Accuracy}  & {Total number of nodes}  \\\\",
+c("\\multicolumn{1}{l}{Noise} & \\multicolumn{4}{l}{Accuracy}  & \\multicolumn{4}{l}{Complexity}\\\\",
 "\\midrule",
 "\\bottomrule"
 )))
 )
 @
 
-\section{Parameter optimization}
+\section[Choice of evtree parameters]{Choice of \texttt{evtree} parameters}
 \label{param}
 
 <<parameters, echo=FALSE>>=
@@ -1460,7 +1466,7 @@ c(65,80),
 c(89,94),
 c(60,95)
 ), nrow=2)),
-scales= list(x= list(rot=60), y=list(relation="free"), alternating = F), 
+scales= list(x= list(rot=60), y=list(relation="free"), alternating = FALSE), 
 layout = c(4,1),
 panel=function(x,y,...) {
         panel.bwplot(x,y,...)
@@ -1469,22 +1475,46 @@ panel=function(x,y,...) {
 )
 @
 
-In this section, \code{evtree} is simulated with different parameter choices. In general, the optimal choice of parameters depends heavily on the particular dataset. This section gives some insight into which parameters choices work for which kind of data complexity. Furthermore, the results give insight into the robustness of the default parameter choices. 
+In this section, \code{evtree} is simulated with different (hyper)parameter choices. In
+general, the optimal choice of parameters clearly depends on the particular
+dataset. This section gives some insight into which parameter choices work for
+which kind of data complexity. Furthermore, the results give insight into the
+robustness of the default parameter choices. 
 
 As in Section~\ref{comp}, \code{evtree} models are constrained to a minimum number of 
 7~observations per terminal node, 20~observations per internal node, and a maximum tree
 depth of~9. The analysis is based on 4 datasets (\textit{Statlog heart}, \textit{Statlog german credit}, 
-\textit{Spam}, and the \textit{4x4 Chessboard problem} --  with 5\%noise). The analysis of each 
-of the 4 datasets is based on 250~bootstrap samples. In Section \ref{param_op}, \code{evtree}
-is simulated with a diverse set of variation operator probability choices. Section \ref{param_ps}, 
+\textit{Spam}, and the \textit{4x4 Chessboard problem} with 5\%noise). Again, the analysis of each 
+of the 4 datasets is based on 250~bootstrap samples. In Section~\ref{param_op}, \code{evtree}
+is simulated with a diverse set of variation operator probability choices. Section~\ref{param_ps}
 provides results for the choice of different population sizes. 
 
 \subsection{Variation operator probabilities}
 \label{param_op}
 
-Table \ref{tab:simoperatorprob} displays the different operator probability settings that are used in Figure~\ref{fig:param_operatorprob}. The \textit{Mutation} column summarizes the probability of selecting the \textit{minor split rule mutation} or the \textit{major split rule mutation} operator -- which both have the same probability. The \textit{Split/Prune} column summarizes the probability of selecting the \textit{prune} or the \textit{split} operator -- again both operator have the same probability. For example, the operator probability setting \textit{c0m50sp50} has a $0\%$ probability of selecting the \textit{crossover} operator, a $50\%$ probability for selecting one of the mutation operators ($25\%$ for \textit{minor split rule mutation} and $25\%$ for \textit{major split rule mutation}) and a $50\%$ probability for selecting the \textit{split} ($25\%$ chance) or the \textit{prune} operator ($25\%$ chance). The different operator probability settings are simulated with different number of iterations. Simulations with a very low number of iterations (two settings with 200 and 500 iterations are used) should give insight into the efficiency of the variation operator settings. Additionally, the results from a simulation with 10000 iterations is included, which provides an estimate of performance differences for the default settings.
+Table~\ref{tab:simoperatorprob} displays the different operator probability
+settings that are used in Figure~\ref{fig:param_operatorprob}. The
+\textit{Mutation} column summarizes the probability of selecting the
+\textit{minor split rule mutation} or the \textit{major split rule mutation}
+operator -- which both have the same probability. The \textit{Split/Prune}
+column summarizes the probability of selecting the \textit{prune} or the
+\textit{split} operator -- again both operators have the same probability. For
+example, the operator probability setting \textit{c0m50sp50} has a $0\%$
+probability of selecting the \textit{crossover} operator, a $50\%$ probability
+for selecting one of the mutation operators ($25\%$ for \textit{minor split rule
+mutation} and $25\%$ for \textit{major split rule mutation}) and a $50\%$
+probability for selecting one of the \textit{split} (with $25\%$ probability) or the
+\textit{prune} operators (with $25\%$ probability). Note that thus the default
+choice in \texttt{evtree.control} corresponds to c20m40sp40.
+The different operator probability
+settings are simulated with different numbers of iterations. Simulations with a
+very low number of iterations (two settings with 200 and 500 iterations are
+used) should give insight into the efficiency of the variation operator
+settings. Additionally, the results from a simulation with 10000 iterations is
+included, which provides an estimate of performance differences for the default
+setting.
 
-\begin{table}[t!]
+\begin{table}[b!]
 \centering
 \begin{tabular}{lrrrr}
 \toprule
@@ -1497,68 +1527,111 @@ c20m60sp20   &  20  &  60 & 20     	 \\
 c40m30sp30   &  40  &  30 & 30     	 \\
 \bottomrule
 \end{tabular}
-\caption{\label{tab:simoperatorprob} Operator probability settings used for the simulation of the different operator probabilities. The results are displayed in Figure \ref{fig:param_operatorprob}.} 
+\caption{\label{tab:simoperatorprob} Operator probability settings used for the
+simulation of the different operator probabilities. The default choice in \texttt{evtree.control}
+corresponds to c20m40sp40. The corresponding results are displayed in Figure~\ref{fig:param_operatorprob}.}
 \end{table}
 
-Figure \ref{fig:param_operatorprob} summarizes \code{evtree}'s performance with different variation operator probabilities. For the two datasets \textit{Statlog heart}  and \textit{Statlog German credit}, the results of the different variation operator settings are nearly the same. The simulations with only $200$ iterations and $500$ iterations give similar results as the simulations with $10000$ iterations. Thus, for the two smaller datasets, neither the choice of variation operator probabilities, nor the duration of the search, has a relevant effect on the results. 
-
-For the more complex \textit{spam} dataset and the \textit{Chessboard 4x4} problem, an increased number of iteration leads to a much better performance.  For the simulation with only 200 iterations, large differences between the variation operator settings can be observed. For both datasets the variation operator setting without crossover performed worst.  The performance differences of the different variation operator settings become smaller with an increasing number of iterations.  For the \textit{Spam} dataset, a search over 10000 iterations leads to approximately the same performance for all variation operator settings. In case of the \textit{Chessboard 4x4} problem the best setting ($c20m20sp60$; $20\%$ crossover, $20\%$ mutation and $60\%$ split/prune) classifies, in average, $90.8\%$ of the instances correctly. \code{evtree}'s default setting ($c20m40sp40$; $20\%$ crossover, $40\%$ mutation and $40\%$ split/prune) is the second-best setting and classifies $89.8\%$ of the instances correctly.
-
-
 \setkeys{Gin}{width=1\textwidth}
-\begin{figure}[tbh!]
+\begin{figure}[p!]
 \centering
-<<param-operator-plot, fig = TRUE, echo = FALSE, width=10.2, height=14.5>>=
-	par(mfrow = c(4, 3), oma = c(5, 10, 2, 0), mar = c(1, 1, 2, 1))
-	plot(b1)
+<<param-operator-plot, fig = TRUE, echo = FALSE, width=10.2, height=13.5>>=
+trellis.par.set(theme = canonical.theme(color = FALSE))
+plot(b1)
 @
-\caption{\label{fig:param_operatorprob} Results of \code{evtree} with different variation operator probabilities and number of iterations. The operator probability settings that are display on the x-axis are described in Table \ref{tab:simoperatorprob}. In addition to the standard boxplot statistics, the mean differences are indicated by red dots.}
+\caption{\label{fig:param_operatorprob} Results of \code{evtree} with different
+variation operator probabilities (see Table~\ref{tab:simoperatorprob}) and number
+of iterations. In addition to the standard boxplot statistics, the mean differences are indicated by red dots.}
 \end{figure}
+
+Figure~\ref{fig:param_operatorprob} summarizes \code{evtree}'s performance with
+different variation operator probabilities. For the two datasets \textit{Statlog
+heart}  and \textit{Statlog German credit}, the results of the different
+variation operator settings are nearly the same. The simulations with only $200$
+iterations and $500$ iterations give similar results as the simulations with
+$10000$ iterations. Thus, for the two smaller datasets, neither the choice of
+variation operator probabilities, nor the duration of the search, has a relevant
+effect on the results. 
+
+For the more complex \textit{spam} dataset and the \textit{Chessboard 4x4}
+problem, an increased number of iterations leads to a (much) better performance. 
+For the simulation with only 200 iterations, large differences between the
+variation operator settings can be observed. For both datasets the variation
+operator setting without crossover performed worst.  The performance differences
+of the different variation operator settings become smaller with an increasing
+number of iterations.  For the \textit{Spam} dataset, a search over 10000
+iterations leads to approximately the same performance for all variation
+operator settings. In case of the \textit{Chessboard 4x4} problem the best
+setting ($c20m20sp60$; $20\%$ crossover, $20\%$ mutation and $60\%$ split/prune)
+classifies, on average, $90.8\%$ of the instances correctly. \code{evtree}'s
+default setting ($c20m40sp40$; $20\%$ crossover, $40\%$ mutation and $40\%$
+split/prune) is the second-best setting and classifies $89.8\%$ of the instances
+correctly.
 
 \subsection{Population size}
 \label{param_ps}
 
-In this subsection, \textit{evtree} is simulated with population sizes between 25 trees and 500 trees. The results of the simulation are illustrated in Figure \ref{fig:param_operatorprob}. For the two smaller datasets \textit{Statlog heart} an \textit{Statlog German credit} the results are similar for all population sizes. in fact, the smallest population sizes (25 trees; \textit{Statlog heart}: $77.1\%$, \textit{Statlog German credit}: $72.2\%$) even slightly outperformed the largest population size (500 trees; \textit{Statlog heart}: $76.5\%$, \textit{Statlog German credit}: $71.7\%$). In these cases the increased search space resulted in slightly overfitted trees. The average number of terminal nodes for the largest population size are much larger than the trees from the smalles population size (\textit{Statlog heart}: $7.3$ terminal nodes when simulated with a population of 500 trees, $6.5$ terminal nodes when simulated with a population of 25 trees; \textit{Statlog German credit}:  $13.4$ terminal nodes when simulated with a population of 500 trees, $10.9$ terminal nodes when simulated with a population of 25 trees).
+In this subsection, \code{evtree} is simulated with population sizes between
+25 trees and 500 trees. The results of the simulation are illustrated in
+Figure~\ref{fig:param_operatorprob}. For the two smaller datasets
+\textit{Statlog heart} an \textit{Statlog German credit} the results are similar
+for all population sizes. In fact, the smallest population sizes (25 trees;
+\textit{Statlog heart}: $77.1\%$, \textit{Statlog German credit}: $72.2\%$) 
+even perform very slightly bettr on average (500 trees; \textit{Statlog
+heart}: $76.5\%$, \textit{Statlog German credit}: $71.7\%$). Compared to
+the overall variation over samples, these differences are very small though.
+The average number of terminal nodes for the largest population size is larger than the trees
+from the smalles population size (\textit{Statlog heart}: $7.3$ terminal nodes
+when simulated with a population of 500 trees, $6.5$ terminal nodes when
+simulated with a population of 25 trees; \textit{Statlog German credit}:  $13.4$
+terminal nodes when simulated with a population of 500 trees, $10.9$ terminal
+nodes when simulated with a population of 25 trees).
  
-For the more complex datasets \textit{Spam} and \textit{Chessboard 4x4 (with $5\%$ noise)}, the predictive accuracy is monotonically increasing with the search space. The largest performance difference can be observer on the chessboard simulation problem. With a simulation of 25 trees only $81.0\%$ percent of the instance are classified correctly, while with a simulation of 500 trees, $93.6\%$ of the instances are classified correctly. 
-
-
 \setkeys{Gin}{width=1\textwidth}
-\begin{figure}[tb!]
+\begin{figure}[t!]
 \centering
-<<param-ntrees-plot, fig = TRUE, echo = FALSE, width=10.2, height=5.0>>=
-	par(mfrow = c(4, 1), oma = c(5, 10, 2, 0), mar = c(1, 1, 2, 1))
-	plot(b2)
+<<param-ntrees-plot, fig = TRUE, echo = FALSE, width=10.2, height=4.2>>=
+trellis.par.set(theme = canonical.theme(color = FALSE))
+plot(b2)
 @
-\caption{\label{fig:param_populationsize} Results of  \code{evtree} with different population sizes. In addition to the standard boxplot statistics, the mean differences are indicated by red dots.}
+\caption{\label{fig:param_populationsize} Results of \code{evtree} with different population sizes.
+  In addition to the standard boxplot statistics, the mean differences are indicated by red dots.}
 \end{figure}
+
+However, for the more complex datasets \textit{Spam} and \textit{Chessboard 4x4 (with
+$5\%$ noise)}, the predictive accuracy is monotonically increasing with the
+search space. The largest performance difference can be observed on the
+chessboard simulation problem. With a simulation of 25~trees only $81.0\%$
+of the instance are classified correctly, while with a simulation of 500~trees,
+$93.6\%$ of the instances are classified correctly. 
 
 
 \section{Conclusions}
 \label{conc}
 
-In this paper, we presented the \pkg{evtree} package, which implements
+In this paper, we present the \pkg{evtree} package, which implements
 classification and regression trees that are grown by an evolutionary
 algorithm. The package uses standard \code{print()}, \code{summary()}, and
 \code{plot()} functions to display trees and a \code{predict()} function to
 predict the class labels of new data from the \pkg{partykit} package. As evolutionary
 learning of trees is computationally demanding, most calculations
 are conducted in \proglang{C++}. At the moment our algorithm does not support
-parallelism. However, we intend to extend \pkg{evtree} to parallel computing.
+parallelism. However, we intend to extend \pkg{evtree} to parallel computing
+in future versions.
 
-The comparisons with recursive partitioning methods \code{rpart}
-and \code{ctree} in Sections~\ref{impl} and~\ref{comp} shows that \code{evtree}
+The comparisons with recursive partitioning methods \code{rpart},
+\code{ctree}, and \code{J48} in Sections~\ref{impl} and~\ref{comp} shows that \code{evtree}
 performs very well in a wide variety of settings, often balancing predictive
 accuracy and complexity better than the forward-search methods. 
 
-In Section~\ref{param}, we compared different parameter settings for the \code{evtree} algorithm. It could be observed
+In Section~\ref{param}, we compare different parameter settings for the \code{evtree} algorithm. It can be observed
 that the particular choice of variation operator probabilities is fairly robust, provided the population size 
 is sufficiently large. The default settings in the number of iterations and the population size are
 sufficient for most datasets with medium complexity. However, for very complex datasets an increase in the 
 number of iterations or the population size, may significantly improve \code{evtree}'s predictive performance.
 
 The goal of \code{evtree} is not to replace the well-established algorithms like
-\code{rpart} and \code{ctree} but rather to complement the tree toolbox with
+\code{rpart}, \code{ctree}, and \code{J48} but rather to complement the tree toolbox with
 an alternative method which may perform better given sufficient amounts of time and main memory.
 By the nature of the algorithm it is able to discover patterns which cannot be modeled by a greedy
 forward-search algorithm. As \code{evtree} models can be substantially different to recursively

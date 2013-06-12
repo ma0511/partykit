@@ -93,8 +93,8 @@ To avoid misunderstandings, we improved the description in the paper as follows:
 
 ``The analysis is based on the evaluation of 250~bootstrap
 samples for each of the 20~datasets. The misclassification rate on the
-\textit{out-of-bag} (Hothorn et~al.~2005) samples is used as a measure of
-predictive accuracy. Furthermore, the complexity is estimated by the number of
+\textit{out-of-bag} samples is used as a measure of
+predictive accuracy (Hothorn et~al.~2005). Furthermore, the complexity is estimated by the number of
 terminal nodes. The results are summarized by the mean differences of the 250 runs -- each corresponding to
 one of the 250~different bootstrap samples. For the assessment of significant differences 
 in predictive accuracy and complexity, respectively, 
@@ -121,7 +121,8 @@ is often outperformed with respect to prediction performance. Only for the ``Vow
 data there is a significant (albeit small) advantage of J48. With respect to complexity,
 J48 typically grows much larger trees (also compared to rpart and ctree).
 
-We are aware that there are better methods in terms of predictive accuracy. However, these methods do not offer the simple
+We are aware that there are better methods in terms of predictive accuracy.
+However, these methods do not offer the simple
 interpretability of classification and regression trees. We added following
 paragraph which acknowledges this issue and narrows the scope of the paper.
 
