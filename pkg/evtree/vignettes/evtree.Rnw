@@ -137,13 +137,13 @@ evolutionary process the mean quality of the population increases over time
 In the case of learning decision trees, this means that the variation
 operators can be applied to modify the tree structure (e.g., number of splits, splitting
 variables, and corresponding split points etc.) in order to optimize a
-fitness function such as the misclassificaion or error rate penalized by
+fitness function such as the misclassification or error rate penalized by
 the complexity of the tree.
 A notable difference to comparable algorithms is the survivor selection
 mechanism where it is important to avoid premature convergence. In the
-following, we use a steady state algorithm with deterministic crowding (i.e., one parent
-solution competes with its most similar offspring for a place in the population)
-which can be argued to offer computational
+following, we use a steady state algorithm with deterministic crowding~\citep{mahfoud1992crowding}.  Here, each parent
+solution competes with its most similar offspring for a place in the population.  In this way, a fast convergence to similar solutions is avoided and the diversity of candidate solutions is maintained.
+Furthermore, the applied survivor selection mechanism can be argued to offer computational
 advantages for the application to classification and regression trees.
 
 Classification and regression tree models are widely used and are especially
@@ -527,6 +527,8 @@ ${\theta}_{i+1}^2 = \mathrm{sub}2({\theta}_{i}^2, r_2) \cup \mathrm{sub}1({\thet
 If the crossover creates some invalid nodes in either one of the new trees ${\theta}_{i+1}^1$
 or ${\theta}_{i+1}^2$, they are omitted.
 
+\pagebreak %% FIXME
+
 \subsection{Evaluation function}
 \label{eval}
 
@@ -617,10 +619,10 @@ selection process more than once in an iteration.
 
 As in classification and regression tree analysis the individual solutions are
 represented by trees. This design offers computational advantages over $(\mu +
-\lambda)$, with $\mu>1$ and $\lambda>1$, and $(\mu,\lambda)$ strategies. In
+\lambda)$ and $(\mu,\lambda)$ strategies. In
 particular, for the application of mutation operators no new trees have to be
 constructed. The tree after modification is simply accepted or reversed to the
-previous solution.
+previous solution. 
 
 There are two important issues in the evolution process of an evolutionary
 algorithm: population diversity and selective pressure
@@ -628,8 +630,8 @@ algorithm: population diversity and selective pressure
 selective pressure the search is focused more around the currently best
 solutions. An overly strong selective pressure can cause the algorithm to
 converge early in local optima. On the other hand, an overly weak selective
-pressure can make the search ineffective. Using a $(\mu + \lambda)$ strategy 
-with $\mu>1$ and $\lambda>1$, a strong selective pressure can occur in 
+pressure can make the search ineffective. Using a $(\mu + \lambda)$ strategy, 
+a strong selective pressure can occur in 
 situations as follows. Suppose the $b$-th
 tree of the population is one of the fittest trees in iteration $i$, and in
 iteration $i$ one split rule of the $b$-th tree is changed only by a minor
@@ -641,7 +643,7 @@ operator like the \textit{minor split rule mutation} is used. Then, the
 diversity of different trees is lost quickly and the algorithm likely terminates
 in a local optimum. The deterministic crowding selection mechanism clearly avoids these
 situations, as only the parent or the offspring can be part of the subsequent
-population.
+population. 
 
 
 \subsection{Termination}
@@ -1488,6 +1490,8 @@ depth of~9. The analysis is based on 4 datasets (\textit{Statlog heart}, \textit
 of the 4 datasets is based on 250~bootstrap samples. In Section~\ref{param_op}, \code{evtree}
 is simulated with a diverse set of variation operator probability choices. Section~\ref{param_ps}
 provides results for the choice of different population sizes. 
+
+\pagebreak %% FIXME
 
 \subsection{Variation operator probabilities}
 \label{param_op}
