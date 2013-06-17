@@ -5,8 +5,6 @@ Date: 2013-06-17
 Authors@R: c(person(given = "Thomas", family = "Grubinger", role = c("aut", "cre"), email = "Thomas.Grubinger@i-med.ac.at"),
              person(given = "Achim", family = "Zeileis", role = "aut", email = "Achim.Zeileis@R-project.org"),
              person(given = "Karl-Peter", family = "Pfeiffer", role = "aut", email = "Karl-Peter.Pfeiffer@i-med.ac.at"))
-Author: Thomas Grubinger [aut, cre], Achim Zeileis [aut], Karl-Peter Pfeiffer [aut]
-Maintainer: Thomas Grubinger <Thomas.Grubinger@utanet.at>
 Description: Commonly used classification and regression tree methods like the CART algorithm
              are recursive partitioning methods that build the model in a forward stepwise search.
 	     Although this approach is known to be an efficient heuristic, the results of recursive
@@ -18,6 +16,6 @@ Description: Commonly used classification and regression tree methods like the C
 	     the partykit package is leveraged to represent the resulting trees in R, providing
 	     unified infrastructure for summaries, visualizations, and predictions.
 Depends: R (>= 2.11.0), partykit   
-Suggests: mlbench, kernlab, multcomp, rpart, party, xtable
+Suggests: Formula, kernlab, lattice, mlbench, multcomp, party, rpart, xtable
 LazyData: yes
 License: GPL-2

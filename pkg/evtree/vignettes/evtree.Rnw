@@ -10,7 +10,7 @@
 %% need no \usepackage{Sweave}
 \SweaveOpts{engine = R, eps = FALSE, keep.source = TRUE}
 %\VignetteIndexEntry{Evolutionary Learning of Globally Optimal Classification and Regression Trees in R}
-%\VignetteDepends{stats,evtree,partykit,mlbench,multcomp,rpart,party,xtable}
+%\VignetteDepends{stats,evtree,partykit,mlbench,multcomp,rpart,party,xtable,lattice}
 %\VignetteKeywords{machine learning, classification trees, regression trees, evolutionary algorithms, R}
 %\VignettePackage{evtree}
 
@@ -71,6 +71,7 @@
 options(prompt = "R> ", continue = "+  ", width = 70, useFancyQuotes = FALSE)
 library("rpart")
 library("evtree")
+library("lattice")
 data("BBBClub", package = "evtree")
 cache <- FALSE
 @
@@ -1350,9 +1351,6 @@ c("\\multicolumn{1}{l}{Noise} & \\multicolumn{4}{l}{Accuracy}  & \\multicolumn{4
 \label{param}
 
 <<parameters, echo=FALSE>>=
-library("plotrix")
-library("lme4")
-
 ## load results
 for(i in Sys.glob("results_parameter/*.RData")) load(i)
 
