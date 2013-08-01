@@ -4,8 +4,6 @@ Date: 2013-08-01
 Version: 0.2-0
 Authors@R: c(person(given = "Torsten", family = "Hothorn", role = c("aut", "cre"), email = "Torsten.Hothorn@R-project.org"),
              person(given = "Achim", family = "Zeileis", role = "aut", email = "Achim.Zeileis@R-project.org"))
-Author: Torsten Hothorn [aut, cre], Achim Zeileis [aut]
-Maintainer: Torsten Hothorn <Torsten.Hothorn@R-project.org>
 Description: A toolkit with infrastructure for representing,
   summarizing, and visualizing tree-structured regression and
   classification models. This unified infrastructure can be
