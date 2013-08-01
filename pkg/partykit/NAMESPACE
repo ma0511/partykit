@@ -11,6 +11,12 @@ export(
   "ctree",
   "ctree_control",
 
+  ## new mob implementation
+  "mob",
+  "mob_control",
+  "refit.modelparty",
+  "sctest.modelparty",
+
   ## as/is class generics
   "as.party",  
   "as.partynode",
@@ -110,6 +116,17 @@ S3method("as.simpleparty", "simpleparty")
 S3method("plot", "simpleparty")
 S3method("predict_party", "simpleparty")
 S3method("print", "simpleparty")
+
+## methods for class modelparty
+S3method("coef", "modelparty")
+S3method("deviance", "modelparty")
+S3method("formula", "modelparty")
+S3method("getCall", "modelparty")
+S3method("logLik", "modelparty")
+S3method("model.frame", "modelparty")
+S3method("print", "modelparty")
+S3method("summary", "modelparty")
+S3method("weights", "modelparty")
 
 ## misc methods
 S3method("as.partynode", "list")
