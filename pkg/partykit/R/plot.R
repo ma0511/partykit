@@ -167,10 +167,11 @@ edge_simple <- function(obj, digits = 3, abbreviate = FALSE)
   ### panel function for simple edge labelling
   function(node, i) {
     split <- character_split(split_node(node), meta)$levels[i]
-    ## FIXME: can this be improved?
-    # the following won't work for split = "< 10 Euro", for example.
-    # if(any(grep(">", split) > 0) | any(grep("<", split) > 0))
-    #  split <- parse(text = paste("phantom(0)", split))
+    # try() because the following won't work for split = "< 10 Euro", for example.
+    if(any(grep(">", split) > 0) | any(grep("<", split) > 0)) {
+      tr <- suppressWarnings(try(parse(text = paste("phantom(0)", split)), silent = TRUE))
+      if(!inherits(tr, "try-error")) split <- tr
+    }
     grid.rect(gp = gpar(fill = "white", col = 0), width = unit(1, "strwidth", split)) 
     grid.text(split, just = "center")
   }
