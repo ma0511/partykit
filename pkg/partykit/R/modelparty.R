@@ -629,14 +629,23 @@ refit.modelparty <- function(object, node = NULL, drop = TRUE, ...)
   return(rval)
 }
 
+apply_to_models <- function(object, node = NULL, FUN = NULL, drop = FALSE, ...) {
+  if(is.null(node)) node <- nodeids(object, terminal = FALSE)
+  if(is.null(FUN)) FUN <- function(object, ...) object  
+  rval <- if("object" %in% object$info$control$terminal) {
+    nodeapply(object, node, function(n) FUN(info_node(n)$object))
+  } else {
+    lapply(refit.modelparty(object, node, drop = FALSE), FUN)
+  }
+  names(rval) <- node
+  if(drop & length(node) == 1L) rval <- rval[[1L]]
+  return(rval)
+}
+
 logLik.modelparty <- function(object, splits = TRUE, ...)
 {
   ids <- nodeids(object, terminal = TRUE)
-  ll <- if("object" %in% object$info$control$terminal) {
-    nodeapply(object, ids, function(n) logLik(info_node(n)$object))
-  } else {
-    lapply(refit.modelparty(object, ids, drop = FALSE), logLik)
-  }
+  ll <- apply_to_models(object, node = ids, FUN = logLik)
   df <- if(splits) length(ll) - 1L else 0L  
   structure(
     sum(as.numeric(ll)),
@@ -656,23 +665,14 @@ nobs.modelparty <- function(object, ...) {
 deviance.modelparty <- function(object, ...)
 {
   ids <- nodeids(object, terminal = TRUE)
-  dev <- if("object" %in% object$info$control$terminal) {
-    nodeapply(object, ids, function(n) deviance(info_node(n)$object))
-  } else {
-    lapply(refit.modelparty(object, ids, drop = FALSE), deviance)
-  }
+  dev <- apply_to_models(object, node = ids, FUN = deviance)
   sum(unlist(dev))
 }
 
 summary.modelparty <- function(object, node = NULL, ...)
 {
   ids <- if(is.null(node)) nodeids(object, terminal = TRUE) else node
-  rval <- if("object" %in% object$info$control$terminal) {
-    nodeapply(object, ids, function(n) summary(info_node(n)$object))
-  } else {
-    lapply(refit.modelparty(object, ids, drop = FALSE), summary)
-  }
-  names(rval) <- ids
+  rval <- apply_to_models(object, node = ids, FUN = summary)
   if(length(ids) == 1L) rval[[1L]] else rval
 }
 
@@ -748,11 +748,7 @@ predict.modelparty <- function(object, newdata = NULL, type = "node", ...)
 
   ## obtain fitted model objects
   ids <- sort(unique(as.integer(node)))
-  mod <- if("object" %in% object$info$control$terminal) {
-    nodeapply(object, sort(unique(ids)), function(n) info_node(n)$object)
-  } else {
-    refit.modelparty(object, node = sort(unique(ids)), drop = FALSE)
-  }
+  mod <- apply_to_models(object, node = ids)
 
   ## obtain predictions
   pred <- if(is.character(type)) {
@@ -781,11 +777,26 @@ predict.modelparty <- function(object, newdata = NULL, type = "node", ...)
     }
   } else {
     rval <- lapply(mod, pred, ...)
-    rval <- do.call("rbind", rval)
-    rownames(rval) <- ids
-    rval <- rval[as.character(node), , drop = FALSE]
-    rownames(rval) <- names(node)
-    rval <- drop(rval)
+    if(NCOL(rval[[1L]]) > 1L) {
+      rval <- do.call("rbind", rval)
+      rownames(rval) <- ids
+      rval <- rval[as.character(node), , drop = FALSE]
+      rownames(rval) <- names(node)
+      rval <- drop(rval)
+    } else {
+      ## provide a c() method for factors locally
+      c.factor <- function(...) {
+        args <- list(...)
+	lev <- levels(args[[1L]])
+	args[[1L]] <- unclass(args[[1L]])
+	rval <- do.call("c", args)
+	factor(rval, levels = 1L:length(lev), labels = lev)
+      }
+      rval <- do.call("c", rval)
+      names(rval) <- ids
+      rval <- rval[as.character(node)]
+      names(rval) <- names(node)
+    }
   }
   return(rval)
 }
@@ -797,11 +808,7 @@ fitted.modelparty <- function(object, ...)
 
   ## obtain fitted model objects
   ids <- nodeids(object, terminal = TRUE)
-  fit <- if("object" %in% object$info$control$terminal) {
-    nodeapply(object, ids, function(n) fitted(info_node(n)$object))
-  } else {
-    lapply(refit.modelparty(object, ids, drop = FALSE), fitted)
-  }
+  fit <- apply_to_models(object, node = ids, FUN = fitted)
 
   nc <- NCOL(fit[[1L]])
   rval <- if(nc > 1L) {
@@ -829,11 +836,7 @@ residuals.modelparty <- function(object, ...)
 
   ## obtain fitted model objects
   ids <- nodeids(object, terminal = TRUE)
-  res <- if("object" %in% object$info$control$terminal) {
-    nodeapply(object, ids, function(n) residuals(info_node(n)$object))
-  } else {
-    lapply(refit.modelparty(object, ids, drop = FALSE), residuals)
-  }
+  res <- apply_to_models(object, node = ids, FUN = residuals)
 
   nc <- NCOL(res[[1L]])
   rval <- if(nc > 1L) {

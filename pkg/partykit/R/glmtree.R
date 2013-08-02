@@ -30,6 +30,7 @@ glmtree <- function(formula, data, subset, na.action, weights, offset,
   
   ## extend class and keep original call
   rval$info$call <- cl
+  rval$info$family <- family$family
   class(rval) <- c("glmtree", class(rval))
   return(rval)
 }
@@ -96,8 +97,9 @@ glmfit <- function(y, x, start = NULL, weights = NULL, offset = NULL, ...,
 
 ## methods
 print.glmtree <- function(x,
-  title = "Generalized linear model tree", objfun = "negative log-likelihood", ...)
+  title = NULL, objfun = "negative log-likelihood", ...)
 {
+  if(is.null(title)) title <- sprintf("Generalized linear model tree (family: %s)", x$info$family)
   print.modelparty(x, title = title, objfun = objfun, ...)
 }
 

@@ -114,11 +114,12 @@ mb_bh <- lmtree(medv ~ log(lstat) + I(rm^2) | zn +
   indus + chas + nox + age + dis + rad + tax + crim + b + ptratio,
   data = BostonHousing, minsplit = 40)
 
-mb_bh
+print(mb_bh)
+print(mb_bh, node = 7)
 plot(mb_bh)
 coef(mb_bh)
 summary(mb_bh, node = 7)
-sctest(mb_bh, node = 7)
+## sctest(mb_bh, node = 7)
 mean((BostonHousing$medv - fitted(mb_bh))^2)
 mean(residuals(mb_bh)^2)
 deviance(mb_bh)/sum(weights(mb_bh))
