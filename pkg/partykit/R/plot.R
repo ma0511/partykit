@@ -1,21 +1,28 @@
-.nobs_party <- function(party, id = 1) {
+.nobs_party <- function(party, id = 1L) {
   dat <- data_party(party, id = id)
   if("(weights)" %in% names(dat)) sum(dat[["(weights)"]]) else NROW(dat)
 }
 
-node_inner <- function(obj, id = TRUE, abbreviate = FALSE, fill = "white", gp = gpar())
+node_inner <- function(obj, id = TRUE, pval = TRUE, abbreviate = FALSE, fill = "white", gp = gpar())
 {
   meta <- obj$data
   nam <- names(obj)
 
   extract_label <- function(node) {
-    if(is.terminal(node)) return(rep.int("", 2))
+    if(is.terminal(node)) return(rep.int("", 2L))
 
     varlab <- character_split(split_node(node), meta)$name
-    if(abbreviate > 0) varlab <- abbreviate(varlab, as.numeric(abbreviate))
+    if(abbreviate > 0L) varlab <- abbreviate(varlab, as.integer(abbreviate))
 
-    ## FIXME: info processing
-    plab <- ""
+    ## FIXME: make more flexible rather than special-casing p-value
+    if(pval & !is.null(info_node(node)$p.value)) {
+      pvalue <- node$info$p.value
+      plab <- ifelse(pvalue < 10^(-3L),
+        paste("p <", 10^(-3L)),
+    	paste("p =", round(pvalue, digits = 3L)))
+    } else {
+      plab <- ""
+    }
     return(c(varlab, plab))
   }
 
@@ -48,15 +55,15 @@ node_inner <- function(obj, id = TRUE, abbreviate = FALSE, fill = "white", gp = 
     yell <- sqrt(xell * (1-xell))
 
     lab <- extract_label(node)
-    fill <- rep(fill, length.out = 2)
+    fill <- rep(fill, length.out = 2L)
 
     grid.polygon(x = unit(c(xell, rev(xell)), "npc"),
         	 y = unit(c(yell, -yell)+0.5, "npc"),
         	 gp = gpar(fill = fill[1]))
 
-    ## FIXME: something instead of pval ?
-    grid.text(lab[1], y = unit(1.5 + 0.5 * FALSE, "lines"))
-    if(FALSE) grid.text(lab[2], y = unit(1, "lines"))
+    ## FIXME: something more general instead of pval ?
+    grid.text(lab[1L], y = unit(1.5 + 0.5 * (lab[2L] != ""), "lines"))
+    if(lab[2L] != "") grid.text(lab[2L], y = unit(1, "lines"))
 
     if(id) {
       nodeIDvp <- viewport(x = unit(0.5, "npc"), y = unit(1, "npc"),

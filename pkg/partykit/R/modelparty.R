@@ -8,15 +8,9 @@ mob <- function(formula, data, subset, na.action, weights, offset,
     require("strucchange") ## FIXME: get rid of this dependency
   )
   
-  ## control parameters
-  alpha <- control$alpha
-  bonferroni <- control$bonferroni
+  ## control parameters (used repeatedly)
   minsplit <- control$minsplit
-  trim <- control$trim
   verbose <- control$verbose
-  breakties <- control$breakties
-  parm <- control$parm
-  caseweights <- control$caseweights
   ytype <- control$ytype
   xtype <- control$xtype
   rnam <- c("estfun", "object")
@@ -37,13 +31,13 @@ mob <- function(formula, data, subset, na.action, weights, offset,
   formula <- as.Formula(formula)
   if(length(formula)[2L] < 2L) {
     formula <- Formula(formula(as.Formula(formula(formula), ~ 0), rhs = 2L:1L))
-    xreg <- TRUE ## FIXME: use subsequently
+    xreg <- FALSE
   } else {
     if(length(formula)[2L] > 2L) {
       formula <- Formula(formula(formula, rhs = 1L:2L))
       warning("formula must not have more than two RHS parts")
     }
-    xreg <- FALSE
+    xreg <- TRUE
   }
   mf$formula <- formula
 
@@ -64,6 +58,14 @@ mob <- function(formula, data, subset, na.action, weights, offset,
     "matrix" = model.matrix(mtY, mf),
     "data.frame" = model.part(formula, mf, rhs = 1L)
   )
+  if(!is.null(X) && ncol(X) < 1L) {
+    X <- NULL
+    xreg <- FALSE
+  }
+  if(xreg) {
+    attr(X, "formula") <- formula(formula, rhs = 1L)
+    attr(X, "terms") <- mtY
+  }
   Z <- model.part(formula, mf, rhs = 2L)
   n <- nrow(Z)
   nyx <- length(mf) - length(Z)
@@ -101,12 +103,19 @@ mob <- function(formula, data, subset, na.action, weights, offset,
   }
 
   ## convenience functions
-  w2n <- function(w) if(caseweights) sum(w) else sum(w > 0)
+  w2n <- function(w) if(control$caseweights) sum(w) else sum(w > 0)
   suby <- function(y, index) {
     if(ytype == "vector") y[index] else y[index, , drop = FALSE]
   }
   subx <- if(xreg) {
-    function(x, index) x[index, , drop = FALSE]
+    function(x, index) {
+      sx <- x[index, , drop = FALSE]
+      attr(sx, "contrasts") <- attr(x, "contrasts")
+      attr(sx, "xlevels")   <- attr(x, "xlevels")
+      attr(sx, "formula")   <- attr(x, "formula")
+      attr(sx, "terms")     <- attr(x, "terms")
+      sx
+    }
   } else {
     function(x, index) NULL
   }
@@ -138,11 +147,11 @@ mob <- function(formula, data, subset, na.action, weights, offset,
     process <- t(chol2inv(chol(J12)) %*% t(process))  
 
     ## select parameters to test
-    if(!is.null(parm)) process <- process[, parm, drop = FALSE]
+    if(!is.null(control$parm)) process <- process[, parm, drop = FALSE]
     k <- NCOL(process)
 
     ## get critical values for supLM statistic
-    from <- if(trim > 1) trim else ceiling(n * trim)
+    from <- if(control$trim > 1) control$trim else ceiling(n * control$trim)
     from <- max(from, minsplit)
     to <- n - from
     lambda <- ((n - from) * to)/(from * (n - to))
@@ -204,7 +213,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
           pval[i] <- pchisq(stat[i], k*(length(levels(zi))-1), log.p = TRUE, lower.tail = FALSE)
         }
       } else {
-        oi <- if(breakties) {
+        oi <- if(control$breakties) {
           mm <- sort(unique(zi))
 	  mm <- ifelse(length(mm) > 1L, min(diff(mm))/10, 1)
   	  ORDER(zi + runif(length(zi), min = -mm, max = +mm))
@@ -325,74 +334,76 @@ mob <- function(formula, data, subset, na.action, weights, offset,
   ## and split selection recursively
   mob_grow <- function(id = 1L, y, x, z, weights, offset, ...)
   {
-    ## if too few observations: no split = return terminal node
-    if(w2n(weights) < 2 * minsplit) {
-      mod_info <- afit(y, x, weights = weights, offset = offset, ...,
-        estfun = terminal$estfun, object = terminal$object)
-      mod_info$test <- NULL
-      return(partynode(id = id, info = mod_info))
+    if(verbose) {
+      if(id == 1L) cat("\n")
+      cat(sprintf("-- Node %i %s\n", id, paste(rep("-", 32 - floor(log10(id)) + 1L), collapse = "")))
+      cat(sprintf("Number of observations: %i\n", w2n(weights)))
     }
 
     ## fit model
     mod <- afit(y, x, weights = weights, offset = offset, ...,
-      estfun = TRUE, object = FALSE)
+      estfun = TRUE, object = terminal$object)
+    mod$test <- NULL
+    mod$nobs <- w2n(weights)
+    mod$p.value <- NULL
+
+    ## if too few observations: no split = return terminal node
+    if(w2n(weights) < 2 * minsplit) {
+      if(verbose) {
+        cat(sprintf("Too few observations, stop splitting (minsplit = %i)\n\n", minsplit))
+      }
+      if(!terminal$estfun) mod$estfun <- NULL
+      return(partynode(id = id, info = mod))
+    }
 
     ## conduct all parameter instability tests
     test <- try(mob_grow_fluctests(mod$estfun, z, weights))
 
     if(!inherits(test, "try-error")) {
-      if(bonferroni) {
+      if(control$bonferroni) {
         pval1 <- pmin(1, sum(!is.na(test$pval)) * test$pval)
         pval2 <- 1 - (1 - test$pval)^sum(!is.na(test$pval))
         test$pval <- ifelse(!is.na(test$pval) & (test$pval > 0.01), pval2, pval1)
       }
 
       best <- test$best
-      TERMINAL <- is.na(best) || test$pval[best] > alpha
+      TERMINAL <- is.na(best) || test$pval[best] > control$alpha
+      mod$p.value <- as.numeric(test$pval[best])
 
       if (verbose) {
-        cat("\n-------------------------------------------\nFluctuation tests of splitting variables:\n")
+        cat("\nParameter instability tests:\n")
         print(rbind(statistic = test$stat, p.value = test$pval))
-        cat("\nBest splitting variable: ")
-        cat(names(test$stat)[best])
-        cat("\nPerform split? ")
-        cat(ifelse(TERMINAL, "no", "yes"))
-        cat("\n-------------------------------------------\n")    
+        cat(sprintf("\nBest splitting variable: %s", names(test$stat)[best]))
+        cat(sprintf("\nPerform split? %s", ifelse(TERMINAL, "no\n\n", "yes\n")))
       }
     } else {
+      if(verbose) cat("Parameter instability tests failed\n\n")
       TERMINAL <- TRUE
       test <- list(stat = NA, pval = NA)
     }
+    
+    ## update model information
+    if(!terminal$estfun) mod$estfun <- NULL
+    mod$test <- rbind("statistic" = test$stat, "p.value" = test$pval)
 
     if(TERMINAL) {
-      mod_info <- afit(y, x, start = mod$coefficients,
-        weights = weights, offset = offset, ...,
-        estfun = terminal$estfun, object = terminal$object)
-      mod_info$test <- rbind("statistic" = test$stat, "p.value" = test$pval)
-      return(partynode(id = id, info = mod_info))
+      return(partynode(id = id, info = mod))
     } else {
       zselect <- z[[best]]
       sp <- mob_grow_findsplit(y, x, zselect, weights, offset, ...)
     
-      ## if unsuccessful
+      ## split successful?
       if(is.null(sp$breaks) & is.null(sp$index)) {
         if(verbose)
-          cat(paste("\nNo admissable split found in ", sQuote(names(test$stat)[best]), "\n", sep = "")) 	
-        return(partynode(id = id, info = mod$coefficients))
+          cat(sprintf("No admissable split found in %s\n\n", sQuote(names(test$stat)[best])))
+        return(partynode(id = id, info = mod))
+      } else {
+        sp <- partysplit(as.integer(best), breaks = sp$breaks, index = sp$index)
+        if(verbose) cat(sprintf("Selected split: %s\n\n",
+	  paste(character_split(sp, data = z)$levels, collapse = " | ")))
       }
-    
-      ## successful split
-      sp <- partysplit(as.integer(best), breaks = sp$breaks, index = sp$index)
     }
   
-    if(verbose) {
-      cat("\nNode properties:\n") ## FIXME
-      print(node$psplit, left = TRUE)
-      cat(paste("; criterion = ", round(node$criterion$maxcriterion, 3), 
-        ", statistic = ", round(max(node$criterion$statistic), 3), "\n",
-        collapse = "", sep = ""))
-    }
-
     ## actually split the data
     kidids <- kidids_split(sp, data = z)
     
@@ -417,13 +428,8 @@ mob <- function(formula, data, subset, na.action, weights, offset,
     ## shift split varid from z to mf
     sp$varid <- as.integer(sp$varid + nyx)
     
-    ## compute final model information
-    mod_info <- afit(y, x, start = mod$coefficients, weights = weights, offset = offset, ...,
-      estfun = terminal$estfun, object = terminal$object)
-    mod_info$test <- rbind("statistic" = test$stat, "p.value" = test$pval)
-    
     ## return nodes
-    return(partynode(id = id, split = sp, kids = kids, info = mod_info))
+    return(partynode(id = id, split = sp, kids = kids, info = mod))
   }
 
   ## grow tree
@@ -441,7 +447,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
 
   ## return party object
   rval <- party(nodes, 
-    data = mf, #FIXME# optionally omit data
+    data = if(control$model) mf else mf[0,],
     fitted = fitted,
     terms = mt,
     info = list(
@@ -451,7 +457,8 @@ mob <- function(formula, data, subset, na.action, weights, offset,
       terms = list(response = mtY, partitioning = mtZ),
       fit = afit,
       control = control,
-      dots = list(...))
+      dots = list(...),
+      regressors = xreg)
   )
   class(rval) <- c("modelparty", class(rval))
   return(rval)
@@ -485,7 +492,8 @@ mob_grow_getlevels <- function(z) {
 ## control splitting parameters
 mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsplit = 20, trim = 0.1,
   breakties = FALSE, parm = NULL, verbose = FALSE, caseweights = TRUE,
-  ytype = "vector", xtype = "matrix", terminal = "object", inner = terminal)
+  ytype = "vector", xtype = "matrix", terminal = "object", inner = terminal,
+  model = TRUE)
 {
   ytype <- match.arg(ytype, c("vector", "data.frame", "matrix"))
   xtype <- match.arg(xtype, c("data.frame", "matrix"))
@@ -497,7 +505,7 @@ mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsplit = 20, trim = 0
     trim = ifelse(is.null(trim), minsplit, trim),
     breakties = breakties, parm = parm, verbose = verbose,
     caseweights = caseweights, ytype = ytype, xtype = xtype,
-    terminal = terminal, inner = inner)
+    terminal = terminal, inner = inner, model = model)
   return(rval)
 }
 
@@ -522,6 +530,7 @@ model.frame.modelparty <- function(formula, ...)
   mf[[1L]] <- as.name("model.frame")
   mf[names(nargs)] <- nargs
   if(is.null(env <- environment(formula$info$terms))) env <- parent.frame()
+  mf$formula <- Formula(as.formula(mf$formula))
   eval(mf, env)
 }
 
@@ -536,16 +545,16 @@ weights.modelparty <- function(object, ...) {
 coef.modelparty <- function(object, node = NULL, ...) {
   if(is.null(node)) node <- nodeids(object, terminal = TRUE)
   drop(do.call("rbind",
-    nodeapply(object, ids = node, FUN = function(n) n$info$coefficients)))
+    nodeapply(object, ids = node, FUN = function(n) info_node(n)$coefficients)))
 }
 
-refit.modelparty <- function(object, node = NULL)
+refit.modelparty <- function(object, node = NULL, drop = TRUE, ...)
 {
   ## by default use all ids
   if(is.null(node)) node <- nodeids(object)
   
   ## estimated coefficients
-  cf <- nodeapply(object, ids = node, FUN = function(n) n$info$coefficients)
+  cf <- nodeapply(object, ids = node, FUN = function(n) info_node(n)$coefficients)
   
   ## model.frame
   mf <- model.frame(object)
@@ -561,14 +570,30 @@ refit.modelparty <- function(object, node = NULL)
     "matrix" = model.matrix(~ 0 + ., model.part(object$info$Formula, mf, lhs = 1L)),
     "data.frame" = model.part(object$info$Formula, mf, lhs = 1L)
   )
-  X <- switch(object$info$control$xtype,
+  X <- if(!object$info$regressors) NULL else switch(object$info$control$xtype,
     "matrix" = model.matrix(object$info$terms$response, mf),
     "data.frame" = model.part(object$info$Formula, mf, rhs = 1L)
   )
+  if(!is.null(X)) {
+    attr(X, "formula") <- formula(object$info$Formula, rhs = 1L)
+    attr(X, "terms") <- object$info$terms$response
+  }
+
   suby <- function(y, index) {
     if(object$info$control$ytype == "vector") y[index] else y[index, , drop = FALSE]
   }
-  subx <- function(x, index) x[index, , drop = FALSE]
+  subx <- if(object$info$regressors) {
+    function(x, index) {
+      sx <- x[index, , drop = FALSE]
+      attr(sx, "contrasts") <- attr(x, "contrasts")
+      attr(sx, "xlevels")   <- attr(x, "xlevels")
+      attr(sx, "formula")   <- attr(x, "formula")
+      attr(sx, "terms")     <- attr(x, "terms")
+      sx
+    }
+  } else {
+    function(x, index) NULL
+  }
   
   ## fitting function
   afit <- object$info$fit
@@ -582,6 +607,11 @@ refit.modelparty <- function(object, node = NULL)
     do.call("afit", args)$object
   })
   names(rval) <- node
+
+  ## drop?
+  if(drop & length(rval) == 1L) rval <- rval[[1L]]
+  
+  ## return
   return(rval)
 }
 
@@ -589,25 +619,33 @@ logLik.modelparty <- function(object, splits = TRUE, ...)
 {
   ids <- nodeids(object, terminal = TRUE)
   ll <- if("object" %in% object$info$control$terminal) {
-    nodeapply(object, ids, function(n) logLik(n$info$object))
+    nodeapply(object, ids, function(n) logLik(info_node(n)$object))
   } else {
-    lapply(refit.modelparty(object, ids), logLik)
+    lapply(refit.modelparty(object, ids, drop = FALSE), logLik)
   }
   df <- if(splits) length(ll) - 1L else 0L  
   structure(
     sum(as.numeric(ll)),
     df = sum(sapply(ll, function(x) attr(x, "df"))) + df,
+    nobs = nobs(object),
     class = "logLik"
   )
+}
+
+nobs.modelparty <- function(object, ...) {
+  sum(unlist(nodeapply(object,
+    nodeids(object, terminal = TRUE),
+    function(n) info_node(n)$nobs
+  )))
 }
 
 deviance.modelparty <- function(object, ...)
 {
   ids <- nodeids(object, terminal = TRUE)
   dev <- if("object" %in% object$info$control$terminal) {
-    nodeapply(object, ids, function(n) deviance(n$info$object))
+    nodeapply(object, ids, function(n) deviance(info_node(n)$object))
   } else {
-    lapply(refit.modelparty(object, ids), deviance)
+    lapply(refit.modelparty(object, ids, drop = FALSE), deviance)
   }
   sum(unlist(dev))
 }
@@ -616,9 +654,9 @@ summary.modelparty <- function(object, node = NULL, ...)
 {
   ids <- if(is.null(node)) nodeids(object, terminal = TRUE) else node
   rval <- if("object" %in% object$info$control$terminal) {
-    nodeapply(object, ids, function(n) summary(n$info$object))
+    nodeapply(object, ids, function(n) summary(info_node(n)$object))
   } else {
-    lapply(refit.modelparty(object, ids), summary)
+    lapply(refit.modelparty(object, ids, drop = FALSE), summary)
   }
   names(rval) <- ids
   if(length(ids) == 1L) rval[[1L]] else rval
@@ -627,52 +665,50 @@ summary.modelparty <- function(object, node = NULL, ...)
 sctest.modelparty <- function(object, node = NULL, ...)
 {
   ids <- if(is.null(node)) nodeids(object, terminal = FALSE) else node
-  rval <- nodeapply(object, ids, function(n) n$info$test)
+  rval <- nodeapply(object, ids, function(n) info_node(n)$test)
   names(rval) <- ids
   if(length(ids) == 1L) rval[[1L]] else rval  
 }
 
 print.modelparty <- function(x, node = NULL,
   FUN = NULL, digits = getOption("digits") - 4L,
-  header = TRUE, footer = TRUE, ...)
+  header = TRUE, footer = TRUE,
+  name = NULL, ...)
 {
   digits <- max(c(0, digits))
 
   if(is.null(node)) {
-    header_panel <- if(header) function(party) {
-      c("", "Model formula:", deparse(party$info$formula), "", "Fitted party:", "")
+    header_panel <- if(header) function(party) {      
+      c(if(is.null(name)) "Model-based recursive partitioning" else name,
+        "", "Model formula:", deparse(party$info$formula), "", "Fitted party:", "")
     } else function(party) ""
   
     footer_panel <- if(footer) function(party) {
       n <- width(party)
       n <- format(c(length(party) - n, n))
       info <- nodeapply(x, ids = nodeids(x, terminal = TRUE),
-        FUN = function(n) c(length(n$info$coefficients), n$info$objfun))
-      k <- max(sapply(info, "[", 1L))
+        FUN = function(n) c(length(info_node(n)$coefficients), info_node(n)$objfun))
+      k <- mean(sapply(info, "[", 1L))
       of <- format(sum(sapply(info, "[", 2L)), digits = getOption("digits"))
 
       c("", paste("Number of inner nodes:   ", n[1L]),
         paste("Number of terminal nodes:", n[2L]),
-        paste("Number of parameters per node:", k),
+        paste("Number of parameters per node:", format(k, digits = getOption("digits"))),
         paste("Objective function:", of), "")
     } else function (party) ""
 
     if(is.null(FUN)) {
-      FUN <- if("object" %in% x$info$control$terminal) {
-        function(x) capture.output(print(x$object))
-      } else {
-        function(x) capture.output(print(x$coefficients))
-      }
+      FUN <- function(x) c(sprintf(": n = %i", x$nobs), capture.output(print(x$coefficients)))
     }
     terminal_panel <- function(node) formatinfo_node(node,
-      default = "*", prefix = ": ", FUN = FUN)
+      default = "*", prefix = NULL, FUN = FUN)
 
     print.party(x, terminal_panel = terminal_panel,
       header_panel = header_panel, footer_panel = footer_panel, ...)
   } else {
     node <- as.integer(node)
     info <- nodeapply(x, ids = node,
-      FUN = function(n) n$info[c("coefficients", "objfun", "test")])    
+      FUN = function(n) info_node(n)[c("coefficients", "objfun", "test")])    
     for(i in seq_along(node)) {
       if(i > 1L) cat("\n")
       cat(sprintf("-- Node %i --\n", node[i]))
@@ -684,4 +720,69 @@ print.modelparty <- function(x, node = NULL,
     }
   }
   invisible(x)
+}
+
+predict.modelparty <- function(object, newdata = NULL, type = "node", ...)
+{
+  ## predicted node ids
+  node <- partykit:::predict.party(object, newdata = newdata)
+  if(identical(type, "node")) return(node)
+
+  ## obtain fitted model objects
+  ids <- sort(unique(as.integer(node)))
+  mod <- if("object" %in% object$info$control$terminal) {
+    nodeapply(object, sort(unique(ids)), function(n) info_node(n)$object)
+  } else {
+    refit.modelparty(object, node = sort(unique(ids)), drop = FALSE)
+  }
+
+  ## obtain predictions
+  pred <- if(is.character(type)) {
+    function(object, newdata = NULL, ...) predict(object, newdata = newdata, type = type, ...)
+  } else {
+    type
+  }
+  if("newdata" %in% names(formals(pred))) {    
+    ix <- lapply(seq_along(ids), function(i) which(node == ids[i]))
+    preds <- lapply(seq_along(ids), function(i)
+      pred(mod[[i]], newdata = newdata[ix[[i]], , drop = FALSE], ...))
+    nc <- NCOL(preds[[1L]])
+    rval <- if(nc > 1L) {
+      matrix(0, nrow = length(node), ncol = nc, dimnames = list(names(node), colnames(preds[[1L]])))
+    } else {
+      rep(preds[[1L]], length.out = length(node))
+    }      
+    for(i in seq_along(ids)) {
+      if(nc > 1L) {
+        rval[ix[[i]], ] <- preds[[i]]
+	rownames(rval) <- names(node)
+      } else {
+        rval[ix[[i]]] <- preds[[i]]
+	names(rval) <- names(node)
+      }
+    }
+  } else {
+    rval <- lapply(mod, pred, ...)
+    rval <- do.call("rbind", rval)
+    rownames(rval) <- ids
+    rval <- rval[as.character(node), , drop = FALSE]
+    rownames(rval) <- names(node)
+    rval <- drop(rval)
+  }
+  return(rval)
+}
+
+plot.modelparty <- function(x, terminal_panel = NULL, FUN = NULL, ...) {
+  if(is.null(terminal_panel)) {
+    if(is.null(FUN)) {
+      FUN <- function(x) {
+        cf <- x$coefficients
+	cf <- matrix(cf, ncol = 1, dimnames = list(names(cf), ""))
+        c(sprintf("n = %i", x$nobs), "Estimated parameters:",
+          strwrap(capture.output(print(cf, digits = 4L))[-1L]))
+      }
+    }
+    terminal_panel <- node_terminal(x, FUN = FUN)
+  }
+  partykit:::plot.party(x, terminal_panel = terminal_panel, ...)
 }
