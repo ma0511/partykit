@@ -17,6 +17,7 @@ export(
   "refit.modelparty",
   "sctest.modelparty",
   "lmtree",
+  "glmtree",
 
   ## as/is class generics
   "as.party",  
@@ -121,6 +122,7 @@ S3method("print", "simpleparty")
 ## methods for class modelparty
 S3method("coef", "modelparty")
 S3method("deviance", "modelparty")
+S3method("fitted", "modelparty")
 S3method("formula", "modelparty")
 S3method("getCall", "modelparty")
 S3method("logLik", "modelparty")
@@ -129,6 +131,7 @@ S3method("nobs", "modelparty")
 S3method("plot", "modelparty")
 S3method("predict", "modelparty")
 S3method("print", "modelparty")
+S3method("residuals", "modelparty")
 S3method("summary", "modelparty")
 S3method("weights", "modelparty")
 
@@ -136,6 +139,11 @@ S3method("weights", "modelparty")
 S3method("plot", "lmtree")
 S3method("predict", "lmtree")
 S3method("print", "lmtree")
+
+## methods for class glmtree
+S3method("plot", "glmtree")
+S3method("predict", "glmtree")
+S3method("print", "glmtree")
 
 ## misc methods
 S3method("as.partynode", "list")

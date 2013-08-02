@@ -5,11 +5,12 @@ mob <- function(formula, data, subset, na.action, weights, offset,
   stopifnot(
     require("Formula"),
     require("sandwich"),
-    require("strucchange") ## FIXME: get rid of this dependency
+    require("strucchange")
   )
   
   ## control parameters (used repeatedly)
   minsplit <- control$minsplit
+  if(!is.null(minsplit) && !is.integer(minsplit)) minsplit <- as.integer(minsplit)
   verbose <- control$verbose
   ytype <- control$ytype
   xtype <- control$xtype
@@ -156,7 +157,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
     to <- n - from
     lambda <- ((n - from) * to)/(from * (n - to))
 
-    beta <- get("sc.beta.sup") ## FIXME: include in partykit
+    beta <- get("sc.beta.sup") ## FIXME: include in partykit?
     logp.supLM <- function(x, k, lambda)
     {
       if(k > 40L) {
@@ -347,6 +348,9 @@ mob <- function(formula, data, subset, na.action, weights, offset,
     mod$nobs <- w2n(weights)
     mod$p.value <- NULL
 
+    ## set default for minsplit if not specified
+    if(is.null(minsplit)) minsplit <<- as.integer(ceiling(10L * length(mod$coefficients)/NCOL(y)))
+
     ## if too few observations: no split = return terminal node
     if(w2n(weights) < 2 * minsplit) {
       if(verbose) {
@@ -445,6 +449,9 @@ mob <- function(formula, data, subset, na.action, weights, offset,
   if(!identical(weights, rep.int(1L, n))) fitted[["(weights)"]] <- weights
   if(!is.null(offset)) fitted[["(offset)"]] <- offset
 
+  ## update minsplit (in case it was set internally)
+  control$minsplit <- minsplit
+
   ## return party object
   rval <- party(nodes, 
     data = if(control$model) mf else mf[0,],
@@ -458,7 +465,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
       fit = afit,
       control = control,
       dots = list(...),
-      regressors = xreg)
+      nreg = as.integer(xreg) * (nyx - NCOL(Y)))
   )
   class(rval) <- c("modelparty", class(rval))
   return(rval)
@@ -490,7 +497,7 @@ mob_grow_getlevels <- function(z) {
 }
 
 ## control splitting parameters
-mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsplit = 20, trim = 0.1,
+mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsplit = NULL, trim = 0.1,
   breakties = FALSE, parm = NULL, verbose = FALSE, caseweights = TRUE,
   ytype = "vector", xtype = "matrix", terminal = "object", inner = terminal,
   model = TRUE)
@@ -570,7 +577,7 @@ refit.modelparty <- function(object, node = NULL, drop = TRUE, ...)
     "matrix" = model.matrix(~ 0 + ., model.part(object$info$Formula, mf, lhs = 1L)),
     "data.frame" = model.part(object$info$Formula, mf, lhs = 1L)
   )
-  X <- if(!object$info$regressors) NULL else switch(object$info$control$xtype,
+  X <- if(nreg < 1L) NULL else switch(object$info$control$xtype,
     "matrix" = model.matrix(object$info$terms$response, mf),
     "data.frame" = model.part(object$info$Formula, mf, rhs = 1L)
   )
@@ -582,7 +589,7 @@ refit.modelparty <- function(object, node = NULL, drop = TRUE, ...)
   suby <- function(y, index) {
     if(object$info$control$ytype == "vector") y[index] else y[index, , drop = FALSE]
   }
-  subx <- if(object$info$regressors) {
+  subx <- if(nreg > 0L) {
     function(x, index) {
       sx <- x[index, , drop = FALSE]
       attr(sx, "contrasts") <- attr(x, "contrasts")
@@ -673,14 +680,14 @@ sctest.modelparty <- function(object, node = NULL, ...)
 print.modelparty <- function(x, node = NULL,
   FUN = NULL, digits = getOption("digits") - 4L,
   header = TRUE, footer = TRUE,
-  name = NULL, ...)
+  title = "Model-based recursive partitioning", objfun = "", ...)
 {
   digits <- max(c(0, digits))
+  if(objfun != "") objfun <- paste(" (", objfun, ")", sep = "")
 
   if(is.null(node)) {
     header_panel <- if(header) function(party) {      
-      c(if(is.null(name)) "Model-based recursive partitioning" else name,
-        "", "Model formula:", deparse(party$info$formula), "", "Fitted party:", "")
+      c(title, "", "Model formula:", deparse(party$info$formula), "", "Fitted party:", "")
     } else function(party) ""
   
     footer_panel <- if(footer) function(party) {
@@ -694,7 +701,7 @@ print.modelparty <- function(x, node = NULL,
       c("", paste("Number of inner nodes:   ", n[1L]),
         paste("Number of terminal nodes:", n[2L]),
         paste("Number of parameters per node:", format(k, digits = getOption("digits"))),
-        paste("Objective function:", of), "")
+        paste("Objective function", objfun, ": ", of, sep = ""), "")
     } else function (party) ""
 
     if(is.null(FUN)) {
@@ -710,7 +717,11 @@ print.modelparty <- function(x, node = NULL,
     info <- nodeapply(x, ids = node,
       FUN = function(n) info_node(n)[c("coefficients", "objfun", "test")])    
     for(i in seq_along(node)) {
-      if(i > 1L) cat("\n")
+      if(i == 1L) {
+        cat(paste(title, "\n", collapse = ""))
+      } else {
+        cat("\n")
+      }
       cat(sprintf("-- Node %i --\n", node[i]))
       cat("\nEstimated parameters:\n")
       print(info[[i]]$coefficients)
@@ -725,7 +736,7 @@ print.modelparty <- function(x, node = NULL,
 predict.modelparty <- function(object, newdata = NULL, type = "node", ...)
 {
   ## predicted node ids
-  node <- partykit:::predict.party(object, newdata = newdata)
+  node <- predict.party(object, newdata = newdata)
   if(identical(type, "node")) return(node)
 
   ## obtain fitted model objects
@@ -772,6 +783,70 @@ predict.modelparty <- function(object, newdata = NULL, type = "node", ...)
   return(rval)
 }
 
+fitted.modelparty <- function(object, ...)
+{
+  ## fitted nodes
+  node <- predict.party(object, type = "node")
+
+  ## obtain fitted model objects
+  ids <- nodeids(object, terminal = TRUE)
+  fit <- if("object" %in% object$info$control$terminal) {
+    nodeapply(object, ids, function(n) fitted(info_node(n)$object))
+  } else {
+    lapply(refit.modelparty(object, ids, drop = FALSE), fitted)
+  }
+
+  nc <- NCOL(fit[[1L]])
+  rval <- if(nc > 1L) {
+    matrix(0, nrow = length(ids), ncol = nc, dimnames = list(names(node), colnames(fit[[1L]])))
+  } else {
+    rep(fit[[1L]], length.out = length(node))
+  }	 
+  for(i in seq_along(ids)) {
+    if(nc > 1L) {
+      rval[node == ids[i], ] <- fit[[i]]
+      rownames(rval) <- names(node)
+    } else {
+      rval[node == ids[i]] <- fit[[i]]
+      names(rval) <- names(node)
+    }
+  }
+
+  return(rval)
+}
+
+residuals.modelparty <- function(object, ...)
+{
+  ## fitted nodes
+  node <- predict.party(object, type = "node")
+
+  ## obtain fitted model objects
+  ids <- nodeids(object, terminal = TRUE)
+  res <- if("object" %in% object$info$control$terminal) {
+    nodeapply(object, ids, function(n) residuals(info_node(n)$object))
+  } else {
+    lapply(refit.modelparty(object, ids, drop = FALSE), residuals)
+  }
+
+  nc <- NCOL(res[[1L]])
+  rval <- if(nc > 1L) {
+    matrix(0, nrow = length(ids), ncol = nc, dimnames = list(names(node), colnames(res[[1L]])))
+  } else {
+    rep(res[[1L]], length.out = length(node))
+  }	 
+  for(i in seq_along(ids)) {
+    if(nc > 1L) {
+      rval[node == ids[i], ] <- res[[i]]
+      rownames(rval) <- names(node)
+    } else {
+      rval[node == ids[i]] <- res[[i]]
+      names(rval) <- names(node)
+    }
+  }
+
+  return(rval)
+}
+
 plot.modelparty <- function(x, terminal_panel = NULL, FUN = NULL, ...) {
   if(is.null(terminal_panel)) {
     if(is.null(FUN)) {
@@ -784,5 +859,5 @@ plot.modelparty <- function(x, terminal_panel = NULL, FUN = NULL, ...) {
     }
     terminal_panel <- node_terminal(x, FUN = FUN)
   }
-  partykit:::plot.party(x, terminal_panel = terminal_panel, ...)
+  plot.party(x, terminal_panel = terminal_panel, ...)
 }
