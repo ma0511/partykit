@@ -16,6 +16,7 @@ export(
   "mob_control",
   "refit.modelparty",
   "sctest.modelparty",
+  "lmtree",
 
   ## as/is class generics
   "as.party",  
@@ -124,9 +125,17 @@ S3method("formula", "modelparty")
 S3method("getCall", "modelparty")
 S3method("logLik", "modelparty")
 S3method("model.frame", "modelparty")
+S3method("nobs", "modelparty")
+S3method("plot", "modelparty")
+S3method("predict", "modelparty")
 S3method("print", "modelparty")
 S3method("summary", "modelparty")
 S3method("weights", "modelparty")
+
+## methods for class lmtree
+S3method("plot", "lmtree")
+S3method("predict", "lmtree")
+S3method("print", "lmtree")
 
 ## misc methods
 S3method("as.partynode", "list")
