@@ -270,7 +270,11 @@ predict_party.default <- function(party, id, newdata = NULL, ...) {
 
     ## get observation names: either node names or
     ## observation names from newdata
-    nam <- if(is.null(newdata)) names(party)[id] else rownames(newdata)
+    nam <- if(is.null(newdata)) {
+      if(is.null(rnam <- rownames(data_party(party)))) names(party)[id] else rnam      
+    } else {
+      rownames(newdata)
+    }
     if(length(nam) != length(id)) nam <- NULL
 
     ## special case: fitted ids
