@@ -64,6 +64,7 @@ export(
 
   ## visualization tools
   "node_barplot",
+  "node_bivplot",
   "node_boxplot",
   "node_surv",
   "node_inner",

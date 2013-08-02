@@ -2,11 +2,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
   fit, control = mob_control(), ...)
 {
   ## required packages
-  stopifnot(
-    require("Formula"),
-    require("sandwich"),
-    require("strucchange")
-  )
+  stopifnot(require("Formula"))
   
   ## control parameters (used repeatedly)
   minsplit <- control$minsplit
@@ -86,6 +82,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
 
   ## augment fitting function (if necessary)
   if(!all(c("estfun", "object") %in% fitargs)) {
+    stopifnot(require("sandwich"))
     afit <- function(y,
       x = NULL, start = NULL, weights = NULL, offset = NULL, ...,
       estfun = FALSE, object = FALSE)
@@ -121,13 +118,23 @@ mob <- function(formula, data, subset, na.action, weights, offset,
     function(x, index) NULL
   }
   subz <- function(z, index) z[index, , drop = FALSE]
+  ## from strucchange
+  root.matrix <- function(X) {
+    if((ncol(X) == 1L)&&(nrow(X) == 1L)) return(sqrt(X)) else {
+      X.eigen <- eigen(X, symmetric = TRUE)
+      if(any(X.eigen$values < 0)) stop("matrix is not positive semidefinite")
+      sqomega <- sqrt(diag(X.eigen$values))
+      V <- X.eigen$vectors
+      return(V %*% sqomega %*% t(V))
+    }
+  }
 
   ## core mob_grow_* functions
 
   ## variable selection: given model scores, conduct
   ## all M-fluctuation tests for orderins in z
   mob_grow_fluctests <- function(estfun, z, weights)
-  {
+  {  
     ## set up return values
     m <- NCOL(z)
     pval <- rep.int(0, m)
@@ -157,7 +164,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
     to <- n - from
     lambda <- ((n - from) * to)/(from * (n - to))
 
-    beta <- get("sc.beta.sup") ## FIXME: include in partykit?
+    beta <- mob_beta_suplm
     logp.supLM <- function(x, k, lambda)
     {
       if(k > 40L) {
@@ -197,11 +204,11 @@ mob <- function(formula, data, subset, na.action, weights, offset,
     for(i in 1L:m) {
       zi <- z[,i]
       if(is.factor(zi)) {
-        proci <- process[ORDER(zi), , drop = FALSE]
+        proci <- process[order(zi), , drop = FALSE]
         ifac[i] <- TRUE
 
         # re-apply factor() added to drop unused levels
-        zi <- factor(zi[ORDER(zi)])
+        zi <- factor(zi[order(zi)])
         # compute segment weights
         segweights <- as.vector(table(zi))/n
 
@@ -217,9 +224,9 @@ mob <- function(formula, data, subset, na.action, weights, offset,
         oi <- if(control$breakties) {
           mm <- sort(unique(zi))
 	  mm <- ifelse(length(mm) > 1L, min(diff(mm))/10, 1)
-  	  ORDER(zi + runif(length(zi), min = -mm, max = +mm))
+  	  order(zi + runif(length(zi), min = -mm, max = +mm))
         } else {
-          ORDER(zi)
+          order(zi)
         }    
         proci <- process[oi, , drop = FALSE]
         proci <- apply(proci, 2L, cumsum)

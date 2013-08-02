@@ -100,11 +100,13 @@ jour$lsubs <- log(jour$subs)
 jour$lciteprice <- log(jour$citeprice)
 
 mb_jour <- lmtree(log(subs) ~ log(citeprice) | price + citations + age + charpp + society,
-  data = jour, minsplit = 10)
+  data = jour, minsplit = 20)
+
+myfit <- function(y, x, start = NULL, weights = NULL, offset = NULL, ...) lm(y ~ 0 + x)
+mb <- mob(log(subs) ~ log(citeprice) | price + citations + age + charpp + society,
+  data = jour, fit = myfit)
 
 data("BostonHousing", package = "mlbench")
-## BostonHousing$lstat <- log(BostonHousing$lstat)
-## BostonHousing$rm <- BostonHousing$rm^2
 BostonHousing$chas <- factor(BostonHousing$chas, levels = 0:1, labels = c("no", "yes"))
 BostonHousing$rad <- factor(BostonHousing$rad, ordered = TRUE)
 
