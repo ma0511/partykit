@@ -15,7 +15,11 @@ node_inner <- function(obj, id = TRUE, pval = TRUE, abbreviate = FALSE, fill = "
     if(abbreviate > 0L) varlab <- abbreviate(varlab, as.integer(abbreviate))
 
     ## FIXME: make more flexible rather than special-casing p-value
-    if(pval & !is.null(info_node(node)$p.value)) {
+    if(pval) {
+      pval <- suppressWarnings(try(!is.null(info_node(node)$p.value)))
+      pval <- if(inherits(pval, "try-error")) FALSE else pval
+    }
+    if(pval) {
       pvalue <- node$info$p.value
       plab <- ifelse(pvalue < 10^(-3L),
         paste("p <", 10^(-3L)),

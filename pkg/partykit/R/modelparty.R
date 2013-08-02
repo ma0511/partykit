@@ -155,7 +155,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
     process <- t(chol2inv(chol(J12)) %*% t(process))  
 
     ## select parameters to test
-    if(!is.null(control$parm)) process <- process[, parm, drop = FALSE]
+    if(!is.null(control$parm)) process <- process[, control$parm, drop = FALSE]
     k <- NCOL(process)
 
     ## get critical values for supLM statistic
@@ -584,7 +584,7 @@ refit.modelparty <- function(object, node = NULL, drop = TRUE, ...)
     "matrix" = model.matrix(~ 0 + ., model.part(object$info$Formula, mf, lhs = 1L)),
     "data.frame" = model.part(object$info$Formula, mf, lhs = 1L)
   )
-  X <- if(nreg < 1L) NULL else switch(object$info$control$xtype,
+  X <- if(object$info$nreg < 1L) NULL else switch(object$info$control$xtype,
     "matrix" = model.matrix(object$info$terms$response, mf),
     "data.frame" = model.part(object$info$Formula, mf, rhs = 1L)
   )
@@ -596,7 +596,7 @@ refit.modelparty <- function(object, node = NULL, drop = TRUE, ...)
   suby <- function(y, index) {
     if(object$info$control$ytype == "vector") y[index] else y[index, , drop = FALSE]
   }
-  subx <- if(nreg > 0L) {
+  subx <- if(object$info$nreg > 0L) {
     function(x, index) {
       sx <- x[index, , drop = FALSE]
       attr(sx, "contrasts") <- attr(x, "contrasts")

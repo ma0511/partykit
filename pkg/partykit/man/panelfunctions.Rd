@@ -4,6 +4,7 @@
 \alias{node_terminal}
 \alias{edge_simple}
 \alias{node_barplot}
+\alias{node_bivplot}
 \alias{node_boxplot}
 \alias{node_surv}
 
@@ -15,7 +16,7 @@
     for the most important cases are documented here.
 }
 \usage{
-node_inner(obj, id = TRUE, abbreviate = FALSE, fill = "white", 
+node_inner(obj, id = TRUE, pval = TRUE, abbreviate = FALSE, fill = "white", 
     gp = gpar())
 
 node_terminal(obj, digits = 3, abbreviate = FALSE,
@@ -33,31 +34,55 @@ node_barplot(obj, col = "black", fill = NULL, beside = NULL,
     reverse = NULL, id = TRUE, gp = gpar())
 
 node_surv(obj, col = "black", ylines = 2, id = TRUE, gp = gpar(), \dots)
+
+node_bivplot(mobobj, which = NULL, id = TRUE, pop = TRUE,
+  pointcol = "black", pointcex = 0.5,
+  boxcol = "black", boxwidth = 0.5, boxfill = "lightgray",
+  fitmean = TRUE, linecol = "red",
+  cdplot = FALSE, fivenum = TRUE, breaks = NULL,
+  ylines = NULL, xlab = FALSE, ylab = FALSE, margins = rep(1.5, 4),
+  \dots)
 }
 \arguments{
   \item{obj}{ an object of class \code{party}.}
   \item{digits}{ integer, used for formating numbers. }
   \item{abbreviate}{ logical indicating whether strings should be 
     abbreviated. }
-  \item{col}{ a color for points and lines. }
-  \item{fill}{ a color to filling rectangles. }
+  \item{col, pointcol, boxcol, linecol}{ a color for points and lines. }
+  \item{fill, boxfill}{ a color to filling rectangles. }
   \item{id}{ logical. Should node IDs be plotted?}
+  \item{pval}{ logical. Should node p values be plotted (if they are
+    available)?}
   \item{just}{justification of terminal panel viewport.}
   \item{top}{in case of top justification, the npc coordinate at which the
     viewport is justified.}
   \item{align}{alignment of text within terminal panel viewport.}
   \item{ylines}{ number of lines for spaces in y-direction. }
   \item{widths}{ widths in barplots. }
-  \item{width}{ width in boxplots. }
+  \item{width, boxwidth}{ width in boxplots. }
   \item{gap}{ gap between bars in a barplot (\code{node_barplot}). }
   \item{yscale}{ limits in y-direction}
   \item{ymax}{ upper limit in y-direction}
-  \item{cex}{character extension of points in scatter plots.}
+  \item{cex, pointcex}{character extension of points in scatter plots.}
   \item{beside}{ logical indicating if barplots should be side by side or stacked. }
   \item{reverse}{logical indicating whether the order of levels should be reversed
     for barplots.}
   \item{gp}{graphical parameters.}
   \item{FUN}{function for formatting the \code{info}, passed to \code{\link{formatinfo_node}}.}
+  \item{mobobj}{an object of class \code{modelparty} as computed by \code{\link{mob}}.}
+  \item{which}{numeric or character. Optional selection of subset of regressor
+    variables. By default one panel for each regressor variable is drawn.}
+  \item{pop}{logical. Should the viewports in the individual nodes be popped after
+    drawing?}
+  \item{fitmean}{logical. Should the fitted mean function be visualized?}
+  \item{cdplot}{logical. Should a CD plot (or a spineplot) be drawn when
+    the response variable is categorical?}
+  \item{fivenum}{logical. Should the five-number summary be used for splitting
+    the x-axis in spineplots?}
+  \item{breaks}{numeric. Optional numeric vector with breaks for the x-axis in
+    splineplots.}
+  \item{xlab, ylab}{character. Optional annotation for x-axis and y-axis.}
+  \item{margins}{numeric. Margins around drawing area in viewport.}
   \item{\dots}{ additional arguments passed to callies 
                 (for example to \code{\link[survival]{survfit}}).}
 }

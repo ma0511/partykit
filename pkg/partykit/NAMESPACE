@@ -1,4 +1,5 @@
 useDynLib("partykit")
+import("stats")
 importFrom("survival", "survfit")
 
 export(

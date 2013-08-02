@@ -119,18 +119,3 @@ plot.glmtree <- function(x, terminal_panel = node_bivplot,
   plot.modelparty(x, terminal_panel = terminal_panel,
     tp_args = tp_args, tnex = tnex, drop_terminal = drop_terminal, ...)
 }
-
-
-
-if(FALSE) {
-
-data("PimaIndiansDiabetes", package = "mlbench")
-mb_pid <- glmtree(diabetes ~ glucose | pregnant +
-  pressure + triceps + insulin + mass + pedigree + age,
-  data = PimaIndiansDiabetes, family = binomial)
-
-coef(mb_pid)
-plot(mb_pid)
-plot(mb_pid, tp_args = list(cdplot = TRUE))
-
-}

@@ -13,7 +13,7 @@ Description: A toolkit with infrastructure for representing,
   ctree() and mob() from the party package are provided based
   on the new infrastructure.
 Depends: R (>= 2.5.0), graphics, stats, grid
-Imports: survival
+Imports: stats, survival
 Suggests: XML, pmml, mlbench, RWeka, rJava, rpart, mvtnorm, Formula, ipred, sandwich, strucchange, vcd
 LazyData: yes
 License: GPL-2
