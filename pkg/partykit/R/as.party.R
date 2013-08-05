@@ -48,6 +48,7 @@ as.party.rpart <- function(obj, ...) {
         } else {
             index <- obj$csplit[obj$split[j, "index"],]
             ### csplit has columns 1:max(nlevels) for all factors
+            ### index <- index[1:obj$split[j, "ncat"]] ??? safer ???
             index <- index[1:nlevels(mf[, rownames(obj$split)[j]])]
             index[index == 2] <- NA ### level not present in split
             index[index == 3] <- 2  ### 1..left, 3..right

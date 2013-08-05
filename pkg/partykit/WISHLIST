@@ -2,6 +2,10 @@
 - test/ctree-ctree.R: check results and make this a permanent test against
   party (but only doing the troublesome checks) (TH)
 
+- plotting for factor levels: replace < 2nd level or > (nlevel - 1)th level
+  with "= 1st" and "= last level". Also, plot left / right set of levels 
+  in two different lines when the level set is very long.
+
 x - model.frame.party (Z)
 
 x - model.frame in predict -> na.action?
