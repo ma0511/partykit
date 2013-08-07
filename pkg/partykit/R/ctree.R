@@ -59,8 +59,8 @@
     }
     if (pval) 
         return(c(log(maxT), log(pmvnorm(lower = rep(-maxT, length(v)),
-                                upper = rep(maxT, length(v)),
-                                sigma = cov2cor(V)))))
+                                        upper = rep(maxT, length(v)),
+                                        sigma = cov2cor(V)))))
     return(c(log(maxT), NA))
 }
 
@@ -140,14 +140,22 @@
     mp <- ctrl$minprob
     storage.mode(mb) <- "integer"
 
+    ### format p values
+    fmP <- function(p) {
+        if (all(is.na(p["pval",]))) return(NA)
+        1 - exp(p["pval",])
+    }
+
     count <- 1
     thissplit <- NULL
     while(count <= ctrl$splittry) {
         if (any(crit > ctrl$mincriterion)) {
-            isel <- which.max(crit)
+            isel <- iselp <- which.max(crit)
             isel <- which(inp)[isel]
         } else {
-            return(partynode(as.integer(id), info = exp(p)))
+            return(partynode(as.integer(id), 
+                             info = list(criterion = p,
+                                         p.value = min(fmP(p), na.rm = TRUE))))
         }
         x <- data[[isel]]
         swp <- ceiling(sum(weights) * mp)
@@ -176,11 +184,13 @@
         count <- count + 1
     }
     if (is.null(thissplit))
-        return(partynode(as.integer(id), info = exp(p)))
+        return(partynode(as.integer(id), 
+                         info = list(criterion = p,
+                                     p.value = min(fmP(p), na.rm = TRUE))))           
 
     ret <- partynode(as.integer(id))
     ret$split <- thissplit
-    ret$info <- exp(p)
+    ret$info <- list(criterion = p, p.value = fmP(p)[iselp])
     thissurr <- NULL
     kidids <- kidids_node(ret, data)
 
