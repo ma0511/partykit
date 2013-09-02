@@ -634,9 +634,11 @@ node_surv <- function(obj, col = "black", ylines = 2,
     stopifnot(inherits(y, "Surv"))
 
     ## helper functions
-    mysurvfit <- function(y, weights, ...) structure(
-        survival:::survfitKM(x = gl(1, NROW(y)), y = y, casewt = weights, ...),
-	class = "survfit")
+    mysurvfit <- function(y, weights, ...)
+        survfit(y ~ 1, weights = weights) 
+        ### structure(
+        ###   survival:::survfitKM(x = gl(1, NROW(y)), y = y, casewt = weights, ...),
+	### class = "survfit")
 
     dostep <- function(x, y) {
         ### create a step function based on x, y coordinates
