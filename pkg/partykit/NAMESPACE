@@ -1,6 +1,7 @@
 useDynLib("partykit")
 import("stats")
 importFrom("survival", "survfit")
+importFrom("RWeka", "parse_Weka_digraph")
 
 export(
   ## core infrastructure
