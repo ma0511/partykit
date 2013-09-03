@@ -15,7 +15,8 @@ Description: A toolkit with infrastructure for representing,
   a re-implementation of the party package. Currently, only
   a re-implementation of ctree() is contained in the package.)
 Depends: R (>= 2.5.0), graphics, stats, grid
-Imports: survival
-Suggests: XML, pmml, mlbench, RWeka, rJava, rpart, mvtnorm, Formula, TH.data
+Imports: survival, RWeka (>= 0.4-19)
+Suggests: XML, pmml, mlbench, rJava, rpart, mvtnorm, 
+  Formula, TH.data
 LazyData: yes
 License: GPL-2
