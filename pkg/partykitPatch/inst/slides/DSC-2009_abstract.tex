@@ -1,0 +1,85 @@
+\documentclass[10pt]{article}
+
+\usepackage{url}
+\usepackage[authoryear,round]{natbib}
+
+\renewcommand{\title}[1]{\begin{center}{\bf \LARGE #1}\end{center}}
+\newcommand{\affiliations}{\footnotesize}
+\newcommand{\keywords}{\paragraph{Keywords:}}
+
+\setlength{\oddsidemargin}{0cm} \setlength{\evensidemargin}{0cm}
+\setlength{\textwidth}{16.5cm} \setlength{\topmargin}{-1cm}
+\setlength{\textheight}{24.5cm}
+
+\let\code=\texttt
+\let\pkg=\textbf
+\let\proglang=\textsf
+\newcommand{\class}[1]{`\code{#1}'}
+
+\begin{document}
+\pagestyle{empty}
+
+\title{\pkg{partykit}: A Toolbox for Recursive Partytioning}
+
+\begin{center}
+  {\bf Torsten Hothorn$^{1}$, Achim Zeileis$^{2}$}
+\end{center}
+
+\begin{affiliations}
+\begin{enumerate}
+  \item Institut f\"ur Statistik, Ludwig-Maximilians-Universit\"at M\"unchen, Germany\\
+        \texttt{Torsten.Hothorn@R-project.org}
+  \item Department of Statistics and Mathematics, Wirtschaftsuniversit\"at Wien, Austria\\
+        \texttt{Achim.Zeileis@R-project.org}
+\end{enumerate}
+\end{affiliations}
+
+\keywords Regression Trees, Visualization, CTree, CHAID, MOB, Weka, PMML.
+
+\vskip 0.8cm
+
+Recursive partitioning methods, or simply ``trees'', are simple yet powerful
+methods for capturing regression relationships. Since the publication of the
+automated interaction detection (AID) algorithm in 1964, many extentions,
+modifications, and new approaches have been suggested in both the statistics
+and machine learning communities. Most of the standard algorithms are
+available to the \proglang{R} user, e.g., through packages
+\pkg{rpart} \citep{partykit:rpart},
+\pkg{RWeka} \citep{partykit:RWeka},
+\pkg{party} \citep{partykit:party}, or
+\pkg{mvpart} \citep{partykit:mvpart}.
+
+However, no common infrastructure is available for representing trees
+fitted by different packages. Consequently, the capabilities for extraction of
+information---such as predictions, printed summaries, or visualizations---vary
+between packages and come with somewhat different user interfaces.
+Furthermore, extensions or modifications often require considerable
+programming effort, e.g., if the median instead of the mean of a numerical
+response should be predicted in each leaf of an \class{rpart} tree.
+Similarly, implementations of new tree algorithms might also require new
+infrastructure if they have features not available in the above-mentioned
+packages, e.g., multi-way splits or more complex models in the leafs.
+
+To overcome these difficulties, the \pkg{partykit} package \citep{partykit:partykit} offers a 
+unified representation of tree objects along with \code{predict()}, 
+\code{print()}, and \code{plot()} methods. Trees are represented through 
+a new flexible class \class{party} comprising essentially a recursive list of \class{partynode}
+objects along with \class{partysplit} information. Additionally, further
+information about the underlying data as well as the associated model fit
+can be stored and accessed. Therefore, the \class{party} class can capture
+all trees mentioned above but can also accomodate multi-way or functional
+splits, as well as complex models in (leaf) nodes. The package is currently
+under development at \proglang{R}-Forge but already provides conversion methods for
+trees of classes \class{rpart}, \class{J48}, and \class{pmmlTreeModel}
+as well as a re-implementation of conditional inference trees \citep{partykit:Hothorn+Hornik+Zeileis:2006}.
+
+In our presentation, we discuss the design of the new \class{party} class
+and its methods and illustrate how it can be utilized to interface other classes such
+as \class{rpart} or \class{J48}, obtain new implementations of existing algorithms
+such as CHAID or re-implement techniques such as model-based recursive partitioning
+\citep[MOB,][]{partykit:Zeileis+Hothorn+Hornik:2008}.
+
+\bibliographystyle{jss}
+\bibliography{partykit}
+
+\end{document}

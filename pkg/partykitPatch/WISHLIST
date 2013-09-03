@@ -1,0 +1,86 @@
+
+- test/ctree-ctree.R: check results and make this a permanent test against
+  party (but only doing the troublesome checks) (TH)
+
+x - model.frame.party (Z)
+
+x - model.frame in predict -> na.action?
+    terms vs. more model info (formula/Formula, 
+    call, na.action, ...) (Z)
+
+- ctree (TH):
+  - MonteCarlo
+  - scores for ordinal variables
+x  - nice predictions for multivariate responses
+     fitted may contain multivariate (response)
+   -> predictions seem to work; however plot and print methods
+      need generalization. So far, ctree returns "party" object 
+      for multivariate responses
+x  - add party regression tests
+
+x - partykit manual (TH)
+x - partykit vignette (TH, Z)
+- revised/new MLOSS paper (TH, Z, KH)
+x- node_surv, node_hist, node_density, node_bivplot (Z)
+x- terminal_panel more sophisticated
+- prettify list.rules
+
+From Matthias.Studer@unige.ch Tue May 26 08:19:08 2009
+Date: Sun, 24 May 2009 19:35:58 +0200
+From: Matthias Studer <Matthias.Studer@unige.ch>
+To: Torsten.Hothorn@r-project.org
+Subject: Partykit
+
+Hello,
+
+Sorry for my bad english. I'm writing to you about partykit. We talked 
+about it when you came to Geneva and asked me for a feedback.
+
+First of all, partykit is great and well done. Porting my algorithm to 
+partykit was quite easy; the structure was quite the same. However, I 
+still have some remarks and some questions about partykit.
+
+ 1) In my tree algorithm, missing values are treated as a separate 
+category. This does not cause any problem when dealing with factor. 
+However, with numerical variable, it's not the same. Missing values may 
+go to both node (depending on the closest one). I didn't found a way to 
+tell where the missing values should go when using numerical. I tried to 
+add a surrogate that always goes to the same node but it fails. Maybe I 
+do not understand very well how to deal with missing values in partykit.
+
+ 2) I think that some measure of split quality should be added when 
+printing and plotting the tree. This seems something quite general when 
+building tree.
+
+ 3) Maybe you are interested, I have programmed a node 
+"grapcon_generator" that make use of the standard "plot" function using 
+gridBase.
+
+ 4) Would partykit be released on the CRAN ? Actually, we need that to 
+include these new developments in the next release of our package.
+
+Many thanks for partykit and your answers.
+Matthias Studer
+
+Max Kuhn:
+
+I noticed that edge_simple() in partykit does not use the ‘digits’ or
+‘abbreviate’ arguments when writing
+text:
+
+> library(partykit)
+Loading required package: grid
+> edge_simple
+function (obj, digits = 3, abbreviate = FALSE)
+{
+    meta <- obj$data
+    function(node, i) {
+        split <- character_split(split_node(node), meta)$levels[i]
+        grid.rect(gp = gpar(fill = "white", col = 0), width = unit(1,
+"strwidth", split))
+        grid.text(split, just = "center")
+    }
+}
+<environment: namespace:partykit>
+attr(,"class")
+[1] "grapcon_generator"

@@ -1,0 +1,54 @@
+
+Party On! New Recursive Partytioning Tools.
+
+Mentor: Torsten Hothorn & Achim Zeileis
+
+Short Description:
+The aim of the project is the implementation of recursive partitioning
+methods ("trees") which aren't available in R at the moment. The student
+can choose a method to begin with from a larger set of interesting algorithms.
+
+Detailed Description:
+Recursive partitioning methods, or simply "trees", are simple yet powerful
+methods for capturing regression relationships. Since the publication of the
+automated interaction detection (AID) algorithm in 1964, many extensions,
+modifications, and new approaches have been suggested in both the statistics
+and machine learning communities. Most of the standard algorithms are
+available to the R user, e.g., through packages rpart, party, mvpart, and
+RWeka.
+
+However, no common infrastructure is available for representing trees
+fitted by different packages. Consequently, the capabilities for extraction
+of information - such as predictions, printed summaries, or
+visualizations - vary between packages and come with somewhat different user
+interfaces. Furthermore, extensions or modifications often require considerable
+programming effort, e.g., if the median instead of the mean of a numerical
+response should be predicted in each leaf of an rpart tree.
+Similarly, implementations of new tree algorithms might also require new
+infrastructure if they have features not available in the above-mentioned
+packages, e.g., multi-way splits or more complex models in the leafs.
+
+To overcome these difficulties, the partykit package has been started on
+R-Forge. It is still being developed but already contains a stable class
+"party" for representing trees. It is a very flexible class with unified
+predict(), print(), and plot() methods, and can, in principle, capture
+all trees mentioned. But going beyond that, it can also accommodate
+multi-way or functional splits, as well as complex models in (leaf) nodes.
+
+We aim at making more recursive partitioning methods available
+to the R community. A first step in this direction is the CHAID package 
+(also hosted on R-Forge). Much more prominent procedures come to mind,
+for example exhaustive CHAID, C4.5, GUIDE, CRUISE, LOTUS, and many others.
+Students can choose among these and other recursive partitioning methods
+they want to implement based on the partykit infrastructure.
+
+Required Skills:
+Good R programming skills, depending on the complexity of the chosen
+algorithm C programming might be required as well. A basic understanding
+of statistics and machine learning would be helpful.
+
+Programming Exercise:
+Consider the "GlaucomaM" dataset from package ipred. Write a small R function 
+that searches for the best binary split in variable "vari" when "Class" is the response
+variable. Implement any method you like but without using any add-on
+package.
