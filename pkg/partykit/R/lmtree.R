@@ -28,15 +28,15 @@ lmfit <- function(y, x, start = NULL, weights = NULL, offset = NULL, ...,
   ## call lm fitting function
   if(is.null(weights) || identical(as.numeric(weights), rep.int(1, length(weights)))) {
     z <- lm.fit(x, y, offset = offset, ...)
-  } else {
     weights <- 1
-    z <- lm.wfit(x, y, weights = weights, offset = offset, ...)
+  } else {
+    z <- lm.wfit(x, y, w = weights, offset = offset, ...)
   }
 
   ## list structure
   rval <- list(
     coefficients = z$coefficients,
-    objfun = sum(z$residuals^2),
+    objfun = sum(weights * z$residuals^2),
     estfun = NULL,
     object = NULL
   )
