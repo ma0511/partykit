@@ -65,7 +65,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
   }
   Z <- model.part(formula, mf, rhs = 2L)
   n <- nrow(Z)
-  nyx <- length(mf) - length(Z)
+  nyx <- length(mf) - length(Z) - as.numeric("(weights)" %in% names(mf)) - as.numeric("(offset)" %in% names(mf))
 
   ## weights and offset
   weights <- model.weights(mf)
