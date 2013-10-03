@@ -7,7 +7,7 @@
 }
 \usage{
 ctree(formula, data, weights, subset, na.action = na.pass,
-    control = ctree_control(\dots), scores = NULL, \dots)
+    control = ctree_control(\dots), ytrafo = NULL, scores = NULL, \dots)
 }
 \arguments{
   \item{formula}{ a symbolic description of the model to be fit. }
@@ -21,6 +21,10 @@ ctree(formula, data, weights, subset, na.action = na.pass,
                    contain missing value.}
   \item{control}{a list with control parameters, see
                  \code{\link{ctree_control}}.}
+  \item{ytrafo}{an optional named list of functions to be applied to the response 
+                variable(s) before testing their association with the explanatory 
+                variables. Note that this transformation is only
+                performed once for the root node and does not take weights into account.}
   \item{scores}{an optional named list of scores to be attached to ordered
                 factors.}
   \item{\dots}{arguments passed to \code{\link{ctree_control}}.}

@@ -236,7 +236,8 @@ ctree_control <- function(teststat = c("quad", "max"),
 }
 
 ctree <- function(formula, data, weights, subset, na.action = na.pass, 
-                  control = ctree_control(...), scores = NULL, ...) {
+                  control = ctree_control(...), ytrafo = NULL, 
+                  scores = NULL, ...) {
 
     if (missing(data))
         data <- environment(formula)
@@ -277,7 +278,8 @@ ctree <- function(formula, data, weights, subset, na.action = na.pass,
             }
         }
     }
-    ret <- .ctree_fit(dat, response, weights = weights, ctrl = control)
+    ret <- .ctree_fit(dat, response, weights = weights, ctrl = control, 
+                      ytrafo = ytrafo)
     ### doesn't work for Surv objects
     # ret$terms <- terms(formula, data = mf)
     ret$terms <- terms(mf)
@@ -287,12 +289,12 @@ ctree <- function(formula, data, weights, subset, na.action = na.pass,
     return(ret)
 }
 
-.ctree_fit <- function(data, response, weights = NULL, 
-                      ctrl = ctree_control()) {
+.ctree_fit <- function(data, response, weights = NULL,
+                      ctrl = ctree_control(), ytrafo = NULL) {
 
     inputs <- !(colnames(data) %in% response)
 
-    infl <- .y2infl(data, response)
+    infl <- .y2infl(data, response, ytrafo = ytrafo)
 
     if (is.null(weights))
         weights <- rep(1, nrow(data))
@@ -338,14 +340,20 @@ ctree <- function(formula, data, weights, subset, na.action = na.pass,
 }
 
 ### convert response y to influence function h(y)
-.y2infl <- function(data, response) {
+.y2infl <- function(data, response, ytrafo) {
 
     if (length(response) == 1) {
+        if (!is.null(ytrafo[[response]])) {
+            yfun <- ytrafo[[response]]
+            rtype <- "user-defined"
+        } else {
+            rtype <- class(data[[response]])[1]
+            if (rtype == "integer") rtype <- "numeric"
+        }
         response <- data[[response]]
-        rtype <- class(response)[1]
-        if (rtype == "integer") rtype <- "numeric"
 
         infl <- switch(rtype,
+            "user-defined" = yfun(response),
             "factor" = { 
                 X <- model.matrix(~ response - 1)
                 if (nlevels(response) > 2) return(X)

@@ -104,6 +104,26 @@ stopifnot(all.equal(ct12$node$info$p.value,
 stopifnot(all.equal(ct13$node$info$p.value, 
           1 - ct23@tree$criterion$criterion, check.attr = FALSE))
 
+### ytrafo
+y <- runif(100, max = 3)
+x <- rnorm(length(y))
+d <- data.frame(y = y, x = x)
+
+### partykit with scores
+ct11 <- partykit::ctree(y ~ x, data = d)
+ct12 <- partykit::ctree(y ~ x, data = d,
+                        ytrafo = list(y = sqrt))
+
+### party with scores
+ct21 <- party::ctree(y ~ x, data = d)
+f <- function(data) ptrafo(data, numeric_trafo = sqrt)
+ct22 <- party::ctree(y ~ x, data = d,
+                     ytrafo = f)
+
+stopifnot(all.equal(ct11$node$info$p.value,
+          1 - ct21@tree$criterion$criterion, check.attr = FALSE))
+stopifnot(all.equal(ct12$node$info$p.value,
+          1 - ct22@tree$criterion$criterion, check.attr = FALSE))
 
 
 ### spotted by Peter Philip Stephensen (DREAM) <PSP@dreammodel.dk>
