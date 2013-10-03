@@ -14,7 +14,8 @@ x - model.frame in predict -> na.action?
 
 - ctree (TH):
   - MonteCarlo
-  - scores for ordinal variables
+  - ytrafo / xtrafo
+x  - scores for ordinal variables
 x  - nice predictions for multivariate responses
      fitted may contain multivariate (response)
    -> predictions seem to work; however plot and print methods

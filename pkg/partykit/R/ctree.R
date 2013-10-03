@@ -236,7 +236,7 @@ ctree_control <- function(teststat = c("quad", "max"),
 }
 
 ctree <- function(formula, data, weights, subset, na.action = na.pass, 
-                  control = ctree_control(...), ...) {
+                  control = ctree_control(...), scores = NULL, ...) {
 
     if (missing(data))
         data <- environment(formula)
@@ -266,6 +266,17 @@ ctree <- function(formula, data, weights, subset, na.action = na.pass,
         response <- names(model.part(formula, mf, lhs = 1))
     weights <- model.weights(mf)
     dat <- mf[, colnames(mf) != "(weights)"]
+    if (!is.null(scores)) {
+        for (n in names(scores)) {
+            sc <- scores[[n]]
+            if (is.ordered(dat[[n]]) && 
+                nlevels(dat[[n]]) == length(sc)) {
+                attr(dat[[n]], "scores") <- as.numeric(sc)
+            } else {
+                warning("scores for variable ", sQuote(n), " ignored")
+            }
+        }
+    }
     ret <- .ctree_fit(dat, response, weights = weights, ctrl = control)
     ### doesn't work for Surv objects
     # ret$terms <- terms(formula, data = mf)
@@ -340,7 +351,12 @@ ctree <- function(formula, data, weights, subset, na.action = na.pass,
                 if (nlevels(response) > 2) return(X)
                 return(X[,-1, drop = FALSE])
             },
-            "ordered" = (1:nlevels(response))[as.integer(response)],
+            "ordered" = {
+                sc <- attr(response, "scores")
+                if (is.null(sc)) sc <- 1:nlevels(response)
+                sc <- as.numeric(sc)
+                return(sc[as.integer(response)])
+            },
             "numeric" = response,
             "Surv" = .logrank_trafo(response)
         )

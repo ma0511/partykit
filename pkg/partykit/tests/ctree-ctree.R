@@ -4,7 +4,7 @@
 
 library("partykit")
 library("party")
-library("multicore")
+library("parallel")
 
 set.seed(29)
 
@@ -76,6 +76,35 @@ tm <- t(sapply(ret, function(x) x$time))
 err <- sapply(ret, function(x) x$error)
 
 save(ret, tm, tgr, fun, gr, dgp, err, file = "results-regtest.Rda")
+
+### scores
+y <- gl(3, 10, ordered = TRUE)
+x <- rnorm(length(y))
+x <- ordered(cut(x, 3))
+d <- data.frame(y = y, x = x)
+
+### partykit with scores
+ct11 <- partykit::ctree(y ~ x, data = d)
+ct12 <- partykit::ctree(y ~ x, data = d, 
+                        scores = list(y = c(1, 4, 5)))
+ct13 <- partykit::ctree(y ~ x, data = d, 
+                        scores = list(y = c(1, 4, 5), x = c(1, 5, 6)))
+
+### party with scores
+ct21 <- party::ctree(y ~ x, data = d)
+ct22 <- party::ctree(y ~ x, data = d, 
+                     scores = list(y = c(1, 4, 5)))
+ct23 <- party::ctree(y ~ x, data = d, 
+                     scores = list(y = c(1, 4, 5), x = c(1, 5, 6)))
+
+stopifnot(all.equal(ct11$node$info$p.value, 
+          1 - ct21@tree$criterion$criterion, check.attr = FALSE))
+stopifnot(all.equal(ct12$node$info$p.value, 
+          1 - ct22@tree$criterion$criterion, check.attr = FALSE))
+stopifnot(all.equal(ct13$node$info$p.value, 
+          1 - ct23@tree$criterion$criterion, check.attr = FALSE))
+
+
 
 ### spotted by Peter Philip Stephensen (DREAM) <PSP@dreammodel.dk>
 ### splits x >= max(x) where possible in partykit::ctree

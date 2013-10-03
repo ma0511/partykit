@@ -7,7 +7,7 @@
 }
 \usage{
 ctree(formula, data, weights, subset, na.action = na.pass,
-    control = ctree_control(\dots), \dots)
+    control = ctree_control(\dots), scores = NULL, \dots)
 }
 \arguments{
   \item{formula}{ a symbolic description of the model to be fit. }
@@ -21,6 +21,8 @@ ctree(formula, data, weights, subset, na.action = na.pass,
                    contain missing value.}
   \item{control}{a list with control parameters, see
                  \code{\link{ctree_control}}.}
+  \item{scores}{an optional named list of scores to be attached to ordered
+                factors.}
   \item{\dots}{arguments passed to \code{\link{ctree_control}}.}
 }
 \details{
@@ -67,6 +69,10 @@ ctree(formula, data, weights, subset, na.action = na.pass,
   or predicted Kaplan-Meier curves. For observations
   with zero weights, predictions are computed from the fitted tree 
   when \code{newdata = NULL}.
+
+  By default, the scores for each ordinal factor \code{x} are
+  \code{1:length(x)}, this may be changed for variables in the formula 
+  using \code{scores = list(x = c(1,5,6))}, for example.
 
   For a general description of the methodology see Hothorn, Hornik and
   Zeileis (2006) and Hothorn, Hornik, van de Wiel and Zeileis (2006).
