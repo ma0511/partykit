@@ -340,7 +340,7 @@ ctree <- function(formula, data, weights, subset, na.action = na.pass,
 }
 
 ### convert response y to influence function h(y)
-.y2infl <- function(data, response, ytrafo) {
+.y2infl <- function(data, response, ytrafo = NULL) {
 
     if (length(response) == 1) {
         if (!is.null(ytrafo[[response]])) {
