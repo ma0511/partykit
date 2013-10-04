@@ -19,10 +19,11 @@ x  - ytrafo
   - xtrafo
 x  - scores for ordinal variables
 x  - nice predictions for multivariate responses
-     fitted may contain multivariate (response)
-   -> predictions seem to work; however plot and print methods
-      need generalization. So far, ctree returns "party" object 
-      for multivariate responses
+x     fitted may contain multivariate (response)
+x   -> predictions seem to work; however plot and print methods
+x      need generalization. So far, 
+   - ctree returns "party" object for multivariate responses, we may want
+     to invent a new class
 x  - add party regression tests
 
 x - partykit manual (TH)

@@ -7,6 +7,7 @@
 \alias{node_bivplot}
 \alias{node_boxplot}
 \alias{node_surv}
+\alias{node_mvar}
 
 \title{ Panel-Generators for Visualization of Party Trees }
 \description{
@@ -27,13 +28,13 @@ node_terminal(obj, digits = 3, abbreviate = FALSE,
 edge_simple(obj, digits = 3, abbreviate = FALSE)
 
 node_boxplot(obj, col = "black", fill = "lightgray", width = 0.5,
-    yscale = NULL, ylines = 3, cex = 0.5, id = TRUE, gp = gpar())
+    yscale = NULL, ylines = 3, cex = 0.5, id = TRUE, mainlab = NULL, gp = gpar())
 
 node_barplot(obj, col = "black", fill = NULL, beside = NULL,
     ymax = NULL, ylines = NULL, widths = 1, gap = NULL,
-    reverse = NULL, id = TRUE, gp = gpar())
+    reverse = NULL, id = TRUE, mainlab = NULL, gp = gpar())
 
-node_surv(obj, col = "black", ylines = 2, id = TRUE, gp = gpar(), \dots)
+node_surv(obj, col = "black", ylines = 2, id = TRUE, mainlab = NULL, gp = gpar(), \dots)
 
 node_bivplot(mobobj, which = NULL, id = TRUE, pop = TRUE,
   pointcol = "black", pointcex = 0.5,
@@ -42,6 +43,9 @@ node_bivplot(mobobj, which = NULL, id = TRUE, pop = TRUE,
   cdplot = FALSE, fivenum = TRUE, breaks = NULL,
   ylines = NULL, xlab = FALSE, ylab = FALSE, margins = rep(1.5, 4),
   \dots)
+
+node_mvar(obj, which = NULL, id = TRUE, pop = TRUE, ylines = NULL, ...)
+
 }
 \arguments{
   \item{obj}{ an object of class \code{party}.}
@@ -83,6 +87,7 @@ node_bivplot(mobobj, which = NULL, id = TRUE, pop = TRUE,
     splineplots.}
   \item{xlab, ylab}{character. Optional annotation for x-axis and y-axis.}
   \item{margins}{numeric. Margins around drawing area in viewport.}
+  \item{mainlab}{character. An optional title for the plot.}
   \item{\dots}{ additional arguments passed to callies 
                 (for example to \code{\link[survival]{survfit}}).}
 }
@@ -119,6 +124,9 @@ node_bivplot(mobobj, which = NULL, id = TRUE, pop = TRUE,
   of the variables involved, scatter plots, box plots, spinograms (or CD plots)
   and spine plots are created. For the latter two \code{\link[vcd]{spine}} and
   \code{\link[vcd]{cd_plot}} from the \pkg{vcd} package are re-used.
+
+  For multivariate responses in \code{\link{ctree}}, the panel function \code{node_mvar}
+  generates one plot for each response.
 }
 
 \references{

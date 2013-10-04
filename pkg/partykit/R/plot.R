@@ -396,6 +396,7 @@ node_barplot <- function(obj,
 		         gap = NULL,
 			 reverse = NULL,
 		         id = TRUE,
+                         mainlab = NULL,
 			 gp = gpar())
 {   
     ## extract response
@@ -474,8 +475,9 @@ node_barplot <- function(obj,
         ## main title
         top <- viewport(layout.pos.col=2, layout.pos.row=1)
         pushViewport(top)
-	mainlab <- paste(ifelse(id, paste("Node", names(obj)[nid], "(n = "), "n = "),
-	                 nobs[nid], ifelse(id, ")", ""), sep = "")
+        if (is.null(mainlab))
+          mainlab <- paste(ifelse(id, paste("Node", names(obj)[nid], "(n = "), "n = "),
+	                   nobs[nid], ifelse(id, ")", ""), sep = "")
         grid.text(mainlab)
         popViewport()
 	
@@ -540,6 +542,7 @@ node_boxplot <- function(obj,
 		         ylines = 3,
 			 cex = 0.5,
 		         id = TRUE,
+                         mainlab = NULL, 
 			 gp = gpar())
 {
     y <- obj$fitted[["(response)"]]
@@ -576,8 +579,9 @@ node_boxplot <- function(obj,
         ## main title
         top <- viewport(layout.pos.col=2, layout.pos.row=1)
         pushViewport(top)
-	mainlab <- paste(ifelse(id, paste("Node", names(obj)[nid], "(n = "), "n = "),
-	                 sum(wn), ifelse(id, ")", ""), sep = "")
+	if (is.null(mainlab))
+	  mainlab <- paste(ifelse(id, paste("Node", names(obj)[nid], "(n = "), "n = "),
+	                   sum(wn), ifelse(id, ")", ""), sep = "")
         grid.text(mainlab)
         popViewport()
 	
@@ -627,7 +631,7 @@ node_boxplot <- function(obj,
 class(node_boxplot) <- "grapcon_generator"
 
 node_surv <- function(obj, col = "black", ylines = 2,
-		      id = TRUE, gp = gpar(), ...)
+		      id = TRUE, mainlab = NULL, gp = gpar(), ...)
 {
     ## extract response
     y <- obj$fitted[["(response)"]]
@@ -702,8 +706,9 @@ node_surv <- function(obj, col = "black", ylines = 2,
         ## main title
         top <- viewport(layout.pos.col=2, layout.pos.row=1)
         pushViewport(top)
-	mainlab <- paste(ifelse(id, paste("Node", nid, "(n = "), "n = "),
-	                 sum(wn), ifelse(id, ")", ""), sep = "")
+	if (is.null(mainlab))
+	  mainlab <- paste(ifelse(id, paste("Node", nid, "(n = "), "n = "),
+	                   sum(wn), ifelse(id, ")", ""), sep = "")
         grid.text(mainlab)
         popViewport()
 	
@@ -723,3 +728,59 @@ node_surv <- function(obj, col = "black", ylines = 2,
     return(rval)
 }
 class(node_surv) <- "grapcon_generator"
+
+node_mvar <- function(obj, which = NULL, id = TRUE, pop = TRUE, ylines = NULL, ...)
+{  
+  ## obtain dependent variables
+  y <- obj$fitted[["(response)"]]
+
+  ## fitted node ids
+  fitted <- obj$fitted[["(fitted)"]]
+
+  ## number of panels needed
+  if(is.null(which)) which <- 1L:NCOL(y)
+  k <- length(which)
+
+  rval <- function(node) {
+    
+    tid <- id_node(node)
+    nobs <- NROW(data_party(obj, tid))
+
+    ## set up top viewport
+    top_vp <- viewport(layout = grid.layout(nrow = k, ncol = 2,
+		       widths = unit(c(ylines, 1), c("lines", "null")), heights = unit(k, "null")),
+		       width = unit(1, "npc"), height = unit(1, "npc") - unit(2, "lines"),
+		       name = paste("node_mvar", tid, sep = ""))
+    pushViewport(top_vp)
+    grid.rect(gp = gpar(fill = "white", col = 0))
+
+    ## main title
+    mainlab <- paste(ifelse(id, paste("Node", tid, "(n = "), ""),
+		     nobs, ifelse(tid, ")", ""), sep = "")
+
+    for(i in 1L:k) {
+
+      tmp <- obj
+      tmp$fitted[["(response)"]] <- y[,which[i]]
+      nm <- names(y)[which[i]]
+      nm <- paste(mainlab, nm, sep = ": ")
+      pfun <- switch(sapply(y, class)[which[i]],
+                     "Surv" = node_surv(tmp, id = id, mainlab = nm, ...),
+                     "factor" = node_barplot(tmp, id = id, mainlab = nm,  ...),
+                     "ordered" = node_barplot(tmp, id = id, mainlab = nm, ...),
+                     node_boxplot(tmp, id = id, mainlab = nm, ...))
+      ## select panel
+      plot_vpi <- viewport(layout.pos.col = 2L, layout.pos.row = i)
+      pushViewport(plot_vpi)
+
+      ## call panel function
+      pfun(node)
+
+      if(pop) popViewport() else upViewport()
+    }
+    if(pop) popViewport() else upViewport()
+  }
+  
+  return(rval)
+}
+class(node_mvar) <- "grapcon_generator"

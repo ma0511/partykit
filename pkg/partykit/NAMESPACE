@@ -69,6 +69,7 @@ export(
   "node_bivplot",
   "node_boxplot",
   "node_surv",
+  "node_mvar",
   "node_inner",
   "node_party",
   "node_terminal",
