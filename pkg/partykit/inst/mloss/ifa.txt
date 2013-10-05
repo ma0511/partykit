@@ -1,0 +1,67 @@
+Machine Learning Open Source Software
+
+Open source tools have recently reached a level of maturity which makes them
+suitable for building large-scale real-world systems. At the same time, the
+field of machine learning has developed a large body of powerful learning
+algorithms for a wide range of applications.
+
+To support the open source movement JMLR is proud to announce a new track. The
+aim of this special section is to provide, in parallel to theoretical advances
+in machine learning, a venue for collection and dissemination of open source
+software. Furthermore, we believe that a resource of peer reviewed software
+accompanied by short articles would be highly valuable to the machine learning
+community in general, helping to build a common repository of machine learning
+software.
+
+We encourage submissions which are contributions related to implementations of
+non-trivial machine learning algorithms, toolboxes or even languages for
+scientific computing. As with the main JMLR papers, all published papers are
+freely available online. The software must adhere to a recognised open source
+license (http://www.opensource.org/licenses/). Submissions should clearly
+indicate that they are intended for this special track in the cover letter of
+the submission.
+
+Since we specifically want to honor the effort of turning a method into a highly
+usable piece of software, prior publication of the method is admissible, as long
+as the software has not been published elsewhere. It is hoped that the open
+source track will motivate the machine learning community towards open science,
+where open access publishing, open data standards and open source software
+foster research progress.
+
+Format
+We invite submissions of descriptions of high quality machine learning open
+source software implementations. Submissions should at least include:
+   1. A cover letter stating that the submission is intended for the machine
+      learning open source software section, the open source license the
+      software is released under, the web address of the project, and the
+      software version to be reviewed.
+   2. An up to four page description based on the JMLR format.
+   3. A zip or compressed tar-archive file containing the source code and
+      documentation. 
+
+Review Criteria
+The following guidelines would be used to review submissions. While ideally
+submissions should satisfy all the criteria below, they are not necessary
+requirements.
+
+   1. The quality of the four page description.
+   2. The novelty and breadth of the contribution.
+   3. The clarity of design.
+   4. The freedom of the code (lack of dependence on proprietary software).
+   5. The breadth of platforms it can be used on (should include an open-source
+      operating system).
+   6. The quality of the user documentation (should enable new users to quickly
+      apply the software to other problems, including a tutorial and several
+      non-trivial examples of how the software can be used).
+   7. The quality of the developer documentation (should enable easy
+      modification and extension of the software, provide an API reference,
+      provide unit testing routines).
+   8. The quality of comparison to previous (if any) related implementations,
+      w.r.t. run-time, memory requirements, features, to explain that
+      significant progress has been made. 
+
+After acceptance, the abstract including the link to the software project
+website, the four page description and the reviewed version of the software will
+be published on the JMLR-MLOSS website http://www.jmlr.org/mloss/. The authors
+can then make sure that the software is appropriately maintained and that the
+link to the project website is kept up-to-date.

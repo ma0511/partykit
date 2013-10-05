@@ -1,0 +1,56 @@
+JMLR Review
+
+Let's Have a party! An Open-Source Toolbox for Recursive Partytioning
+
+Summary of review:
+
+The paper describes party, a package for R, which provides basic classes and methods for recursive partitioning. It also includes implementation for three recently proposed tree-based learners: (1) conditional inference trees, (2) conditional inference forests, and (3) model-based recursive partitioning.
+R is widely used in the statistical learning community what makes party useful for many researchers. R already has implementation for CART. Nevertheless, there is no package in R that allows easy implementations of other top-down decision tree learners and here party comes to make its contribution.
+The attached software can be relatively easily installed under R. Following the examples in the paper allows to apply the three implemented methods and to visualize the resulted models. The visualization displays well on screen and can be easily included in research papers.
+We did not find it easy, however, to implement new algorithms on the top of party and this is our major criticism. The main contribution of party should be the ability to use its infra structure, and not the provided implementation of the three algorithms.
+Examining the source code indicates that party has a great potential in this direction. However, the paper and the provided documentation do not provide the sufficient means to exploit this potential.
+
+Detailed comments:
+
+The quality of the four page description:
+The authors motivate their package, give a brief description of the implanted methods, exemplify using them, describe the internal structure, and conclude.
+While we liked the organization of the sections there are several issues that should be addressed:
+1) In the motivation the authors claim that "Unlike the implementations above ... provide basic infra structure". Weka does provide infra structure: any developer can extend the classifier class and implement her own classifier. Moreover, it is relatively easy to modify existing tree learners by overriding some of the methods. Did you mean other packages in R?
+2) The description of the three implemented methods is too brief. Some of them have not been published yet (2008) - what makes it even more difficult for the reader to evaluate the usefulness of party.
+3) Page 1 paragraph 1: the respectively should be removed
+4) Page 1 paragraph 1: "more often than" the sentence is not clear, please reword
+5) Page 1 paragraph 2: "(Such as, e.g.)" - this is a duplication
+6) In general the authors tend to use parenthesis () too frequently.
+7) Page 2 paragraph 1: Mac OS should be Mac OS X
+8) Page 3 paragraph 1: "misclassification rate of 13% Not" missing "." after %
+9) Page 3 paragraph 4: "J4.8" should be "J48"
+We suggest that the authors will proofread the paper again.
+An important part that is missing, to our opinion, is how to use the provided infra structure to implement new methods?  Even a simple example, like how to implement C4.5 would be great. Currently, the paper does not give enough information for developers that would like to implement new methods on the top of party.
+
+The novelty and breadth of the contribution:
+party is an original and useful software package which has a great potential to help machine learning researchers and developers. However, it is not clear how easy it is for a developer to build on party and implement new models.
+
+The clarity of design:
+In general the design is clear and fits R conventions.
+We expected, however, to be able to use the confusion function, like in other learners, instead of manually calculating the confusion matrix. Please consider adding this function.
+It would be a nice idea also to add support for other data formats, such as ARFF (we could not understand from the documentation if that is possible). For example, you could use the foreign package for this purpose.
+
+The freedom of the code:
+All parts of the code are available for free.
+
+The breadth of platforms it can be used on:
+The R software and the required packages are available for free for all operating systems. We have easily installed the package on Mac OS X and on Windows XP.
+
+The quality of the user documentation: 
+In general, party is well documented for users.
+When we tried to follow the instructions in the paper on how to install party, we got several error messages regarding missing packages (coin, zoo, and vcd). The packages, for some reason, were not installed automatically and we had to install them manually (without a problem). It could be that something is wrong with the dependencies but we are not sure if this has to do with party or with one of the other packages it depends on.
+
+The quality of the developer documentation:
+Most (but not all) parts of the source code are documented. Some classes and methods are not well documented and we hope the authors will complete the documentation.
+We expected more detailed documentation and also a tutorial for developers that would like to implement new models using party.
+As for testing, the authors provide a directory with comprehensive test files.
+
+The quality of comparison to previous (if any) related implementations: 
+No comparison to other implementations has been provided.
+The authors could, for example, implement CART using party and compare to the existing implementation of CART in R.
+

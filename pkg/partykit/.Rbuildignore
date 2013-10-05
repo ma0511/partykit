@@ -1,5 +1,6 @@
 inst/pmml/auto.pmml
 inst/slides
 inst/soc09
+inst/mloss
 tests/ctree-ctree.R
 WISHLIST

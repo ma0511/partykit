@@ -1,0 +1,110 @@
+
+Summary of the paper
+--------------------
+
+The paper proposes the add-on package "Party" for the R system for statistical computing. Party implements three decision tree learning algorithms that where published elsewhere by the same authors: conditional inference trees, ensembles of conditional inference trees, and a model tree learner. It also includes a visualization component that can draw the decision trees produced by Party itself and also those of Weka's decision tree learners. The paper claims that party provides a framework of basic data structures and methods that can be reused to build other decision tree learners.
+
+Recommendation
+--------------
+
+In favor:
+- The system provides an open source implementation of three previously published decision tree learning algorithms with good end-user documentation.
+- It provides data structures and methods that can be used as a basis to implement other decision tree methods and algorithms.
+
+Against:
+- The quality (and quantity) of the developer documentation could be improved (see point 7 below).
+- The system does not appear to provide a truly modular decision tree induction framework (see point 2 below).
+
+I'm not sure how strict the MLOSS track of JMLR is with regard to acceptance of papers. Based on the above, I would suggest to (conditionally) accept the paper.
+
+Criteria
+--------
+
+1. Quality of four page description
+-----------------------------------
+
+The four page description is adequate. It clearly explains the goals of the software, provides a number of examples of how to use the software, and gives appropriate references to the documentation, and to publications describing the algorithms implemented in the software.
+
+I have only one comment: please mention the "RWeka" package as a related package because it also provides access to decision tree learners in R. What are the main advantages of Party over Weka as an extensible framework for decision tree induction?
+
+At the end of the review are some minor suggestions to improve spelling and style.
+
+2. The novelty and breadth of the contribution
+----------------------------------------------
+
+Party is novel in the sense that it is the only package implementing these three specific decision tree learners. Related packages for R include the package "rpart" that implements the CART decision tree learner and the package "RWeka" that interfaces R to Weka and as such makes all Weka's decision tree learners available in R (among others J48 - Weka's implementation of C4.5).
+
+One of the main advantages of Party is that it is extensible and that it can be used as a basis to implement new decision tree learners in R (as is claimed by the authors). It indeed does provide data structures for representing (binary) decision trees, methods for inducing and evaluating decision trees, and methods for drawing trees. In this sense it can serve as a basis for implementing new systems.
+
+Providing data structures is, however, not the only key to an extensible system. A true extensible decision tree learner would provide a modular implementation of the induction procedure in which sub-components can be easily replaced. Examples of such components could be the heuristic function, the function that generates candidate tests for the internal nodes (simple splits, linear discriminant trees, ...), and the function that generates prediction functions for the leaves of the tree (constants, linear models, kNN, ...). The induction component itself could also provide different search strategies such as greedy depth-first induction, N-step lookahead, beam search, or even exhaustive search. Party does not appear to have such a modular design. While both algorithms share data structures and low-level methods, the code for inducing conditional inference trees and for model trees appears to be relatively separated.
+
+3. The clarity of design
+------------------------
+
+The design of the software is good from an end-user perspective. There are commands to run the different components of Party from the R command prompt and these are well documented. It is also easy to combine these with other commands for, e.g., preprocessing data. There is is also documentation about the data structures and methods used by the software, but there is no a real document that discusses the internal design of the software. See also my comments on point 7.
+
+4. The freedom of the code
+--------------------------
+
+The "Party" software package is free software released under the GNU General Public License, version 2 (GPL-2). However, the software does not include a copy of the license. This should be fixed: the root of the source code archive should include a file "COPYING" or "LICENSE" with a copy of the license. It is currently also not clear if it is "strictly version 2" of the GPL or "either version 2 of the License, or (at your option) any later version". This is an important distinction now that GPL version 3 is available. It is also good practice to include in each source file at least the "copyright" line and a pointer to where the full notice is found (as is pointed out under "How to Apply These Terms to Your New Programs" in GPL-2).
+
+5. The breadth of platforms it runs on
+--------------------------------------
+
+According to the paper, the software runs on Windows, Mac OS, and Linux and is tested on a regular basis on these platforms. I was able to successfully install and run the software on my Linux system.
+
+6. The quality of the user documentation
+----------------------------------------
+
+The user documentation is extensive (33 pages) and is of good quality. It contains sufficient examples that illustrate how to use the system on practical data sets.
+
+There is one thing in the documentation that I found a bit strange: for one of the three algorithms that the authors discuss in the paper (cforest), the documentation states: "Ensembles of conditional inference trees have not yet been extensively tested, so this routine is meant for the expert user only and its current state is rather experimental". Is it now "safe" for end-users to use this system? Either remove this statement (if it is no longer true) or omit the discussion of this system from the paper.
+
+7. The quality of the developer documentation
+---------------------------------------------
+
+The software consists of code in "R" (about 3000 lines) and code in "C" (about 6000 lines). It includes online API documentation in HTML format for the "C" part of the code (automatically generated by Doxigen). The main functions of the "R" part are documented through the "R" help system and also the main data structures are documented in this way.
+
+The documentation in the form of comment statements in the source files is rather limited. The "C" files contain for most methods a very brief description of the arguments, but in the "R" files such documentation is not present. It would be good if more documentation was included in the source code files (both "C" and "R"). This is especially important because the authors claim that the system is meant as a generic framework that can be used to implement novel decision tree learners.
+
+While there is documentation about the specific data structures, it would be good to have a document that describes the overall design of the system. Such a document would describe the relation between the most important data structures and methods and explain where the most important components of the decision tree learners are implemented. Given that the system is intended as a framework, this document should also explain how to extend the system. This could be done by discussing some example modifications. A good example of such a modification that could be discussed is how to modify the system to construct linear discriminant trees with linear inequalities in the internal nodes. This design document does not need to be very long; even a short one would make the system much more accessible to people that need to extend it.
+
+The software contains unit tests that run on a daily basis.
+
+8. The quality of comparison to previous (related) implementations
+------------------------------------------------------------------
+
+The software presented here implements three methods that are published in the journals "Biostatistics" and in "J. of Computational and Graphical Statistics". These publications compare the systems to well-known decision tree learners such as CART and M5.
+
+Spelling/style suggestions
+--------------------------
+
+p.1: of Hothorn et al. (2006) which -> of Hothorn et al. (2006), which
+
+p.1: to the nodes in the tree -> to the leaves of the tree
+
+p.2: start content words in titles with capital letters: "2. User interface" -> "2. User Interface" and "3. Internal structure" -> "3. Internal Structure"
+
+p.2: we first load package and data and then split it randomly -> we first load the party package and the data and then split the data randomly
+
+p.2: For obtaining a short summary -> To obtain a short summary
+
+p.2: fit a whole random forest -> fit a random forest
+
+p.3: of 13.0% Not surprisingly -> of 13.0%. Not surprisingly
+
+p.3: For illustrating the mob algorithm -> To illustrate the mob algorithm
+
+p.3: using five remaining variables -> using the five remaining variables
+
+p.3: linear model with binomial family -> linear model based on the binomial family
+
+p.3: and J4.8 implementation of C4.5 -> and the J4.8 implementation of C4.5
+ 
+p.4: directly modifying previously created R objects -> directly modifying R objects
+
+p.4: objects which can be -> objects, which can be
+
+p.4: extend currently implemented methodology -> extend the currently implemented methodology
+
+p.4: three recently-suggested -> three recently suggested

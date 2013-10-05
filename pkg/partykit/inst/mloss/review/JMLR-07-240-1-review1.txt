@@ -1,0 +1,47 @@
+
+The misspelling in the title will inhibit search-based
+discovery of the paper.
+
+Figure 1 is interesting but it seems it will only
+work for trees with very few leaves, or will require
+large rendering surfaces.  Can you suggest how a user
+could get a scrollable view of a large tree with these
+distributional glyphs?  Does the software manage the
+display of such glyphs so that the resulting tree is always
+pleasant to look at?
+
+R users have had tree, rpart, randomForest for a long
+time.  This paper is so brief that it does not indicate why
+they need these new approaches.  How do they differ?
+Speed?  Tunability?  Ease of prediction on new datasets?
+
+Is the estimate of misclassification at the bottom of p2
+a resubstitution estimate?  This is ad hoc?  See other papers
+to get better estimates?  Please do a reasonable analysis
+in a paper you are publishing for posterity.  "It is not
+surprising that cforest improves on ctree..."  Then why
+use ctree?  Because it has an intuitive visualization?
+Why doesn't the random forest have an intuitive visualization?
+Why don't we find a distribution of trees and render them
+somehow?  Do you provide access to information on the
+sequence of trees generated randomly?  Could a user make
+sense of it?
+
+Surrogate splits are mentioned but how are they to be used?
+The figure seems to omit any concern with them, but why
+then are they produced?
+
+This paper semi-competently describes some software.  It mentions
+that some unit tests are done, but what is being tested?
+That the program does not crash?  That it finds the "real"
+splits in synthetic data?  That it always finds the same
+result on a given dataset?
+
+I suggest that some comparative material be created and
+added to this text to orient users towards better approaches
+to computing with tree structured models.  "Here's something,
+use it, party!" is not very effective or scientific, in 
+my view.  The contributions of the authors to R and scientific
+computing are very clear in other work.  This work should
+be reported at the same high standard of completeness and 
+persuasiveness.

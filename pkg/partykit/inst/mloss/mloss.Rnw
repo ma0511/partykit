@@ -1,0 +1,268 @@
+\documentclass[a4paper]{article}
+\usepackage{jmlr2e}
+\usepackage{color,hyperref}
+
+%% software markup
+\let\proglang=\textsf
+\let\pkg=\textit
+\let\code=\texttt
+
+%% \usepackage{Sweave} is essentially
+\RequirePackage[T1]{fontenc}
+\RequirePackage{ae,fancyvrb}
+\DefineVerbatimEnvironment{Sinput}{Verbatim}{fontshape=sl}
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{}
+\DefineVerbatimEnvironment{Scode}{Verbatim}{fontshape=sl}
+\newenvironment{Schunk}{}{}
+\setkeys{Gin}{width=.7\textwidth}
+\SweaveOpts{engine=R, eps=FALSE, keep.source = TRUE, results=hide}
+<<options, echo=FALSE>>=
+options(prompt = "R> ", continue = "+  ", digits = 4)
+@
+
+%% header declarations
+\author{Torsten Hothorn \and Achim Zeileis \and Kurt Hornik \\
+        \addr{\proglang{R} Project for Statistical Computing and Graphics} \\
+	\addr{E-mail: Firstname.Lastname@R-project.org}}
+\title{Let's Have a \pkg{party}!\\An Open-Source Toolbox for Recursive Partytioning}
+\editor{(initial submission for MLOSS track)}
+
+% hyperref setup
+\definecolor{Red}{rgb}{0.5,0,0}
+\definecolor{Blue}{rgb}{0,0,0.5}
+\hypersetup{%
+  pdftitle = {Let's Have a party! An Open-Source Toolbox for Recursive Partytioning},
+  pdfsubject = {submitted to JMLR-MLOSS},
+  pdfkeywords = {open-source software, recursive partitioning, decision trees, statistical learning},
+  pdfauthor = {Torsten Hothorn, Achim Zeileis, Kurt Hornik},
+  %% change colorlinks to false for pretty printing
+  colorlinks = {true},
+  linkcolor = {Blue},
+  citecolor = {Blue},
+  urlcolor = {Red},
+  hyperindex = {true},
+  linktocpage = {true},
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Package \pkg{party}, implemented in the \proglang{R} system for statistical
+computing, provides basic classes and methods for recursive partitioning
+along with reference implementations for three recently suggested tree-based
+learners: conditional inference trees and forests, and model-based
+recursive partitioning.
+\end{abstract}
+
+\begin{keywords}
+open-source software, recursive partitioning, decision trees, statistical learning. 
+\end{keywords}
+
+\section{Overview}
+
+Tree-based learners, also known as recursive partitioning techniques, belong to the
+core tools for classification and regression, both in the machine
+learning and statistical learning communities. Among the most popular representatives
+are C4.5 \citep{mloss:Quinlan:1993} and CART \citep{mloss:Breiman+Friedman+Olshen:1984},
+respectively, which were both accompanied by non-free implementations of the algorithms.
+Following the success of these seminal algorithms, many modifications, extensions,
+and enhancements of the basic recursive partitioning idea have been proposed in 
+the literature---more often than not with proprietary or closed-source implementations or
+no software at all. A notable exception is the open-source \proglang{Java} package \pkg{Weka}
+\citep{mloss:Witten+Frank:2005} that provides free de facto reference implementations
+of tree-based learners (including C4.5) or original implementations of novel
+algorithms (such as LMT). In statistical learning, the ``lingua franca'' is
+\proglang{R} \citep{mloss:R:2007}, an open-source programming environment that 
+also provides a reference implementation for CART in package \pkg{rpart}.
+
+Here, we present the \proglang{R} package \pkg{party}, a toolbox for recursive
+partytioning. Unlike the implementations above, it does not only implement
+specific algorithms, but aims to provide basic infrastructure for tree-based
+learners along with flexible and adjustable learning algorithms built on top.
+The basic data structures encompass a general high-level class \code{BinaryTree} 
+defined in \proglang{R} for
+representing various types of binary trees where arbitrary types of information 
+can be attached to the nodes. It comes with generic functionality for summarizing
+such trees, creating visualizations and computing predictions. This generic
+infrastructure has been employed for implementing three flexible recursive
+partitioning algorithms. The first is the conditional inference tree framework of
+\cite{mloss:Hothorn+Hornik+Zeileis:2006} which learns classical trees with
+constant fits in the terminal nodes, based on permutation tests for split selection.
+Its user interface is the function \code{ctree} that can be applied out of the box
+to regression and classification problems where both inputs and outputs can be
+categorical, numerical, censored, or multivariate. Re-using this basic learner,
+the package also provides an ensemble method for fitting forests of trees
+in the function \code{cforest}. A key advantage of this random forest type
+algorithm is that it can produce unbiased variable importance measures
+\citep{mloss:Strobl+Boulesteix+Zeileis:2007}. Finally, function \code{mob}
+provides a model-based recursive partitioning learner \citep{mloss:Zeileis+Hothorn+Hornik:2008}
+that allows to attach arbitrary parametric models
+(such as, e.g., linear or logistic regression, multivariate or survival models)
+to the nodes in the tree and uses structural change tests for split selection.
+
+The package \pkg{party} and all the components it depends on---including packages
+with tools for model construction, with visualization infrastructure and with
+inference techniques---are available under the General
+Public License (GPL) from the Comprehensive \proglang{R} Archive Network (CRAN) at
+\url{http://CRAN.R-project.org/}. The package contains \proglang{R} and \proglang{C}
+code and has been successfully built on a multitude of platforms including Windows,
+Mac~OS and various flavors of Linux.  It can be installed automatically from within
+\proglang{R} via the command \code{install.packages("party", dependencies = TRUE)}
+(which also installs all packages needed for examples); to get started, see the
+online reference manual, e.g., via \code{help(package = "party")}. More advanced
+user- and developer-level documentation is available in the package vignettes (see
+\code{vignette(package = "party")}) and the \proglang{C} source code \pkg{doxygen}
+documentation (in the \code{inst/documentation} sub-directory of the package sources).
+
+In the following, we give a brief tour of the package by applying the three core
+algorithms to classification problems before discussing some details of the developer-level
+features.
+
+\section{User interface}
+
+<<GlaucomaM, echo=FALSE>>=
+library("partykit")
+data("GlaucomaM", package = "TH.data")
+set.seed(10131218)
+idx <- sample(1:nrow(GlaucomaM), 150)
+GM1 <- GlaucomaM[idx,]
+GM2 <- GlaucomaM[-idx,]
+@
+%% geeky detail: random seed was chosen as
+%% str2num <- function(x) as.numeric(paste(gsub(" ", "0",
+%%   format(c(10, match(tolower(strsplit(x, "")[[1]]), letters)))[-1]), collapse = ""))
+%% str2num("JMLR")
+
+To demonstrate usage of the high-level algorithms, we present some short examples
+for fitting single trees, random forests and model-based trees in \pkg{party}
+for two different binary classification tasks.
+
+\paragraph{Trees and forests.} The \code{GlaucomaM} data set contains \Sexpr{nrow(GlaucomaM)}
+observations of glaucoma classification in human eyes (affected vs.\ healthy) 
+along with \Sexpr{ncol(GlaucomaM)-1} features derived from confocal laser scanning images
+of the optic nerve head. In the \proglang{R} session below, we first load
+package and data and then split it randomly into training and test sets of
+150 and \Sexpr{nrow(GlaucomaM) - 150} observations, respectively.
+<<GlaucomaM1, eval=FALSE>>=
+<<GlaucomaM>>
+@
+A \code{ctree} for predicting the \code{Class} variable, as explained by (\code{\~})
+all other variables (\code{.}) contained in the learning set \code{GM1}, can be fitted via
+<<ctree>>=
+ct <- ctree(Class ~ ., data = GM1)
+@
+creating a fitted \code{BinaryTree} object \code{ct}. For obtaining a short summary
+of the tree it can be either printed by typing \code{ct} at the command line (or more
+explicitly: \code{print(ct)}) or visualized by \code{plot(ct)}. The resulting plot
+(depicted in the left panel of Figure~\ref{fig}) shows that the glaucoma probability 
+increases clearly for lower volumes of the optic nerve head 
+(as captured in the different volume measures
+\code{vari} and \code{vasg}). After three splits, no more significant splits were found.
+To evaluate the performance of this fitted tree on the test data \code{GM2}, we can
+compute the confusion matrix of true and predicted class memberships
+<<ctree-confusion, results=verbatim>>=
+table(true = GM2$Class, pred = predict(ct, newdata = GM2))
+@
+corresponding to a misclassification rate of
+\Sexpr{100 * round(1 - sum(diag(table(true = GM2$Class, pred = predict(ct, newdata = GM2))))/nrow(GM2), digits = 3)}\%.
+Of course, this is only a rough ad hoc estimate of the generalization error, for a more
+thorough evaluation and comparison with other tree algorithms see the original publications
+mentioned above.
+
+\paragraph{Model trees.} For illustrating the \code{mob} algorithm, we partition a logistic
+regression for \code{diabetes} explained by (\code{\~}) \code{glucose} in the
+well-known Pima Indians Diabetes data set, using five remaining variables for partitioning.
+<<PimaIndiansDiabetes>>=
+data("PimaIndiansDiabetes", package = "mlbench")
+PID <- subset(PimaIndiansDiabetes, glucose > 0 & pressure > 0 & mass > 0)
+@
+This loads the data set and selects a subset \code{PID} of \Sexpr{nrow(PID)} observations
+excluding physically impossible zero measurements in some of the variables. The \code{mob}
+based on a logistic regression (i.e., a generalized linear model with binomial family)
+can be fitted via
+<<mob>>=
+mb <- glmtree(diabetes ~ glucose | pregnant + pressure + mass + pedigree + age,
+  data = PID, family = binomial)
+@
+Its visualization produced by \code{plot(mb)} is depicted in the right panel of
+Figure~\ref{fig}. It shows the empirical \code{diabetes} proportions over \code{glucose}
+groups along with the predictions from the logistic regression, conveying that the overall
+level (regression intercept) increases with body mass index and age while the glucose
+effect (regression slope) decreases. For a benchmark comparison of this algorithm with
+other trees (including \pkg{Weka}'s LMT and J4.8 implementation of C4.5) see
+\cite{mloss:Zeileis+Hothorn+Hornik:2008}.
+
+\setkeys{Gin}{width=\textwidth}
+\begin{figure}[t!]
+\begin{center}
+<<mob-plot, echo=FALSE, fig=TRUE, height=6, width=14>>=
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(1, 2)))
+pushViewport(viewport(layout.pos.col = 1, layout.pos.row = 1))
+plot(ct, newpage = FALSE, pop = TRUE,
+  tp_args = list(reverse = FALSE, fill = grey(c(0.45, 0.8))))
+popViewport()
+pushViewport(viewport(layout.pos.col = 2, layout.pos.row = 1))
+plot(mb, newpage = FALSE, pop = TRUE, tp_args = list(ylines = 1.3,
+  margins = c(1.5, 1, 1.5, 2.2), gp = gpar(fill = grey(c(0.45, 0.8))),
+  linecol = "black"))
+popViewport(2)
+@
+\caption{\label{fig} Tree visualizations: distribution of glaucoma
+for fitted \code{ctree} (left) and distribution of diabetes over glucose
+for logistic-regression \code{mob} (right).}
+\end{center}
+\end{figure}
+
+%% This very brief tour of the features in \pkg{party} only hinted at the
+%% flexibility of the tools, some more information is given below. Detailed
+%% information on arguments and control options is available in the
+%% manual pages (\code{help("ctree", package = "party")} etc.) and
+%% the package vignettes.
+
+\section{Internal structure}
+
+The \pkg{party} package contains \proglang{R} code defining classes and 
+methods along with high-level algorithms built on top of these, as well as
+an additional program layer in \proglang{C} that implements time-critical operations
+by directly modifying previously created \proglang{R} objects.
+In particular, the \proglang{R} building blocks encompass
+classes and methods for \code{LearningSample} and \code{BinaryTree} objects
+which can be re-used in high-level algorithms (such as
+\code{ctree}, \code{cforest} and \code{mob}) or directly at \proglang{C} level.
+\code{LearningSample} is a data set---created from external sources or conversion
+from other objects---which is enhanced by meta-information such as variable
+orderings that can speed up split searches. \code{BinaryTree} is
+a tree representation based on a recursive list structure
+containing node information (e.g., primary splits, surrogate splits, summary statistics,
+predictions, etc.) as well as left and right daughter nodes. Recursive methods
+for predicting future cases, textual and graphical representations etc., 
+are defined for objects of class \code{BinaryTree}.
+
+The tree-growing can be controlled in various ways: starting from simple 
+hyper-parameters, such as minimal leaf size, significance level or 
+maximal depth, to very complex arguments (e.g., parametric model classes 
+for \code{mob} or visualization functions for terminal nodes). At the \proglang{R}
+level, users and developers can make use of the documented API for
+inspecting and manipulating \code{BinaryTree} objects and, in addition,
+are free to extend currently implemented methodology.
+
+Unit testing of \pkg{party} (as for more than 1,200 other \proglang{R} packages on
+CRAN) is performed automatically on a daily basis for various platforms and
+versions of \proglang{R}.
+
+\section{Conclusions}
+
+The package \pkg{party} extends the set of machine learning techniques
+available in the \proglang{R} system for statistical computing
+(see the corresponding CRAN task view at \url{http://CRAN.R-project.org/src/contrib/Views/})
+with a toolbox for recursive partitioning. The package provides basic
+infrastructure for binary trees along with reference implementations of 
+three recently-suggested tree-based learners: conditional inference trees and forests,
+and model-based recursive partitioning. Party on!
+
+\bibliography{mloss}
+
+\end{document}
