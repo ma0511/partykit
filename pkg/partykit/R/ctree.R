@@ -285,7 +285,7 @@ ctree <- function(formula, data, weights, subset, na.action = na.pass,
     ret$terms <- terms(mf)
     ### need to adjust print and plot methods
     ### for multivariate responses
-    if (length(response) > 1) class(ret) <- "party"
+    ### if (length(response) > 1) class(ret) <- "party"
     return(ret)
 }
 

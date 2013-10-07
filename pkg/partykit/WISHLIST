@@ -24,6 +24,7 @@ x   -> predictions seem to work; however plot and print methods
 x      need generalization. So far, 
    - ctree returns "party" object for multivariate responses, we may want
      to invent a new class
+     -> plot dispatches internally, print and prediction still tbd
 x  - add party regression tests
 
 x - partykit manual (TH)

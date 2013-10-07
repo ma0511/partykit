@@ -142,7 +142,7 @@ ctree(formula, data, weights, subset, na.action = na.pass,
     ### multivariate responses
     airq2 <- ctree(Ozone + Temp ~ ., data = airq)
     airq2
-    plot(airq2, terminal_panel = node_mvar)
+    plot(airq2)
 
 }
 \keyword{tree}

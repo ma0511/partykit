@@ -370,6 +370,8 @@ plot.constparty <- function(x, main = NULL,
 	        node_barplot 
 	    } else if("Surv" %in% cl) {
 	        node_surv
+            } else if ("data.frame" %in% cl) {
+                node_mvar
             } else {
 	        node_boxplot
 	    }
@@ -744,7 +746,7 @@ node_mvar <- function(obj, which = NULL, id = TRUE, pop = TRUE, ylines = NULL, .
   rval <- function(node) {
     
     tid <- id_node(node)
-    nobs <- NROW(data_party(obj, tid))
+    nobs <- .nobs_party(obj, id = tid)
 
     ## set up top viewport
     top_vp <- viewport(layout = grid.layout(nrow = k, ncol = 2,
