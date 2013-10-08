@@ -306,9 +306,9 @@ mob <- function(formula, data, subset, na.action, weights, offset,
           return(Inf)
         } else {
 	  if(nrow(al) == 1L) 1 else {
-            fit_left <- afit(y = suby(y, zs), x = subx(x, zs), start = start_left,
+            fit_left <- afit(y = suby(y, zs), x = subx(x, zs), start = NULL,
 	      weights = weights[zs], offset = offset[zs], ...)
-            fit_right <- afit(y = suby(y, !zs), x = subx(x, !zs), start = start_right,
+            fit_right <- afit(y = suby(y, !zs), x = subx(x, !zs), start = NULL,
 	      weights = weights[!zs], offset = offset[!zs], ...)
     	    fit_left$objfun + fit_right$objfun
 	  }
