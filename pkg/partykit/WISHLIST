@@ -34,6 +34,17 @@ x- node_surv, node_hist, node_density, node_bivplot (Z)
 x- terminal_panel more sophisticated
 - prettify list.rules
 
+FROM: Daniel Lüdecke <d.luedecke@uke.de>
+On Wed, 9 Oct 2013, Daniel Lüdecke wrote:
+
+> 3.) Optionaler Beschriftungstext / Alternative für "Node": 
+> Anknüpfend an Punkt 2 wäre es schön, wenn man optional statt "Node" einen
+> anderen Text angeben könnte, wie bspw. "Grp", "Gruppe" etc., also einen
+> String-Parameter zulassen. Im Sourcecode lässt sich dies leicht abändern,
+> aber falls Sie die Ideen für das Party-Package aufgreifen sollten, wäre
+> es klasse, die Bezeichnung als Parameter änderbar zu gestalten.
+
+
 From Matthias.Studer@unige.ch Tue May 26 08:19:08 2009
 Date: Sun, 24 May 2009 19:35:58 +0200
 From: Matthias Studer <Matthias.Studer@unige.ch>
