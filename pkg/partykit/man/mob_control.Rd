@@ -12,7 +12,7 @@
 mob_control(alpha = 0.05, bonferroni = TRUE, minsplit = NULL, trim = 0.1,
   breakties = FALSE, parm = NULL, verbose = FALSE, caseweights = TRUE,
   ytype = "vector", xtype = "matrix", terminal = "object", inner = terminal,
-  model = TRUE)
+  model = TRUE, ordinal = "chisq", nrep = 10000)
 }
 
 \arguments{
@@ -49,6 +49,18 @@ mob_control(alpha = 0.05, bonferroni = TRUE, minsplit = NULL, trim = 0.1,
     stored.}
   \item{model}{logical. Should the full model frame be stored in the
     resulting object?}
+  \item{ordinal}{character indicating which type of parameter instability
+    test should be employed for ordinal partitioning variables (i.e.,
+    ordered factors). This can be \code{"chisq"}, \code{"max"}, or \code{"L2"}.
+    If \code{"chisq"} then the variable is treated as unordered and a
+    chi-squared test is performed. If \code{"L2"}, then a maxLM-type
+    test as for numeric variables is carried out but correcting for ties.
+    This requires simulation of p-values via \code{\link[strucchange]{catL2BB}}
+    and requires some computation time. For \code{"max"} a weighted
+    double maximum test is used that computes p-values via
+    \code{\link[mvtnorm]{pmvnorm}}.}
+  \item{nrep}{numeric. Number of replications in the simulation of
+    p-values for the ordinal \code{"L2"} statistic (if used).}
 }
 
 \details{

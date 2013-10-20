@@ -206,9 +206,12 @@ mob <- function(formula, data, subset, na.action, weights, offset,
       if(is.factor(zi)) {
         proci <- process[order(zi), , drop = FALSE]
         ifac[i] <- TRUE
+	iord <- is.ordered(zi) & (control$ordinal != "chisq")
 
+        ## order partitioning variable
+        zi <- zi[order(zi)]
         # re-apply factor() added to drop unused levels
-        zi <- factor(zi[order(zi)])
+        zi <- factor(zi, levels = unique(zi))
         # compute segment weights
         segweights <- as.vector(table(zi))/n
 
@@ -216,7 +219,25 @@ mob <- function(formula, data, subset, na.action, weights, offset,
         if(length(segweights) < 2L) {
           stat[i] <- 0
 	  pval[i] <- NA
-        } else {      
+        } else if(iord) {
+          proci <- apply(proci, 2L, cumsum)
+          tt <- head(cumsum(segweights), -1L)
+          if(control$ordinal == "max") {
+	    stopifnot(require("mvtnorm"))
+  	    stat[i] <- max(abs(proci[round(tt * n), ] / sqrt(tt * (1-tt))))
+	    pval[i] <- log(as.numeric(1 - mvtnorm::pmvnorm(
+	      lower = -stat[i], upper = stat[i],
+	      mean = rep(0, length(tt)),
+	      sigma = outer(tt, tt, function(x, y)
+	        sqrt(pmin(x, y) * (1 - pmax(x, y)) / ((pmax(x, y) * (1 - pmin(x, y))))))
+	      )^k))
+	  } else {
+	    stopifnot(require("strucchange"))
+	    proci <- rowSums(proci^2)
+  	    stat[i] <- max(proci[round(tt * n)] / (tt * (1-tt)))
+	    pval[i] <- log(strucchange::ordL2BB(segweights, nproc = k, nrep = control$nrep)$computePval(stat[i], nproc = k))
+	  }
+	} else {      
           stat[i] <- sum(sapply(1L:k, function(j) (tapply(proci[,j], zi, sum)^2)/segweights))
           pval[i] <- pchisq(stat[i], k*(length(levels(zi))-1), log.p = TRUE, lower.tail = FALSE)
         }
@@ -227,7 +248,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
   	  order(zi + runif(length(zi), min = -mm, max = +mm))
         } else {
           order(zi)
-        }    
+        }
         proci <- process[oi, , drop = FALSE]
         proci <- apply(proci, 2L, cumsum)
         stat[i] <- if(from < to) {
@@ -507,7 +528,7 @@ mob_grow_getlevels <- function(z) {
 mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsplit = NULL, trim = 0.1,
   breakties = FALSE, parm = NULL, verbose = FALSE, caseweights = TRUE,
   ytype = "vector", xtype = "matrix", terminal = "object", inner = terminal,
-  model = TRUE)
+  model = TRUE, ordinal = "chisq", nrep = 10000)
 {
   ytype <- match.arg(ytype, c("vector", "data.frame", "matrix"))
   xtype <- match.arg(xtype, c("data.frame", "matrix"))
@@ -515,11 +536,14 @@ mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsplit = NULL, trim =
   if(!is.null(terminal)) terminal <- as.vector(sapply(terminal, match.arg, c("estfun", "object")))
   if(!is.null(inner))    inner    <- as.vector(sapply(inner,    match.arg, c("estfun", "object")))
 
+  ordinal <- match.arg(tolower(ordinal), c("l2", "max", "chisq"))
+
   rval <- list(alpha = alpha, bonferroni = bonferroni, minsplit = minsplit,
     trim = ifelse(is.null(trim), minsplit, trim),
     breakties = breakties, parm = parm, verbose = verbose,
     caseweights = caseweights, ytype = ytype, xtype = xtype,
-    terminal = terminal, inner = inner, model = model)
+    terminal = terminal, inner = inner, model = model,
+    ordinal = ordinal, nrep = nrep)
   return(rval)
 }
 
