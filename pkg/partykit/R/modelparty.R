@@ -716,11 +716,12 @@ sctest.modelparty <- function(object, node = NULL, ...)
 
 print.modelparty <- function(x, node = NULL,
   FUN = NULL, digits = getOption("digits") - 4L,
-  header = TRUE, footer = TRUE,
-  title = "Model-based recursive partitioning", objfun = "", ...)
+  header = TRUE, footer = TRUE, title = NULL, objfun = "", ...)
 {
   digits <- max(c(0, digits))
   if(objfun != "") objfun <- paste(" (", objfun, ")", sep = "")
+  if(is.null(title)) title <- sprintf("Model-based recursive partitioning (%s)",
+    deparse(x$info$call$fit))
 
   if(is.null(node)) {
     header_panel <- if(header) function(party) {      
