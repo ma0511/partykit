@@ -3,6 +3,10 @@ lmtree <- function(formula, data, subset, na.action, weights, offset, ...)
 {
   ## use dots for setting up mob_control
   control <- mob_control(...)
+  if(control$vcov == "info") {
+    warning('vcov = "info" not supported in lmtree')
+    control$vcov <- "opg"
+  }
 
   ## keep call
   cl <- match.call(expand.dots = TRUE)

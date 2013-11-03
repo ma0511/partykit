@@ -374,7 +374,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
 
     ## fit model
     mod <- afit(y, x, weights = weights, offset = offset, ...,
-      estfun = TRUE, object = terminal$object)
+      estfun = TRUE, object = terminal$object | control$vcov == "info")
     mod$test <- NULL
     mod$nobs <- w2n(weights)
     mod$p.value <- NULL
@@ -388,6 +388,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
         cat(sprintf("Too few observations, stop splitting (minsplit = %i)\n\n", minsplit))
       }
       if(!terminal$estfun) mod$estfun <- NULL
+      if(!terminal$object) mod$object <- NULL
       return(partynode(id = id, info = mod))
     }
 
@@ -419,6 +420,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
     
     ## update model information
     if(!terminal$estfun) mod$estfun <- NULL
+    if(!terminal$object) mod$object <- NULL
     mod$test <- rbind("statistic" = test$stat, "p.value" = test$pval)
 
     if(TERMINAL) {
