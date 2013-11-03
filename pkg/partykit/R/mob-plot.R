@@ -4,7 +4,7 @@ node_bivplot <- function(mobobj, which = NULL, id = TRUE, pop = TRUE,
   fitmean = TRUE, linecol = "red",
   cdplot = FALSE, fivenum = TRUE, breaks = NULL,
   ylines = NULL, xlab = FALSE, ylab = FALSE, margins = rep(1.5, 4),
-  ...)
+  mainlab = NULL, ...)
 {  
   ## obtain dependent variable
   mf <- model.frame(mobobj)
@@ -20,12 +20,12 @@ node_bivplot <- function(mobobj, which = NULL, id = TRUE, pop = TRUE,
   ## fitted node ids
   fitted <- mobobj$fitted[["(fitted)"]]
   
-  ## if no explanatory variables: behave like plot.BinaryTree
+  ## if no explanatory variables: behave like plot.constparty
   if(inherits(X, "try-error")) {
     rval <- switch(class(y)[1L],
-      "Surv" = node_surv(mobobj, id = id, ...),
-      "factor" = node_barplot(mobobj, id = id, ...),
-      "ordered" = node_barplot(mobobj, id = id, ...),
+      "Surv" = node_surv(mobobj, id = id, mainlab = mainlab, ...),
+      "factor" = node_barplot(mobobj, id = id, mainlab = mainlab, ...),
+      "ordered" = node_barplot(mobobj, id = id, mainlab = mainlab, ...),
       node_boxplot(mobobj, ...))
     return(rval)
   }
@@ -176,8 +176,8 @@ node_bivplot <- function(mobobj, which = NULL, id = TRUE, pop = TRUE,
   rval <- function(node) {
     
     ## node index
-    id <- id_node(node)
-    ix <- fitted %in% nodeids(mobobj, from = id, terminal = TRUE)
+    nid <- id_node(node)
+    ix <- fitted %in% nodeids(mobobj, from = nid, terminal = TRUE)
 
     ## dependent variable
     y <- y[ix]
@@ -186,15 +186,24 @@ node_bivplot <- function(mobobj, which = NULL, id = TRUE, pop = TRUE,
     top_vp <- viewport(layout = grid.layout(nrow = k, ncol = 2,
 		       widths = unit(c(ylines, 1), c("lines", "null")), heights = unit(k, "null")),
 		       width = unit(1, "npc"), height = unit(1, "npc") - unit(2, "lines"),
-		       name = paste("node_mob", id, sep = ""))
+		       name = paste("node_mob", nid, sep = ""))
     pushViewport(top_vp)
     grid.rect(gp = gpar(fill = "white", col = 0))
 
     ## main title
     top <- viewport(layout.pos.col = 2, layout.pos.row = 1)
     pushViewport(top)
-    mainlab <- paste(ifelse(id, paste("Node", id, "(n = "), ""),
-		     info_node(node)$nobs, ifelse(id, ")", ""), sep = "")
+
+    if (is.null(mainlab)) { 
+      mainlab <- if(id) {
+    	function(id, nobs) sprintf("Node %s (n = %s)", id, nobs)
+      } else {
+    	function(id, nobs) sprintf("n = %s", nobs)
+      }
+    }
+    if (is.function(mainlab)) {
+      mainlab <- mainlab(nid, info_node(node)$nobs)
+    }
     grid.text(mainlab, y = unit(1, "npc") - unit(0.75, "lines"))
     popViewport()
 
@@ -205,7 +214,7 @@ node_bivplot <- function(mobobj, which = NULL, id = TRUE, pop = TRUE,
       yi <- y[o]
       xi <- xi[o]
       yfit <- if(is.null(node$info$object)) {
-        fitted(refit.modelparty(mobobj, node = id))
+        fitted(refit.modelparty(mobobj, node = nid))
       } else {
         fitted(node$info$object)[o]
       }
@@ -215,8 +224,8 @@ node_bivplot <- function(mobobj, which = NULL, id = TRUE, pop = TRUE,
       pushViewport(plot_vpi)
 
       ## call panel function
-      if(is.factor(xi)) cat_fun(xi, yi, yfit, i, paste("node_mob", id, "-", i, sep = ""), ...)
-	else num_fun(xi, yi, yfit, i, paste("node_mob", id, "-", i, sep = ""), ...)
+      if(is.factor(xi)) cat_fun(xi, yi, yfit, i, paste("node_mob", nid, "-", i, sep = ""), ...)
+	else num_fun(xi, yi, yfit, i, paste("node_mob", nid, "-", i, sep = ""), ...)
       if(pop) popViewport() else upViewport()
     }
     if(pop) popViewport() else upViewport()

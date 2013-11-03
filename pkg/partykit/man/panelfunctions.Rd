@@ -10,12 +10,14 @@
 \alias{node_mvar}
 
 \title{ Panel-Generators for Visualization of Party Trees }
+
 \description{
     The plot method for \code{party} and \code{constparty} objects are rather
     flexible and can be extended by panel functions. Some pre-defined
     panel-generating functions of class \code{grapcon_generator}
     for the most important cases are documented here.
 }
+
 \usage{
 node_inner(obj, id = TRUE, pval = TRUE, abbreviate = FALSE, fill = "white", 
     gp = gpar())
@@ -42,11 +44,11 @@ node_bivplot(mobobj, which = NULL, id = TRUE, pop = TRUE,
   fitmean = TRUE, linecol = "red",
   cdplot = FALSE, fivenum = TRUE, breaks = NULL,
   ylines = NULL, xlab = FALSE, ylab = FALSE, margins = rep(1.5, 4),
-  \dots)
+  mainlab = NULL, \dots)
 
 node_mvar(obj, which = NULL, id = TRUE, pop = TRUE, ylines = NULL, mainlab = NULL, varlab = TRUE, ...)
-
 }
+
 \arguments{
   \item{obj}{ an object of class \code{party}.}
   \item{digits}{ integer, used for formating numbers. }
