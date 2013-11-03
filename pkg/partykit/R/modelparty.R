@@ -91,7 +91,6 @@ mob <- function(formula, data, subset, na.action, weights, offset,
       list(
         coefficients = coef(obj),
         objfun = -as.numeric(logLik(obj)),
-	## FIXME: vcov/info/?
         estfun = if(estfun) estfun(obj) else NULL,
         object = if(object) obj else NULL
       )
@@ -133,7 +132,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
 
   ## variable selection: given model scores, conduct
   ## all M-fluctuation tests for orderins in z
-  mob_grow_fluctests <- function(estfun, z, weights)
+  mob_grow_fluctests <- function(estfun, z, weights, obj = NULL)
   {  
     ## set up return values
     m <- NCOL(z)
@@ -151,7 +150,11 @@ mob <- function(formula, data, subset, na.action, weights, offset,
 
     ## scale process
     process <- process/sqrt(n)
-    J12 <- root.matrix(crossprod(process))
+    J12 <- if(control$vcov == "opg" | is.null(obj)) {
+      root.matrix(crossprod(process))
+    } else {
+      root.matrix(solve(vcov(obj) * n))
+    }
     process <- t(chol2inv(chol(J12)) %*% t(process))  
 
     ## select parameters to test
@@ -389,7 +392,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
     }
 
     ## conduct all parameter instability tests
-    test <- try(mob_grow_fluctests(mod$estfun, z, weights))
+    test <- try(mob_grow_fluctests(mod$estfun, z, weights, mod$object))
 
     if(!inherits(test, "try-error")) {
       if(control$bonferroni) {
@@ -528,7 +531,7 @@ mob_grow_getlevels <- function(z) {
 mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsplit = NULL, trim = 0.1,
   breakties = FALSE, parm = NULL, verbose = FALSE, caseweights = TRUE,
   ytype = "vector", xtype = "matrix", terminal = "object", inner = terminal,
-  model = TRUE, ordinal = "chisq", nrep = 10000)
+  model = TRUE, vcov = "opg", ordinal = "chisq", nrep = 10000)
 {
   ytype <- match.arg(ytype, c("vector", "data.frame", "matrix"))
   xtype <- match.arg(xtype, c("data.frame", "matrix"))
@@ -536,6 +539,7 @@ mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsplit = NULL, trim =
   if(!is.null(terminal)) terminal <- as.vector(sapply(terminal, match.arg, c("estfun", "object")))
   if(!is.null(inner))    inner    <- as.vector(sapply(inner,    match.arg, c("estfun", "object")))
 
+  vcov <- match.arg(tolower(vcov), c("opg", "info"))
   ordinal <- match.arg(tolower(ordinal), c("l2", "max", "chisq"))
 
   rval <- list(alpha = alpha, bonferroni = bonferroni, minsplit = minsplit,
@@ -543,7 +547,7 @@ mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsplit = NULL, trim =
     breakties = breakties, parm = parm, verbose = verbose,
     caseweights = caseweights, ytype = ytype, xtype = xtype,
     terminal = terminal, inner = inner, model = model,
-    ordinal = ordinal, nrep = nrep)
+    vcov = vcov, ordinal = ordinal, nrep = nrep)
   return(rval)
 }
 

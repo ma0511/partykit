@@ -12,7 +12,7 @@
 mob_control(alpha = 0.05, bonferroni = TRUE, minsplit = NULL, trim = 0.1,
   breakties = FALSE, parm = NULL, verbose = FALSE, caseweights = TRUE,
   ytype = "vector", xtype = "matrix", terminal = "object", inner = terminal,
-  model = TRUE, ordinal = "chisq", nrep = 10000)
+  model = TRUE, vcov = "opg", ordinal = "chisq", nrep = 10000)
 }
 
 \arguments{
@@ -49,6 +49,11 @@ mob_control(alpha = 0.05, bonferroni = TRUE, minsplit = NULL, trim = 0.1,
     stored.}
   \item{model}{logical. Should the full model frame be stored in the
     resulting object?}
+  \item{vcov}{character indicating which type of covariance matrix
+    estimator should be employed in the parameter instability tests.
+    The default is the outer product of gradients (\code{"opg"}).
+    Alternatively, \code{vcov = "info"} employs the information matrix
+    (which is sensible only for maximum likelihood estimation).}
   \item{ordinal}{character indicating which type of parameter instability
     test should be employed for ordinal partitioning variables (i.e.,
     ordered factors). This can be \code{"chisq"}, \code{"max"}, or \code{"L2"}.
