@@ -44,7 +44,7 @@ node_bivplot(mobobj, which = NULL, id = TRUE, pop = TRUE,
   ylines = NULL, xlab = FALSE, ylab = FALSE, margins = rep(1.5, 4),
   \dots)
 
-node_mvar(obj, which = NULL, id = TRUE, pop = TRUE, ylines = NULL, ...)
+node_mvar(obj, which = NULL, id = TRUE, pop = TRUE, ylines = NULL, mainlab = NULL, varlab = TRUE, ...)
 
 }
 \arguments{
@@ -87,7 +87,10 @@ node_mvar(obj, which = NULL, id = TRUE, pop = TRUE, ylines = NULL, ...)
     splineplots.}
   \item{xlab, ylab}{character. Optional annotation for x-axis and y-axis.}
   \item{margins}{numeric. Margins around drawing area in viewport.}
-  \item{mainlab}{character. An optional title for the plot.}
+  \item{mainlab}{character or function. An optional title for the plot. Either
+    a character or a \code{function(id, nobs)}.}
+  \item{varlab}{logical. Should the individual variable labels be attached to
+    the \code{mainlab} for multivariate responses?}
   \item{\dots}{ additional arguments passed to callies 
                 (for example to \code{\link[survival]{survfit}}).}
 }

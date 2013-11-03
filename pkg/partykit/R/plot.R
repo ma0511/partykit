@@ -366,14 +366,15 @@ plot.constparty <- function(x, main = NULL,
     } else {
         if (is.null(terminal_panel)) {
 	    cl <- class(x$fitted[["(response)"]])
-	    terminal_panel <- if("factor" %in% cl) {
-	        node_barplot 
+	    if("factor" %in% cl) {
+	        terminal_panel <- node_barplot 
 	    } else if("Surv" %in% cl) {
-	        node_surv
+	        terminal_panel <- node_surv
             } else if ("data.frame" %in% cl) {
-                node_mvar
+                terminal_panel <- node_mvar
+                if (is.null(tnex)) tnex <- 2 * NCOL(x$fitted[["(response)"]])
             } else {
-	        node_boxplot
+	        terminal_panel <- node_boxplot
 	    }
 	}
         if (is.null(tnex)) tnex <- 2
@@ -477,9 +478,16 @@ node_barplot <- function(obj,
         ## main title
         top <- viewport(layout.pos.col=2, layout.pos.row=1)
         pushViewport(top)
-        if (is.null(mainlab))
-          mainlab <- paste(ifelse(id, paste("Node", names(obj)[nid], "(n = "), "n = "),
-	                   nobs[nid], ifelse(id, ")", ""), sep = "")
+        if (is.null(mainlab)) {	
+	  mainlab <- if(id) {
+	    function(id, nobs) sprintf("Node %s (n = %s)", id, nobs)
+  	  } else {
+	    function(id, nobs) sprintf("n = %s", nobs)
+	  }
+        }
+	if (is.function(mainlab)) {
+          mainlab <- mainlab(names(obj)[nid], nobs[nid])
+	}
         grid.text(mainlab)
         popViewport()
 	
@@ -581,9 +589,16 @@ node_boxplot <- function(obj,
         ## main title
         top <- viewport(layout.pos.col=2, layout.pos.row=1)
         pushViewport(top)
-	if (is.null(mainlab))
-	  mainlab <- paste(ifelse(id, paste("Node", names(obj)[nid], "(n = "), "n = "),
-	                   sum(wn), ifelse(id, ")", ""), sep = "")
+        if (is.null(mainlab)) {	
+	  mainlab <- if(id) {
+	    function(id, nobs) sprintf("Node %s (n = %s)", id, nobs)
+  	  } else {
+	    function(id, nobs) sprintf("n = %s", nobs)
+	  }
+        }
+	if (is.function(mainlab)) {
+          mainlab <- mainlab(names(obj)[nid], sum(wn))
+	}
         grid.text(mainlab)
         popViewport()
 	
@@ -708,9 +723,16 @@ node_surv <- function(obj, col = "black", ylines = 2,
         ## main title
         top <- viewport(layout.pos.col=2, layout.pos.row=1)
         pushViewport(top)
-	if (is.null(mainlab))
-	  mainlab <- paste(ifelse(id, paste("Node", nid, "(n = "), "n = "),
-	                   sum(wn), ifelse(id, ")", ""), sep = "")
+        if (is.null(mainlab)) {	
+	  mainlab <- if(id) {
+	    function(id, nobs) sprintf("Node %s (n = %s)", id, nobs)
+  	  } else {
+	    function(id, nobs) sprintf("n = %s", nobs)
+	  }
+        }
+	if (is.function(mainlab)) {
+          mainlab <- mainlab(nid, sum(wn))
+	}
         grid.text(mainlab)
         popViewport()
 	
@@ -731,7 +753,7 @@ node_surv <- function(obj, col = "black", ylines = 2,
 }
 class(node_surv) <- "grapcon_generator"
 
-node_mvar <- function(obj, which = NULL, id = TRUE, pop = TRUE, ylines = NULL, ...)
+node_mvar <- function(obj, which = NULL, id = TRUE, pop = TRUE, ylines = NULL, mainlab = NULL, varlab = TRUE, ...)
 {  
   ## obtain dependent variables
   y <- obj$fitted[["(response)"]]
@@ -757,15 +779,26 @@ node_mvar <- function(obj, which = NULL, id = TRUE, pop = TRUE, ylines = NULL, .
     grid.rect(gp = gpar(fill = "white", col = 0))
 
     ## main title
-    mainlab <- paste(ifelse(id, paste("Node", tid, "(n = "), ""),
-		     nobs, ifelse(tid, ")", ""), sep = "")
-
+    if (is.null(mainlab)) { 
+      mainlab <- if(id) {
+    	function(id, nobs) sprintf("Node %s (n = %s)", id, nobs)
+      } else {
+    	function(id, nobs) sprintf("n = %s", nobs)
+      }
+    }
+    if (is.function(mainlab)) {
+      mainlab <- mainlab(tid, nobs)
+    }
+    
     for(i in 1L:k) {
-
       tmp <- obj
       tmp$fitted[["(response)"]] <- y[,which[i]]
-      nm <- names(y)[which[i]]
-      nm <- paste(mainlab, nm, sep = ": ")
+      if(varlab) {
+        nm <- names(y)[which[i]]
+        if(i == 1L) nm <- paste(mainlab, nm, sep = ": ")
+      } else {
+        nm <- if(i == 1L) mainlab else ""
+      }
       pfun <- switch(sapply(y, class)[which[i]],
                      "Surv" = node_surv(tmp, id = id, mainlab = nm, ...),
                      "factor" = node_barplot(tmp, id = id, mainlab = nm,  ...),
