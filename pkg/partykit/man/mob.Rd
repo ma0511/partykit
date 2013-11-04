@@ -109,7 +109,7 @@ of type (1) is supplied. However, to save computation time, a function of type
 
 For the fitted MOB tree, several standard methods are provided such as
 \code{print}, \code{predict}, \code{residuals}, \code{logLik}, \code{deviance},
-\code{weights}, \code{coef} and \code{summary}. Sum of these rely on reusing the
+\code{weights}, \code{coef} and \code{summary}. Some of these rely on reusing the
 corresponding methods for the individual model objects in the terminal nodes.
 Functions such as \code{coef}, \code{print}, \code{summary} also take a
 \code{node} argument that can specify the node IDs to be queried.

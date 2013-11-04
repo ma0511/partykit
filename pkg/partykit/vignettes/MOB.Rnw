@@ -1,51 +1,52 @@
 \documentclass[nojss]{jss}
-
-%\VignetteIndexEntry{party with the mob}
-%\VignetteDepends{Formula,mlbench,sandwich,strucchange,survival,TH.data,vcd}
-%\VignetteKeywords{parametric models, object-orientation, recursive partitioning}
-%\VignettePackage{partykit}
-
-%% packages
-\usepackage{amsmath}
-\SweaveOpts{engine=R}
-%% neet no \usepackage{Sweave}
-
-<<setup, echo = FALSE, results = hide>>=
-library("partykit")
-options(prompt = "R> ", continue = "+  ", digits = 4, useFancyQuotes = FALSE)
-@
+\usepackage{amsmath,thumbpdf}
 
 %% commands
 \newcommand{\ui}{\underline{i}}
 \newcommand{\oi}{\overline{\imath}}
 \newcommand{\argmin}{\operatorname{argmin}\displaylimits}
 
-%% author/title
+%% neet no \usepackage{Sweave}
+\SweaveOpts{engine=R, eps=FALSE, keep.source=TRUE}
+
+<<setup, echo=FALSE, results=hide>>=
+library("partykit")
+options(prompt = "R> ", continue = "+  ", digits = 4, useFancyQuotes = FALSE)
+@
+
+%\VignetteIndexEntry{Parties, Models, Mobsters: A New Implementation of Model-Based Recursive Partitioning in R}
+%\VignetteDepends{Formula,mlbench,sandwich,strucchange,survival,TH.data,vcd}
+%\VignetteKeywords{parametric models, object-orientation, recursive partitioning}
+%\VignettePackage{partykit}
+
 \author{Achim Zeileis\\Universit\"at Innsbruck \And
         Torsten Hothorn\\Universit\"at Z\"urich}
 \Plainauthor{Achim Zeileis, Torsten Hothorn}
 
-\title{\pkg{party} with the \code{mob}: Model-Based Recursive Partitioning in \proglang{R}}
-\Plaintitle{party with the mob: Model-Based Recursive Partitioning in R}
-\Shorttitle{\pkg{party} with the \texttt{mob}}
+\title{Parties, Models, Mobsters: A New Implementation of Model-Based Recursive Partitioning in \proglang{R}}
+\Plaintitle{Parties, Models, Mobsters: A New Implementation of Model-Based Recursive Partitioning in R}
+\Shorttitle{Model-Based Recursive Partitioning in \proglang{R}}
 
 \Keywords{parametric models, object-orientation, recursive partitioning}
 
-%% abstract
-\Abstract{
-  The \pkg{party} package \citep{Hothorn+Hornik+Zeileis:2006a} provides
-  the function \code{mob()} implementing a recently suggested algorithm
-  for \underline{mo}del-\underline{b}ased recursive partitioning
-  \citep{Zeileis+Hothorn+Hornik:2005}. The basic steps are: (1)~fit a
-  parametric model to a data set, (2)~test for parameter instability over
-  a set of partitioning variables, (3)~if there is some overall parameter
-  instability, split the model with respect to the variable associated with
-  the highest instability, (4)~repeat the procedure in each of the child nodes.
-  It is discussed how these steps of the conceptual algorithm are translated
-  into computational tools in an object-oriented manner, allowing the user to
-  plug in various types of parametric models. The outcome is a tree where
-  each node is associated with a fitted parametric model that can be
-  effectively visualized and summarized.
+\Abstract{  
+  MOB is a generic algorithm for \underline{mo}del-\underline{b}ased recursive
+  partitioning \citep{Zeileis+Hothorn+Hornik:2008}. Rather than fitting one
+  global model to a dataset, it estimates local models on subsets of data that
+  are ``learned'' by recursively partitioning. It proceeds in the following way:
+  (1)~fit a parametric model to a data set, (2)~test for parameter instability
+  over a set of partitioning variables, (3)~if there is some overall parameter
+  instability, split the model with respect to the variable associated with the
+  highest instability, (4)~repeat the procedure in each of the child nodes. It
+  is discussed how these steps of the conceptual algorithm are translated into
+  computational tools in an object-oriented manner, allowing the user to plug in
+  various types of parametric models. For representing the resulting trees, the
+  \proglang{R} package \pkg{partykit} is employed and extended with generic
+  infrastructure for recursive partitions where nodes are associated with
+  statistical models. Compared to the previously available implementation
+  in the \pkg{party} package, the new implementation supports more inference
+  options, is easier to extend to new models, and provides more convenience
+  features.
 }
 
 \Address{
@@ -69,13 +70,15 @@ options(prompt = "R> ", continue = "+  ", digits = 4, useFancyQuotes = FALSE)
 
 \begin{document}
 
-\section{Motivation}
-\label{sec:motivation}
+\section{MOB: Model-based recursive partitioning} \label{sec:algorithm}
 
-Consider a parametric model $\mathcal{M}(Y, \theta)$
+First, the theory underling the MOB (model-based recursive partitioning)
+is briefly reviewed, a detailed discussion is provided by \cite{Zeileis+Hothorn+Hornik:2008}.
+To fix notation, consider a parametric model $\mathcal{M}(Y, \theta)$
 with (possibly vector-valued) observations $Y$ and a
 $k$-dimensional vector of parameters $\theta$. This model 
-could be a (possibly multivariate) normal distribution for $Y$, or some
+could be a (possibly multivariate) normal distribution for $Y$, 
+a psychometric model for a matrix of responses $Y$, or some
 kind of regression model when $Y = (y, x)$ can be split up into a dependent variable
 $y$ and regressors $x$. An example for the latter could be a linear regression
 model $y = x^\top \theta$ or a generalized linear model (GLM) or a survival 
@@ -84,15 +87,79 @@ regression.
 Given $n$ observations $Y_i$ ($i = 1, \dots, n$) the model can be fitted
 by minimizing some objective function $\Psi(Y, \theta)$, e.g., a residual sum of squares
 or a negative log-likelihood leading to ordinary least squares (OLS) or maximum
-likelihood (ML) estimation.
+likelihood (ML) estimation, respectively.
 
 If a global model for all $n$ observations does not fit well and further
 covariates $Z_1, \dots, Z_\ell$ are available, it might be possible to partition
 the $n$ observations with respect to these variables and find a fitting model
-in each cell of the partition. The algorithm described here tries to find
-such a partition adaptively using a greedy forward search. This procedure is
-implemented in the function \code{mob()} and described in more detail in the following
-section. However, we we will state some goals and design principles in advance.
+in each cell of the partition. The MOB algorithm tries to find
+such a partition adaptively using a greedy forward search.
+The basic idea is to grow a tee in which every node is associated with a model
+of type $\mathcal{M}$. To assess whether splitting of the node is necessary a
+fluctuation test for parameter instability is performed. If there is significant instability
+with respect to any of the partitioning variables $Z_j$, the node is splitted
+into $B$ locally optimal segments (currently only $B = 2$ is implemented in the software)
+and then the procedure is repeated in each of the $B$ children.
+If no more significant instabilities can be found, the recursion stops.
+More precisely, the steps of the algorithm are
+%
+\begin{enumerate}
+\item Fit the model once to all observations in the current node.
+\item Assess whether the parameter estimates are stable with respect to
+  every partitioning variable $Z_1, \dots, Z_\ell$. If there is some overall instability,
+  select the variable $Z_j$ associated with the highest parameter instability, otherwise
+  stop.
+\item Compute the split point(s) that locally optimize the objective function $\Psi$.
+\item Split the node into child nodes and repeat the procedure until some stopping criterion is met.
+\end{enumerate}
+%
+This conceptual framework is extremely flexible and allows to adapt it to various
+tasks by choosing particular models, tests, and methods in each of the steps:
+%
+\begin{enumerate}
+\item \emph{Model estimation:} The original MOB introduction \citep{Zeileis+Hothorn+Hornik:2008}
+  discussed regression models: OLS regression, GLMs, and survival regression. Subsequently,
+  \cite{Gruen+Kosmidis+Zeileis:2012} have also adapted MOB to beta regression for limited
+  response variables. Furthermore, MOB provides a generic way of adding covariates to models
+  that otherwise have no regressors: this can either serve as a check whether the model is
+  indeed independent from regressors or lead to local models for subsets. Both views are
+  of interest when employing MOB to detect parameter instabilities in psychometric models
+  for item responses such as the Bradley-Terry or the Rasch model
+  \citep[see][respectively]{Strobl+Wickelmaier+Zeileis:2011,Strobl+Kopf+Zeileis:2013}.
+\item \emph{Parameter instability tests:} To assess the stability of all model parameters
+  across a certain partitioning variable, the general class of score-based fluctuation tests proposed by
+  \cite{Zeileis+Hornik:2007} is employed. Based on the empirical score function observations
+  (i.e., empirical estimating functions or contributions to the gradient), ordered with
+  respect to the partitioning variable, the fluctuation or instability in the model's
+  parameters can be tested. From this general framework the Andrews sup\textit{LM} test
+  is used for assessing numerical partitioning variables and a $\chi^2$ test for
+  categorical partitioning variables (see \citealp{Zeileis:2005} and \citealp{Merkle+Zeileis:2013}
+  for unifying views emphasizing regression and psychometric models, respectively).
+  Furthermore, the test statistics for ordinal partitioning variables suggested by
+  \cite{Merkle+Fan+Zeileis:2013} have been added.
+\item \emph{Partitioning:} As the objective function $\Psi$ is additive, it is easy
+  to compute a single optimal split point (or cut point or break point). For each conceivable
+  split, the model is estimated on the two resulting subsets and the resulting objective
+  functions are summed. The split that optimizes this segmented objective function
+  is then selected as the optimal split. For optimally splitting the data into $B > 2$
+  segments, the same idea can be used and a full grid search can be avoided by employing
+  a dynamic programming algorithms \citep{Hawkins:2001,Bai+Perron:2003}. (At the moment
+  the latter is not implemented in the software.)
+\item \emph{Pruning:} For determining the optimal size of the tree, one can either use
+  a pre-pruning or post-pruning strategy. For the former, the algorithm stops when
+  no significant parameter instabilities are detected in the current node (or when the
+  node becomes too small). For the latter, one would first grow a large tree (subject only
+  to a minimal node size requirement) and then prune back splits that did not improve
+  the model, e.g., judging by information criteria such as AIC or BIC \citep[see e.g.,][]{Su+Wang+Fan:2004}.
+  Currently, only the former strategy is implemented using Bonferroni-corrected $p$~values from the
+  score-based fluctuation tests.
+\end{enumerate}
+%
+In the following it is discussed how most of the possible choices above are embedded
+in a common computational framework using \proglang{R}'s facilities for model estimation
+and object orientation.
+
+\section[A new implementation in R]{A new implementation in \proglang{R}} \label{sec:implementation}
 
 To translate the model-based partitioning problem into \proglang{R}, we start with
 a formula description of the variables involved. This formula should be of type
@@ -114,29 +181,6 @@ implementing (generalized) linear regression models, are readily available in
 \pkg{modeltools}, others can easily be user-defined.
 
 
-\section{The model-based recursive partitioning algorithm}
-\label{sec:algorithm}
-
-The basic idea is to grow a tee in which every node is associated with a model
-of type $\mathcal{M}$. To assess whether splitting of the node is necessary a
-fluctuation test for parameter instability is performed. If there is significant instability
-with respect to any of the partitioning variables $Z_j$, the node is splitted
-into $B$ locally optimal segments (currently only $B = 2$ is implemented)
-and then the procedure is repeated in each of the $B$ children.
-If no more significant instabilities can be found, the recursion stops.
-More precisely, the steps of the algorithm are
-
-\begin{enumerate}
-\item Fit the model once to all observations in the current node.
-\item Assess whether the parameter estimates are stable with respect to
-  every partitioning variable $Z_1, \dots, Z_\ell$. If there is some overall instability,
-  select the variable $Z_j$ associated with the highest parameter instability, otherwise
-  stop.
-\item Compute the split point(s) that locally optimize the objective function $\Psi$.
-\item Split the node into child nodes and repeat the procedure.
-\end{enumerate}
-
-The details for steps 1--3 are specified in the following.
 
 
 \subsection{Parameter estimation}
@@ -148,11 +192,36 @@ code for the \code{linearModel} provided by this package illustrates how
 a simple wrapper to existing \proglang{R} functionality can be written.
 In particular, a method to the generic function \code{reweight()} has to
 be available. The reason is that it is inefficient to fit a brand-new model
-\code{modelobj} (including formula-parsing) in every node---much computation time
+\code{modelobj} (including formula-parsing) in every node -- much computation time
 is saved if simply \code{reweight(modelobj, weights)} is called in each of the
 child nodes. The \code{weights} argument controls which observations go into which
 of the child nodes.
 
+
+(1) It can be a function \code{fit(y, x = NULL, start = NULL, weights = NULL,
+offset = NULL, ...)}. The arguments \code{y}, \code{x}, \code{weights}, \code{offset}
+will be set to the corresponding elements in the current node of the tree.
+Additionally, starting values will sometimes be supplied via \code{start}.
+Of course, the \code{fit} function can choose to ignore any arguments that are
+not applicable, e.g., if the are no regressors \code{x} in the model or if
+starting values or not supported. The returned object needs to have a class
+that has associated \code{coef}, \code{logLik}, and
+\code{estfun} methods for extracting the estimated parameters,
+the maximized log-likelihood, and the empirical estimating function (i.e.,
+score or gradient contributions), respectively.
+
+(2) It can be a function \code{fit(y, x = NULL, start = NULL, weights = NULL,
+offset = NULL, ..., estfun = FALSE, object = FALSE)}. The arguments have the
+same meaning as above but the returned object needs to have a different structure.
+It needs to be a list with elements \code{coefficients} (containing the estimated
+parameters), \code{objfun} (containing the minimized objective function),
+\code{estfun} (the empirical estimating functions), and \code{object} (the
+fitted model object). The elements \code{estfun}, or \code{object} should be
+\code{NULL} if the corresponding argument is set to \code{FALSE}.
+
+Internally, a function of type (2) is set up by \code{mob()} in case a function
+of type (1) is supplied. However, to save computation time, a function of type
+(2) may also be specified directly.
 
 \subsection{Testing for parameter instability}
 
@@ -161,7 +230,7 @@ of the fitted model are stable over each particular ordering implied by
 the partitioning variables $Z_j$ or whether splitting the sample with respect
 to one of the $Z_j$ might capture instabilities in the parameters and thus improve the fit.
 The tests used in this step belong to the class of generalized M-fluctuation
-tests \citep{ZeileisHornik2003,Zeileis2005}. For numerical partitioning variables
+tests \citep{Zeileis+Hornik:2003,Zeileis:2005}. For numerical partitioning variables
 $Z_j$ the $\sup LM$~statistic is used which is the maximum over all single split
 $LM$ statistics. For categorical partitioning variables, a $\chi^2$~statistic is
 employed which captures the fluctuation within each of the categories of $Z_j$.
@@ -203,15 +272,58 @@ This concludes one iteration of the recursive partitioning algorithm and steps~1
 are carried out again in each of the $B$ daughter nodes until no significant 
 instability is detected in step~2.
 
+
+\subsection{Methods}
+
+There is a wide range of standard methods available for objects of class `\code{modelparty}'.
+The standard \code{print()}, \code{plot()}, and \code{predict()} build on the 
+corresponding methods for `\code{party}' objects but provide some more special options.
+Furthermore, there are standard methods for functions with formula interfaces:
+\code{formula()} (optionally one can set \code{extended = TRUE}), \code{getCall()},
+\code{model.frame()}, \code{weights()}. Finally, there is a standard set of methods
+for statistical model objects: \code{coef()}, \code{residuals()}, \code{logLik()} (optionally
+the \code{splits = FALSE} suppresses counting the splits in the degrees of freedom),
+\code{deviance()}, \code{fitted()}, and \code{summary()}.
+
+Some of these methods rely on reusing the corresponding methods for the individual model
+objects in the terminal nodes. Functions such as \code{coef()}, \code{print()}, \code{summary()}
+also take a \code{node} argument that can specify the node IDs to be queried.
+
+\code{predict()} method:
+\code{predict(object, newdata = NULL, type = "node", ...)}.
+The argument \code{type} can either be a function or a character string.
+More precisely, if \code{type} is a function it should be a
+\code{function (object, newdata = NULL, ...)} that returns a vector or
+matrix of predictions from a fitted model \code{object} either with or
+without \code{newdata}. If \code{type} is a character string, such a
+function is set up internally as
+\code{predict(object, newdata = newdata, type = type, ...)}, i.e.,
+it relies on a suitable \code{predict()} method being available for
+the fitted models associated with the `\code{party}' object.
+
+\code{plot()} method:
+\code{plot(x, terminal_panel = NULL, FUN = NULL)}.
+This simply calls the \code{plot()} method for `\code{party}' objects with a
+custom panel function for the terminal panels. By default, \code{node_terminal} is used
+to include some short text in each terminal node. This text can be set up by \code{FUN}
+with the default being the number of observations and estimated parameters. However,
+more elaborate terminal panel functions can be written as well. The `\code{lmtree}' and
+`\code{glmtree}' convenience interfaces both internally use \code{node_bivplot}.
+
+\code{refit.modelparty}
+
+\code{sctest.modelparty}
+
+
 \section{Illustrations}
 \label{sec:illustration}
 
 \subsection{Boston housing data}
 
-Since the analysis by \cite{BreimanFriedman1985}, the Boston housing data are 
+Since the analysis by \cite{Breiman+Friedman:1985}, the Boston housing data are 
 a popular and well-investigated empirical basis for illustrating non-linear 
 regression methods both in machine learning and statistics
-\citep[see][for two recent examples]{Gama2004,Samarovetal2005} and we follow 
+\citep[see][for two recent examples]{Gama:2004,Samarov+Spokoiny+Vial:2005} and we follow 
 these examples by segmenting a bivariate linear regression model for the house
 values.
 
@@ -247,7 +359,7 @@ BostonHousing$rm <- BostonHousing$rm^2
 Choosing appropriate
 transformations of the dependent variable and the regressors that enter the linear
 regression model is important to obtain a well-fitting model in each segment and
-we follow in our choice the recommendations of \cite{BreimanFriedman1985}. Monotonous
+we follow in our choice the recommendations of \cite{Breiman+Friedman:1985}. Monotonic
 transformations of the partitioning variables do not affect the recursive partitioning
 algorithm and hence do not have to be performed. However, it is important to distinguish
 between numerical and categorical variables for choosing an appropriate parameter 
@@ -306,8 +418,8 @@ variable $y$ against each of the regressors $x_i$ in the terminal nodes. Each sc
 plot also shows the fitted values, i.e., a project of the fitted hyperplane.
 
 \setkeys{Gin}{width=\textwidth}
-\begin{figure}[p]
-\begin{center}
+\begin{figure}[p!]
+\centering
 <<BostonHousing-plot,echo=FALSE,results=hide,fig=TRUE,height=8,width=12,include=FALSE>>=
 plot(fmBH)
 @
@@ -315,7 +427,6 @@ plot(fmBH)
 \caption{\label{fig:BostonHousing} Linear-regression-based tree for the Boston housing data.
 The plots in the leaves give partial scatter plots for \code{rm} (upper panel) and 
 \code{lstat} (lower panel).}
-\end{center}
 \end{figure}
 
 From this visualization, it can be seen that in the nodes~4, 6, 7 and 8 the increase of
@@ -412,15 +523,14 @@ plot(fmPID)
 @
 
 \setkeys{Gin}{width=\textwidth}
-\begin{figure}[bth]
-\begin{center}
+\begin{figure}[t!]
+\centering
 <<PimaIndiansDiabetes-plot,echo=FALSE,results=hide,fig=TRUE,height=6,width=9>>=
 plot(fmPID)
 @
 \caption{\label{fig:PimaIndiansDiabetes} Logistic-regression-based tree for the Pima Indians
 diabetes data. The plots in the leaves give spinograms for \code{diabetes} versus 
 \code{glucose}.}
-\end{center}
 \end{figure}
 
 which produces again a plot of the dependent variable $y$ against the only regressors
@@ -454,45 +564,59 @@ risk <- round(100 * (exp(coef(fmPID)[,2])-1), digits = 1)
 i.e., the odds increase by \Sexpr{risk[1]}\%, \Sexpr{risk[2]}\% and \Sexpr{risk[3]}\%
 with respect to glucose in the three groups.
 
+\subsection{German breast cancer data}
 
+\pkg{survival} \citep{survival}
 
-\section{Conclusion}
-\label{sec:conclusion}
-
-The function \code{mob()} in the \pkg{party} package provides a flexible and object-oriented
-implementation of the general algorithm for model-based recursive partitioning.
-Models of class ``\code{StatModel}''---that employ a formula interface and are equipped with
-methods for the generic functions \code{reweight()}, \code{weights()}, \code{estfun()} plus
-some function for extracting the value of the objective function---can be easily partitioned.
-The resulting ``\code{mob}'' tree can be flexibly summarized, both numerically and graphically,
-and used for predictions on new data.
-
-
-\bibliography{party}
-
-\end{document}
-
-
-
+<<GBSG2>>=
 data("GBSG2", package = "TH.data")
 GBSG2$time <- GBSG2$time/365
+@
 
+<<wbreg, results=hide>>=
+library("survival")
 wbreg <- function(y, x, start = NULL, weights = NULL, offset = NULL, ...) {
   survreg(y ~ 0 + x, weights = weights, dist = "weibull", ...)
 }
-logLik.survreg <- function(object, ...) structure(object$loglik[2], df = sum(object$df), class = "logLik")
+@
 
-mb <- mob(Surv(time, cens) ~ horTh + pnodes | progrec + menostat + estrec + menostat + age + tsize + tgrade,
+<<logLik.survreg>>=
+logLik.survreg <- function(object, ...)
+  structure(object$loglik[2], df = sum(object$df), class = "logLik")
+@
+
+<<gbsg2_tree>>=
+gbsg2_tree <- mob(Surv(time, cens) ~ horTh + pnodes | progrec +
+    menostat + estrec + age + tsize + tgrade,
   data = GBSG2, fit = wbreg, control = mob_control(minsplit = 80))
-mb
-coef(mb)
-logLik(mb)
-plot(mb)
+@
+
+<<gbsg2_tree-methods>>=
+gbsg2_tree
+coef(gbsg2_tree)
+logLik(gbsg2_tree)
+@
+
+\code{plot(gbsg2_tree)}
+
+\setkeys{Gin}{width=0.6\textwidth}
+\begin{figure}[t!]
+\centering
+<<GBSG2-plot, echo=FALSE, results=hide, fig=TRUE, height=4.5, width=5>>=
+plot(gbsg2_tree)
+@
+\caption{\label{fig:GBSG2} Censored Weibull-regression-based tree for the German
+breast cancer data. The plots in the leaves report the estimated regression coefficients.}
+\end{figure}
 
 
+\setkeys{Gin}{width=\textwidth}
+\begin{figure}[t!]
+\centering
+<<GBSG2-scatter, echo=FALSE, results=hide, fig=TRUE, height=6, width=9>>=
 gbsg2node <- function(mobobj, 
-  col = "black", linecol = "red",
-  cex = 0.5, pch = NULL, jitter = FALSE, xscale = NULL, yscale = NULL, ylines = 1.5,
+  col = "black", linecol = "red", cex = 0.5, pch = NULL,
+  jitter = FALSE, xscale = NULL, yscale = NULL, ylines = 1.5,
   id = TRUE, xlab = FALSE, ylab = FALSE)
 {
   ## obtain dependent variable
@@ -587,5 +711,28 @@ gbsg2node <- function(mobobj,
 }
 class(gbsg2node) <- "grapcon_generator"
 
-plot(mb, terminal_panel = gbsg2node, tnex = 2, 
+plot(gbsg2_tree, terminal_panel = gbsg2node, tnex = 2, 
   tp_args = list(xscale = c(0, 52), yscale = c(-0.5, 8.7)))
+@
+\caption{\label{fig:GBSG2-scatter} Censored Weibull-regression-based tree for the German
+breast cancer data. The plots in the leaves depict censored (hollow) and uncensored
+(solid) survival time by number of positive lymph nodes along with fitted median
+survival for patients with (dashed line) and without (solid line) hormonal therapy.}
+\end{figure}
+
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+The function \code{mob()} in the \pkg{party} package provides a flexible and object-oriented
+implementation of the general algorithm for model-based recursive partitioning.
+Models of class ``\code{StatModel}'' -- that employ a formula interface and are equipped with
+methods for the generic functions \code{reweight()}, \code{weights()}, \code{estfun()} plus
+some function for extracting the value of the objective function -- can be easily partitioned.
+The resulting ``\code{mob}'' tree can be flexibly summarized, both numerically and graphically,
+and used for predictions on new data.
+
+
+\bibliography{party}
+
+\end{document}

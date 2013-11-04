@@ -414,6 +414,25 @@
   pages		= {219--250}
 }
 
+@Book{Hochberg+Tamhane:1987,
+  author	= {Yosef Hochberg and Ajit C. Tamhane},
+  title		= {Multiple Comparison Procedures},
+  year		= {1987},
+  publisher	= {John Wiley \& Sons},
+  address	= {New York}
+}
+
+@Article{Marcus+Peritz+Gabriel:1976,
+  author	= {Ruth Marcus and Eric Peritz and K. R. Gabriel},
+  title		= {On Closed Testing Procedures with Special Reference
+  		   to Ordered Analysis of Variance},
+  journal	= {Biometrika},
+  year		= {1976},
+  volume	= {63},
+  number	= {3},
+  pages		= {655--660}
+}
+
 @Book{White:1994,
   author	= {Halbert White},
   title		= {Estimation, Inference and Specification Analysis},
@@ -422,7 +441,7 @@
   year		= {1994}
 }
 
-@Article{Zeileis+Hornik:2003,
+@Article{Zeileis+Hornik:2007,
   author	= {Achim Zeileis and Kurt Hornik},
   title		= {Generalized {M}-Fluctuation Tests for Parameter Instability},
   journal	= {Statistica Neerlandica},
@@ -491,8 +510,8 @@
 
 @Article{Zeileis:2005,
   author	= {Achim Zeileis},
-  title		= {A Unified Approach to Structural Change Tests Based on {ML} Scores,
-                   {$F$} Statistics, and {OLS} Residuals},
+  title		= {A Unified Approach to Structural Change Tests Based on {ML}~Scores,
+                   {$F$}~Statistics, and {OLS}~Residuals},
   journal	= {Econometric Reviews},
   year		= {2005},
   volume	= {24},
@@ -666,6 +685,14 @@
   url		= {http://CRAN.R-project.org/package=partykit}
 }
 
+@Manual{party,
+  title		= {\pkg{party}: A Laboratory for Recursive Partytioning},
+  author	= {Torsten Hothorn and Kurt Hornik and Carolin Strobl and Achim Zeileis},
+  year		= {2013},
+  note		= {\proglang{R} package version 1.0-10},
+  url		= {http://CRAN.R-project.org/package=party}
+}
+
 @Manual{psychotree,
   title		= {\pkg{psychotree}: Recursive Partitioning Based on Psychometric Models},
   author	= {Achim Zeileis and Carolin Strobl and Florian Wickelmaier and Julia Kopf},
@@ -689,6 +716,14 @@
   note		= {\proglang{R} package version 1.6-1},
   url		= {http://CRAN.R-project.org/package=mvpart}
 } 
+
+@Manual{survival,
+  title		= {\pkg{survival}: A Package for Survival Analysis in \proglang{S}},
+  author	= {Terry M Therneau},
+  year		= {2013},
+  note		= {\proglang{R} package version 2.37-4},
+  url		= {http://CRAN.R-project.org/package=survival},
+}
 
 @TechReport{rpart,
   author	= {T. M. Therneau and E. J. Atkinson},
@@ -722,4 +757,66 @@
   volume	= {24},
   number	= {2},
   pages		= {225--232},
+}
+
+@Article{Formula,
+  author	= {Achim Zeileis and Yves Croissant},
+  title		= {Extended Model Formulas in \proglang{R}: Multiple Parts and Multiple Responses},
+  journal	= {Journal of Statistical Software},
+  year		= {2010},
+  volume	= {34},
+  number	= {1},
+  pages		= {1--13},
+  url		= {http://www.jstatsoft.org/v34/i01/}
+}
+
+@Article{sandwich,
+  author	= {Achim Zeileis},
+  title		= {Object-Oriented Computation of Sandwich Estimators},
+  year		= {2006},
+  journal	= {Journal of Statistical Software},
+  volume	= {16},
+  number	= {9},
+  pages		= {1--16},
+  url		= {http://www.jstatsoft.org/v16/i09/}
+}
+
+@Article{strucchange,
+  author	= {Achim Zeileis and Friedrich Leisch and Kurt Hornik and Christian Kleiber},
+  title		= {\pkg{strucchange}: {A}n \proglang{R} Package for Testing
+                   for Structural Change in Linear Regression Models},
+  journal	= {Journal of Statistical Software},
+  year		= {2002},
+  volume	= {7},
+  number	= {2},
+  pages		= {1--38},
+  url		= {http://www.jstatsoft.org/v07/i02/}
+}
+
+@Article{vcd,
+  author	= {David Meyer and Achim Zeileis and Kurt Hornik},
+  title		= {The Strucplot Framework: Visualizing Multi-Way Contingency
+                   Tables with \pkg{vcd}},
+  journal	= {Journal of Statistical Software},
+  year		= {2006},
+  volume	= {17},
+  number	= {3},
+  pages		= {1--48},
+  url		= {http://www.jstatsoft.org/v17/i03/}
+}
+
+@Manual{mlbench,
+  title		= {\pkg{mlbench}: Machine Learning Benchmark Problems},
+  author	= {Friedrich Leisch and Evgenia Dimitriadou},
+  year		= {2010},
+  note		= {\proglang{R} package version 2.1-1},
+  url		= {http://CRAN.R-project.org/package=mlbench}
+} 
+
+@Misc{mlbench2,
+  author 	= {K. Bache and M. Lichman},
+  year 		= {2013},
+  title 	= {{UCI} Machine Learning Repository},
+  url 		= {http://archive.ics.uci.edu/ml/},
+  institution 	= {University of California, Irvine, School of Information and Computer Sciences}
 }
