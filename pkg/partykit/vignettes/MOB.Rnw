@@ -70,6 +70,12 @@ options(prompt = "R> ", continue = "+  ", digits = 4, useFancyQuotes = FALSE)
 
 \begin{document}
 
+\section{Overview}
+
+built on top of `\code{party}' objects,
+special infrastructure for fitted models,
+`mobsters' such as \code{lmtree()}, \code{glmtree()}
+
 \section{MOB: Model-based recursive partitioning} \label{sec:algorithm}
 
 First, the theory underling the MOB (model-based recursive partitioning)
@@ -131,7 +137,7 @@ tasks by choosing particular models, tests, and methods in each of the steps:
   \cite{Zeileis+Hornik:2007} is employed. Based on the empirical score function observations
   (i.e., empirical estimating functions or contributions to the gradient), ordered with
   respect to the partitioning variable, the fluctuation or instability in the model's
-  parameters can be tested. From this general framework the Andrews sup\textit{LM} test
+  parameters can be tested. From this general framework the Andrews' sup\textit{LM} test
   is used for assessing numerical partitioning variables and a $\chi^2$ test for
   categorical partitioning variables (see \citealp{Zeileis:2005} and \citealp{Merkle+Zeileis:2013}
   for unifying views emphasizing regression and psychometric models, respectively).
@@ -160,6 +166,21 @@ in a common computational framework using \proglang{R}'s facilities for model es
 and object orientation.
 
 \section[A new implementation in R]{A new implementation in \proglang{R}} \label{sec:implementation}
+
+\code{mob()}, \code{lmtree()}, \code{glmtree()}
+
+\begin{Code}
+mob(formula, data, subset, na.action, weights, offset,
+  fit, control = mob_control(), ...)
+\end{Code}
+
+
+An object of class `\code{modelparty}' inheriting from `\code{party}'.
+The \code{info} element of the overall `\code{party}' and the individual
+`\code{node}'s contain various informations about the models.
+
+
+
 
 To translate the model-based partitioning problem into \proglang{R}, we start with
 a formula description of the variables involved. This formula should be of type
