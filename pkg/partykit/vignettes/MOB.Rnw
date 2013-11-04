@@ -167,19 +167,48 @@ and object orientation.
 
 \section[A new implementation in R]{A new implementation in \proglang{R}} \label{sec:implementation}
 
-\code{mob()}, \code{lmtree()}, \code{glmtree()}
+This section introduces a new implementation of the general model-based recursive
+partitioning (MOB) algorithm in \proglang{R}. Along with \cite{Zeileis+Hothorn+Hornik:2008},
+a function \code{mob()} had been introduced to the \pkg{party} package \citep{party}
+which continues to work but it turned out to be somewhat unflexible for certain
+applications/extensions. Hence, the \pkg{partykit} package \citep{partykit} provides a completely rewritten
+(and not backward compatible) implementation of a new \code{mob()} function along with
+convenience interfaces \code{lmtree()} and \code{glmtree()} for fitting linear model
+and generalized linear model trees, respectively.
+The function \code{mob()} itself is intended to be the workhorse function
+that can also be employed to quickly explore new models -- whereas \code{lmtree()}
+and \code{glmtree()} will be the typical user interfaces facilitating applications.
 
+The new \code{mob()} function has the following arguments:
 \begin{Code}
-mob(formula, data, subset, na.action, weights, offset,
-  fit, control = mob_control(), ...)
+  mob(formula, data, subset, na.action, weights, offset,
+    fit, control = mob_control(), ...)
 \end{Code}
+All arguments in the first line are standard for modeling functions in \proglang{R}
+with a \code{formula} interface. They are employed by \code{mob()} to do some
+data preprocessing (described in detail in Section~\ref{sec:formula}) before
+the \code{fit} function is used for parameter estimation on the preprocessed
+data. The \code{fit} function has to be set up in a certain way (described in
+detail in Section~\ref{sec:fit}) so that \code{mob()} can extract all information
+that is needed in the MOB algorithm for parameter instability tests (see Section~\ref{sec:sctest})
+and partitioning/splitting (see Section~\ref{sec:split}), i.e., the estimated parameters, the associated
+objective function, and the score function contributions.
 
-
-An object of class `\code{modelparty}' inheriting from `\code{party}'.
+The result is an object of class `\code{modelparty}' inheriting from `\code{party}'.
 The \code{info} element of the overall `\code{party}' and the individual
-`\code{node}'s contain various informations about the models.
+`\code{node}'s contain various informations about the models. Details are provided
+in Section~\ref{sec:object}.
+
+Finally, a wide range of standard (and some extra) methods are available for
+working with `\code{modelparty}' objects, e.g., for extracting information about the
+models, for visualization, computing predictions, etc. The standard set of methods
+is introduced in Section~\ref{sec:methods}. However, as will be discussed there,
+it may take some effort by the user to efficiently compute certain pieces of
+information. Hence, convenience interfaces such as \code{lmtree()} or \code{glmtree()}
+can alleviate these obstacles considerably, as illustrated in Section~\ref{sec:interface}.
 
 
+\subsection{Formula processing and data preparation} \label{sec:formula}
 
 
 To translate the model-based partitioning problem into \proglang{R}, we start with
@@ -204,7 +233,7 @@ implementing (generalized) linear regression models, are readily available in
 
 
 
-\subsection{Parameter estimation}
+\subsection{Model fitting and parameter estimation} \label{sec:fit}
 
 This step of the algorithm is common practice, the only additional 
 requirement is (as previously noted) that model has to be of the class
@@ -244,14 +273,14 @@ Internally, a function of type (2) is set up by \code{mob()} in case a function
 of type (1) is supplied. However, to save computation time, a function of type
 (2) may also be specified directly.
 
-\subsection{Testing for parameter instability}
+\subsection{Testing for parameter instability} \label{sec:sctest}
 
 The task in this step of the algorithm is to find out whether the parameters
 of the fitted model are stable over each particular ordering implied by
 the partitioning variables $Z_j$ or whether splitting the sample with respect
 to one of the $Z_j$ might capture instabilities in the parameters and thus improve the fit.
 The tests used in this step belong to the class of generalized M-fluctuation
-tests \citep{Zeileis+Hornik:2003,Zeileis:2005}. For numerical partitioning variables
+tests \citep{Zeileis+Hornik:2007,Zeileis:2005}. For numerical partitioning variables
 $Z_j$ the $\sup LM$~statistic is used which is the maximum over all single split
 $LM$ statistics. For categorical partitioning variables, a $\chi^2$~statistic is
 employed which captures the fluctuation within each of the categories of $Z_j$.
@@ -272,7 +301,7 @@ To adjust for multiple testing, the $p$ values can be Bonferroni adjusted
 (which is the default). If there is significant instability, the variable $Z_{j^*}$
 associated with the minimal $p$~value is used for splitting the node.
 
-\subsection{Splitting}
+\subsection{Splitting} \label{sec:split}
 
 In this step, the observation in the current node are split with respect
 to the chosen partitioning variable $Z_{j^*}$ into $B$ child nodes. Currently,
@@ -294,7 +323,14 @@ are carried out again in each of the $B$ daughter nodes until no significant
 instability is detected in step~2.
 
 
-\subsection{Methods}
+\subsection[Fitted `party' objects]{Fitted `\texttt{party}' objects} \label{sec:object}
+
+The result is an object of class `\code{modelparty}' inheriting from `\code{party}'.
+The \code{info} element of the overall `\code{party}' and the individual
+`\code{node}'s contain various informations about the models. Details are provided
+in Section~\ref{sec:object}.
+
+\subsection{Methods} \label{sec:methods}
 
 There is a wide range of standard methods available for objects of class `\code{modelparty}'.
 The standard \code{print()}, \code{plot()}, and \code{predict()} build on the 
@@ -334,6 +370,9 @@ more elaborate terminal panel functions can be written as well. The `\code{lmtre
 \code{refit.modelparty}
 
 \code{sctest.modelparty}
+
+
+\subsection{Extensions and convenience interfaces} \label{sec:interface}
 
 
 \section{Illustrations}
