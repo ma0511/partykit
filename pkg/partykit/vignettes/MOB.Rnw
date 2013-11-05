@@ -1,6 +1,8 @@
 \documentclass[nojss]{jss}
 \usepackage{amsmath,thumbpdf}
 
+\shortcites{mvtnorm}
+
 %% commands
 \newcommand{\ui}{\underline{i}}
 \newcommand{\oi}{\overline{\imath}}
@@ -253,7 +255,7 @@ subsets of \code{weights} and \code{offset} are passed on (if specified).
 \subsubsection*{Illustration}
 
 For illustration, we employ the popular benchmark data set on diabetes among
-Pima Indian women that is provided by the UCI database \citep{mlbench2} and 
+Pima Indian women that is provided by the UCI machine learning repository \citep{mlbench2} and 
 available in the \pkg{mlbench} package \citep{mlbench}:
 %
 <<PimaIndiansDiabetes>>=
@@ -422,60 +424,152 @@ fitted lines are the mean predicted probabilities in each group.
 
 \subsection{Testing for parameter instability} \label{sec:sctest}
 
-The task in this step of the algorithm is to find out whether the parameters
-of the fitted model are stable over each particular ordering implied by
+In each node of the tree, first the parametric model is fitted to all observations
+in that node (see Section~\ref{sec:fit}). Subsequently it is of interest
+to find out whether the model parameters are stable over each particular ordering implied by
 the partitioning variables $Z_j$ or whether splitting the sample with respect
 to one of the $Z_j$ might capture instabilities in the parameters and thus improve the fit.
 The tests used in this step belong to the class of generalized M-fluctuation
-tests \citep{Zeileis+Hornik:2007,Zeileis:2005}. For numerical partitioning variables
-$Z_j$ the $\sup LM$~statistic is used which is the maximum over all single split
-$LM$ statistics. For categorical partitioning variables, a $\chi^2$~statistic is
-employed which captures the fluctuation within each of the categories of $Z_j$.
+tests \citep{Zeileis+Hornik:2007,Zeileis:2005}. Depending on the class of each
+of the partitioning variables in \code{z} different types of tests are chosen by \code{mob()}:
+\begin{enumerate}
 
-For computing the test statistics and corresponding $p$~values $p_j$ for 
-each of the partitioning variables $Z_j$ in \proglang{R}, the only requirement
-is that there are methods for the extractor functions \code{estfun()} and 
-\code{weights()}. The \code{estfun()} method extracts the empirical estimating
-functions (model scores) from the fitted \code{modelobj}, these are the 
-main ingredient for M-fluctuation tests. The \code{weights()} method is used
-to determine which observations are in the current node (i.e., have a weight
-greater than zero) and which are not (i.e., have zero weight).
+\item For numeric partitioning variables (of class `\code{numeric}' or `\code{integer}')
+the sup\textit{LM}~statistic is used which is the maximum over all single-split \textit{LM} statistics.
+Associated $p$~values can be obtained from a table of critical values \citep[based on][]{Hansen:1997}
+stored within the package.
 
-To determine whether there is some overall instability, it is checked whether
+If there are ties in the partitioning variable, the sequence of \textit{LM} statistics (and hence
+their maximum) is not unique and hence the results by default may depend to some degree on the
+ordering of the observations. To explore this, the option \code{breakties = TRUE} can be
+set in \code{mob_control()} which breaks ties randomly. If there are are only few ties,
+the influence is often negligible. If there are many ties (say only a dozen unique values of
+the partitioning variable), then the variable may be better treated as an ordered factor (see below).
+
+\item For categorical partitioning variables (of class `\code{factor}'), a $\chi^2$~statistic is
+employed which captures the fluctuation within each of the categories of the partitioning variable.
+This is also an \textit{LM}-type test and is asymptotically equivalent to the corresponding
+likelihood ratio test. However, it is somewhat cheaper to compute the \textit{LM} statistic
+because the model just has to be fitted once in the current node and not separately for each
+category of each possible partitioning variable. See also \cite{Merkle+Fan+Zeileis:2013} for
+a more detailed discussion.
+
+\item For ordinal partitioning variables (of class `\code{ordered}' inheriting from `\code{factor}')
+the same $\chi^2$ as for the unordered categorical variables is used by default
+\citep[as suggested by][]{Zeileis+Hothorn+Hornik:2008}. Although this test is
+also consistent any parameter instabilities across ordered variables, it does
+not exploit the ordering information.
+
+Recently, \cite{Merkle+Fan+Zeileis:2013}
+proposed an adapted max\textit{LM} test for ordered variables along with a
+weighted double maximum test. Both, are optionally availble in the new \code{mob()}
+implementation by setting \code{ordinal = "L2"} or \code{ordinal = "max"}
+in \code{mob_control()}, respectively. Unfortunately, computing $p$~values from
+both tests is more costly than for the default \code{ordinal = "chisq"}. For
+\code{"L2"} suitable tables of critical values have to be simulated on the
+fly using \code{ordL2BB()} from the \pkg{strucchange} package \citep{strucchange}.
+For \code{"max"} a multivariate normal probability has to be computed using
+the \pkg{mvtnorm} package \citep{mvtnorm}.
+
+\end{enumerate}
+All of the parameter instability tests above can be computed in an object-oriented manner
+as the ``\code{estfun}'' has to be available for the fitted model object. (Either
+by computing it in the \code{fit} function directly or by providing a \code{estfun()}
+extractor, see Section~\ref{sec:fit}.)
+
+
+All tests also require an estimate of the
+corresponding variance-covariance matrix of the estimating functions. The default
+is to compute this using an outer-product-of-gradients (OPG) estimator. Alternatively,
+the corrsponding information matrix can be used if: (a)~the estimating functions
+are actually maximum likelihood scores, and (b)~a \code{vcov()} method (based on
+an estimate of the information) is provided for the fitted model objects. The corresponding
+option in \code{mob_control()} is to set \code{vcov = "info"} rather than
+\code{vcov = "opg"} (the default).
+
+For each of the $j = 1, \dots, \ell$ partitioning variables in \code{z} the test selected
+in the control options is employed and the corresponding $p$~value $p_j$ is computed.
+To adjust for multiple testing, the $p$ values can be Bonferroni adjusted
+(which is the default). To determine whether there is some overall instability, it is checked whether
 the minial $p$~value $p_{j^*} = \min_{j = 1, \dots, \ell} p_j$ falls below a
 pre-specified significance level $\alpha$ (by default $\alpha = 0.05$) or not.
-To adjust for multiple testing, the $p$ values can be Bonferroni adjusted
-(which is the default). If there is significant instability, the variable $Z_{j^*}$
+If there is significant instability, the variable $Z_{j^*}$
 associated with the minimal $p$~value is used for splitting the node.
+
+\subsubsection*{Illustration}
+
+In the logistic-regression-based MOB \code{pid_tree} computed above, the parameter instability
+tests can be extracted using the \code{sctest()} function from the \pkg{strucchange}
+package (for \underline{s}tructural \underline{c}hange \underline{test}). In the first
+node, the test statistics and Bonferroni-corrected $p$~values are:
+%
+<<PimaIndiansDiabetes-sctest1>>=
+library("strucchange")
+sctest(pid_tree, node = 1)
+@
+%
+Thus, the body \code{mass} index has the lowest $p$~value and is highly significant
+and hence used for splitting the data. In the second node, no further significant
+parameter instabilities can be detected and hence partitioning stops in that branch.
+%
+<<PimaIndiansDiabetes-sctest2>>=
+sctest(pid_tree, node = 2)
+@
+%
+In the third node, however, there is still significant instability associated with the
+\code{age} variable and hence partitioning continues.
+%
+<<PimaIndiansDiabetes-sctest3>>=
+sctest(pid_tree, node = 3)
+@
+%
+Because no further instabilities can be found in the fourth and fivth node, the
+recursive partitioning stops there.
+
 
 \subsection{Splitting} \label{sec:split}
 
-In this step, the observation in the current node are split with respect
-to the chosen partitioning variable $Z_{j^*}$ into $B$ child nodes. Currently,
-the infrastructure in \pkg{party} only supports binary splits, i.e., $B = 2$.
+In this step, the observations in the current node are split with respect
+to the chosen partitioning variable $Z_{j^*}$ into $B$ child nodes. As pointed out above,
+the \code{mob()} function currently only supports binary splits, i.e., $B = 2$.
 For deterimining the split point, an exhaustive search procedure is adopted:
-For each conceivable split point, the $B$ child node models are fit and the split
+For each conceivable split point in $Z_{j^*}$, the two subset models are fit and the split
 associated with the minimal value of the objective function $\Psi$ is chosen.
 
-Computationally, this means that the fitted model \code{modelobj} is \code{reweight()}ed
-for each of the child nodes. The observations entering a child node keep their
-current weight while those observations that go into different child nodes receive
-zero weight. To compare the objective function $\Psi$, an extractor function
-is required to compute it from the fitted \code{modelobj}. This extractor function
-can be user-specified and set in \verb:mob_control():, it defaults to \code{deviance()}.
+Computationally, this means that the \code{fit} function is applied to the subsets
+of \code{y} and \code{x} for each possibly binary split. The ``\code{objfun}'' values
+are simply summed up (because the objective function is assumed to be additive) and
+its minimum across splits is determined. In a search over a numeric partitioning variable,
+this means that typically a lot of subset models have to be fit and often this will not
+vary a lot from one split to the next. Hence, the parameter estimates ``\code{coefficients}''
+from the previous split are employed as \code{start} values for estimating the coefficients
+associated with the next split. Thus, if the \code{fit} function makes use of these
+starting values, the model fitting can often be speeded up.
 
+\subsubsection*{Illustration}
 
-This concludes one iteration of the recursive partitioning algorithm and steps~1--3
-are carried out again in each of the $B$ daughter nodes until no significant 
-instability is detected in step~2.
-
+For the Pima Indians diabetes data, the split points found for \code{pid_tree}
+are displayed both in the print output and the visualization (see Section~\ref{fig:pid_tree}
+and~\ref{fig:pid_tree2}).
 
 \subsection[Fitted `party' objects]{Fitted `\texttt{party}' objects} \label{sec:object}
 
-The result is an object of class `\code{modelparty}' inheriting from `\code{party}'.
+The result of \code{mob()} is an object of class `\code{modelparty}' inheriting from `\code{party}'.
+See the other vignettes in the \pkg{partykit} package \citep{partykit} for more details
+of the general `\code{party}' class. Here, we just point out that the main difference
+between a `\code{modelparty}'
+
 The \code{info} element of the overall `\code{party}' and the individual
 `\code{node}'s contain various informations about the models. Details are provided
 in Section~\ref{sec:object}.
+
+\subsubsection*{Illustration}
+
+<<PimaIndiansDiabetes-subset>>=
+pid_tree[3]
+@
+
+\code{plot(pid_tree[3])}
 
 \subsection{Methods} \label{sec:methods}
 
