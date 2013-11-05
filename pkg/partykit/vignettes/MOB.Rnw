@@ -91,7 +91,7 @@ model $y = x^\top \theta$ or a generalized linear model (GLM) or a survival
 regression.
 
 Given $n$ observations $Y_i$ ($i = 1, \dots, n$) the model can be fitted
-by minimizing some objective function $\Psi(Y, \theta)$, e.g., a residual sum of squares
+by minimizing some objective function $\sum_{i = 1}^n \Psi(Y_i, \theta)$, e.g., a residual sum of squares
 or a negative log-likelihood leading to ordinary least squares (OLS) or maximum
 likelihood (ML) estimation, respectively.
 
@@ -192,7 +192,9 @@ data. The \code{fit} function has to be set up in a certain way (described in
 detail in Section~\ref{sec:fit}) so that \code{mob()} can extract all information
 that is needed in the MOB algorithm for parameter instability tests (see Section~\ref{sec:sctest})
 and partitioning/splitting (see Section~\ref{sec:split}), i.e., the estimated parameters, the associated
-objective function, and the score function contributions.
+objective function, and the score function contributions. A list of \code{control}
+options can be set up by the \code{mob_control()} function. Additional arguments \code{...}
+are passed on to the \code{fit} function.
 
 The result is an object of class `\code{modelparty}' inheriting from `\code{party}'.
 The \code{info} element of the overall `\code{party}' and the individual
@@ -210,68 +212,213 @@ can alleviate these obstacles considerably, as illustrated in Section~\ref{sec:i
 
 \subsection{Formula processing and data preparation} \label{sec:formula}
 
+The formula processing within \code{mob()} is essentially done in ``the usual way'',
+i.e., there is a \code{formula} and \code{data} and optionally further arguments such
+as \code{subset}, \code{na.action}, \code{weights}, and \code{offset}. These
+are processed into a \code{model.frame} from which the response and the covariates
+can be extracted and passed on to the actual \code{fit} function.
 
-To translate the model-based partitioning problem into \proglang{R}, we start with
-a formula description of the variables involved. This formula should be of type
+As there are possibly three groups of variables (response, regressors,
+and partitioning variables), the \pkg{Formula} package \citep{Formula} is
+employed for processing these three parts. Thus, the formula can be of type
 \verb:y ~ x1 + ... + xk | z1 + ... + zl: where the variables on the
 left of the \code{|} specify the data $Y$ and the variables on the right specify the
-partitioning variables $Z_j$. Classical regression trees usually have a univariate
-response $Y$ and various partitioning variables, i.e., could be specified as
-\verb:y ~ 1 | z1 + ... + zl:. Structural change models, on the other hand, are usually
-regression models that are segmented with respect to a single partitioning variable,
-typically time: \verb:y ~ x1 + ... + xk | z:.
+partitioning variables $Z_j$. As pointed out above, the $Y$ can often be split
+up into response (\code{y} in the example above) and regressors (\code{x1}, \dots,
+\code{xk} in the example above). If there are no regressors and just constant
+fits are employed, then the formula can be specified as
+\verb:y ~ 1 | z1 + ... + zl:.
 
-The type of models $\mathcal{M}$ to be used with \code{mob()} should not be
-confined (by the implementation), hence we have written an object-oriented 
-implementation. The idea is that $\mathcal{M}$ is translated into software
-by a model of class ``\code{StatModel}'' as provided by the \pkg{modeltools}
-package. The algorithm the relies on various methods being available for these
-models. The ``\code{StatModel}'' objects \code{linearModel} and \code{glinearModel},
-implementing (generalized) linear regression models, are readily available in
-\pkg{modeltools}, others can easily be user-defined.
+So far, this formula representation is really just a specification of groups
+of variables and does not imply anything about the type of model that is to be
+fitted to the data in the nodes of the tree. The \code{mob()} function does not
+know anything about the type of model and just passes (subsets of) the \code{y}
+and \code{x} variables on to the \code{fit} function. Only the partitioning variables
+\code{z} are used internally for the parameter instability tests (see Section~\ref{sec:sctest}).
 
+As different \code{fit} functions will require the data in different formats,
+\code{mob_control()} allows to set the \code{ytype} and \code{xtype}. The default
+is to assume that \code{y} is just a single column of the model frame that is
+extracted as a \code{ytype = "vector"}. Alternatively, it can be a \code{"data.frame"}
+of all response variables or a \code{"matrix"} set up via \code{model.matrix()}.
+The options \code{"data.frame"} and \code{"matrix"} are also available for \code{xtype}
+with the latter being the default.
 
+By specifying the \code{ytype} and \code{xtype}, \code{mob()} is also provided
+with the information on how to correctly subset \code{y} and \code{x} when recursively
+partitioning data. In each step, only the subset of \code{y} and \code{x} pertaining to
+the current node of the tree is passed on to the \code{fit} function. Similarly,
+subsets of \code{weights} and \code{offset} are passed on (if specified).
 
+\subsubsection*{Illustration}
+
+For illustration, we employ the popular benchmark data set on diabetes among
+Pima Indian women that is provided by the UCI database \citep{mlbench2} and 
+available in the \pkg{mlbench} package \citep{mlbench}:
+%
+<<PimaIndiansDiabetes>>=
+data("PimaIndiansDiabetes", package = "mlbench")
+@
+%
+Following \cite{Zeileis+Hothorn+Hornik:2008} we want to fit a model for \code{diabetes}
+employing the plasma glucose concentration \code{glucose} as a regressor. As the influence
+of the remaining variables on \code{diabetes} is less clear, their relationship should be
+learned by recursive partitioning. Thus, we employ the following formula:
+%
+<<PimIndiansDiabetes-formula>>=
+pid_formula <- diabetes ~ glucose | pregnant + pressure + triceps +
+  insulin + mass + pedigree + age
+@
+%
+Before passing this to \code{mob()}, a \code{fit} function is needed and a logistic regression
+function is set up in the following section.
 
 \subsection{Model fitting and parameter estimation} \label{sec:fit}
 
-This step of the algorithm is common practice, the only additional 
-requirement is (as previously noted) that model has to be of the class
-``\code{StatModel}'' as provided by \pkg{modeltools}. Looking at the source
-code for the \code{linearModel} provided by this package illustrates how
-a simple wrapper to existing \proglang{R} functionality can be written.
-In particular, a method to the generic function \code{reweight()} has to
-be available. The reason is that it is inefficient to fit a brand-new model
-\code{modelobj} (including formula-parsing) in every node -- much computation time
-is saved if simply \code{reweight(modelobj, weights)} is called in each of the
-child nodes. The \code{weights} argument controls which observations go into which
-of the child nodes.
+The \code{mob()} function itself does not actually carry out any parameter
+estimation by itself, but assumes that one of the many \proglang{R} functions
+available for model estimation is supplied. However, to be able to carry out the steps
+of the MOB algorithm, \code{mob()} needs to able to extract certain pieces
+of information: especially the estimated parameters, the corresponding
+objective function, and associated score function contributions. Also,
+the interface of the fitting function clearly needs to be standardized so
+that \code{mob()} knows how to invoke the model estimation.
+
+Currently, two possible interfaces for the \code{fit} function can be
+employed:
+%
+\begin{enumerate}
+
+\item The \code{fit} function can take the following inputs
+\begin{Code}
+  fit(y, x = NULL, start = NULL, weights = NULL, offset = NULL, ...,
+    estfun = FALSE, object = FALSE)
+\end{Code}
+where \code{y}, \code{x}, \code{weights}, \code{offset} are (the subset of)
+the preprocessed data. In \code{start} starting values for the parameter
+estimates may be supplied and \code{...} is passed on from the \code{mob()}
+function. The \code{fit} function then has to return an output list with
+the following elements:
+\begin{itemize}
+  \item \code{coefficients}: Estimated parameters $\hat \theta$.
+  \item \code{objfun}: Value of the minimized objective function $\sum_{i = 1}^n \Psi(y_i, x_, \hat \theta)$.
+  \item \code{estfun}: Empirical estimating functions (or score function contributions)
+    $\Psi'(y_i, x_i, \hat \theta)$. Only needed if \code{estfun = TRUE}, otherwise optionally \code{NULL}.
+  \item \code{object}: A model object for which further methods could
+    be available (e.g., \code{predict()}, or \code{fitted()}, etc.).
+    Only needed if \code{object = TRUE}, otherwise optionally \code{NULL}.
+\end{itemize}
+By making \code{estfun} and \code{object} optional, the fitting function
+might be able to save computation time by only optimizing the objective
+function but avoiding further computations.
+
+\item The \code{fit} function can also of a simpler interface with only the
+following inputs:
+\begin{Code}
+  fit(y, x = NULL, start = NULL, weights = NULL, offset = NULL, ...)
+\end{Code}
+The meaning of all arguments is the same as above. However, in this case
+\code{fit} needs to returned a classed model object for which methods to
+\code{coef()}, \code{logLik()}, and \code{estfun()} \citep[see][]{sandwich}
+are available for extracting the parameter estimates, the maximized log-likelihood,
+and associated empirical estimating functions (or score contributions), respectively.
+Internally, a function of type (1) is set up by \code{mob()} in case a function
+of type (2) is supplied. However, as pointed out above, a function of type (1)
+might be useful to save computation time.
+
+\end{enumerate}
+%
+In either case the \code{fit} function can, of course, choose to ignore any
+arguments that are not applicable, e.g., if the are no regressors \code{x} in
+the model or if starting values or not supported.
+
+The \code{fit} function of type (2) is typically convenient to quickly try out
+a new type of model in recursive partitioning.  However, when writing a new
+\code{mob()} interface such as \code{lmtree()} or \code{glmtree()},
+it will typically be better to use type (1). Similarly, employing supporting
+starting values in \code{fit} is then recommended to save computation
+time.
+
+\subsubsection*{Illustration}
+
+For recursively partitioning the \code{diabetes ~ glucose} relationship (as already
+set up in the previous section), we employ a logistic regression model. An
+interface of type (2) can be easily set up:
+%
+<<logit>>=
+logit <- function(y, x, start = NULL, weights = NULL, offset = NULL, ...) {
+  glm(y ~ 0 + x, family = binomial, start = start)
+}
+@
+%
+Thus, \code{y}, \code{x}, and the starting values are passed on to \code{glm()}
+which returns an object of class `\code{glm}' for which all required methods
+(\code{coef()}, \code{logLik()}, and \code{estfun()}) are available.
+
+Using this \code{fit} function and the \code{formula} already set up above
+the MOB algorithm can be easily applied to the \code{PimaIndiansDiabetes}
+data:
+%
+<<PimaIndiansDiabetes-mob>>=
+pid_tree <- mob(pid_formula, data = PimaIndiansDiabetes, fit = logit)
+@
+%
+The result is a logistic regression tree with three terminal nodes that
+can be easily visualized via \code{plot(pid_tree)} (see Figure~\ref{fig:pid_tree})
+and printed:
+<<PimaIndiansDiabetes-print>>=
+pid_tree
+@
+%
+The tree finds three groups of Pima Indian women:
+\begin{itemize}
+  \item[\#2] Women with low body mass index that have on average a low risk of
+    diabetes, however this increases clearly with glucose level.
+  \item[\#4] Women with average and high body mass index, younger than 30 years,
+    that have a higher avarage risk that also increases with glucose level.
+  \item[\#5] Women with average and high body mass index, older than 30 years,
+    that have a high avarage risk that increases only slowly with glucose level.
+\end{itemize}
 
 
-(1) It can be a function \code{fit(y, x = NULL, start = NULL, weights = NULL,
-offset = NULL, ...)}. The arguments \code{y}, \code{x}, \code{weights}, \code{offset}
-will be set to the corresponding elements in the current node of the tree.
-Additionally, starting values will sometimes be supplied via \code{start}.
-Of course, the \code{fit} function can choose to ignore any arguments that are
-not applicable, e.g., if the are no regressors \code{x} in the model or if
-starting values or not supported. The returned object needs to have a class
-that has associated \code{coef}, \code{logLik}, and
-\code{estfun} methods for extracting the estimated parameters,
-the maximized log-likelihood, and the empirical estimating function (i.e.,
-score or gradient contributions), respectively.
+Note that the example above is used for illustration here and \code{glmtree()} is
+recommended over using \code{mob()} plus manually setting up a \code{logit()} function.
+The same tree structure can be found via:
+%
+<<PimaIndiansDiabetes-glmtree>>=
+pid_tree2 <- glmtree(diabetes ~ glucose | pregnant +
+  pressure + triceps + insulin + mass + pedigree + age,
+  data = PimaIndiansDiabetes, family = binomial)
+@
+%
+However, \code{glmtree()} is slightly faster as it avoids many unnecessary computations,
+see Section~\ref{sec:interface} for further details.
 
-(2) It can be a function \code{fit(y, x = NULL, start = NULL, weights = NULL,
-offset = NULL, ..., estfun = FALSE, object = FALSE)}. The arguments have the
-same meaning as above but the returned object needs to have a different structure.
-It needs to be a list with elements \code{coefficients} (containing the estimated
-parameters), \code{objfun} (containing the minimized objective function),
-\code{estfun} (the empirical estimating functions), and \code{object} (the
-fitted model object). The elements \code{estfun}, or \code{object} should be
-\code{NULL} if the corresponding argument is set to \code{FALSE}.
+\begin{figure}[p!]
+\centering
+\setkeys{Gin}{width=0.8\textwidth}
+<<PimaIndiansDiabetes-plot, echo=FALSE, results=hide, fig=TRUE, height=5, width=7>>=
+plot(pid_tree)
+@
+\caption{\label{fig:pid_tree} Logistic-regression-based tree for the Pima Indians diabetes
+data. The plots in the leaves report the estimated regression coefficients.}
 
-Internally, a function of type (2) is set up by \code{mob()} in case a function
-of type (1) is supplied. However, to save computation time, a function of type
-(2) may also be specified directly.
+\setkeys{Gin}{width=\textwidth}
+<<PimaIndiansDiabetes-plot2,echo=FALSE,results=hide,fig=TRUE,height=6,width=9>>=
+plot(pid_tree2)
+@
+\caption{\label{fig:pid_tree2} Logistic-regression-based tree for the Pima Indians
+diabetes data. The plots in the leaves give spinograms for \code{diabetes} versus 
+\code{glucose}.}
+\end{figure}
+
+Here, we only point out that \code{plot(pid_tree2)} produces a nicer visualization
+(see Figure~\ref{fig:pid_tree2}). As $y$ is \code{diabetes}, a binary variable, and $x$ is 
+\code{glucose}, a numeric variable, a spinogram is chosen automatically for visualization.
+The x-axis breaks in the spinogram are the five-point summary of \code{glucose} on the full data set. The
+fitted lines are the mean predicted probabilities in each group.
+
+
 
 \subsection{Testing for parameter instability} \label{sec:sctest}
 
@@ -546,79 +693,16 @@ parameter as we employed OLS estimation (rather than fully-specified ML estimati
 
 \subsection{Pima Indians diabetes data}
 
-Another popular benchmark data set for binary classifications is the Pima Indians
-diabetes database which is also available from \pkg{mlbench}:
-
-<<>>=
-data("PimaIndiansDiabetes2", package = "mlbench")
-PimaIndiansDiabetes <- na.omit(PimaIndiansDiabetes2[,-c(4, 5)])
-@
-
-After omitting missing values (and the variables \verb:triceps: and \verb:insulin: which
-are missing for most women), the data set provides diabetes test results for
-$n = \Sexpr{NROW(PimaIndiansDiabetes)}$ women
-along with $\Sexpr{NCOL(PimaIndiansDiabetes)}$ covariates including in particular
-the plasma glucose concentration \code{glucose} as an important predictor for diabetes.
-Fitting a logistic regression model \verb:diabetes ~ glucose: seems to be straightforward,
-whereas the influence of the remaining variables should again be learned by recursive
-partitioning. This will yield a model tree with $k = 2$ regression coefficients in each terminal
-node, partitioned with respect to the remaining $\ell = 5$ remaining variables.
-
-The model is estimated by ML employing the \code{glinearModel}, 
-the instability is assessed using a Bonferroni-corrected
-significance level of $\alpha = 0.05$ and the nodes are split with a required minimal
-segment size of $20$ observations. Hence, all control parameters correspond to the
-default values in \verb:mob_control(): and do not have to be set explicitely in 
-the \code{mob()} call:
-
-<<>>=
-fmPID <- glmtree(diabetes ~ glucose | pregnant + pressure + mass + pedigree + age,
-  data = PimaIndiansDiabetes, family = binomial)
-@
-
-To visualize this, we simply call again:
-
-<<eval=FALSE>>=
-plot(fmPID)
-@
-
-\setkeys{Gin}{width=\textwidth}
-\begin{figure}[t!]
-\centering
-<<PimaIndiansDiabetes-plot,echo=FALSE,results=hide,fig=TRUE,height=6,width=9>>=
-plot(fmPID)
-@
-\caption{\label{fig:PimaIndiansDiabetes} Logistic-regression-based tree for the Pima Indians
-diabetes data. The plots in the leaves give spinograms for \code{diabetes} versus 
-\code{glucose}.}
-\end{figure}
-
-which produces again a plot of the dependent variable $y$ against the only regressors
-$x$ in the terminal nodes. As $y$ is \code{diabetes}, a binary variable, and $x$ is 
-\code{glucose}, a numeric variable, a spinogram is chosen for visualization. The breaks
-in the spinogram are the five-point summary of \code{glucose} on the full data set. The
-fitted lines are the mean predicted probabilities in each group.
-
-The model tree distinguishes three different groups:
-\begin{itemize}
-  \item[\#2] Women with low body mass index that have on average a low risk of
-    diabetes, however this increases clearly with glucose level.
-  \item[\#4] Women with average and high body mass index, younger than 30 years,
-    that have a higher avarage risk that also increases with glucose level.
-  \item[\#5] Women with average and high body mass index, older than 30 years,
-    that have a high avarage risk that increases only slowly with glucose level.
-\end{itemize}
-
 The same interpretation can also be drawn from the coefficient estimates
 and the corresponding odds ratios (with respect to glucose):
 %
 <<>>=
-coef(fmPID)
-exp(coef(fmPID)[,2])
+coef(pid_tree)
+exp(coef(pid_tree)[,2])
 @  
 %
 <<echo=FALSE>>=
-risk <- round(100 * (exp(coef(fmPID)[,2])-1), digits = 1)
+risk <- round(100 * (exp(coef(pid_tree)[,2])-1), digits = 1)
 @
 %
 i.e., the odds increase by \Sexpr{risk[1]}\%, \Sexpr{risk[2]}\% and \Sexpr{risk[3]}\%
@@ -659,20 +743,16 @@ logLik(gbsg2_tree)
 
 \code{plot(gbsg2_tree)}
 
-\setkeys{Gin}{width=0.6\textwidth}
-\begin{figure}[t!]
+\begin{figure}[p!]
 \centering
+\setkeys{Gin}{width=0.6\textwidth}
 <<GBSG2-plot, echo=FALSE, results=hide, fig=TRUE, height=4.5, width=5>>=
 plot(gbsg2_tree)
 @
 \caption{\label{fig:GBSG2} Censored Weibull-regression-based tree for the German
 breast cancer data. The plots in the leaves report the estimated regression coefficients.}
-\end{figure}
-
 
 \setkeys{Gin}{width=\textwidth}
-\begin{figure}[t!]
-\centering
 <<GBSG2-scatter, echo=FALSE, results=hide, fig=TRUE, height=6, width=9>>=
 gbsg2node <- function(mobobj, 
   col = "black", linecol = "red", cex = 0.5, pch = NULL,
