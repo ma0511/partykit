@@ -822,22 +822,45 @@ and explore the resulting trees. The first two illustrations employ the
 \code{lmtree()} convenience function while the latter uses \code{survreg()}
 from \pkg{survival} \citep{survival} in combination with \code{mob()} directly.
 
+
 \subsection{Demand for economic journals}
 
-
+The price elasticity of the demand for 180~economic journals is assessed by
+an OLS regression in log-log form: The dependent variable is the logarithm of the number
+of US library subscriptions and the regressor is the logarithm of price
+per citation. The data are provided by the \pkg{AER} package \citep{AER}
+and can be loaded and transformed via:
+%
 <<Journals-data>>=
 data("Journals", package = "AER")
 Journals <- transform(Journals,
   age = 2000 - foundingyear,
   chars = charpp * pages)
 @
-
+%
+Subsequently, the stability of the price elasticity across the remaining
+variables can be assessed using MOB. Below, \code{lmtree()} is used with the
+following partitioning variables: raw price and citations, age of the journal,
+number of characters, and whether the journal is published by a scientific
+society or not. A minimal segment size of 10~observations is employed and
+by setting \code{verbose = TRUE} detailed progress information about the
+recursive partitioning is displayed while growing the tree:
+%
 <<Journals-tree>>=
 j_tree <- lmtree(log(subs) ~ log(price/citations) | price + citations +
   age + chars + society, data = Journals, minsplit = 10, verbose = TRUE)
+@
+%
+The resulting tree just has one split and two terminal nodes for young journals
+(with a somewhat larger price elasticity) and old journals (with an even lower
+price elasticity), respectively. Figure~\ref{fig:Journals} can be obtained
+by \code{plot(j_tree)} and the corresponding printed representation is
+shown below.
+%
+<<Journals-print>>=
 j_tree
 @
-
+%
 \begin{figure}[t!]
 \centering
 \setkeys{Gin}{width=0.75\textwidth}
@@ -848,47 +871,42 @@ plot(j_tree)
 data. The plots in the leaves show linear regressions of log(subscriptions) by
 log(price/citation).}
 \end{figure}
-
+%
+Finally, various quantities of interest such as the coefficients, standard
+errors and test statistics, and the associated parameter instability tests
+could be extracted by the following code. The corresponding output is suppressed here.
+%
 <<Journals-methods, results=hide>>=
 coef(j_tree, node = 1:3)
-sctest(j_tree, node = 1:3)
 summary(j_tree, node = 1:3)
+sctest(j_tree, node = 1:3)
 @
 
 \subsection{Boston housing data}
 
-Since the analysis by \cite{Breiman+Friedman:1985}, the Boston housing data are 
-a popular and well-investigated empirical basis for illustrating non-linear 
-regression methods both in machine learning and statistics
-\citep[see][for two recent examples]{Gama:2004,Samarov+Spokoiny+Vial:2005} and we follow 
-these examples by segmenting a bivariate linear regression model for the house
-values.
+The Boston housing data are a popular and well-investigated empirical basis for
+illustrating nonlinear regression methods both in machine learning and statistics.
+We follow previous analyses by segmenting a bivariate linear regression model for
+the house values.
 
-Thus, the model $\mathcal{M}$ used is \code{linearModel} from the \pkg{modeltools}
-package which is automatically loaded together with \pkg{party}.
-
-The data set is available in package \pkg{mlbench} via
-
-<<>>=
+The data set is available in package \pkg{mlbench} and can be obtained and transformed
+via:
+%
+<<BostonHousing-data>>=
 data("BostonHousing", package = "mlbench")
+BostonHousing <- transform(BostonHousing,
+  chas = factor(chas, levels = 0:1, labels = c("no", "yes")),
+  rad = factor(rad, ordered = TRUE))
 @
-
-and provides $n = \Sexpr{NROW(BostonHousing)}$ observations of the median value of owner-occupied
+%
+It provides $n = \Sexpr{NROW(BostonHousing)}$ observations of the median value of owner-occupied
 homes in Boston (in USD~1000) along with $\Sexpr{NCOL(BostonHousing)}$ covariates including in particular
 the number of rooms per dwelling (\code{rm}) and the percentage
 of lower status of the population (\code{lstat}). A segment-wise linear relationship between
 the value and these two variables is very intuitive, whereas the shape of the influence
 of the remaining covariates is rather unclear and hence should be learned from the data.
 Therefore, a linear regression model for median value explained by \verb:rm^2:
-and \verb:log(lstat): with $k = 3$ regression coefficients is employed and
-partitioned with respect to all $\ell = 11$ remaining variables. To facilitate subsequent
-commands, the transformations are explicitely stored in \code{BostonHousing}:
-
-<<>>=
-BostonHousing$lstat <- log(BostonHousing$lstat)
-BostonHousing$rm <- BostonHousing$rm^2
-@
-
+and \verb:log(lstat): is employed and partitioned with respect to all remaining variables.
 Choosing appropriate
 transformations of the dependent variable and the regressors that enter the linear
 regression model is important to obtain a well-fitting model in each segment and
@@ -897,59 +915,22 @@ transformations of the partitioning variables do not affect the recursive partit
 algorithm and hence do not have to be performed. However, it is important to distinguish
 between numerical and categorical variables for choosing an appropriate parameter 
 stability test. The variable \code{chas} is a dummy indicator variable (for tract bounds
-with Charles river) and should thus be turned into a factor. Furthermore, the variable
+with Charles river) and thus needs to be turned into a factor. Furthermore, the variable
 \code{rad} is an index of accessibility to radial highways and takes only 9 distinct
-values. Thus it is most appropriately treated as an ordered factor.
-
-<<>>=
-BostonHousing <- transform(BostonHousing,
-  chas = factor(chas, levels = 0:1, labels = c("no", "yes")),
-  rad = factor(rad, ordered = TRUE))
-@
-
-Both transformations only affect the parameter stability test chosen (step~2), not the splitting
+values. Hence, it is most appropriately treated as an ordered factor.
+Note that both transformations only affect the parameter stability test chosen (step~2), not the splitting
 procedure (step~3).
-
-The model is estimated
-by OLS, the instability is assessed using a Bonferroni-corrected
-significance level of $\alpha = 0.05$ and the nodes are split with a required minimal
-segment size of $40$ observations. The control parameters are thus set to
-
-Actually, all of these settings are the defaults except \code{minsplit = 40} and
-\code{verbose = TRUE} which causes some information about the fitting process
-being written to the screen. The objective function \code{deviance()} extracts in
-this case the residual sum of squares from a fitted \code{linearModel} object.
-
-Having collected all building blocks, we can now call the function \code{mob()}
-that takes the model specification of the linear regression model \verb:medv ~ lstat + rm:
-plus all partitioning variables, along with the \code{data} set, the \code{control}
-settings and the \code{model} to be used.
-
-<<>>=
-bh_tree <- lmtree(medv ~ lstat + rm | zn + indus + chas + nox + age +
-  dis + rad + tax + crim + b + ptratio, data = BostonHousing)
-@
-
-The result is the fitted model \code{bh_tree} of class ``\code{mob}'' that contains
-the tree with a fitted linear regression associated with every node. Printing
-this object will show the splits, their $p$ values and call the \code{print()} method
-for the model in each terminal node (i.e., this simply relies on a \code{print()}
-method being available for the fitted model and re-uses it).
-
-<<>>=
+%
+<<BostonHousing-tree>>=
+bh_tree <- lmtree(medv ~ log(lstat) + I(rm^2) | zn + indus + chas + nox +
+  age + dis + rad + tax + crim + b + ptratio, data = BostonHousing)
 bh_tree
 @
-
-Looking at the printed output is typically rather tedious, a visualization via
-the \code{plot()} method
-
-<<eval=FALSE>>=
-plot(bh_tree)
-@
-
-is much easier to interpret. By default, this produces partial scatter plots of the
-variable $y$ against each of the regressors $x_i$ in the terminal nodes. Each scatter
-plot also shows the fitted values, i.e., a project of the fitted hyperplane.
+%
+The corresponding visualization is shown in Figure~\ref{fig:BostonHousing}.
+It shows partial scatter plots of the dependent variable against each of the regressors
+in the terminal nodes. Each scatter plot also shows the fitted values, i.e., a projection
+of the fitted hyperplane.
 
 \setkeys{Gin}{width=\textwidth}
 \begin{figure}[p!]
@@ -969,90 +950,76 @@ decrease with the lower status population percentage (lower panel) is more prono
 Splits are performed in the variables \code{tax} (poperty-tax rate) and
 \code{ptratio} (pupil-teacher ratio).
 
-Various quantities of interest can be computed, provided that the \code{model} used
-provides the corresponding methods, e.g., \code{predict()}, \code{residuals()}, \code{logLik()},
-\code{coef()} and \code{summary()}. The latter two by default try to extract information
-for the terminal nodes, but a \code{node} argument can be set to the node IDs of interest.
-As an example, the regression coefficients for the terminal node models can be easily 
-extracted by
-
-<<>>=
-coef(bh_tree)
-@
-
-reflecting the differences of the models that can also be seen in the the associated
-\code{plot()}. Even more information is available in a \code{summary()}, e.g., for node 7:
-
-<<>>=
-summary(bh_tree, node = 7)
-@
-
-The test statistics and $p$~values computed in each node, can be extracted analogously
-by using the method for the function \code{sctest()} (for performing \underline{s}tructural
-\underline{c}hange \underline{test}s).
-
-<<>>=
-library("strucchange")
-sctest(bh_tree, node = 7)
-@
-
 For summarizing the quality of the fit, we could compute the mean squared error, log-likelihood
 or AIC:
-
-<<>>=
+%
+<<BostonHousing-AIC>>=
 mean(residuals(bh_tree)^2)
 logLik(bh_tree)
 AIC(bh_tree)
 @
 
-<<echo=FALSE>>=
-nt <- NROW(coef(bh_tree))
-nk <- NCOL(coef(bh_tree))
-@
-
-As the \code{logLik()} method simply re-uses the method for \code{linearModel} objects,
-this does not only report $\Sexpr{(nk+1)*nt-1}$ estimated parameters ($\Sexpr{nk}$ parameters in
-each of the $\Sexpr{nt}$ terminal nodes plus $\Sexpr{nt} - 1$ split points) but
-$\Sexpr{(nk+2)*nt-1}$ parameters because each terminal node is additionally associated with a 
-variance estimate. However, for the fitting process, the variance was treated as a nuisance 
-parameter as we employed OLS estimation (rather than fully-specified ML estimation). 
-
-
 
 \subsection{German breast cancer data}
 
-\pkg{survival} \citep{survival}
-
+To illustrate that the MOB approach can also be used beyond (generalized) linear
+regression models, it is employed in the following to analyze censored survival
+times among German women with positive node breast cancer. The data is available
+in the \pkg{TH.data} package and the survival time is transformed from days to years:
+%
 <<GBSG2>>=
 data("GBSG2", package = "TH.data")
 GBSG2$time <- GBSG2$time/365
 @
-
+%
+For regression a parametric Weibull regression based on the \code{survreg()} function
+from the \pkg{survival} package \citep{survival} is used. A fitting function for
+\code{mob()} can be easily set up:
+%
 <<wbreg, results=hide>>=
 library("survival")
 wbreg <- function(y, x, start = NULL, weights = NULL, offset = NULL, ...) {
   survreg(y ~ 0 + x, weights = weights, dist = "weibull", ...)
 }
 @
-
+%
+As the \pkg{survreg} package currently does not provide a \code{logLik()}
+method for `\code{survreg}' objects, this needs to be added here:
+%
 <<logLik.survreg>>=
 logLik.survreg <- function(object, ...)
   structure(object$loglik[2], df = sum(object$df), class = "logLik")
 @
+%
+Without the \code{logLik()} method, \code{mob()} would not know how to extract
+the optimized objective function from the fitted model.
 
+With the functions above available, a censored Weibull-regression-tree can
+be fitted: The dependent variable is the censored survival time and the
+two regressor variables are the main risk factor (number of positive lymph nodes)
+and the treatment variable (hormonal therapy). All remaining variables are
+used for partitioning: age, tumor size and grade, progesterone and estrogen receptor,
+and menopausal status. The minimal segment size is set to 80.
+%
 <<gbsg2_tree>>=
-gbsg2_tree <- mob(Surv(time, cens) ~ horTh + pnodes | progrec +
-    menostat + estrec + age + tsize + tgrade,
-  data = GBSG2, fit = wbreg, control = mob_control(minsplit = 80))
+gbsg2_tree <- mob(Surv(time, cens) ~ horTh + pnodes | age + tsize + tgrade +
+  progrec + estrec + menostat, data = GBSG2,
+  fit = wbreg, control = mob_control(minsplit = 80))
 @
-
+%
+Based on progesterone receptor, a tree with two leaves is found:
+%
 <<gbsg2_tree-methods>>=
 gbsg2_tree
 coef(gbsg2_tree)
 logLik(gbsg2_tree)
 @
-
-\code{plot(gbsg2_tree)}
+%
+The visualization produced by \code{plot(gbsg2_tree)} is shown in Figure~\ref{fig:GBSG2}.
+A nicer graphical display using a scatter plot (with indication of censoring) and
+fitted regression curves is shown in Figure~\ref{fig:GBSG2-scatter}. This uses a
+custom panel function whose code is too long and elaborate to be shown here.
+Interested readers are referred to the \proglang{R} code underlying the vignette.
 
 \begin{figure}[p!]
 \centering
@@ -1170,6 +1137,10 @@ breast cancer data. The plots in the leaves depict censored (hollow) and uncenso
 (solid) survival time by number of positive lymph nodes along with fitted median
 survival for patients with (dashed line) and without (solid line) hormonal therapy.}
 \end{figure}
+
+The visualization shows that for higher progesterone receptor levels: (1)~survival times are
+higher overall, (2)~the treatment effect of hormonal therapy is higher, and
+(3)~the negative effect of the main risk factor (number of positive lymph nodes) is less severe.
 
 
 \section{Conclusion}
