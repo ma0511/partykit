@@ -17,7 +17,7 @@ options(prompt = "R> ", continue = "+  ", digits = 4, useFancyQuotes = FALSE)
 @
 
 %\VignetteIndexEntry{Parties, Models, Mobsters: A New Implementation of Model-Based Recursive Partitioning in R}
-%\VignetteDepends{Formula,mlbench,sandwich,strucchange,survival,TH.data,vcd}
+%\VignetteDepends{AER,Formula,mlbench,sandwich,strucchange,survival,TH.data,vcd}
 %\VignetteKeywords{parametric models, object-orientation, recursive partitioning}
 %\VignettePackage{partykit}
 
@@ -74,9 +74,46 @@ options(prompt = "R> ", continue = "+  ", digits = 4, useFancyQuotes = FALSE)
 
 \section{Overview}
 
-built on top of `\code{party}' objects,
-special infrastructure for fitted models,
-`mobsters' such as \code{lmtree()}, \code{glmtree()}
+To implement the model-based recursive partitioning (MOB) algorithm of 
+\cite{Zeileis+Hothorn+Hornik:2008} in software, infrastructure for three
+aspects is required: (1)~statistical ``\emph{models}'', (2)~recursive
+``\emph{party}''tions, and (3)~``\emph{mobsters}'' carrying out the MOB
+algorithm.
+
+Along with \cite{Zeileis+Hothorn+Hornik:2008}, an implementation of all
+three steps was provided in the \pkg{party} package \citep{party} for
+the \proglang{R} system for statistical computing \citep{R}. This provided
+one very flexible \code{mob()} function combining \pkg{party}'s \proglang{S}4
+classes for representing trees with binary splits and the \proglang{S}4 model
+wrapper functions from \pkg{modeltools} \citep{modeltools}. However, while
+this supported many applications of interest, it was somewhat limited for
+certain extensions: (1)~The \proglang{S}4 wrappers for the models were
+somewhat cumbersome to set up. (2)~The tree infrastructure was originally
+designed for \code{ctree()} and somewhat too narrowly focused on it.
+(3)~Writing new ``mobster'' interfaces was not easy because of using
+unexported \proglang{S}4 classes.
+
+Hence, a leaner and more flexible interface (based on \proglang{S}3 classes)
+is provided in \pkg{partykit} \citep{partykit}: (1)~New models are much easier
+to provide in a basic version and customization does not require setting up
+an additional \proglang{S}4 class-and-methods layer anymore. (2)~The trees
+are built on top of \pkg{partykit}'s flexible `\code{party}' objects,
+inheriting many useful methods and providing new ones dealing with the
+fitted models associated with the tree's nodes. (3)~New ``mobsters''
+dedicated to specific models, e.g., \code{lmtree()} and \code{glmtree()}
+for MOBs of (generalized) linear models, are readily provided.
+
+The remainder of this manuscript is organized as follows: Section~\ref{sec:algorithm}
+very briefly reviews the original MOB algorithm of \cite{Zeileis+Hothorn+Hornik:2008}
+and also highlights relevant subsequent work. Section~\ref{sec:implementation}
+introduces the new \code{mob()} function in \pkg{partykit} in detail,
+discussing how all steps of the MOB algorithm are implemented and which
+options for customization are available. For illustration logistic-regression-based
+recursive partitioning is applied to the Pima Indians diabetes data set from the
+UCI machine learning repository \citep{mlbench2}. Section~\ref{sec:illustration}
+presents replications of further illustrative examples from \cite{Zeileis+Hothorn+Hornik:2008}
+before Section~\ref{sec:conclusion} provides some concluding remarks.
+
 
 \section{MOB: Model-based recursive partitioning} \label{sec:algorithm}
 
@@ -416,7 +453,8 @@ diabetes data. The plots in the leaves give spinograms for \code{diabetes} versu
 
 Here, we only point out that \code{plot(pid_tree2)} produces a nicer visualization
 (see Figure~\ref{fig:pid_tree2}). As $y$ is \code{diabetes}, a binary variable, and $x$ is 
-\code{glucose}, a numeric variable, a spinogram is chosen automatically for visualization.
+\code{glucose}, a numeric variable, a spinogram is chosen automatically for visualization
+(using the \pkg{vcd} package, \citealp{vcd}).
 The x-axis breaks in the spinogram are the five-point summary of \code{glucose} on the full data set. The
 fitted lines are the mean predicted probabilities in each group.
 
@@ -721,8 +759,39 @@ also be visualized via \code{plot(pid_tree[3])} etc.
 
 \subsection{Extensions and convenience interfaces} \label{sec:interface}
 
+As illustrated above, dealing with MOBs can be carried out in a very generic
+and object-oriented way. Almost all information required for dealing with
+recursively partitioned models can be encapsulated in the \code{fit()} function
+and \code{mob()} does not require more information on what type of model is
+actually used.
+
+However, for certain tasks more detailed information about the type of model
+used or the type of data it can be fitted to can (and should) be exploited.
+Notable examples for this are visualizations of the data along with the fitted
+model or model-based predictions in the leaves of the tree. To conveniently
+accomodate such specialized functionality, the \pkg{partykit} provides two
+convenience interfaces \code{lmtree()} and \code{glmtree()} and encourages
+other packages to do the same (e.g., \code{raschtree()} and \code{bttree()}
+in \pkg{psychotree}). Furthermore, such a convenience interface can avoid
+duplicated formula processing in both \code{mob()} plus its \code{fit}
+function.
+
+Specifically, \code{lmtree()} and \code{glmtree()} interface \code{lm.fit()},
+\code{lm.wfit()}, and \code{glm.fit()}, respectively, and then provide some
+extra computations to return valid fitted `\code{lm}' and `\code{glm}' objects
+in the nodes of the tree. The resulting `\code{modelparty}' object gains an
+additional class `\code{lmtree}'/`\code{glmtree}' to dispatch to its enhanced
+\code{plot()} and \code{predict()} methods.
+
 \subsubsection*{Illustration}
 
+The \code{pid_tree2} object was already created above with \code{glmtree()}
+(instead of \code{mob()} as for \code{pid_tree}) to illustrate the enhanced
+plotting capabilities in Figure~\ref{fig:pid_tree2}). Here, the enhanced
+\code{predict()} method is used to obtain predicted means (i.e., probabilities)
+and associated linear predictors (on the logit scale) in addition to the
+previously available predicted nods IDs.
+%
 <<>>=
 predict(pid_tree2, newdata = pid, type = "node")
 predict(pid_tree2, newdata = pid, type = "response")
@@ -732,6 +801,59 @@ predict(pid_tree2, newdata = pid, type = "link")
 
 \section{Illustrations}
 \label{sec:illustration}
+
+In this section, three further empirical illustrations of the MOB method are
+provided, replicating the results from \cite{Zeileis+Hothorn+Hornik:2008}:
+\begin{enumerate}
+  \item An investigation of the price elasticity of the demand for economics
+    journals across covariates describing the type of journal (e.g., its
+    price, its age, and whether it is published by a society, etc.)
+  \item Prediction of house prices in the well-known Boston Housing data
+    set, also taken from the UCI machine learning repository.
+  \item Modeling of breast cancer survival and by capturing heterogeneity
+    in certain (treatment) effects across individuals.
+\end{enumerate}
+More details about the underlying data sets, previous studies exploring
+the data, and the results based on MOB can be found in 
+\cite{Zeileis+Hothorn+Hornik:2008}.
+
+Here, we focus on using the \pkg{partykit} package to replicate the analysis
+and explore the resulting trees. The first two illustrations employ the
+\code{lmtree()} convenience function while the latter uses \code{survreg()}
+from \pkg{survival} \citep{survival} in combination with \code{mob()} directly.
+
+\subsection{Demand for economic journals}
+
+
+<<Journals-data>>=
+data("Journals", package = "AER")
+Journals <- transform(Journals,
+  age = 2000 - foundingyear,
+  chars = charpp * pages)
+@
+
+<<Journals-tree>>=
+j_tree <- lmtree(log(subs) ~ log(price/citations) | price + citations +
+  age + chars + society, data = Journals, minsplit = 10, verbose = TRUE)
+j_tree
+@
+
+\begin{figure}[t!]
+\centering
+\setkeys{Gin}{width=0.75\textwidth}
+<<Journals-plot, echo=FALSE, results=hide, fig=TRUE, height=5.5, width=7>>=
+plot(j_tree)
+@
+\caption{\label{fig:Journals} Linear-regression-based tree for the journals
+data. The plots in the leaves show linear regressions of log(subscriptions) by
+log(price/citation).}
+\end{figure}
+
+<<Journals-methods, results=hide>>=
+coef(j_tree, node = 1:3)
+sctest(j_tree, node = 1:3)
+summary(j_tree, node = 1:3)
+@
 
 \subsection{Boston housing data}
 
@@ -744,10 +866,6 @@ values.
 
 Thus, the model $\mathcal{M}$ used is \code{linearModel} from the \pkg{modeltools}
 package which is automatically loaded together with \pkg{party}.
-
-<<>>=
-library("partykit")
-@
 
 The data set is available in package \pkg{mlbench} via
 
@@ -784,8 +902,9 @@ with Charles river) and should thus be turned into a factor. Furthermore, the va
 values. Thus it is most appropriately treated as an ordered factor.
 
 <<>>=
-BostonHousing$chas <- factor(BostonHousing$chas, levels = 0:1, labels = c("no", "yes"))
-BostonHousing$rad <- factor(BostonHousing$rad, ordered = TRUE)
+BostonHousing <- transform(BostonHousing,
+  chas = factor(chas, levels = 0:1, labels = c("no", "yes")),
+  rad = factor(rad, ordered = TRUE))
 @
 
 Both transformations only affect the parameter stability test chosen (step~2), not the splitting
@@ -807,25 +926,25 @@ plus all partitioning variables, along with the \code{data} set, the \code{contr
 settings and the \code{model} to be used.
 
 <<>>=
-fmBH <- lmtree(medv ~ lstat + rm | zn + indus + chas + nox + age + dis + rad + tax + crim + b + ptratio,
-  data = BostonHousing, verbose = TRUE)
+bh_tree <- lmtree(medv ~ lstat + rm | zn + indus + chas + nox + age +
+  dis + rad + tax + crim + b + ptratio, data = BostonHousing)
 @
 
-The result is the fitted model \code{fmBH} of class ``\code{mob}'' that contains
+The result is the fitted model \code{bh_tree} of class ``\code{mob}'' that contains
 the tree with a fitted linear regression associated with every node. Printing
 this object will show the splits, their $p$ values and call the \code{print()} method
 for the model in each terminal node (i.e., this simply relies on a \code{print()}
 method being available for the fitted model and re-uses it).
 
 <<>>=
-fmBH
+bh_tree
 @
 
 Looking at the printed output is typically rather tedious, a visualization via
 the \code{plot()} method
 
 <<eval=FALSE>>=
-plot(fmBH)
+plot(bh_tree)
 @
 
 is much easier to interpret. By default, this produces partial scatter plots of the
@@ -836,7 +955,7 @@ plot also shows the fitted values, i.e., a project of the fitted hyperplane.
 \begin{figure}[p!]
 \centering
 <<BostonHousing-plot,echo=FALSE,results=hide,fig=TRUE,height=8,width=12,include=FALSE>>=
-plot(fmBH)
+plot(bh_tree)
 @
 \includegraphics[width=18cm,keepaspectratio,angle=90]{MOB-BostonHousing-plot}
 \caption{\label{fig:BostonHousing} Linear-regression-based tree for the Boston housing data.
@@ -858,14 +977,14 @@ As an example, the regression coefficients for the terminal node models can be e
 extracted by
 
 <<>>=
-coef(fmBH)
+coef(bh_tree)
 @
 
 reflecting the differences of the models that can also be seen in the the associated
 \code{plot()}. Even more information is available in a \code{summary()}, e.g., for node 7:
 
 <<>>=
-summary(fmBH, node = 7)
+summary(bh_tree, node = 7)
 @
 
 The test statistics and $p$~values computed in each node, can be extracted analogously
@@ -874,21 +993,21 @@ by using the method for the function \code{sctest()} (for performing \underline{
 
 <<>>=
 library("strucchange")
-sctest(fmBH, node = 7)
+sctest(bh_tree, node = 7)
 @
 
 For summarizing the quality of the fit, we could compute the mean squared error, log-likelihood
 or AIC:
 
 <<>>=
-mean(residuals(fmBH)^2)
-logLik(fmBH)
-AIC(fmBH)
+mean(residuals(bh_tree)^2)
+logLik(bh_tree)
+AIC(bh_tree)
 @
 
 <<echo=FALSE>>=
-nt <- NROW(coef(fmBH))
-nk <- NCOL(coef(fmBH))
+nt <- NROW(coef(bh_tree))
+nk <- NCOL(coef(bh_tree))
 @
 
 As the \code{logLik()} method simply re-uses the method for \code{linearModel} objects,
@@ -1056,13 +1175,16 @@ survival for patients with (dashed line) and without (solid line) hormonal thera
 \section{Conclusion}
 \label{sec:conclusion}
 
-The function \code{mob()} in the \pkg{party} package provides a flexible and object-oriented
-implementation of the general algorithm for model-based recursive partitioning.
-Models of class ``\code{StatModel}'' -- that employ a formula interface and are equipped with
-methods for the generic functions \code{reweight()}, \code{weights()}, \code{estfun()} plus
-some function for extracting the value of the objective function -- can be easily partitioned.
-The resulting ``\code{mob}'' tree can be flexibly summarized, both numerically and graphically,
-and used for predictions on new data.
+The function \code{mob()} in the \pkg{partykit} package provides a new flexible and object-oriented
+implementation of the general algorithm for model-based recursive partitioning using
+\pkg{partykit}'s recursive partytioning infrastructure. New model
+fitting functions can be easily provided, especially if standard extractor functions
+(such as \code{coef()}, \code{estfun()}, \code{logLik()}, etc.) are available. The resulting
+model trees can then learned, visualized, investigated, and employed for predictions.
+To allow gain some efficiency in the computations and to allow for further customization
+(in particular specialized visualization and prediction methods), convenience interfaces
+\code{lmtree()} and \code{glmtree()} are provided for recursive partitioning based on
+(generalized) linear models.
 
 
 \bibliography{party}
