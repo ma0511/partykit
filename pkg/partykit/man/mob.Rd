@@ -114,6 +114,8 @@ corresponding methods for the individual model objects in the terminal nodes.
 Functions such as \code{coef}, \code{print}, \code{summary} also take a
 \code{node} argument that can specify the node IDs to be queried.
 Some examples are given below.
+
+More details can be found in \code{vignette("MOB", package = "partykit")}.
 }
 
 \value{
