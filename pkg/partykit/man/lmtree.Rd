@@ -63,47 +63,102 @@ if(require("mlbench")) {
 
 ## Boston housing data
 data("BostonHousing", package = "mlbench")
-BostonHousing$chas <- factor(BostonHousing$chas, levels = 0:1, labels = c("no", "yes"))
-BostonHousing$rad <- factor(BostonHousing$rad, ordered = TRUE)
+BostonHousing <- transform(BostonHousing,
+  chas = factor(chas, levels = 0:1, labels = c("no", "yes")),
+  rad = factor(rad, ordered = TRUE))
 
 ## linear model tree
-mb_bh <- lmtree(medv ~ log(lstat) + I(rm^2) | zn +
+bh_tree <- lmtree(medv ~ log(lstat) + I(rm^2) | zn +
   indus + chas + nox + age + dis + rad + tax + crim + b + ptratio,
   data = BostonHousing, minsplit = 40)
 
 ## printing whole tree or individual nodes
-print(mb_bh)
-print(mb_bh, node = 7)
+print(bh_tree)
+print(bh_tree, node = 7)
 
 ## plotting
-plot(mb_bh)
-plot(mb_bh, tp_args = list(which = "log(lstat)"))
-plot(mb_bh, terminal_panel = NULL)
+plot(bh_tree)
+plot(bh_tree, tp_args = list(which = "log(lstat)"))
+plot(bh_tree, terminal_panel = NULL)
 
 ## estimated parameters
-coef(mb_bh)
-coef(mb_bh, node = 9)
-summary(mb_bh, node = 9)
+coef(bh_tree)
+coef(bh_tree, node = 9)
+summary(bh_tree, node = 9)
 
 ## various ways for computing the mean squared error (on the training data)
-mean((BostonHousing$medv - fitted(mb_bh))^2)
-mean(residuals(mb_bh)^2)
-deviance(mb_bh)/sum(weights(mb_bh))
-deviance(mb_bh)/nobs(mb_bh)
+mean((BostonHousing$medv - fitted(bh_tree))^2)
+mean(residuals(bh_tree)^2)
+deviance(bh_tree)/sum(weights(bh_tree))
+deviance(bh_tree)/nobs(bh_tree)
 
 ## log-likelihood and information criteria
-logLik(mb_bh)
-AIC(mb_bh)
-BIC(mb_bh)
+logLik(bh_tree)
+AIC(bh_tree)
+BIC(bh_tree)
 ## (Note that this penalizes estimation of error variances, which
 ## were treated as nuisance parameters in the fitting process.)
 
 ## different types of predictions
 bh <- BostonHousing[c(1, 10, 50), ]
-predict(mb_bh, newdata = bh, type = "node")
-predict(mb_bh, newdata = bh, type = "response")
-predict(mb_bh, newdata = bh, type = function(object) summary(object)$r.squared)
+predict(bh_tree, newdata = bh, type = "node")
+predict(bh_tree, newdata = bh, type = "response")
+predict(bh_tree, newdata = bh, type = function(object) summary(object)$r.squared)
 
 }
+
+
+if(require("AER")) {
+
+## Demand for economics journals data
+data("Journals", package = "AER")
+Journals <- transform(Journals,
+  age = 2000 - foundingyear,
+  chars = charpp * pages)
+
+## linear regression tree (OLS)
+j_tree <- lmtree(log(subs) ~ log(price/citations) | price + citations +
+  age + chars + society, data = Journals, minsplit = 10, verbose = TRUE)
+
+## printing and plotting
+j_tree
+plot(j_tree)
+
+## coefficients and summary
+coef(j_tree, node = 1:3)
+summary(j_tree, node = 1:3)
+
+}
+
+
+if(require("AER")) {
+
+## Beauty and teaching ratings data
+data("TeachingRatings", package = "AER")
+
+## linear regression (WLS)
+## null model
+tr_null <- lm(eval ~ 1, data = TeachingRatings, weights = students,
+  subset = credits == "more")
+## main effects
+tr_lm <- lm(eval ~ beauty + gender + minority + native + tenure + division,
+  data = TeachingRatings, weights = students, subset = credits == "more")
+## tree
+tr_tree <- lmtree(eval ~ beauty | minority + age + gender + division + native + tenure,
+   data = TeachingRatings, weights = students, subset = credits == "more",
+   caseweights = FALSE)
+
+## visualization
+plot(tr_tree)
+
+## beauty slope coefficient
+coef(tr_lm)[2]
+coef(tr_tree)[, 2]
+
+## R-squared
+1 - deviance(tr_lm)/deviance(tr_null)
+1 - deviance(tr_tree)/deviance(tr_null)
+}
+
 }
 \keyword{tree}

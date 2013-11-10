@@ -142,36 +142,36 @@ logit <- function(y, x, start = NULL, weights = NULL, offset = NULL, ...) {
 }
 
 ## set up a logistic regression tree
-mb <- mob(diabetes ~ glucose | pregnant + pressure + triceps + insulin + mass + pedigree + age,
+pid_tree <- mob(diabetes ~ glucose | pregnant + pressure + triceps + insulin + mass + pedigree + age,
   data = PimaIndiansDiabetes, fit = logit)
 ## see lmtree() and glmtree() for interfaces with more efficient fitting functions
 
 ## print tree
-print(mb)
+print(pid_tree)
 
 ## print information about (some) nodes
-print(mb, node = 3:4)
+print(pid_tree, node = 3:4)
 
 ## visualization
-plot(mb)
+plot(pid_tree)
 
 ## coefficients and summary
-coef(mb)
-coef(mb, node = 1)
-summary(mb, node = 1)
+coef(pid_tree)
+coef(pid_tree, node = 1)
+summary(pid_tree, node = 1)
 
 ## average deviance computed in different ways
-mean(residuals(mb)^2)
-deviance(mb)/sum(weights(mb))
-deviance(mb)/nobs(mb)
+mean(residuals(pid_tree)^2)
+deviance(pid_tree)/sum(weights(pid_tree))
+deviance(pid_tree)/nobs(pid_tree)
 
 ## log-likelihood and information criteria
-logLik(mb)
-AIC(mb)
-BIC(mb)
+logLik(pid_tree)
+AIC(pid_tree)
+BIC(pid_tree)
 
 ## predicted nodes
-predict(mb, newdata = head(PimaIndiansDiabetes, 6), type = "node")
+predict(pid_tree, newdata = head(PimaIndiansDiabetes, 6), type = "node")
 ## other types of predictions are possible using lmtree()/glmtree()
 }
 }

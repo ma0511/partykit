@@ -67,35 +67,35 @@ if(require("mlbench")) {
 data("PimaIndiansDiabetes", package = "mlbench")
 
 ## recursive partitioning of a logistic regression model
-mb_pid <- glmtree(diabetes ~ glucose | pregnant +
+pid_tree2 <- glmtree(diabetes ~ glucose | pregnant +
   pressure + triceps + insulin + mass + pedigree + age,
   data = PimaIndiansDiabetes, family = binomial)
 
 ## printing whole tree or individual nodes
-print(mb_pid)
-print(mb_pid, node = 1)
+print(pid_tree2)
+print(pid_tree2, node = 1)
 
 ## visualization
-plot(mb_pid)
-plot(mb_pid, tp_args = list(cdplot = TRUE))
-plot(mb_pid, terminal_panel = NULL)
+plot(pid_tree2)
+plot(pid_tree2, tp_args = list(cdplot = TRUE))
+plot(pid_tree2, terminal_panel = NULL)
 
 ## estimated parameters
-coef(mb_pid)
-coef(mb_pid, node = 5)
-summary(mb_pid, node = 5)
+coef(pid_tree2)
+coef(pid_tree2, node = 5)
+summary(pid_tree2, node = 5)
 
 ## deviance, log-likelihood and information criteria
-deviance(mb_pid)
-logLik(mb_pid)
-AIC(mb_pid)
-BIC(mb_pid)
+deviance(pid_tree2)
+logLik(pid_tree2)
+AIC(pid_tree2)
+BIC(pid_tree2)
 
 ## different types of predictions
 pid <- head(PimaIndiansDiabetes)
-predict(mb_pid, newdata = pid, type = "node")
-predict(mb_pid, newdata = pid, type = "response")
-predict(mb_pid, newdata = pid, type = "link")
+predict(pid_tree2, newdata = pid, type = "node")
+predict(pid_tree2, newdata = pid, type = "response")
+predict(pid_tree2, newdata = pid, type = "link")
 
 }
 }
