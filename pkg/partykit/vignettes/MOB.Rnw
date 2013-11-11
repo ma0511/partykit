@@ -625,7 +625,8 @@ names(pid_tree$node$info)
 The \code{coefficients}, \code{objfun}, and \code{object} are the results of the \code{fit}
 function for that node. In \code{nobs} and \code{p.value} the number of observations
 and the minimal $p$~value are provided, respectively. Finally, \code{test} contains
-the parameter instability test results.
+the parameter instability test results. Note that the \code{object} element can also
+be suppressed through \code{mob_control()} to save memory space.
 
 
 \subsection{Methods} \label{sec:methods}
