@@ -214,7 +214,7 @@ node_bivplot <- function(mobobj, which = NULL, id = TRUE, pop = TRUE,
       yi <- y[o]
       xi <- xi[o]
       yfit <- if(is.null(node$info$object)) {
-        fitted(refit.modelparty(mobobj, node = nid))
+        fitted(refit.modelparty(mobobj, node = nid))[o]
       } else {
         fitted(node$info$object)[o]
       }
