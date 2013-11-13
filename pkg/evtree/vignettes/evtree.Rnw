@@ -1,4 +1,4 @@
-\documentclass[nojss]{jss}
+\documentclass[jss]{jss}
 \usepackage{amssymb, amsmath, amsthm, booktabs, thumbpdf}
 \newcommand{\argmin}{\operatorname{argmin}\displaylimits}
 
@@ -407,7 +407,6 @@ excluded in practice to satisfy minimal subsample size requirements.
 In the following, the term \emph{invalid node} refers to such excluded cases,
 not meeting sample size restrictions.
 
-\pagebreak %% FIXME
 
 \subsection{Initialization}
 \label{init}
@@ -528,7 +527,6 @@ ${\theta}_{i+1}^2 = \mathrm{sub}2({\theta}_{i}^2, r_2) \cup \mathrm{sub}1({\thet
 If the crossover creates some invalid nodes in either one of the new trees ${\theta}_{i+1}^1$
 or ${\theta}_{i+1}^2$, they are omitted.
 
-\pagebreak %% FIXME
 
 \subsection{Evaluation function}
 \label{eval}
@@ -1218,7 +1216,7 @@ able to provide better predictive accuracy and/or sparser trees.
 
 Disadvantages of the \code{evtree} algorithm are computation time and memory requirements. While the smallest of the analyzed datasets, \textit{Glass identification}, only needed approximately 4--6~seconds to fit, larger datasets demanded several minutes. The fit of a model from the largest dataset, \textit{MAGIC gamma telescope}, required approximately 40--50 minutes and a main memory of 400 MB. The required resources were measured on an Intel Core 2 Duo with 2.2 GHz and 2 GB RAM using the 64-bit version of Ubuntu 10.10.
 
-Another important issue to be considered is the random nature of evolutionary algorithms. For larger datasets, frequently, considerably different solutions exist that yield a similar or even the same evaluation function value. Therefore, subsequent runs of \code{evtree} can result in very different tree structures. This is not a problem if the tree is intended only for predictive purposes, and it is also not a big issue for many decision and prognosis tasks. Typically, in such applications, the resulting model has to be accurate, compact, and meaningful in its interpretation, but the particular tree structure is of secondary importance. Examples of such applications include the presented marketing case study and the Austrian DRG system. In cases where a model is not meaningful in its interpretation, the possibility of constructing different trees can even be beneficial. However, if the primary goal is to interpret relationships in the data, based on the selected splits, the random nature of the algorithm has to be considered.
+Another important issue to be considered is the random nature of evolutionary algorithms. For larger datasets, frequently, considerably different solutions exist that yield a similar or even the same evaluation function value. Therefore, subsequent runs of \code{evtree} can result in very different tree structures. This is not a problem if the tree is intended only for predictive purposes, and it is also not a big issue for many decision and prognosis tasks. Typically, in such applications, the resulting model has to be accurate, compact, and meaningful in its interpretation, but the particular tree structure is of secondary importance. Examples of such applications include the presented marketing case study and the Austrian DRG system. In cases where a model is not meaningful in its interpretation, the possibility of constructing different trees can even be beneficial. However, if the primary goal is to interpret relationships in the data, based on the selected splits, the random nature of the algorithm has to~be~considered.
 
 
 \subsection{Artificial problem}
