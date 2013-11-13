@@ -2,7 +2,7 @@ Package: evtree
 Title: Evolutionary Learning of Globally Optimal Trees
 Version: 0.1-4
 Date: 2013-12-13
-Authors@R: c(person(given = "Thomas", family = "Grubinger", role = c("aut", "cre"), email = "ThomasGrubinger@gmail.com"),
+Authors@R: c(person(given = "Thomas", family = "Grubinger", role = c("aut", "cre"), email = "Thomas.Grubinger@utanet.at"),
              person(given = "Achim", family = "Zeileis", role = "aut", email = "Achim.Zeileis@R-project.org"),
              person(given = "Karl-Peter", family = "Pfeiffer", role = "aut", email = "Karl-Peter.Pfeiffer@i-med.ac.at"))
 Description: Commonly used classification and regression tree methods like the CART algorithm
