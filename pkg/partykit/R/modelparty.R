@@ -315,7 +315,11 @@ mob <- function(formula, data, subset, na.action, weights, offset,
         )
       } else {
         split <- list(
-          breaks = as.double(uz[which.min(dev)]),
+          breaks = if(control$numsplit == "center") {
+	    as.double(mean(uz[which.min(dev) + 0L:1L]))
+	  } else {
+	    as.double(uz[which.min(dev)])
+	  },
           index = NULL
         )
       }
@@ -533,7 +537,7 @@ mob_grow_getlevels <- function(z) {
 mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsplit = NULL, trim = 0.1,
   breakties = FALSE, parm = NULL, verbose = FALSE, caseweights = TRUE,
   ytype = "vector", xtype = "matrix", terminal = "object", inner = terminal,
-  model = TRUE, vcov = "opg", ordinal = "chisq", nrep = 10000)
+  model = TRUE, numsplit = "left", vcov = "opg", ordinal = "chisq", nrep = 10000)
 {
   ytype <- match.arg(ytype, c("vector", "data.frame", "matrix"))
   xtype <- match.arg(xtype, c("data.frame", "matrix"))
@@ -541,6 +545,8 @@ mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsplit = NULL, trim =
   if(!is.null(terminal)) terminal <- as.vector(sapply(terminal, match.arg, c("estfun", "object")))
   if(!is.null(inner))    inner    <- as.vector(sapply(inner,    match.arg, c("estfun", "object")))
 
+  numsplit <- match.arg(tolower(numsplit), c("left", "center", "centre"))
+  if(numsplit == "centre") numsplit <- "center"
   vcov <- match.arg(tolower(vcov), c("opg", "info"))
   ordinal <- match.arg(tolower(ordinal), c("l2", "max", "chisq"))
 
@@ -549,7 +555,7 @@ mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsplit = NULL, trim =
     breakties = breakties, parm = parm, verbose = verbose,
     caseweights = caseweights, ytype = ytype, xtype = xtype,
     terminal = terminal, inner = inner, model = model,
-    vcov = vcov, ordinal = ordinal, nrep = nrep)
+    numsplit = numsplit, vcov = vcov, ordinal = ordinal, nrep = nrep)
   return(rval)
 }
 
