@@ -40,6 +40,9 @@ export(
   ## exported methods (to facilitate re-use)
   "plot.party",
   "print.party",
+  "plot.modelparty",
+  "predict.modelparty",
+  "print.modelparty",
 
   ## workhorse infrastructure
   "breaks_split",
@@ -132,9 +135,6 @@ S3method("getCall", "modelparty")
 S3method("logLik", "modelparty")
 S3method("model.frame", "modelparty")
 S3method("nobs", "modelparty")
-S3method("plot", "modelparty")
-S3method("predict", "modelparty")
-S3method("print", "modelparty")
 S3method("residuals", "modelparty")
 S3method("summary", "modelparty")
 S3method("weights", "modelparty")
