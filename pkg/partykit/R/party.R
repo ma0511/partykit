@@ -85,6 +85,14 @@ is.constparty <- function(party) {
 }
 
 as.constparty <- function(obj, ...) {
+    if (!is.constparty(obj)) {
+        if(is.null(obj$fitted))
+	  obj$fitted <- data.frame("(fitted)" = predict(obj, type = "node"), check.names = FALSE)
+	if(!("(fitted)" %in% names(obj$fitted)))
+	  obj$fitted["(fitted)"] <- predict(obj, type = "node")
+	if(!("(response)" %in% names(obj$fitted)))
+	  obj$fitted["(response)"] <- model.response(model.frame(obj))
+    }
     if (is.constparty(obj)) {
         ret <- obj
         class(ret) <- c("constparty", class(obj))
