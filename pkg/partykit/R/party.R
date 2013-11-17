@@ -92,6 +92,10 @@ as.constparty <- function(obj, ...) {
 	  obj$fitted["(fitted)"] <- predict(obj, type = "node")
 	if(!("(response)" %in% names(obj$fitted)))
 	  obj$fitted["(response)"] <- model.response(model.frame(obj))
+	if(!("(weights)" %in% names(obj$fitted))) {
+	  w <- model.weights(model.frame(obj))
+	  if(is.null(w) && any(w != 1L)) obj$fitted["(weights)"] <- w
+	}
     }
     if (is.constparty(obj)) {
         ret <- obj
