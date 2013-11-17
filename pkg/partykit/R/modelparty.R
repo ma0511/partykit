@@ -397,9 +397,9 @@ mob <- function(formula, data, subset, na.action, weights, offset,
     }
 
     ## conduct all parameter instability tests
-    test <- try(mob_grow_fluctests(mod$estfun, z, weights, mod$object))
+    test <- if(is.null(mod$estfun)) NULL else try(mob_grow_fluctests(mod$estfun, z, weights, mod$object))
 
-    if(!inherits(test, "try-error")) {
+    if(!is.null(test) && !inherits(test, "try-error")) {
       if(control$bonferroni) {
         pval1 <- pmin(1, sum(!is.na(test$pval)) * test$pval)
         pval2 <- 1 - (1 - test$pval)^sum(!is.na(test$pval))
@@ -417,7 +417,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
         cat(sprintf("\nPerform split? %s", ifelse(TERMINAL, "no\n\n", "yes\n")))
       }
     } else {
-      if(verbose) cat("Parameter instability tests failed\n\n")
+      if(verbose && inherits(test, "try-error")) cat("Parameter instability tests failed\n\n")
       TERMINAL <- TRUE
       test <- list(stat = NA, pval = NA)
     }
