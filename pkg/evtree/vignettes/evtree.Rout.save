@@ -359,7 +359,7 @@ Warning in if (dim(x) >= 17) abline(h = 5.5) :
 > print(xtable(chesstable, caption = "Mean (and standard deviation) of accuracy and complexity for simulated $4 \\times 4$ chessboard examples.", 
 +   .... [TRUNCATED] 
 % latex table generated in R 3.1.0 by xtable 1.7-1 package
-% Mon Nov 18 16:19:46 2013
+% Mon Nov 25 10:37:09 2013
 \begin{table}[ht]
 \centering
 \begin{tabular}{lllllllll}
@@ -458,4 +458,4 @@ Warning in if (dim(x) >= 17) abline(h = 5.5) :
  *** Run successfully completed ***
 > proc.time()
    user  system elapsed 
- 50.364   0.212  50.846 
+ 48.704   0.140  48.860 

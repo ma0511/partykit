@@ -1,5 +1,5 @@
 
-R Under development (unstable) (2013-11-18 r64248) -- "Unsuffered Consequences"
+R Under development (unstable) (2013-11-25 r64296) -- "Unsuffered Consequences"
 Copyright (C) 2013 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
@@ -280,8 +280,8 @@ detaching 'package:Formula', 'package:rpart'
  Mean   :27.646   Mean   :193.818                 
  3rd Qu.:45.884   3rd Qu.:240.564                 
  Max.   :90.000   Max.   :495.561                 
-> ## Not run:
-> ##D set.seed(1090) 
+> ## Not run: 
+> ##D set.seed(1090)
 > ##D mgtt <- evtree(class ~ . , data = MAGICGammaTelescope) 
 > ##D mgtt
 > ##D table(predict(mgtt), MAGICGammaTelescope$class)
@@ -347,26 +347,26 @@ heart_disease ~ age + sex + chest_pain_type + resting_blood_pressure +
 
 Fitted party:
 [1] root
-|   [2] thal in normal
+|   [2] resting_blood_pressure < 156
 |   |   [3] major_vessels < 1
-|   |   |   [4] oldpeak < 2.9
-|   |   |   |   [5] age < 58: absence (n = 74, err = 6.8%)
-|   |   |   |   [6] age >= 58
-|   |   |   |   |   [7] serum_colestoral < 234: absence (n = 11, err = 0.0%)
-|   |   |   |   |   [8] serum_colestoral >= 234: presence (n = 53, err = 24.5%)
-|   |   |   [9] oldpeak >= 2.9: presence (n = 17, err = 11.8%)
-|   |   [10] major_vessels >= 1
-|   |   |   [11] chest_pain_type in atypical angina, non-anginal pain: absence (n = 27, err = 37.0%)
-|   |   |   [12] chest_pain_type in typical angina, asymptomatic: presence (n = 102, err = 6.9%)
-|   [13] thal in fixed defect, reversible defect: presence (n = 466, err = 6.7%)
+|   |   |   [4] oldpeak < 1.8
+|   |   |   |   [5] thal in reversible defect
+|   |   |   |   |   [6] chest_pain_type in atypical angina, asymptomatic: presence (n = 83, err = 9.6%)
+|   |   |   |   |   [7] chest_pain_type in typical angina, non-anginal pain: absence (n = 8, err = 0.0%)
+|   |   |   |   [8] thal in normal, fixed defect
+|   |   |   |   |   [9] age < 61: absence (n = 85, err = 5.9%)
+|   |   |   |   |   [10] age >= 61: presence (n = 30, err = 33.3%)
+|   |   |   [11] oldpeak >= 1.8: presence (n = 73, err = 11.0%)
+|   |   [12] major_vessels >= 1: presence (n = 382, err = 7.1%)
+|   [13] resting_blood_pressure >= 156: presence (n = 89, err = 10.1%)
 
 Number of inner nodes:    6
 Number of terminal nodes: 7
 > table(predict(sht), StatlogHeart$heart_disease)
           
            absence presence
-  absence       97        3
-  presence      53      117
+  absence       88        1
+  presence      62      119
 > plot(sht)
 > 
 > 
@@ -415,12 +415,12 @@ Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width
 
 Fitted party:
 [1] root
-|   [2] Petal.Width < 1: setosa (n = 50, err = 0.0%)
-|   [3] Petal.Width >= 1
-|   |   [4] Petal.Length < 5
+|   [2] Petal.Length < 5
+|   |   [3] Petal.Width < 1: setosa (n = 50, err = 0.0%)
+|   |   [4] Petal.Width >= 1
 |   |   |   [5] Petal.Width < 1.7: versicolor (n = 47, err = 0.0%)
 |   |   |   [6] Petal.Width >= 1.7: virginica (n = 7, err = 14.3%)
-|   |   [7] Petal.Length >= 5: virginica (n = 46, err = 4.3%)
+|   [7] Petal.Length >= 5: virginica (n = 46, err = 4.3%)
 
 Number of inner nodes:    3
 Number of terminal nodes: 4
@@ -440,7 +440,7 @@ Number of terminal nodes: 4
 > ###
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  44.884 0.068 45.012 0 0 
+Time elapsed:  50.428 0.156 50.632 0 0 
 > grDevices::dev.off()
 null device 
           1 
