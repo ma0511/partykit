@@ -1,0 +1,6 @@
+Changes in Version 0.2-0
+
+  o Reimplementation of the model-based recursive partitioning algorithm
+    (MOB) using "partykit" infrastructure. The generic algorithm and the
+    corresponding convenience interfaces lmtree() and glmtree() are
+    described in detail in vignette("MOB", package = "partykit").
