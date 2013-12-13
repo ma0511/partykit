@@ -6,6 +6,8 @@ Changes in Version 0.2-0
     for MOBs based on least-squares regression and generalized linear
     models, respectively.
 
+  o deal with empty levels for teststat = "quad"
+    (bug reported by Wei-Yin Loh <loh@stat.wisc.edu>)
 
 Changes in Version 0.1-6
 

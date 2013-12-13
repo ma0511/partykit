@@ -25,8 +25,15 @@
         X2 <- ((lin - exp)^2) / cov
         df <- 1
     } else {
+        v <- diag(V <- matrix(cov, ncol = length(lin)))
+        ### remove elements with zero variance first
+        lin <- as.vector(lin)[v > 0]
+        exp <- as.vector(exp)[v > 0]
+        V <- V[v > 0, v > 0, drop = FALSE]
+        v <- v[v > 0]
+        if (length(v) == 0) return(c(-Inf, -Inf))
         tmp <- matrix(lin - exp, ncol = 1)
-        Xplus <- .MPinv(matrix(cov, ncol = length(lin)))
+        Xplus <- .MPinv(V)
         X2 <- crossprod(tmp, Xplus$Xplus) %*% tmp
         df <- Xplus$rank
     }
