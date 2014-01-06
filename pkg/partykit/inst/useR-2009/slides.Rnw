@@ -157,7 +157,7 @@ Computing: \\
 \newslide{Example: Pretty rpart Trees}
 
 <<ex-rpart, echo = TRUE>>=
-data("GlaucomaM", package = "ipred")
+data("GlaucomaM", package = "TH.data")
 library("rpart")
 g_rpart <- rpart(Class ~ ., data = GlaucomaM)
 print(g_rpart)

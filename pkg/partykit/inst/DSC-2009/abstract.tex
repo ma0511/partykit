@@ -44,10 +44,10 @@ automated interaction detection (AID) algorithm in 1964, many extentions,
 modifications, and new approaches have been suggested in both the statistics
 and machine learning communities. Most of the standard algorithms are
 available to the \proglang{R} user, e.g., through packages
-\pkg{rpart} \citep{partykit:rpart},
-\pkg{RWeka} \citep{partykit:RWeka},
-\pkg{party} \citep{partykit:party}, or
-\pkg{mvpart} \citep{partykit:mvpart}.
+\pkg{rpart} \citep{rpart},
+\pkg{RWeka} \citep{RWeka},
+\pkg{party} \citep{party}, or
+\pkg{mvpart} \citep{mvpart}.
 
 However, no common infrastructure is available for representing trees
 fitted by different packages. Consequently, the capabilities for extraction of
@@ -60,7 +60,7 @@ Similarly, implementations of new tree algorithms might also require new
 infrastructure if they have features not available in the above-mentioned
 packages, e.g., multi-way splits or more complex models in the leafs.
 
-To overcome these difficulties, the \pkg{partykit} package \citep{partykit:partykit} offers a 
+To overcome these difficulties, the \pkg{partykit} package \citep{partykit} offers a 
 unified representation of tree objects along with \code{predict()}, 
 \code{print()}, and \code{plot()} methods. Trees are represented through 
 a new flexible class \class{party} comprising essentially a recursive list of \class{partynode}
@@ -71,15 +71,15 @@ all trees mentioned above but can also accomodate multi-way or functional
 splits, as well as complex models in (leaf) nodes. The package is currently
 under development at \proglang{R}-Forge but already provides conversion methods for
 trees of classes \class{rpart}, \class{J48}, and \class{pmmlTreeModel}
-as well as a re-implementation of conditional inference trees \citep{partykit:Hothorn+Hornik+Zeileis:2006}.
+as well as a re-implementation of conditional inference trees \citep{Hothorn+Hornik+Zeileis:2006}.
 
 In our presentation, we discuss the design of the new \class{party} class
 and its methods and illustrate how it can be utilized to interface other classes such
 as \class{rpart} or \class{J48}, obtain new implementations of existing algorithms
 such as CHAID or re-implement techniques such as model-based recursive partitioning
-\citep[MOB,][]{partykit:Zeileis+Hothorn+Hornik:2008}.
+\citep[MOB,][]{Zeileis+Hothorn+Hornik:2008}.
 
 \bibliographystyle{jss}
-\bibliography{partykit}
+\bibliography{party}
 
 \end{document}
