@@ -112,7 +112,7 @@ model.frame.rpart <- function(formula, ...) {
 as.party.J48 <- function(obj, ...) {
 
   ## needs RWeka and rJava
-  stopifnot(require("RWeka"), require("rJava"))
+  stopifnot(require("RWeka"))
 
   ## construct metadata
   mf <- model.frame(obj)
