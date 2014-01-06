@@ -111,13 +111,16 @@ model.frame.rpart <- function(formula, ...) {
 
 as.party.J48 <- function(obj, ...) {
 
+  ## needs RWeka and rJava
+  stopifnot(require("RWeka"), require("rJava"))
+
   ## construct metadata
   mf <- model.frame(obj)
   mf_class <- sapply(mf, function(x) class(x)[1L])
   mf_levels <- lapply(mf, levels)
 
   x <- rJava::.jcall(obj$classifier, "S", "graph")
-  x <- parse_Weka_digraph(x, plainleaf = TRUE)
+  x <- RWeka::parse_Weka_digraph(x, plainleaf = TRUE)
   nodes <- x$nodes
   edges <- x$edges
   is.leaf <- x$nodes[, "splitvar"] == ""

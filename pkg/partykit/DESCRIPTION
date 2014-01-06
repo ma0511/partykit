@@ -12,9 +12,8 @@ Description: A toolkit with infrastructure for representing,
   print/plot/predict methods. Furthermore, re-implementations of
   ctree() and mob() from the party package are provided based
   on the new infrastructure.
-Depends: R (>= 2.5.0), graphics, grid
-Imports: stats, survival, RWeka (>= 0.4-19)
-Suggests: XML, pmml, rJava, rpart, mvtnorm, Formula, sandwich, strucchange, vcd, AER, mlbench,
-  TH.data, coin
+Depends: R (>= 2.15.0), graphics, grid
+Imports: stats, survival
+Suggests: XML, pmml, rJava, rpart, mvtnorm, Formula, sandwich, strucchange, vcd, AER, mlbench, TH.data, coin, RWeka (>= 0.4-19)
 LazyData: yes
-License: GPL-2
+License: GPL-2 | GPL-3
