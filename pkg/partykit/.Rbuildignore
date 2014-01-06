@@ -1,6 +1,9 @@
 inst/pmml/auto.pmml
-inst/slides
 inst/soc09
 inst/mloss
+inst/DSC-2009
+inst/useR-2009
+inst/ERCIM-2011
+inst/Psychoco-2014
 tests/ctree-ctree.R
 WISHLIST
