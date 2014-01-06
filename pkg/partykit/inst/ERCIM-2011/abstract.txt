@@ -1,0 +1,23 @@
+Title: partykit: A toolkit for recursive partytioning
+Authors: Achim Zeileis, Torsten Hothorn
+Session: ES51 - Advances in Software for Tree Models
+
+Recursive partitioning methods, or simply "trees", are simple yet powerful
+methods for capturing regression relationships. Hence, many different algorithms
+have been suggested in both the statistics and machine learning communities and
+many standard algorithms are available as R packages, e.g., in rpart, RWeka,
+party, and many others. However, no common infrastructure is available for
+representing trees fitted by different packages. Consequently, the capabilities
+for extraction of information - such as predictions, printed summaries, or
+visualizations - vary between packages and come with somewhat different user
+interfaces. Similarly, implementations of new tree models might also require new
+infrastructure, e.g., for multi-way splits or more complex models in the leafs.
+To overcome these difficulties, the partykit package offers a unified
+representation of tree objects along with predict(), print(), and plot()
+methods. Trees are represented through a new flexible class "party" which can,
+in principle, capture all trees mentioned above. The package is currently under
+development at R-Forge and already provides conversion methods for trees of
+classes rpart, J48, and pmmlTreeModel as well as a re-implementation of
+conditional inference trees. Furthermore, the new packages evtree and CHAID
+employ the partykit infrastructure.
+
