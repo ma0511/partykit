@@ -1,0 +1,22 @@
+Parties, Models, Mobsters: A New Implementation of Model-Based Recursive
+Partitioning in R
+
+Achim Zeileis (Universität Innsbruck), Torsten Hothorn (Universität Zürich)
+
+MOB is a generic algorithm for model-based recursive partitioning (Zeileis,
+Hothorn, Hornik 2008). Rather than fitting one global model to a dataset, it
+estimates local models on subsets of data that are "learned" by recursively
+partitioning. It proceeds in the following way: (1) fit a parametric model to a
+data set, (2) test for parameter instability over a set of partitioning
+variables, (3) if there is some overall parameter instability, split the model
+with respect to the variable associated with the highest instability, (4) repeat
+the procedure in each of the child nodes. It is discussed how these steps of the
+conceptual algorithm are translated into computational tools in an
+object-oriented manner, allowing the user to plug in various types of parametric
+models. For representing the resulting trees, the R package "partykit" is
+employed: The basic "party" class is leveraged and extended to a new class
+"modelparty" providing generic infrastructure for recursive partitions where
+nodes are associated with statistical models. Compared to the previously
+available implementation in the party package, the new implementation supports
+more inference options, is easier to extend to new models, and provides more
+convenience features.
