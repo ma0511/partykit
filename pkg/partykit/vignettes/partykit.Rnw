@@ -73,7 +73,7 @@
 \title{\pkg{partykit}: A Toolkit for Recursive Partytioning}
 \Plaintitle{partykit: A Toolkit for Recursive Partytioning}
 
-\author{Torsten Hothorn\\Ludwig-Maximilians-Universit\"at \\ M\"unchen
+\author{Torsten Hothorn\\Universit\"at Z\"urich
    \And Achim Zeileis\\Universit\"at Innsbruck}
 \Plainauthor{Torsten Hothorn, Achim Zeileis}
 
