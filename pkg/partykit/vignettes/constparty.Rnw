@@ -1,7 +1,7 @@
 \documentclass[nojss]{jss}
 
 %\VignetteIndexEntry{partykit: A Toolkit for Recursive Partytioning}
-%\VignetteDepends{partykit, rpart, RWeka}
+%\VignetteDepends{partykit, rpart, RWeka, pmml}
 %\VignetteKeywords{recursive partitioning, regression trees, classification trees, decision trees}
 %\VignettePackage{partykit}
 
