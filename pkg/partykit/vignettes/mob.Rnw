@@ -939,7 +939,7 @@ of the fitted hyperplane.
 <<BostonHousing-plot,echo=FALSE,results=hide,fig=TRUE,height=8,width=12,include=FALSE>>=
 plot(bh_tree)
 @
-\includegraphics[width=18cm,keepaspectratio,angle=90]{MOB-BostonHousing-plot}
+\includegraphics[width=18cm,keepaspectratio,angle=90]{mob-BostonHousing-plot}
 \caption{\label{fig:BostonHousing} Linear-regression-based tree for the Boston housing data.
 The plots in the leaves give partial scatter plots for \code{rm} (upper panel) and 
 \code{lstat} (lower panel).}
