@@ -62,12 +62,12 @@ options(prompt = "R> ", continue = "+  ", digits = 4, useFancyQuotes = FALSE)
   URL: \url{http://eeecon.uibk.ac.at/~zeileis/}\\
 
   Torsten Hothorn\\
-  Institut f\"ur Statistik\\
-  Ludwig-Maximilians-Universit\"at M\"unchen\\
-  Ludwigstra{\ss}e 33\\
-  80539 M\"unchen, Germany\\
+  Institut f\"ur Sozial- und Pr\"aventivmedizin, Abteilung Biostatistik \\
+  Universit\"at Z\"urich \\
+  Hirschengraben 84\\
+  CH-8001 Z\"urich, Switzerland \\
   E-mail: \email{Torsten.Hothorn@R-project.org}\\
-  URL: \url{http://www.stat.uni-muenchen.de/~hothorn/}
+  URL: \url{http://user.math.uzh.ch/hothorn/}\\
 }
 
 \begin{document}

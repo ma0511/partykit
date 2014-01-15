@@ -99,7 +99,7 @@
   Hirschengraben 84\\
   CH-8001 Z\"urich, Switzerland \\
   E-mail: \email{Torsten.Hothorn@R-project.org}\\
-  URL: \url{http://www.biostat.uzh.ch/aboutus/people/hothorn.html}\\
+  URL: \url{http://user.math.uzh.ch/hothorn/}\\
 
   Achim Zeileis\\
   Department of Statistics \\
