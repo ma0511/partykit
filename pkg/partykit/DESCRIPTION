@@ -14,6 +14,8 @@ Description: A toolkit with infrastructure for representing,
   on the new infrastructure.
 Depends: R (>= 2.15.0), graphics, grid
 Imports: stats, survival
-Suggests: XML, pmml, rJava, rpart, mvtnorm, Formula, sandwich, strucchange, vcd, AER, mlbench, TH.data, coin, RWeka (>= 0.4-19)
+Suggests: XML, pmml, rJava, rpart, mvtnorm, Formula, sandwich, 
+  strucchange, vcd, AER, mlbench, TH.data (>= 1.0-3), coin, 
+  RWeka (>= 0.4-19)
 LazyData: yes
 License: GPL-2 | GPL-3
