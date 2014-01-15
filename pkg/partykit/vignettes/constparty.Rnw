@@ -1,7 +1,7 @@
 \documentclass[nojss]{jss}
 
 %\VignetteIndexEntry{partykit: A Toolkit for Recursive Partytioning}
-%\VignetteDepends{partykit}
+%\VignetteDepends{partykit, rpart, RWeka}
 %\VignetteKeywords{recursive partitioning, regression trees, classification trees, decision trees}
 %\VignettePackage{partykit}
 
@@ -110,12 +110,68 @@ Converting tree objects to \pkg{partykit} infrastructure, growing your own tree.
 options(width = 70)
 library("partykit")
 set.seed(290875)
-data("iris")
 @
 
 \section{Converting tree objects}
 
-TBD
+<<rpart>>=
+library("rpart")
+(rp <- rpart(Kyphosis ~ Age + Number + Start, data = kyphosis))
+(party_rp <- as.party(rp))
+@
+
+\begin{figure}
+\begin{center}
+<<rpart-plot, fig = TRUE, width = 10, height = 6>>=
+plot(party_rp)
+@
+\caption{\code{rpart} tree of kyphosis data plotted using \pkg{partykit}
+         infrastructure.}
+\end{center}
+\end{figure}
+
+
+<<rpart-pred>>=
+all.equal(predict(rp), predict(party_rp, type = "prob"), 
+          check.attributes = FALSE)
+@
+
+<<PMML-write>>=
+library("pmml")
+tfile <- tempfile()
+write(toString(pmml(rp)), file = tfile)
+@
+
+<<PMML-read>>=
+party_pmml <- pmmlTreeModel(tfile)
+isTRUE(all.equal(party_rp, party_pmml))
+all.equal(predict(party_rp, newdata = kyphosis, type = "prob"), 
+          predict(party_pmml, newdata = kyphosis, type = "prob"),
+          check.attributes = FALSE)
+@
+
+<<J48>>=
+library("RWeka")
+(j48 <- J48(Kyphosis ~ Age + Number + Start, data = kyphosis))
+(party_j48 <- as.party(j48))
+@
+
+\begin{figure}
+\begin{center}
+<<J48-plot, fig = TRUE, width = 10, height = 6>>=
+plot(party_j48)
+@
+\caption{\code{J48} tree of kyphosis data plotted using \pkg{partykit}
+         infrastructure.}
+\end{center}
+\end{figure}
+
+<<J48-pred>>=
+all.equal(predict(j48, type = "prob"), 
+          predict(party_j48, type = "prob"), 
+          check.attributes = FALSE)
+@
+
 
 \section{Growing a simple regression tree} 
 
