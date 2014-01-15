@@ -1,7 +1,7 @@
 \documentclass[nojss]{jss}
 
 %\VignetteIndexEntry{ctree: Conditional Inference Trees}
-%\VignetteDepends{coin, TH.data, survival}
+%\VignetteDepends{coin, TH.data, survival, mvpart}
 %\VignetteKeywords{conditional inference, non-parametric models, recursive partitioning}
 %\VignettePackage{partykit}
 
@@ -899,7 +899,7 @@ survfit(Surv(time, cens) ~ 1, data = GBSG2, subset = (n == pn[2]))
 \subsection{Mammography experience}
 
 <<mammo-ctree, echo = TRUE>>=
-data("mammoexp", package = "party") ### TH.data
+data("mammoexp", package = "TH.data")
 mtree <- ctree(ME ~ ., data = mammoexp)
 @
 

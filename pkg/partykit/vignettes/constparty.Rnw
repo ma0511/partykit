@@ -1,0 +1,304 @@
+\documentclass[nojss]{jss}
+
+%\VignetteIndexEntry{partykit: A Toolkit for Recursive Partytioning}
+%\VignetteDepends{partykit}
+%\VignetteKeywords{recursive partitioning, regression trees, classification trees, decision trees}
+%\VignettePackage{partykit}
+
+%% packages
+\usepackage{amstext}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{thumbpdf}
+\usepackage{rotating}
+%% need no \usepackage{Sweave}
+
+%% additional commands
+\newcommand{\squote}[1]{`{#1}'}
+\newcommand{\dquote}[1]{``{#1}''}
+\newcommand{\fct}[1]{{\texttt{#1()}\index{#1@\texttt{#1()}}}}
+\newcommand{\class}[1]{\dquote{\texttt{#1}}}
+
+%% further commands
+\renewcommand{\Prob}{\mathbb{P} }
+\renewcommand{\E}{\mathbb{E}}
+\newcommand{\V}{\mathbb{V}}
+\newcommand{\Var}{\mathbb{V}}
+\newcommand{\R}{\mathbb{R} }
+\newcommand{\N}{\mathbb{N} }
+\newcommand{\C}{\mathbb{C} }
+\newcommand{\argmin}{\operatorname{argmin}\displaylimits}
+\newcommand{\argmax}{\operatorname{argmax}\displaylimits}
+\newcommand{\LS}{\mathcal{L}_n}
+\newcommand{\TS}{\mathcal{T}_n}
+\newcommand{\LSc}{\mathcal{L}_{\text{comb},n}}
+\newcommand{\LSbc}{\mathcal{L}^*_{\text{comb},n}}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\yn}{y_{\text{new}}}
+\newcommand{\z}{\mathbf{z}}
+\newcommand{\X}{\mathbf{X}}
+\newcommand{\Y}{\mathbf{Y}}
+\newcommand{\sX}{\mathcal{X}}
+\newcommand{\sY}{\mathcal{Y}}
+\newcommand{\T}{\mathbf{T}}
+\newcommand{\x}{\mathbf{x}}
+\renewcommand{\a}{\mathbf{a}}
+\newcommand{\xn}{\mathbf{x}_{\text{new}}}
+\newcommand{\y}{\mathbf{y}}
+\newcommand{\w}{\mathbf{w}}
+\newcommand{\ws}{\mathbf{w}_\cdot}
+\renewcommand{\t}{\mathbf{t}}
+\newcommand{\M}{\mathbf{M}}
+\renewcommand{\vec}{\text{vec}}
+\newcommand{\B}{\mathbf{B}}
+\newcommand{\K}{\mathbf{K}}
+\newcommand{\W}{\mathbf{W}}
+\newcommand{\D}{\mathbf{D}}
+\newcommand{\I}{\mathbf{I}}
+\newcommand{\bS}{\mathbf{S}}
+\newcommand{\cellx}{\pi_n[\x]}
+\newcommand{\partn}{\pi_n(\mathcal{L}_n)}
+\newcommand{\err}{\text{Err}}
+\newcommand{\ea}{\widehat{\text{Err}}^{(a)}}
+\newcommand{\ecv}{\widehat{\text{Err}}^{(cv1)}}
+\newcommand{\ecvten}{\widehat{\text{Err}}^{(cv10)}}
+\newcommand{\eone}{\widehat{\text{Err}}^{(1)}}
+\newcommand{\eplus}{\widehat{\text{Err}}^{(.632+)}}
+\newcommand{\eoob}{\widehat{\text{Err}}^{(oob)}}
+\newcommand{\bft}{\mathbf{t}}
+
+\hyphenation{Qua-dra-tic}
+
+\title{Growing and Handling Trees with Constant Fits}
+\Plaintitle{Growing and Handling Trees with Constant Fits}
+
+\author{Torsten Hothorn\\Universit\"at Z\"urich
+   \And Achim Zeileis\\Universit\"at Innsbruck}
+\Plainauthor{Torsten Hothorn, Achim Zeileis}
+
+\Abstract{
+Converting tree objects to \pkg{partykit} infrastructure, growing your own tree.
+}
+\Keywords{recursive partitioning, regression trees, classification trees, decision trees}
+
+\Address{
+  Torsten Hothorn\\
+  Institut f\"ur Sozial- und Pr\"aventivmedizin, Abteilung Biostatistik \\
+  Universit\"at Z\"urich \\
+  Hirschengraben 84\\
+  CH-8001 Z\"urich, Switzerland \\
+  E-mail: \email{Torsten.Hothorn@R-project.org}\\
+  URL: \url{http://user.math.uzh.ch/hothorn/}\\
+
+  Achim Zeileis\\
+  Department of Statistics \\
+  Universit\"at Innsbruck \\
+  Universit\"atsstr.~15 \\
+  6020 Innsbruck, Austria \\
+  E-mail: \email{Achim.Zeileis@R-project.org}\\
+  URL: \url{http://eeecon.uibk.ac.at/~zeileis/}
+}
+
+
+\begin{document}
+
+
+\SweaveOpts{eps=FALSE, keep.source=TRUE, eval = TRUE}
+
+<<setup, echo = FALSE, results = hide>>=
+options(width = 70)
+library("partykit")
+set.seed(290875)
+data("iris")
+@
+
+\section{Converting tree objects}
+
+TBD
+
+\section{Growing a simple regression tree} 
+
+Package \pkg{partykit} does not offer unified infrastructure for growing trees. However,
+once you know how to estimate splits from data, it is fairly straightforward to
+implement trees. Consider a very simple tree algorithm. We assume that both response
+and features are numeric. We search for the binary best split by means of $t$-test 
+$p$-values, i.e., we cycle through all variables and potential split points and assess
+the quality of the split by comparing the distributions of the response in the so-defined
+two groups. We select the feature/split point combination with lowest two-sided $p$-value,
+however only if this result is significant at level $\alpha = 0.05$.
+
+This strategy can be implemented based on the data (response and features) and 
+some case weights as follows (\code{response} is just the name of the response
+and \code{data} is a data frame with all variables):
+<<mytree-1, echo = TRUE>>=
+findsplit <- function(response, data, weights) {
+
+  ### extract response values from data
+  y <- data[[response]]
+
+  logpmin <- 0
+  xselect <- NULL
+
+  ### cycle through all features
+  for (i in which(names(data) != response)) {
+
+    ### expand data
+    x <- data[[i]]
+    xt <- rep(x, weights)
+    yt <- rep(y, weights)
+
+    ### potential split points (not too many)
+    qx <- unique(quantile(xt, 
+        	 prob = seq(from = 0.1, to = 0.9, by = 0.05)))
+
+    ### assess all potential splits by their t-test
+    ### log-p-value
+    logp <- sapply(qx, function(q) {
+      tt <- t.test(yt[xt <= q], yt[xt > q])
+      pt(-abs(tt$statistic), tt$parameter, log = TRUE) + log(2)
+    })
+
+    ### if the best split in variable i significant AND
+    ### better than what we already had store this information
+    if (min(logp) < logpmin & min(logp) < log(0.05)) {
+      logpmin <- min(logp)
+      xselect <- i
+      splitpoint <- qx[which.min(logp)]
+    }
+  }
+
+  ### no significant split found, give up
+  if (is.null(xselect)) return(NULL)
+
+  ### return split as partysplit object
+  return(partysplit(
+      varid = as.integer(xselect),	 ### which variable?
+      breaks = as.numeric(splitpoint),   ### which split point?
+      info = list(pvalue = exp(logpmin)  ### save p-value in addition
+  )))
+}
+@
+
+In order to actually grow a tree on data, 
+we have to set-up the recursion for growing a recursive 
+\class{partynode} structure:
+<<mytree-2, echo = TRUE>>=
+growtree <- function(id = 1L, response, data, weights) {
+
+  ### for less than 30 obs. stop here
+  if (sum(weights) < 30) return(partynode(id = id))
+
+  ### find best split
+  sp <- findsplit(response, data, weights)
+  ### no split found, stop here
+  if (is.null(sp)) return(partynode(id = id))
+
+  ### actually split the data
+  kidids <- kidids_split(sp, data = data)
+
+  ### set-up all daugther nodes
+  kids <- vector(mode = "list", length = max(kidids))
+  for (kidid in 1:max(kidids)) {
+  ### select obs for current node
+  w <- weights
+  w[kidids != kidid] <- 0
+  ### get next node id
+  if (kidid > 1) {
+    myid <- max(nodeids(kids[[kidid - 1]]))
+  } else {
+    myid <- id
+  }
+  ### start recursion on this daugther node
+  kids[[kidid]] <- growtree(id = as.integer(myid + 1), response, data, w)
+  }
+
+  ### return nodes
+  return(partynode(id = as.integer(id), split = sp, kids = kids))
+}
+@
+
+A very rough sketch of formula-based user-interface needs
+to set-up the data and call \fct{growtree}:
+<<mytree-3, echo = TRUE>>=
+mytree <- function(formula, data, weights = NULL) {
+
+  ### name of the response variable
+  response <- all.vars(formula)[1]
+  ### data without missing values, response comes last
+  data <- data[complete.cases(data), c(all.vars(formula)[-1], response)]
+  ### data is numeric
+  stopifnot(all(sapply(data, is.numeric)))
+
+  if (is.null(weights)) weights <- rep(1, nrow(data))
+  ### weights are case weights, i.e., integers
+  stopifnot(length(weights) == nrow(data) &
+    max(abs(weights - floor(weights))) < .Machine$double.eps)
+
+  ### grow tree
+  nodes <- growtree(id = 1L, response, data, weights)
+
+  ### compute terminal node number for each obs.
+  fitted <- fitted_node(nodes, data = data)
+  ### return rich object
+  ret <- party(nodes, 
+    data = data,
+    fitted = data.frame(
+      "(fitted)" = fitted,
+      "(response)" = data[[response]],
+      "(weights)" = weights,
+      check.names = FALSE),
+    terms = terms(formula))
+  as.constparty(ret)
+}
+@
+
+We now can fit this tree, for example to the airquality data; the
+\fct{print} method provides us with a first overview on the 
+resulting model
+<<mytree-4, echo = TRUE>>=
+aqt <- mytree(Ozone ~ Solar.R + Wind + Temp, data = airquality)
+aqt
+@
+
+\begin{figure}[t!]
+\centering
+<<mytree-5, echo = TRUE, fig = TRUE, width = 10, height = 6>>=
+plot(aqt)
+@
+\caption{Tree. \label{plottree}}
+\end{figure}
+
+We depict the model graphically using \fct{plot} (see Figure~\ref{plottree})
+and compute predictions using
+<<mytree-6, echo = TRUE>>=
+predict(aqt, newdata = airquality[1:10,])
+@
+
+An interesting feature is the ability to extract subsets of trees:
+<<mytree-7, echo = TRUE>>=
+aqt4 <- aqt[4]
+aqt4
+@
+which again are objects inheriting from \class{party} and thus
+can be plotted easily (see Figure~\ref{subtree}).
+
+\begin{figure}[t!]
+\centering
+<<mytree-8, echo = TRUE, fig = TRUE, width = 10, height = 6>>=
+plot(aqt4)
+@
+\caption{Subtree. \label{subtree}}
+\end{figure}
+
+We also might be interested in extracting the $p$-values in the
+inner nodes in a nicely formatted way:
+<<mytree-10, echo = TRUE>>=
+fun <- function(x) format.pval(info_split(split_node(x))$pvalue,
+  digits = 3, eps = 0.001)
+nid <- nodeids(aqt)
+iid <- nid[!(nid %in% nodeids(aqt, terminal = TRUE))]
+unlist(nodeapply(aqt, ids = iid, FUN = fun))
+@
+
+\end{document}
