@@ -167,7 +167,7 @@ tasks by choosing particular models, tests, and methods in each of the steps:
   \cite{Gruen+Kosmidis+Zeileis:2012} have also adapted MOB to beta regression for limited
   response variables. Furthermore, MOB provides a generic way of adding covariates to models
   that otherwise have no regressors: this can either serve as a check whether the model is
-  indeed independent from regressors or lead to local models for subsets. Both views are
+  indeed independent from regressors or leads to local models for subsets. Both views are
   of interest when employing MOB to detect parameter instabilities in psychometric models
   for item responses such as the Bradley-Terry or the Rasch model
   \citep[see][respectively]{Strobl+Wickelmaier+Zeileis:2011,Strobl+Kopf+Zeileis:2013}.
@@ -181,15 +181,17 @@ tasks by choosing particular models, tests, and methods in each of the steps:
   categorical partitioning variables (see \citealp{Zeileis:2005} and \citealp{Merkle+Zeileis:2013}
   for unifying views emphasizing regression and psychometric models, respectively).
   Furthermore, the test statistics for ordinal partitioning variables suggested by
-  \cite{Merkle+Fan+Zeileis:2013} have been added.
+  \cite{Merkle+Fan+Zeileis:2013} have been added as further options.
 \item \emph{Partitioning:} As the objective function $\Psi$ is additive, it is easy
   to compute a single optimal split point (or cut point or break point). For each conceivable
   split, the model is estimated on the two resulting subsets and the resulting objective
   functions are summed. The split that optimizes this segmented objective function
   is then selected as the optimal split. For optimally splitting the data into $B > 2$
   segments, the same idea can be used and a full grid search can be avoided by employing
-  a dynamic programming algorithms \citep{Hawkins:2001,Bai+Perron:2003}. (At the moment
-  the latter is not implemented in the software.)
+  a dynamic programming algorithms \citep{Hawkins:2001,Bai+Perron:2003}. At the moment
+  the latter is not implemented in the software; but optionally categorical partitioning
+  variables can be split into all of their categories (i.e., in that case $B$ is set to
+  the number of levels without searching for optimal groupings).
 \item \emph{Pruning:} For determining the optimal size of the tree, one can either use
   a pre-pruning or post-pruning strategy. For the former, the algorithm stops when
   no significant parameter instabilities are detected in the current node (or when the
