@@ -122,8 +122,19 @@ library("partykit")
 set.seed(290875)
 @
 
+\section{Overview} \label{sec:overview}
 
-\section{Motivating example and overview} \label{sec:intro}
+Explain purpose of partykit:
+
+- basic infrastructure toolkit (in this document)
+
+- infrastructure for constant-fit trees (briefly shown here
+but more in constparty.Rnw) along with coercion functions
+
+- reimplementation of functions from party: ctree and mob.
+(The latter also provides some general tools for modeparty objects.)
+
+\section{Motivating example} \label{sec:intro}
 
 To illustrate how \pkg{partykit} can be used to represent trees,
 a simple artificial data set from Witten \& Frank's book
