@@ -120,7 +120,6 @@
 options(width = 70)
 library("partykit")
 set.seed(290875)
-data("iris")
 @
 
 
@@ -306,36 +305,35 @@ A split is basically a function that maps data,
 more specifically a partitioning variable, to daugther nodes. 
 Objects of class \class{partysplit} are designed to represent 
 such functions and are set-up by the \fct{partysplit} 
-constructor:
+constructor. For example, a binary split in the numeric
+partitioning variable \code{humidity} (the 5th variable in \code{WeatherPlay})
+at the breakpoint \code{75} can be created (as above) by
 <<partysplit-1, echo = TRUE>>=
-## binary split in numeric variable `Sepal.Length'
-sl5 <- partysplit(which(names(iris) == "Sepal.Length"), breaks = 5)
-class(sl5)
+sp_h <- partysplit(3L, breaks = 75)
+class(sp_h)
 @
 The internal structure of class \class{partysplit} contains
 information about the partitioning variable, the split-points,
 the handling of split-points, the treatment of observations with
 missing values and the daughter nodes to send observations to:
 <<partysplit-2, echo = TRUE>>=
-unclass(sl5)
+unclass(sp_h)
 @
-Here, the split is defined in the first variable (corresponds to
-\code{Sepal.Length} in data frame \code{iris}) and the splitting rule
-is \code{Sepal.Length} $\le 5$:
+The splitting rule is \code{humidity} $\le 75$:
 <<partysplit-3, echo = TRUE>>=
-character_split(sl5, data = iris)
+character_split(sp_h, data = WeatherPlay)
 @
 This representation of splits is completely abstract and, most importantly,
 independent of any data. Now, data comes into play when we actually
 want to perform splits:
 <<partysplit-4, echo = TRUE>>= 
-kidids_split(sl5, data = iris)
+kidids_split(sp_h, data = WeatherPlay)
 @
-For each observation in \code{iris} the split is performed and the 
+For each observation in \code{WeatherPlay} the split is performed and the 
 number of the daughter node to send this observation to
 is returned. Of course, this is a very complicated way of saying
 <<partysplit-5, echo = TRUE>>=
-(!with(iris, Sepal.Length <= 5)) + 1
+as.numeric(!(WeatherPlay$humidity <= 75)) + 1
 @
 
 Formally, a split is a function $f$ mapping an element $x = (x_1, \dots, x_p)$ of a $p$-dimensional 
@@ -384,14 +382,14 @@ As an example, consider a split in a categorical
 variable at three levels where the first two levels go to the left
 daugther node and the third one to the right daugther node:
 <<partysplit-6, echo = TRUE>>=
-## binary split in factor `Species'
-sp <- partysplit(which(names(iris) == "Species"), index = c(1L, 1L, 2L))
-character_split(sp, data = iris)
-table(kidids_split(sp, data = iris), iris$Species)
+## binary split in factor `outlook'
+sp_o2 <- partysplit(1L, index = c(1L, 1L, 2L))
+character_split(sp_o2, data = WeatherPlay)
+table(kidids_split(sp_o2, data = WeatherPlay), WeatherPlay$outlook)
 @
 The internal structure of this object contains the \code{index} slot
 <<partysplit-6, echo = TRUE>>=
-unclass(sp)
+unclass(sp_o2)
 @
 that maps levels to daughter nodes. This mapping is also
 useful with splits in ordered variables, for example when 
@@ -400,18 +398,16 @@ representing multiway splits:
 ## multiway split in numeric variable `Sepal.Width',    
 ## higher values go to the first kid, smallest values
 ## to the last kid
-sw23 <- partysplit(which(names(iris) == "Sepal.Width"),
-  breaks = c(3, 3.5), index = 3:1)
-character_split(sw23, data = iris)
-table(kidids_split(sw23, data = iris),
-  cut(iris$Sepal.Width, breaks = c(-Inf, 2, 3, Inf)))
+sp_o <- partysplit(1L, index = 1L:3L)
+character_split(sp_o, data = WeatherPlay)
 @
 The mapping of classes of the categorized numeric variable
 to daugther nodes can be changed by modifying \code{index}:
 <<partysplit-8, echo = TRUE>>=
-sw23 <- partysplit(which(names(iris) == "Sepal.Width"),
-  breaks = c(3, 3.5), index = c(1L, 3L, 2L))
-character_split(sw23, data = iris)
+sp_t <- partysplit(2L, breaks = c(69.5, 78.8), index = c(1L, 2L, 1L))
+character_split(sp_t, data = WeatherPlay)
+table(kidids_split(sp_t, data = WeatherPlay),
+  cut(WeatherPlay$temperature, breaks = c(-Inf, 69.5, 78.8, Inf)))
 @
 
 The additional argument \code{prop} is used to specify a 
@@ -445,24 +441,24 @@ in slot \code{surrogates} defines such additional splits (mostly used
 for handling missing values). Note that \class{partynode} objects aren't 
 connected to the actual data.
 
-Based on the binary split \code{sl5} defined in the previous section, 
+Based on the binary split \code{sp_h} defined in the previous section, 
 we set-up an inner node with two terminal daugther nodes and
 print this stump (the data is needed because neither split nor nodes
 contain information about variable names or levels):
 <<partynode-2, echo = TRUE>>=
-n1 <- partynode(id = 1L, split = sl5, kids = sapply(2:3, partynode))
-print(n1, data = iris)
+n1 <- partynode(id = 1L, split = sp_o, kids = sapply(2L:4L, partynode))
+print(n1, data = WeatherPlay)
 @
 Now that we have defined our first simple tree, we want to assign
 observations to terminal nodes:
 <<partynode-3, echo = TRUE>>=
-fitted_node(n1, data = iris)
+fitted_node(n1, data = WeatherPlay)
 @
 Here, the \code{id}s of the terminal node each observations falls into
 are returned. Alternatively, we could compute the position of these
 daugther nodes in the list \code{kids}:
 <<partynode-4, echo = TRUE>>=
-kidids_node(n1, data = iris)
+kidids_node(n1, data = WeatherPlay)
 @
 Furthermore, the \code{info} argument and slot takes arbitrary objects
 to be stored with the node (predictions, for example, but we will handle
@@ -476,7 +472,7 @@ and \code{FALSE} for inner nodes. The subset methods
 return the \class{partynode} object corresponding to the \code{i}th
 kid:
 <<partynode-5, echo = TRUE>>=
-n1[2]
+n1[2L]
 @
 
 The \fct{as.partynode} and \fct{as.list} methods can be used
@@ -509,14 +505,32 @@ information as \code{info}. Argument \code{names} defines names
 for all nodes in \code{node}.
 
 <<party-1, echo = TRUE>>=
-t1 <- party(n1, 
-  data = iris,
-  fitted = data.frame(
-    "(fitted)" = fitted_node(n1, data = iris),
-    "(response)" = iris$Species,
-    check.names = FALSE)
-)
+t1 <- party(n1, data = WeatherPlay)
 t1
 @
+
+<<party-2, echo = TRUE>>=
+t2 <- party(n1, 
+  data = WeatherPlay,
+  fitted = data.frame(
+    "(fitted)" = fitted_node(n1, data = WeatherPlay),
+    "(response)" = WeatherPlay$play,
+    check.names = FALSE),
+  terms = terms(play ~ ., data = WeatherPlay),
+)
+t2 <- as.constparty(t2)
+t2
+@
+
+\setkeys{Gin}{width=0.6\textwidth}
+\begin{figure}[t!]
+\centering
+<<constparty-plot, echo=FALSE, fig=TRUE, height=5, width=6>>=
+plot(t2, tnex = 1.5)
+@
+\caption{\label{constparty-plot} Constant-fit tree for \code{play} decision based on
+  weather conditions in \code{WeatherPlay} data.}
+\end{figure}
+\setkeys{Gin}{width=\textwidth}
 
 \end{document}
