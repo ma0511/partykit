@@ -55,6 +55,10 @@ system.time(p2_j48 <- predict(as.party(j48), newdata = nd))
 table(p1_j48, p2_j48)
 
 ## mob
-mb <- glmtree(Survived ~ First | Class, data = ttnc, family = binomial, alpha = 0.005)
+mb <- glmtree(Survived ~ First | Class + Gender + Age, data = ttnc,
+  family = binomial, alpha = 0.01)
 plot(mb)
 
+mb2 <- glmtree(Survived ~ First | Class + Gender + Age, data = ttnc,
+  family = binomial, alpha = 0.01, catsplit = "multiway")
+plot(mb2)

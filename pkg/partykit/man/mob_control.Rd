@@ -12,7 +12,8 @@
 mob_control(alpha = 0.05, bonferroni = TRUE, minsplit = NULL, trim = 0.1,
   breakties = FALSE, parm = NULL, verbose = FALSE, caseweights = TRUE,
   ytype = "vector", xtype = "matrix", terminal = "object", inner = terminal,
-  model = TRUE, numsplit = "left", vcov = "opg", ordinal = "chisq", nrep = 10000)
+  model = TRUE, numsplit = "left", catsplit = "binary", vcov = "opg",
+  ordinal = "chisq", nrep = 10000)
 }
 
 \arguments{
@@ -57,6 +58,11 @@ mob_control(alpha = 0.05, bonferroni = TRUE, minsplit = NULL, trim = 0.1,
     Either, the split is \code{"left"}-justified (the default for
     backward compatibility) or \code{"center"}-justified using the
     midpoint of the possible interval.}
+  \item{catsplit}{character indicating how (unordered) categorical variables
+    should be splitted. By default the best \code{"binary"} split is
+    searched (by minimizing the objective function). Alternatively,
+    if set to \code{"multiway"}, the node is simply splitted into all
+    levels of the categorical variable.}
   \item{vcov}{character indicating which type of covariance matrix
     estimator should be employed in the parameter instability tests.
     The default is the outer product of gradients (\code{"opg"}).

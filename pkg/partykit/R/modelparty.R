@@ -326,6 +326,10 @@ mob <- function(formula, data, subset, na.action, weights, offset,
 
     } else {
 
+      if(!is.ordered(zselect) & control$catsplit == "multiway") {
+        return(list(breaks = NULL, index = seq_along(levels(zselect))))      
+      }
+
       ## for categorical variables
       al <- mob_grow_getlevels(zselect)
       dev <- apply(al, 1L, function(w) {
@@ -537,7 +541,8 @@ mob_grow_getlevels <- function(z) {
 mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsplit = NULL, trim = 0.1,
   breakties = FALSE, parm = NULL, verbose = FALSE, caseweights = TRUE,
   ytype = "vector", xtype = "matrix", terminal = "object", inner = terminal,
-  model = TRUE, numsplit = "left", vcov = "opg", ordinal = "chisq", nrep = 10000)
+  model = TRUE, numsplit = "left", catsplit = "binary", vcov = "opg",
+  ordinal = "chisq", nrep = 10000)
 {
   ytype <- match.arg(ytype, c("vector", "data.frame", "matrix"))
   xtype <- match.arg(xtype, c("data.frame", "matrix"))
@@ -547,6 +552,7 @@ mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsplit = NULL, trim =
 
   numsplit <- match.arg(tolower(numsplit), c("left", "center", "centre"))
   if(numsplit == "centre") numsplit <- "center"
+  catsplit <- match.arg(tolower(catsplit), c("binary", "multiway"))
   vcov <- match.arg(tolower(vcov), c("opg", "info"))
   ordinal <- match.arg(tolower(ordinal), c("l2", "max", "chisq"))
 
@@ -555,7 +561,8 @@ mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsplit = NULL, trim =
     breakties = breakties, parm = parm, verbose = verbose,
     caseweights = caseweights, ytype = ytype, xtype = xtype,
     terminal = terminal, inner = inner, model = model,
-    numsplit = numsplit, vcov = vcov, ordinal = ordinal, nrep = nrep)
+    numsplit = numsplit, catsplit = catsplit, vcov = vcov,
+    ordinal = ordinal, nrep = nrep)
   return(rval)
 }
 
