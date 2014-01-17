@@ -1,7 +1,7 @@
 \documentclass[nojss]{jss}
 
 %\VignetteIndexEntry{partykit: A Toolkit for Recursive Partytioning}
-%\VignetteDepends{partykit, rpart, RWeka, pmml}
+%\VignetteDepends{partykit, rpart, RWeka, pmml, datasets}
 %\VignetteKeywords{recursive partitioning, regression trees, classification trees, decision trees}
 %\VignettePackage{partykit}
 
@@ -113,6 +113,19 @@ set.seed(290875)
 @
 
 \section{Converting tree objects}
+
+Use Titanic data set
+
+<<Titanic>>=
+data("Titanic", package = "datasets")
+ttnc <- as.data.frame(Titanic)
+ttnc <- ttnc[rep(1:nrow(ttnc), ttnc$Freq), 1:4]
+names(ttnc)[2] <- "Gender"
+ttnc <- transform(ttnc, First = factor(
+    Gender == "Female" | Age == "Child",
+    levels = c(FALSE, TRUE), labels = c("Male&Adult",
+    "Female|Child")))
+@
 
 <<rpart>>=
 library("rpart")
