@@ -73,41 +73,45 @@
 \title{\pkg{partykit}: A Toolkit for Recursive Partytioning}
 \Plaintitle{partykit: A Toolkit for Recursive Partytioning}
 
-\author{Torsten Hothorn\\Universit\"at Z\"urich
-   \And Achim Zeileis\\Universit\"at Innsbruck}
-\Plainauthor{Torsten Hothorn, Achim Zeileis}
+\author{Achim Zeileis\\Universit\"at Innsbruck
+   \And Torsten Hothorn\\Universit\"at Z\"urich}
+\Plainauthor{Achim Zeieis, Torsten Hothorn}
 
 \Abstract{
-  This vignette is intended to be a short technical introduction to the \pkg{partykit} package.
-  It is still unfinished but hopefully already helpful to some interested users.
-  
-  The purpose of the package is to provide a toolkit with infrastructure for representing,
-  summarizing, and visualizing tree-structured regression and classification models.
-  Thus, the focus is not on \emph{inferring} such a tree structure from data but
-  to \emph{represent} a given tree so that print/plotting and computing predictions
-  can be performed in a standardized way. In particular, this unified infrastructure can be
-  used for reading/coercing tree models from different sources
-  (\pkg{rpart}, \pkg{RWeka}, PMML) yielding objects that share functionality for
-  \fct{print}/\fct{plot}/\fct{predict} methods.
+  The \pkg{partykit} package provides a flexible toolkit with infrastructure for
+  learning, representing, summarizing, and visualizing a wide range of tree-structured
+  regression and classification models. The functionality encompasses: (a)~Basic
+  infrastructure for \emph{representing} trees (inferred by any algorithm) so that
+  unified \code{print}/\code{plot}/\code{predict} methods are available.
+  (b)~Dedicated methods for trees with \emph{constant fits} in the leafs (or terminal nodes)
+  along with suitable coercion functions to create such tree models (e.g., by
+  \pkg{rpart}, \pkg{RWeka}, PMML). (c)~A reimplementation of \emph{conditional inference
+  trees} (\code{ctree}, originally provided in the \pkg{party} package). (d)~An extended
+  reimplementation of \emph{model-based recursive partitioning} (\code{mob}, also originally
+  in \pkg{party}) along with dedicated methods for trees with parametric models in the
+  leafs. This vignette gives a brief overview of the package and discusses in detail
+  the generic infrastructure for representing trees (a). Items~(b)--(d) are discussed
+  in the remaining vignettes in the package.
 }
 \Keywords{recursive partitioning, regression trees, classification trees, decision trees}
 
 \Address{
+  Achim Zeileis\\
+  Department of Statistics \\
+  Faculty of Economics and Statistics \\
+  Universit\"at Innsbruck \\
+  Universit\"atsstr.~15 \\
+  6020 Innsbruck, Austria \\
+  E-mail: \email{Achim.Zeileis@R-project.org}\\
+  URL: \url{http://eeecon.uibk.ac.at/~zeileis/}\\
+
   Torsten Hothorn\\
   Institut f\"ur Sozial- und Pr\"aventivmedizin, Abteilung Biostatistik \\
   Universit\"at Z\"urich \\
   Hirschengraben 84\\
   CH-8001 Z\"urich, Switzerland \\
   E-mail: \email{Torsten.Hothorn@R-project.org}\\
-  URL: \url{http://user.math.uzh.ch/hothorn/}\\
-
-  Achim Zeileis\\
-  Department of Statistics \\
-  Universit\"at Innsbruck \\
-  Universit\"atsstr.~15 \\
-  6020 Innsbruck, Austria \\
-  E-mail: \email{Achim.Zeileis@R-project.org}\\
-  URL: \url{http://eeecon.uibk.ac.at/~zeileis/}
+  URL: \url{http://user.math.uzh.ch/hothorn/}
 }
 
 
@@ -124,6 +128,53 @@ set.seed(290875)
 
 \section{Overview} \label{sec:overview}
 
+In the more than fifty years since the seminal paper
+of \cite{Morgan+Sonquist:1963} on ``automatic interaction detection''
+appeared, a wide range of methods have been suggested that are often
+termed ``recursive partitioning'' or ``decision trees'' or
+``tree(-structured) models'' etc. Particularly influential were the
+algorithms CART \citep[classification and regression trees,][]{Breiman+Friedman+Olshen:1984},
+C4.5 \citep{Quinlan:1993}, QUEST/GUIDE \citep{Loh+Shih:1997,Loh:2002},
+CTree \citep{Hothorn+Hornik+Zeileis:2006}, among many others. See
+\cite{Loh:2014} for a recent overview. Reflecting the heterogeneity
+of conceptual algorithms, a wide range of computational implementations
+in various software packages emerged. Prominent packages in the
+\proglang{R} system for statistical computing \citep{R} include
+\pkg{rpart} \citep[implementing the CART algorithm]{rpart},
+\pkg{mvpart} \citep[for multivariate CART]{mvpart},
+\pkg{RWeka} \citep[containing interfaces to J4.8, M5', LMT]{RWeka},
+\pkg{party} \citep[implementing CTree and MOB]{party}, among
+many others. See the CRAN task view ``Machine Learning''
+\citep{ctv} for an overview.
+
+All of these algorithms and software implementations have to deal with
+very similar challenges. However, due to the fragmentation of the different
+communities -- ranging from statistics over machine learning to various
+applied fields -- many discussions of algorithms do not reuse established
+theoretical results and terminology. Similarly, there is no common ``language''
+for the software implementations and different solutions are provided by
+different packages (even within \proglang{R}) with relatively little
+reuse of code.
+
+The \pkg{partykit} tries to improve the computational situation by
+providing a common unified infrastructure for recursive partytioning, especially
+representing fitted trees along with printing, plotting, and
+computing predictions. The design principles are:
+\begin{itemize}
+  \item One `agnostic' base class (`\code{party}') which can encompass an extremely wide
+        range of different types of trees.
+  \item Subclasses for important types of trees, e.g., trees with constant
+        fits (`\code{constparty}') or with parametric models (`\code{modelparty}')
+	in each terminal node (or leaf).
+  \item Nodes are recursive objects, i.e., a node can contain child nodes.
+  \item Keep (learning) data out of the recursive node and split structure.
+  \item Basic printing, plotting, and predicting for raw node structure.
+  \item Customization via suitable panel or panel-generating functions.
+  \item Coercion from existing objects (\code{rpart}, \code{J48}, etc.) to the new class.
+  \item Usage of simple/fast \proglang{S}3 classes and methods.
+\end{itemize}
+
+
 Explain purpose of partykit:
 
 - basic infrastructure toolkit (in this document)
@@ -134,10 +185,45 @@ but more in constparty.Rnw) along with coercion functions
 - reimplementation of functions from party: ctree and mob.
 (The latter also provides some general tools for modeparty objects.)
 
+
+
+
+
+\textbf{Class constructors:} Generate basic building blocks.
+\begin{itemize}
+  \item \code{partysplit(varid, breaks = NULL, index = NULL, ...)}
+
+    where \code{breaks} provides the breakpoints wrt variable \code{varid};
+    \code{index} determines to which kid node observations are assigned.
+
+  \item \code{partynode(id, split = NULL, kids = NULL, ...)}
+
+    where \code{split} is a \class{partysplit} and \code{kids} a list of \class{partynode}s.
+
+  \item \code{party(node, data, fitted = NULL, ...)}
+
+    where \code{node} is a \class{partynode} and \code{data} the
+    corresponding (learning) data (optionally without any rows) and
+    \code{fitted} the corresponding fitted nodes.
+\end{itemize}
+
+\textbf{Additionally:} All three objects have an \code{info} slot where
+optionally arbitrary information can be stored.
+
+
+\textbf{Methods:}
+\begin{itemize}
+  \item Display: \fct{print}, \fct{plot}, \fct{predict}.
+  \item Query: \fct{length}, \fct{width}, \fct{depth}, \fct{names}, \fct{nodeids}.
+  \item Extract: \code{[}, \code{[[}, \fct{nodeapply}.
+  \item Coercion: \fct{as.party}. 
+\end{itemize}
+
+
 \section{Motivating example} \label{sec:intro}
 
 To illustrate how \pkg{partykit} can be used to represent trees,
-a simple artificial data set from Witten \& Frank's book
+a simple artificial data set from the \cite{Witten+Frank:2005} book
 \emph{Data Mining: Practical Machine Learning Tools and Techniques}
 is used. It concerns the conditions suitable for playing some
 unspecified game.
@@ -543,5 +629,7 @@ plot(t2, tnex = 1.5)
   weather conditions in \code{WeatherPlay} data.}
 \end{figure}
 \setkeys{Gin}{width=\textwidth}
+
+\bibliography{party}
 
 \end{document}
