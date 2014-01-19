@@ -19,8 +19,14 @@ party <- function(node, data, fitted = NULL, terms = NULL, names = NULL, info = 
     
     if(!is.null(fitted)) {
         stopifnot(inherits(fitted, "data.frame"))
-        stopifnot("(fitted)" == names(fitted)[1])
-        stopifnot(nrow(data) == 0 | nrow(data) == nrow(fitted))
+        stopifnot(nrow(data) == 0L | nrow(data) == nrow(fitted))
+        
+	#Z# try to provide default (fitted) ?
+	if(nrow(data) > 0L) {
+          if(!("(fitted)" %in% names(fitted))) fitted[["(fitted)"]] <- fitted_node(node, data = data)
+	} else {
+	  stopifnot("(fitted)" == names(fitted)[1L])
+	}
 
         nt <- nodeids(node, terminal = TRUE)
         stopifnot(all(fitted[["(fitted)"]] %in% nt))
@@ -30,6 +36,9 @@ party <- function(node, data, fitted = NULL, terms = NULL, names = NULL, info = 
         fitted[["(fitted)"]] <- nt2[match(fitted[["(fitted)"]], nt)]
     } else {
         node <- as.partynode(node, from = 1L)
+	#Z# new default (fitted) ?
+	if(nrow(data) > 0L & missing(fitted)) fitted <- data.frame(
+	  "(fitted)" = fitted_node(node, data = data), check.names = FALSE)
     }
     
     party <- list(node = node, data = data, fitted = fitted, 
