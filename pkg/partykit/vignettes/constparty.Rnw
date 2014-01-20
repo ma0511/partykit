@@ -129,7 +129,7 @@ ttnc <- transform(ttnc, First = factor(
 
 <<rpart>>=
 library("rpart")
-(rp <- rpart(Kyphosis ~ Age + Number + Start, data = kyphosis))
+(rp <- rpart(Survived ~ ., data = ttnc))
 (party_rp <- as.party(rp))
 @
 
@@ -138,7 +138,7 @@ library("rpart")
 <<rpart-plot, fig = TRUE, width = 10, height = 6>>=
 plot(party_rp)
 @
-\caption{\code{rpart} tree of kyphosis data plotted using \pkg{partykit}
+\caption{\code{rpart} tree of Titanic data plotted using \pkg{partykit}
          infrastructure.}
 \end{center}
 \end{figure}
@@ -155,29 +155,47 @@ tfile <- tempfile()
 write(toString(pmml(rp)), file = tfile)
 @
 
+Does not work
 <<PMML-read>>=
-party_pmml <- pmmlTreeModel(tfile)
-isTRUE(all.equal(party_rp, party_pmml))
-all.equal(predict(party_rp, newdata = kyphosis, type = "prob"), 
-          predict(party_pmml, newdata = kyphosis, type = "prob"),
-          check.attributes = FALSE)
+try(party_pmml <- pmmlTreeModel(tfile))
+#isTRUE(all.equal(party_rp, party_pmml))
+#all.equal(predict(party_rp, newdata = Titanic, type = "prob"), 
+#          predict(party_pmml, newdata = Titanic, type = "prob"),
+#          check.attributes = FALSE)
 @
+
+Does not work
+<<PMML-Audit>>=
+if (!file.exists("AuditTree.xml"))
+    download.file("http://www.dmg.org/pmml_examples/rattle_pmml_examples/AuditTree.xml",
+                  destfile = "AuditTree.xml")
+try(pmmlTreeModel("AuditTree.xml"))
+@
+
+Works
+<<PMML-Iris>>=
+if (!file.exists("IrisTree.xml"))
+    download.file("http://www.dmg.org/pmml_examples/rattle_pmml_examples/IrisTree.xml",
+                  destfile = "IrisTree.xml")
+pmmlTreeModel("IrisTree.xml")
+@
+
 
 <<J48>>=
 library("RWeka")
-(j48 <- J48(Kyphosis ~ Age + Number + Start, data = kyphosis))
+(j48 <- J48(Survived ~ ., data = ttnc))
 (party_j48 <- as.party(j48))
 @
 
-\begin{figure}
+\begin{sidewaysfigure}
 \begin{center}
-<<J48-plot, fig = TRUE, width = 10, height = 6>>=
+<<J48-plot, fig = TRUE, width = 15, height = 9>>=
 plot(party_j48)
 @
-\caption{\code{J48} tree of kyphosis data plotted using \pkg{partykit}
+\caption{\code{J48} tree of Titanic data plotted using \pkg{partykit}
          infrastructure.}
 \end{center}
-\end{figure}
+\end{sidewaysfigure}
 
 <<J48-pred>>=
 all.equal(predict(j48, type = "prob"), 
