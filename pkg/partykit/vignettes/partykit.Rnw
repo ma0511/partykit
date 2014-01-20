@@ -1,4 +1,4 @@
-\documentclass[nojss]{jss}
+	\documentclass[nojss]{jss}
 
 %\VignetteIndexEntry{partykit: A Toolkit for Recursive Partytioning}
 %\VignetteDepends{partykit}
@@ -741,10 +741,6 @@ This has an enhanced \fct{plot} and \fct{predict} method. For example, \code{plo
 now produces stacked bar plots in the leaves (see Figure~\ref{fig:constparty-plot})
 as \code{t2} is a classification tree. For regression and survival trees, boxplots and
 Kaplan-Meier curves are employed automatically, respectively.
-
-\fixme{In the predictions below the outlook variable needs to be a factor. If only a
-character variable is supplied, its levels are not ordered correctly. I would have
-expected that this is handled correctly by the data preprocessing.}
 
 As there is information about the response variable, the \fct{predict} method can now
 produce more than just the predicted node IDs. The default is to predict the \code{"response"}, i.e.,

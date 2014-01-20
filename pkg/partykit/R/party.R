@@ -21,9 +21,10 @@ party <- function(node, data, fitted = NULL, terms = NULL, names = NULL, info = 
         stopifnot(inherits(fitted, "data.frame"))
         stopifnot(nrow(data) == 0L | nrow(data) == nrow(fitted))
         
-	#Z# try to provide default (fitted) ?
+	# try to provide default variable "(fitted)"
 	if(nrow(data) > 0L) {
-          if(!("(fitted)" %in% names(fitted))) fitted[["(fitted)"]] <- fitted_node(node, data = data)
+          if(!("(fitted)" %in% names(fitted))) 
+            fitted[["(fitted)"]] <- fitted_node(node, data = data)
 	} else {
 	  stopifnot("(fitted)" == names(fitted)[1L])
 	}
@@ -36,9 +37,10 @@ party <- function(node, data, fitted = NULL, terms = NULL, names = NULL, info = 
         fitted[["(fitted)"]] <- nt2[match(fitted[["(fitted)"]], nt)]
     } else {
         node <- as.partynode(node, from = 1L)
-	#Z# new default (fitted) ?
-	if(nrow(data) > 0L & missing(fitted)) fitted <- data.frame(
-	  "(fitted)" = fitted_node(node, data = data), check.names = FALSE)
+	# default "(fitted)"
+	if(nrow(data) > 0L & missing(fitted)) 
+          fitted <- data.frame("(fitted)" = fitted_node(node, 
+            data = data), check.names = FALSE)
     }
     
     party <- list(node = node, data = data, fitted = fitted, 
@@ -264,8 +266,13 @@ predict.party <- function(object, newdata = NULL, ...)
         vclass <- structure(lapply(object$data, class), .Names = vnames)
         ndnames <- names(newdata)
         ndclass <- structure(lapply(newdata, class), .Names = ndnames)
-        if(all(unames %in% ndnames) &&
-           all(unlist(lapply(unames, function(x) vclass[[x]] == ndclass[[x]])))) {
+        checkclass <- all(sapply(unames, function(x) 
+          isTRUE(all.equal(vclass[[x]], ndclass[[x]]))))
+        factors <- sapply(unames, function(x) inherits(object$data[[x]], "factor"))
+        checkfactors <- all(sapply(unames[factors], function(x) 
+          isTRUE(all.equal(levels(object$data[[x]]), levels(newdata[[x]])))))
+        ## FIXME: inform about wrong classes / factor levels?
+        if(all(unames %in% ndnames) && checkclass && checkfactors) {
             vmatch <- match(vnames, ndnames)
             fitted_node(node_party(object), newdata, vmatch)
         } else {
