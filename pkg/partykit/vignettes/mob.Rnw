@@ -7,6 +7,7 @@
 \newcommand{\ui}{\underline{i}}
 \newcommand{\oi}{\overline{\imath}}
 \newcommand{\argmin}{\operatorname{argmin}\displaylimits}
+\newcommand{\fixme}[1]{\emph{\marginpar{FIXME} (#1)}}
 
 %% neet no \usepackage{Sweave}
 \SweaveOpts{engine=R, eps=FALSE, keep.source=TRUE}
@@ -262,7 +263,9 @@ can be extracted and passed on to the actual \code{fit} function.
 As there are possibly three groups of variables (response, regressors,
 and partitioning variables), the \pkg{Formula} package \citep{Formula} is
 employed for processing these three parts. Thus, the formula can be of type
-\verb:y ~ x1 + ... + xk | z1 + ... + zl: where the variables on the
+\verb:y ~ x1 + ... + xk | z1 + ... + zl: 
+\fixme{Add note: first part of rhs can include interactions, transformations, etc (?)}
+where the variables on the
 left of the \code{|} specify the data $Y$ and the variables on the right specify the
 partitioning variables $Z_j$. As pointed out above, the $Y$ can often be split
 up into response (\code{y} in the example above) and regressors (\code{x1}, \dots,
@@ -470,7 +473,7 @@ to find out whether the model parameters are stable over each particular orderin
 the partitioning variables $Z_j$ or whether splitting the sample with respect
 to one of the $Z_j$ might capture instabilities in the parameters and thus improve the fit.
 The tests used in this step belong to the class of generalized M-fluctuation
-tests \citep{Zeileis+Hornik:2007,Zeileis:2005}. Depending on the class of each
+tests \citep{Zeileis:2005,Zeileis+Hornik:2007}. Depending on the class of each
 of the partitioning variables in \code{z} different types of tests are chosen by \code{mob()}:
 \begin{enumerate}
 
@@ -542,6 +545,7 @@ In the logistic-regression-based MOB \code{pid_tree} computed above, the paramet
 tests can be extracted using the \code{sctest()} function from the \pkg{strucchange}
 package (for \underline{s}tructural \underline{c}hange \underline{test}). In the first
 node, the test statistics and Bonferroni-corrected $p$~values are:
+\fixme{Do we need sctest(,log = TRUE)?}
 %
 <<PimaIndiansDiabetes-sctest1>>=
 library("strucchange")
@@ -563,7 +567,7 @@ In the third node, however, there is still significant instability associated wi
 sctest(pid_tree, node = 3)
 @
 %
-Because no further instabilities can be found in the fourth and fivth node, the
+Because no further instabilities can be found in the fourth and fifth node, the
 recursive partitioning stops there.
 
 
@@ -663,6 +667,9 @@ function is set up internally as
 \code{predict(object, newdata = newdata, type = type, ...)}, i.e.,
 it relies on a suitable \code{predict()} method being available for
 the fitted models associated with the `\code{party}' object.
+
+\fixme{type = "node": OK; type = "response" has a different meaning as predict.glm;
+       type = "prob" is equal to type = "response" in predict.glm}
 
 \item The \code{plot()} method has the following arguments:
 \code{plot(x, terminal_panel = NULL, FUN = NULL)}.
