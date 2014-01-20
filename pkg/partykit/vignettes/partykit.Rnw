@@ -90,8 +90,8 @@ termed ``recursive partitioning'' or ``decision trees'' or
 ``tree(-structured) models'' etc. Particularly influential were the
 algorithms CART \citep[classification and regression trees,][]{Breiman+Friedman+Olshen:1984},
 C4.5 \citep{Quinlan:1993}, QUEST/GUIDE \citep{Loh+Shih:1997,Loh:2002},
-and CTree \citep{Hothorn+Hornik+Zeileis:2006} among many others. See
-\cite{Loh:2014} for a recent overview. Reflecting the heterogeneity
+and CTree \citep{Hothorn+Hornik+Zeileis:2006} among many others
+\citep[see][for a recent overview]{Loh:2014}. Reflecting the heterogeneity
 of conceptual algorithms, a wide range of computational implementations
 in various software packages emerged. Prominent packages in the
 \proglang{R} system for statistical computing \citep{R} include
@@ -201,7 +201,7 @@ be associated with a data set in an object of class \class{party}.
 
 \subsection{Splits}
 
-First, we employ the \fct{partysplit} function to creat the three
+First, we employ the \fct{partysplit} function to create the three
 splits in the ``weather tree'' from Figure~\ref{fig:weather-plot}. The
 function takes the following arguments
 \begin{Code}
@@ -383,7 +383,8 @@ The same type of approach can also be used in the default \fct{plot} method
 directly rather than on the \class{partynode}).
 %
 <<weather-methods-plot, eval=FALSE>>=
-plot(py, tp_args = list(FUN = function(i) c("Play decision:", toupper(i))))
+plot(py, tp_args = list(FUN = function(i) 
+  c("Play decision:", toupper(i))))
 @
 %
 See the right panel of Figure~\ref{fig:plot-customization} for the resulting
@@ -429,7 +430,7 @@ functions (that are applicable to \class{partysplit}, \class{partynode},
 and \class{party} objects, repectively).
 
 An example for the information \emph{foo} might be \code{kidids}. Hence, in the printing example above
-using \code{info_node(n)} rather than \code{n$info} would have been the
+using \code{info_node(n)} rather than \code{n$info} for some node \code{n} would have been the
 preferred syntax; at least when programming new functionality on top of \pkg{partykit}.
 
 \item As already illustrated above, printing and plotting relies on
@@ -755,6 +756,8 @@ predict(t2, newdata = nd, type = "prob")
 predict(t2, newdata = nd, type = "node")
 @
 %
+\fixme{type = "node": OK; type = "response" has a different meaning as predict.glm;
+       type = "prob" is equal to type = "response" in predict.glm}
 More details on how \class{constparty} objects and their methods work
 can be found in the corresponding \code{vignette("constparty", package = "partykit")}.
 
