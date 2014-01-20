@@ -126,12 +126,12 @@ set.seed(290875)
 
 \setkeys{Gin}{width=\textwidth}
 
-This document describes \code{partykit:ctree}, an implementation of
+This document describes \code{partykit::ctree}, an implementation of
 conditional inference trees \citep{Hothorn+Hornik+Zeileis:2006}.  The
-reference implementation of this method is \code{party:ctree}.  Both
+reference implementation of this method is \code{party::ctree}.  Both
 functions produce the same output, however, transformations of the
 explanatory variables, resampling distributions of the test statistics, and
-extraction of split-statistics are not yet implemented in \code{party:ctree}.
+extraction of split-statistics are not yet implemented in \code{party::ctree}.
 
 \section{Introduction}
 
@@ -271,7 +271,7 @@ h(\Y_i, (\Y_1, \dots, \Y_n))^\top \right) \in \R^{p_jq}
 where $g_j: \sX_j \rightarrow \R^{p_j}$ is a non-random transformation of
 the covariate $X_j$. The transformation may be specified using the
 \code{xtrafo} argument (Note: this argument is currently not implemented
-in \code{partykit:ctree} but is available from \code{party:ctree}).
+in \code{partykit::ctree} but is available from \code{party::ctree}).
 %%If, for example, a ranking \textit{both}
 %%\code{x1} and \code{x2} is required,
 %%<<party-xtrafo, echo = TRUE, results = hide>>=
@@ -391,7 +391,7 @@ Simple Bonferroni-adjusted $P$-values (the adjustment $1 - (1 - P_j)^m$ is used)
 ctree_control(testtype = "Bonferroni")
 @
 or a min-$P$-value resampling approach (Note: resampling is currently
-not implemented in \code{partykit:ctree})
+not implemented in \code{partykit::ctree})
 %<<party-MC, echo = TRUE, results = hide>>=
 %party:::ctree_control(testtype = "MonteCarlo")           
 %@
@@ -477,7 +477,7 @@ ls <- data.frame(y = gl(3, 50, labels = c("A", "B", "C")),
                  x1 = rnorm(150) + rep(c(1, 0, 0), c(50, 50, 50)), 
                  x2 = runif(150))
 @
-in the following illustrations. In \code{partykit:ctree}, the dependency structure and the variables may be
+in the following illustrations. In \code{partykit::ctree}, the dependency structure and the variables may be
 specified in a traditional formula based way
 <<party-formula, echo = TRUE, results = hide>>=
 library("partykit")
@@ -903,9 +903,10 @@ data("mammoexp", package = "TH.data")
 mtree <- ctree(ME ~ ., data = mammoexp)
 @
 
+\setkeys{Gin}{width=.9\textwidth, keepaspectratio=TRUE}
 \begin{figure}[t]
 \begin{center}
-<<mammo-plot, echo = TRUE, fig = TRUE, height = 5, width = 8>>=
+<<mammo-plot, echo = TRUE, fig = TRUE, height = 6, width = 13>>=
 plot(mtree)
 @
 \caption{Ordinal regression for the mammography experience data with the
@@ -945,7 +946,7 @@ least $5$ observations are element of a node The prognostic factor \code{water}
 found by \cite{Death:2002} is confirmed by the model 
 shown in Figure~\ref{spider} which additionally identifies \code{reft}.
 The data are available in package 
-\pkg{mvpart} \citep{mvpart2004} at \url{http://CRAN.R-project.org}.
+\pkg{mvpart} \citep{mvpart}.
 
 <<spider-ctree, echo = TRUE>>=
 data("spider", package = "mvpart")
