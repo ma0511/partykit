@@ -18,6 +18,7 @@
 \newcommand{\dquote}[1]{``{#1}''}
 \newcommand{\fct}[1]{{\texttt{#1()}\index{#1@\texttt{#1()}}}}
 \newcommand{\class}[1]{\dquote{\texttt{#1}}}
+\newcommand{\fixme}[1]{\emph{\marginpar{FIXME} (#1)}}
 
 %% further commands
 \renewcommand{\Prob}{\mathbb{P} }
@@ -78,7 +79,8 @@
 \Plainauthor{Torsten Hothorn, Achim Zeileis}
 
 \Abstract{
-Converting tree objects to \pkg{partykit} infrastructure, growing your own tree.
+We describe how one can coerse objects representing trees to objects represented by 
+\pkg{partykit} classes and how one can grow trees using the \pkg{partykit}.
 }
 \Keywords{recursive partitioning, regression trees, classification trees, decision trees}
 
@@ -114,8 +116,10 @@ set.seed(290875)
 
 \section{Converting tree objects}
 
-Use Titanic data set
-
+For the illustrations, we use the Titanic data set from package \pkg{datasets}, consisting of
+four variables on each of the $2201$ Titanic passengers: gender (male, female), age (child, adult), 
+class (1st, 2nd, 3rd, or crew), and first (male and adult vs.~ female or child)
+set-up as follows:
 <<Titanic>>=
 data("Titanic", package = "datasets")
 ttnc <- as.data.frame(Titanic)
@@ -126,12 +130,23 @@ ttnc <- transform(ttnc, First = factor(
     levels = c(FALSE, TRUE), labels = c("Male&Adult",
     "Female|Child")))
 @
+The response variable describes wheather or not the passenger survived the sinking of the ship.
 
+We first use the \code{rpart} function from package \pkg{rpart}
+\citep{rpart} to fit a classification tree to this data set:
 <<rpart>>=
 library("rpart")
 (rp <- rpart(Survived ~ ., data = ttnc))
+@
+The \code{rp} object of class \Sexpr{class(rp)} can be coerced to an object of class \code{party}
+by
+<<rpart_party>>=
 (party_rp <- as.party(rp))
 @
+and, instead of the print method for \code{rpart} objects, the print method
+for \Sexpr{class(party_rp)} objects creates a textual display of the tree
+structure.  The \code{plot} generic produces a graphical representation of
+this tree, see Figure~\ref{party_plot}.
 
 \begin{figure}
 \begin{center}
@@ -139,23 +154,26 @@ library("rpart")
 plot(party_rp)
 @
 \caption{\code{rpart} tree of Titanic data plotted using \pkg{partykit}
-         infrastructure.}
+         infrastructure. \label{party_plot}}
 \end{center}
 \end{figure}
 
-
+By default, the \code{predict} method for \code{rpart} object computes conditional
+class probabilities. The same numbers are returned by the \code{predict} method
+for \Sexpr{class(party_rp)} objects with the \code{type = "prob"} argument:
 <<rpart-pred>>=
 all.equal(predict(rp), predict(party_rp, type = "prob"), 
           check.attributes = FALSE)
 @
 
+Some software packages can output a PMML description of a tree, we use the \pkg{pmml}
+package to create a PMML file containing the \code{rpart} tree for the Titanic data
 <<PMML-write>>=
 library("pmml")
 tfile <- tempfile()
 write(toString(pmml(rp)), file = tfile)
 @
-
-Does not work
+\fixme{Does not work}
 <<PMML-read>>=
 try(party_pmml <- pmmlTreeModel(tfile))
 #isTRUE(all.equal(party_rp, party_pmml))
@@ -163,8 +181,7 @@ try(party_pmml <- pmmlTreeModel(tfile))
 #          predict(party_pmml, newdata = Titanic, type = "prob"),
 #          check.attributes = FALSE)
 @
-
-Does not work
+\fixme{Does not work}
 <<PMML-Audit>>=
 if (!file.exists("AuditTree.xml"))
     download.file("http://www.dmg.org/pmml_examples/rattle_pmml_examples/AuditTree.xml",
@@ -172,7 +189,7 @@ if (!file.exists("AuditTree.xml"))
 try(pmmlTreeModel("AuditTree.xml"))
 @
 
-Works
+\fixme{Seems to work}
 <<PMML-Iris>>=
 if (!file.exists("IrisTree.xml"))
     download.file("http://www.dmg.org/pmml_examples/rattle_pmml_examples/IrisTree.xml",
@@ -180,12 +197,20 @@ if (!file.exists("IrisTree.xml"))
 pmmlTreeModel("IrisTree.xml")
 @
 
-
+The \pkg{RWeka} package \citep{RWeka} provides and interface to the
+\proglang{WEKA} machine learning library and we can use the \code{J48} function to
+fit a J4.8 tree to the Titanic data
 <<J48>>=
 library("RWeka")
 (j48 <- J48(Survived ~ ., data = ttnc))
+@
+This object can be coerced to a \code{party} object using
+<<J48_party>>=
 (party_j48 <- as.party(j48))
 @
+and, again, the print method from the \pkg{partykit} package creates a textual display. Note
+that, unlike the \code{rpart} trees, this tree included multiway splits. The \code{plot} method
+draws this tree, see Figure~\ref{J48_plot}.
 
 \begin{sidewaysfigure}
 \begin{center}
@@ -193,10 +218,12 @@ library("RWeka")
 plot(party_j48)
 @
 \caption{\code{J48} tree of Titanic data plotted using \pkg{partykit}
-         infrastructure.}
+         infrastructure. \label{J48_plot}}
 \end{center}
 \end{sidewaysfigure}
 
+The conditional class probabilities computed by the \code{predict} methods implemented
+in packages \pkg{RWeka} and \pkg{partykit} are equivalent:
 <<J48-pred>>=
 all.equal(predict(j48, type = "prob"), 
           predict(party_j48, type = "prob"), 
