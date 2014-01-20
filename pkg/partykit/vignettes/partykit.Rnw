@@ -19,6 +19,10 @@
 \newcommand{\fct}[1]{{\texttt{#1()}\index{#1@\texttt{#1()}}}}
 \newcommand{\class}[1]{\squote{\texttt{#1}}}
 
+%% for internal use
+\newcommand{\fixme}[1]{\emph{\marginpar{FIXME} (#1)}}
+\newcommand{\readme}[1]{\emph{\marginpar{README} (#1)}}
+
 \hyphenation{Qua-dra-tic}
 
 \title{\pkg{partykit}: A Toolkit for Recursive Partytioning}
@@ -147,7 +151,7 @@ top of \pkg{partykit}.
 
 \section{Motivating example} \label{sec:intro}
 
-\subsubsection*{Data}
+\subsection{Data}
 
 To illustrate how \pkg{partykit} can be used to represent trees,
 we employ the simple artificial data set taken from \cite{Witten+Frank:2005}.
@@ -160,7 +164,7 @@ WeatherPlay
 %
 To represent the \code{play} decision based on the corresponding
 weather condition variables one could use the tree displayed in
-Figure~\ref{weather-plot}. For now, it is ignored how this tree
+Figure~\ref{fig:weather-plot}. For now, it is ignored how this tree
 was \emph{inferred} and it is simply assumed to be given.
 
 \setkeys{Gin}{width=0.8\textwidth}
@@ -185,7 +189,7 @@ py <- party(
   WeatherPlay)
 plot(py)
 @
-\caption{\label{weather-plot} Decision tree for \code{play} decision based on
+\caption{\label{fig:weather-plot} Decision tree for \code{play} decision based on
   weather conditions in \code{WeatherPlay} data.}
 \end{figure}
 \setkeys{Gin}{width=\textwidth}
@@ -195,10 +199,10 @@ two basic building blocks are used: splits of class \class{partysplit} and
 nodes of class \class{partynode}. The resulting recursive partition can then
 be associated with a data set in an object of class \class{party}.
 
-\subsubsection*{Splits}
+\subsection{Splits}
 
 First, we employ the \fct{partysplit} function to creat the three
-splits in the ``weather tree'' from Figure~\ref{weather-plot}. The
+splits in the ``weather tree'' from Figure~\ref{fig:weather-plot}. The
 function takes the following arguments
 \begin{Code}
   partysplit(varid, breaks = NULL, index = NULL, ..., info = NULL)
@@ -210,7 +214,7 @@ determine which observations are sent to which of the branches, e.g.,
 \code{breaks = 75} for the humidity split. Apart from further arguments
 not shown above (and just comprised under `\code{...}'), some arbitrary
 information can be associated with a \class{partysplit} object by passing
-it to the \code{info} argument. The three splits from Figure~\ref{weather-plot}
+it to the \code{info} argument. The three splits from Figure~\ref{fig:weather-plot}
 can then be created via
 %
 <<weather-splits>>=
@@ -224,7 +228,7 @@ for the factor variables \code{outlook} and \code{windy} the information
 is supplied which of the levels should be associated with which of the
 branches of the tree.
 
-\subsubsection*{Nodes}
+\subsection{Nodes}
 
 Second, we use these splits in the creation of the whole decision tree.
 In \pkg{partykit} a tree is represented by a \class{partynode} object
@@ -237,7 +241,7 @@ where \code{id} is an integer identifier of the node number, \code{split}
 is a \class{partysplit} object, and \code{kids} is a list of \class{partynode}
 objects. Again, there are further arguments not shown (\code{...}) and
 arbitrary information can be supplied in \code{info}. The whole tree
-from Figure~\ref{weather-plot} can then be created via
+from Figure~\ref{fig:weather-plot} can then be created via
 %
 <<weather-nodes>>=
 pn <- partynode(1L, split = sp_o, kids = list(
@@ -263,28 +267,28 @@ pn
 However, the displayed information is still rather raw as it has not yet
 been associated with the \code{WeatherPlay} data set.
 
-\subsubsection*{Trees (or recursive partitions)}
+\subsection{Trees (or recursive partitions)}
 
-Hence, in a third step the recursive tree structure stored
+Therefore, in a third step the recursive tree structure stored
 in \code{pn} is coupled with the corresponding data in a \class{party}
 object.
 %
 <<weather-party>>=
 py <- party(pn, WeatherPlay)
-py
+print(py)
 @
 %
-Now, Figure~\ref{weather-plot} can easily be created by
+Now, Figure~\ref{fig:weather-plot} can easily be created by
 %
-<<weahter-plot, eval=FALSE>>=
+<<weather-plot, eval=FALSE>>=
 plot(py)
 @
 %
 In addition to \fct{print} and \fct{plot}, the \fct{predict} method can now
 be applied, yielding the predicted terminal node IDs.
 %
-<<weahter-predict, eval=FALSE>>=
-predict(py, newdata = WeatherPlay)
+<<weather-predict>>=
+predict(py, head(WeatherPlay))
 @
 %
 In addition to the \class{partynode} and the \class{data.frame},
@@ -296,47 +300,149 @@ i.e., \code{fitted} values, a \code{terms} object, arbitrary additional
 \code{info}, and again some further arguments comprised in \code{...}.
 
 
-\subsubsection*{Further information}
+\subsection{Methods}
 
-More detailed technical information on the three classes and their creator functions
-is provided in the subsequent sections: Sections~\ref{sec:splits}, \ref{sec:nodes},
-and~\ref{sec:trees} discuss the \fct{partysplit}, \fct{partynode}, and \fct{party}
-functions, respectively. Subsequently, Section~\ref{sec:methods} provides an
-overview of the different \proglang{S}3 methods and other utility functions available
-for \class{party} objects.
+The main idea about the \class{party} class is that tedious tasks
+such as \fct{print}, \fct{plot}, \fct{predict} do not have to be
+reimplemented for every new kind of decision tree but simply be
+reused. However, in addition to these three basic tasks (as already illustrated
+above) developers of tree model software also need further basic utiltities
+for working with trees: e.g., functions for querying or subsetting
+the tree and for customizing printed/plotted output. Below, various
+utilities provided by the \pkg{partykit} package are introduced.
+
+For querying the dimensions of the tree, three basic functions are available:
+\fct{length} gives the number of kid nodes of the root node,
+\fct{depth} the depth of the tree and \fct{width}
+the number of terminal nodes.
+%
+<<weather-methods-dim>>=
+length(py)
+width(py)
+depth(py)
+@
+%
+As decision trees can grow to be rather large, it is often useful
+to inspect only subtrees. These can be easily extracted using the standard
+\code{[} or \code{[[} operators:
+%
+<<weather-methods-subset>>=
+py[6]
+@
+%
+The resulting object is again a full valid \class{party} tree and can
+hence be printed (as above) or plotted (via \code{plot(py[6])}, see
+the left panel of Figure~\ref{fig:plot-customization}). Instead of using
+the integer node IDs for subsetting, node labels can also be used. By
+default thise are just (character versions of) the node IDs but other
+names can be easily assigned:
+%
+<<weather-methods-names>>=
+py2 <- py
+names(py2)
+names(py2) <- LETTERS[1:8]
+py2
+@
+%
+The function \fct{nodeids} queries the integer node IDs belonging to
+a \class{party} tree. By default all IDs are returned but optionally only
+the terminal IDs (of the leaves) can be extracted.
+%
+<<weather-methods-nodeids>>=
+nodeids(py)
+nodeids(py, terminal = TRUE)
+@
+%
+Often functions need to be applied to certain nodes of a tree, e.g., for
+extracting information. This is accomodated by a new generic function \fct{nodeapply}
+that follows the style of other \proglang{R} functions from the \code{apply}
+family and has methods for \class{party} and \class{partynode} objects. Furthermore,
+it needs a set of node IDs (often computed via \fct{nodeids}) and a function
+\code{FUN} that is applied to each of the requested \class{partynode} objects,
+typically for extracting/formatting the \code{info} of the node.
+%
+<<weather-methods-nodeapply>>=
+nodeapply(py, ids = c(1, 7), FUN = function(n) n$info)
+nodeapply(py, ids = nodeids(py, terminal = TRUE),
+  FUN = function(n) paste("Play decision:", n$info))
+@
+%
+Similar to the functions applied in a \fct{nodeapply}, the \fct{print} and
+\fct{plot} methods can be customized through panel function that format
+certain parts of the tree (such as header, footer, node, etc.). For example,
+an extended formatting with multiple lines is easily accomodated by supplying
+a character vector in every node:
+%
+<<weather-methods-print>>=
+print(py, terminal_panel = function(n)
+  c(", then the play decision is:", toupper(n$info)))
+@
+%
+The same type of approach can also be used in the default \fct{plot} method
+(with the main difference that the panel function operates on the \code{info}
+directly rather than on the \class{partynode}).
+%
+<<weather-methods-plot, eval=FALSE>>=
+plot(py, tp_args = list(FUN = function(i) c("Play decision:", toupper(i))))
+@
+%
+See the right panel of Figure~\ref{fig:plot-customization} for the resulting
+graphic. Many more elaborate panel functions are provided in \pkg{partykit}, especially
+for not only showing text in the visualizations but also statistical graphics.
+Some of these are briefly illustrated in this and the other package vignettes.
+Programmers that want to write their own panel functions are advised to
+inspect the corresponding \proglang{R} source code to see how flexible (but sometimes
+also complicated) these panel functions are.
 
 
-\subsubsection*{Design principles}
+\setkeys{Gin}{width=0.48\textwidth}
+\begin{figure}[t!]
+\centering
+<<weather-methods-plot1, echo=FALSE, fig=TRUE, height=5, width=7.5>>=
+plot(py[6])
+@
+<<weather-methods-plot2, echo=FALSE, fig=TRUE, height=5, width=7.5>>=
+<<weather-methods-plot>>
+@
+\caption{\label{fig:plot-customization} Visualization of subtree (left) and tree with custom
+text in terminal nodes (right).}
+\end{figure}
+\setkeys{Gin}{width=\textwidth}
+
+
+
+
+\section{Technical details}
+
+\subsection{Design principles}
 
 To facilitate reading of the subsequent sections, two design principles
 employed in the creation of \pkg{partykit} are briefly explained.
+%
+\begin{enumerate}
 
-(1)~Many helper utilities are encapsulated in functions that follow
+\item Many helper utilities are encapsulated in functions that follow
 a simple naming convention. To extract/compute some information \emph{foo}
 from splits, nodes, or trees, \pkg{partykit} provides
 \emph{foo}\code{_split}, \emph{foo}\code{_node}, \emph{foo}\code{_party}
 functions (that are applicable to \class{partysplit}, \class{partynode},
-and \class{party} objects, repectively). An example for the information
-\emph{foo} might be \code{kidids}. Such functions are typically
-not to be called by the end-user but potentially by package designers that
-want to build functionality on top of \pkg{partykit}.
+and \class{party} objects, repectively).
 
-(2)~Printing and plotting relies on \emph{panel functions} that visualize
-and/or format certain aspects of the resulting display, e.g., that of inner nodes,
-terminal nodes, headers, footers, etc. A simple example would be printing
-with a custom panel function for formatting the terminal node:
-%
-<<weather-party-print>>=
-print(py,
-  terminal_panel = function(node) paste(": play=", node$info, sep = ""))
-@
-%
+An example for the information \emph{foo} might be \code{kidids}. Hence, in the printing example above
+using \code{info_node(n)} rather than \code{n$info} would have been the
+preferred syntax; at least when programming new functionality on top of \pkg{partykit}.
+
+\item As already illustrated above, printing and plotting relies on
+\emph{panel functions} that visualize and/or format certain aspects of the
+resulting display, e.g., that of inner nodes, terminal nodes, headers, footers, etc. 
 Furthermore, arguments like \code{terminal_panel} can also take
 \emph{panel-generating functions}, i.e., functions that produce a panel
 function when applied to the \class{party} object.
 
+\end{enumerate}
 
-\section{Splits} \label{sec:splits}
+
+\subsection{Splits} \label{sec:splits}
 
 \subsubsection{Overview}
 
@@ -384,7 +490,7 @@ is returned. Of course, this is a very complicated way of saying
 as.numeric(!(WeatherPlay$humidity <= 75)) + 1
 @
 
-\subsubsection*{Mathematical notation}
+\subsubsection{Mathematical notation}
 
 More formally, \pkg{partykit} considers a split to represent a function $f$ mapping
 an element $x = (x_1, \dots, x_p)$ of a $p$-dimensional 
@@ -429,7 +535,7 @@ ordered and unordered splits, multiway splits, and functional splits. The latter
 can be implemented by defining a new artificial splitting variable $x_{p + 1}$ by
 means of a potentially very complex function of $x$ later used for splitting.
 
-\subsubsection*{Further examples}
+\subsubsection{Further examples}
 
 Consider a split in a categorical
 variable at three levels where the first two levels go to the left
@@ -466,7 +572,7 @@ table(kidids_split(sp_t, data = WeatherPlay),
   cut(WeatherPlay$temperature, breaks = c(-Inf, 69.5, 78.8, Inf)))
 @
 
-\subsubsection*{Further comments}
+\subsubsection{Further comments}
 
 The additional argument \code{prop} can be used to specify a 
 discrete probability distribution over the daugther nodes that
@@ -481,9 +587,9 @@ corresponding accessor function (and not just the \code{$} operatore as
 the internal structure might be changed/extended in future release).
 
 
-\section{Nodes} \label{sec:nodes}
+\subsection{Nodes} \label{sec:nodes}
 
-\subsubsection*{Overview}
+\subsubsection{Overview}
 
 Inner and terminal nodes are represented by objects of class \class{partynode}.
 Each node has a unique identifier \code{id}. A node consisting only
@@ -510,7 +616,7 @@ Note that \class{partynode} objects are not directly connected to the
 actual data (only indirectly through the associated \class{partysplit}
 objects).
 
-\subsubsection*{Examples}
+\subsubsection{Examples}
 
 Based on the binary split \code{sp_h} defined in the previous section, 
 we set up an inner node with two terminal daugther nodes and
@@ -557,17 +663,16 @@ objects and vice versa. \fct{as.partynode} applied to
 \class{partynode} objects renumbers the recursive nodes
 starting with root node identifier \code{from}.
 
+Furthermore, many of the methods defined for the class \class{party} illustrated
+above also work for plain \class{partynode} objects. For example,
 \fct{length} gives the number of kid nodes of the root node,
 \fct{depth} the depth of the tree and \fct{width}
 the number of terminal nodes.
- 
-As most of the previous methods do not only work for plain \class{partynode}
-objects but also full trees of class \class{party}, a more detailed
-discussion of methods is deferred to Section~\ref{sec:methods}.
- 
-\section{Trees} \label{sec:trees}
 
-\subsubsection*{Trees and data}
+ 
+\subsection{Trees} \label{sec:trees}
+
+\subsubsection{Trees and data}
 
 Although tree structures can be represented by \class{partynode} objects,
 a tree is more than a number of nodes and splits. More information about
@@ -589,7 +694,7 @@ the presence of any learning data still work fine:
 party(n1, data = WeatherPlay[0, ])
 @
 
-\subsubsection*{Response variables and regression relationships}
+\subsubsection{Response variables and regression relationships}
 
 Second, for decision trees or regression and classification trees
 more information the response variable and its fitted values are
@@ -621,16 +726,6 @@ t2 <- as.constparty(t2)
 t2
 @
 %
-This has an enhanced \fct{plot} and \fct{predict()} method, e.g., \code{plot(t2)}
-now produces stacked bar plots in the leaves (see Figure~\ref{fig:constparty-plot})
-and \code{predict(t2, newdata = WeatherPlay)} returns a factor:
-%
-<<party-4, echo=TRUE>>=
-predict(t2, newdata = WeatherPlay)
-@
-%
-More methods and their customization are discussed in the next section.
-
 \setkeys{Gin}{width=0.6\textwidth}
 \begin{figure}[t!]
 \centering
@@ -641,34 +736,32 @@ plot(t2, tnex = 1.5)
   weather conditions in \code{WeatherPlay} data.}
 \end{figure}
 \setkeys{Gin}{width=\textwidth}
+%
+This has an enhanced \fct{plot} and \fct{predict} method. For example, \code{plot(t2)}
+now produces stacked bar plots in the leaves (see Figure~\ref{fig:constparty-plot})
+as \code{t2} is a classification tree. For regression and survival trees, boxplots and
+Kaplan-Meier curves are employed automatically, respectively.
 
-\section{Methods} \label{sec:methods}
+\fixme{In the predictions below the outlook variable needs to be a factor. If only a
+character variable is supplied, its levels are not ordered correctly. I would have
+expected that this is handled correctly by the data preprocessing.}
 
-\begin{itemize}
-  \item Display: \fct{print}, \fct{plot}, \fct{predict}.
-  \item Query: \fct{length}, \fct{width}, \fct{depth}, \fct{names}, \fct{nodeids}.
-  \item Extract: \code{[}, \code{[[}, \fct{nodeapply}.
-\end{itemize}
+As there is information about the response variable, the \fct{predict} method can now
+produce more than just the predicted node IDs. The default is to predict the \code{"response"}, i.e.,
+a factor for a classification tree. In this case, class probabilities (\code{"prob"})
+are also available in addition to the majority votings.
+%
+<<party-4, echo=TRUE>>=
+nd <- data.frame(outlook = factor(c("overcast", "sunny"),
+  levels = levels(WeatherPlay$outlook)))
+predict(t2, newdata = nd, type = "response")
+predict(t2, newdata = nd, type = "prob")
+predict(t2, newdata = nd, type = "node")
+@
+%
+More details on how \class{constparty} objects and their methods work
+can be found in the corresponding \code{vignette("constparty", package = "partykit")}.
 
-A number of methods is defined for \class{partynode} objects:
-\fct{is.partynode} checks if the argument is a valid \class{partynode}
-object. \fct{is.terminal} is \code{TRUE} for terminal nodes
-and \code{FALSE} for inner nodes. The subset method \code{[}
-returns the \class{partynode} object corresponding to the \code{i}-th
-kid.
-
-The \fct{as.partynode} and \fct{as.list} methods can be used
-to convert flat list structures into recursive \class{partynode}
-objects and vice versa. \fct{as.partynode} applied to
-\class{partynode} objects renumbers the recursive nodes
-starting with root node identifier \code{from}.
-
-\fct{length} gives the number of kid nodes of the root node,
-\fct{depth} the depth of the tree and \fct{width}
-the number of terminal nodes.
-
-Argument \code{names} defines names
-for all nodes in \code{node}.
 
 \bibliography{party}
 
