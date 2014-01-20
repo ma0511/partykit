@@ -263,9 +263,7 @@ can be extracted and passed on to the actual \code{fit} function.
 As there are possibly three groups of variables (response, regressors,
 and partitioning variables), the \pkg{Formula} package \citep{Formula} is
 employed for processing these three parts. Thus, the formula can be of type
-\verb:y ~ x1 + ... + xk | z1 + ... + zl: 
-\fixme{Add note: first part of rhs can include interactions, transformations, etc (?)}
-where the variables on the
+\verb:y ~ x1 + ... + xk | z1 + ... + zl: where the variables on the
 left of the \code{|} specify the data $Y$ and the variables on the right specify the
 partitioning variables $Z_j$. As pointed out above, the $Y$ can often be split
 up into response (\code{y} in the example above) and regressors (\code{x1}, \dots,
@@ -286,7 +284,9 @@ is to assume that \code{y} is just a single column of the model frame that is
 extracted as a \code{ytype = "vector"}. Alternatively, it can be a \code{"data.frame"}
 of all response variables or a \code{"matrix"} set up via \code{model.matrix()}.
 The options \code{"data.frame"} and \code{"matrix"} are also available for \code{xtype}
-with the latter being the default.
+with the latter being the default. Note that if \code{"matrix"} is used, then transformations
+(e.g., logs, square roots etc.) and dummy/interaction codings are computed and turned
+into columns of a numeric matrix while for \code{"data.frame"} the original variables are preserved.
 
 By specifying the \code{ytype} and \code{xtype}, \code{mob()} is also provided
 with the information on how to correctly subset \code{y} and \code{x} when recursively
