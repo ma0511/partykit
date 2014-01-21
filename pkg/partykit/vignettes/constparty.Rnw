@@ -114,39 +114,49 @@ library("partykit")
 set.seed(290875)
 @
 
-\section{Converting tree objects}
+This vignette describes the handling of trees with constant fits in the
+terminal nodes.  This class of regression models includes most classical
+tree algorithms like AID, CHAID, CART, FACT, QUEST, C4.5, etc.  This
+document consists of two parts.  In the first part we assume that the trees
+were fitted using external software and we describe how these models can be
+coerced into objects that can be dealt with using infrastructure implemented
+in the \pkg{partykit} package.  We focus on displaying such trees in textual
+and graphical ways and on computing predictions.
+
+In the second part we show how one can implement a simple regression tree
+algorithm using the \pkg{partykit} tools.
+
+\section{Coercing  tree objects}
 
 For the illustrations, we use the Titanic data set from package \pkg{datasets}, consisting of
 four variables on each of the $2201$ Titanic passengers: gender (male, female), age (child, adult), 
-class (1st, 2nd, 3rd, or crew), and first (male and adult vs.~ female or child)
-set-up as follows:
+and class (1st, 2nd, 3rd, or crew) set-up as follows:
 <<Titanic>>=
 data("Titanic", package = "datasets")
 ttnc <- as.data.frame(Titanic)
 ttnc <- ttnc[rep(1:nrow(ttnc), ttnc$Freq), 1:4]
 names(ttnc)[2] <- "Gender"
-ttnc <- transform(ttnc, First = factor(
-    Gender == "Female" | Age == "Child",
-    levels = c(FALSE, TRUE), labels = c("Male&Adult",
-    "Female|Child")))
 @
 The response variable describes wheather or not the passenger survived the sinking of the ship.
 
-We first use the \code{rpart} function from package \pkg{rpart}
-\citep{rpart} to fit a classification tree to this data set:
+\subsection{Coersing rpart objects}
+
+We first fit a classification tree by means of the the \code{rpart} function 
+from package \pkg{rpart} \citep{rpart} to this data set:
 <<rpart>>=
 library("rpart")
 (rp <- rpart(Survived ~ ., data = ttnc))
 @
-The \code{rp} object of class \Sexpr{class(rp)} can be coerced to an object of class \code{party}
-by
+The \code{rp} object of class \code{\Sexpr{class(rp)}} can be coerced to an
+object of a certain class inheriting from class \code{party} by the
+\code{as.party} function
 <<rpart_party>>=
 (party_rp <- as.party(rp))
 @
 and, instead of the print method for \code{rpart} objects, the print method
-for \Sexpr{class(party_rp)} objects creates a textual display of the tree
-structure.  The \code{plot} generic produces a graphical representation of
-this tree, see Figure~\ref{party_plot}.
+for \code{\Sexpr{class(party_rp)}} objects creates a textual display of the tree
+structure.  In a similar way, the corresponding \code{plot} method 
+produces a graphical representation of this tree, see Figure~\ref{party_plot}.
 
 \begin{figure}
 \begin{center}
@@ -160,20 +170,58 @@ plot(party_rp)
 
 By default, the \code{predict} method for \code{rpart} object computes conditional
 class probabilities. The same numbers are returned by the \code{predict} method
-for \Sexpr{class(party_rp)} objects with the \code{type = "prob"} argument:
+for \Sexpr{class(party_rp)} objects with \code{type = "prob"} argument:
 <<rpart-pred>>=
 all.equal(predict(rp), predict(party_rp, type = "prob"), 
           check.attributes = FALSE)
 @
 
-Some software packages can output a PMML description of a tree, we use the \pkg{pmml}
-package to create a PMML file containing the \code{rpart} tree for the Titanic data
+\subsection{Coercing J48 objects}
+
+The \pkg{RWeka} package \citep{RWeka} provides an interface to the
+\proglang{WEKA} machine learning library and we can use the \code{J48} function to
+fit a J4.8 tree to the Titanic data
+<<J48>>=
+library("RWeka")
+(j48 <- J48(Survived ~ ., data = ttnc))
+@
+This object can be coerced to a \code{party} object using
+<<J48_party>>=
+(party_j48 <- as.party(j48))
+@
+and, again, the print method from the \pkg{partykit} package creates a textual display. Note
+that, unlike the \code{rpart} trees, this tree includes multiway splits. The \code{plot} method
+draws this tree, see Figure~\ref{J48_plot}.
+
+\begin{sidewaysfigure}
+\begin{center}
+<<J48-plot, fig = TRUE, width = 15, height = 9>>=
+plot(party_j48)
+@
+\caption{\code{J48} tree of Titanic data plotted using \pkg{partykit}
+         infrastructure. \label{J48_plot}}
+\end{center}
+\end{sidewaysfigure}
+
+The conditional class probabilities computed by the \code{predict} methods
+implemented in packages \pkg{RWeka} and \pkg{partykit} are equivalent:
+<<J48-pred>>=
+all.equal(predict(j48, type = "prob"), 
+          predict(party_j48, type = "prob"), 
+          check.attributes = FALSE)
+@
+
+\subsection{Importing trees from PMML files}
+
+Some software packages can output a \proglang{PMML} description of a tree,
+we use the \pkg{pmml} package to create a \proglang{PMML} file containing
+the \code{rpart} tree for the Titanic data
 <<PMML-write>>=
 library("pmml")
 tfile <- tempfile()
 write(toString(pmml(rp)), file = tfile)
 @
-\fixme{Does not work}
+\fixme{does not work}
 <<PMML-read>>=
 try(party_pmml <- pmmlTreeModel(tfile))
 #isTRUE(all.equal(party_rp, party_pmml))
@@ -181,7 +229,7 @@ try(party_pmml <- pmmlTreeModel(tfile))
 #          predict(party_pmml, newdata = Titanic, type = "prob"),
 #          check.attributes = FALSE)
 @
-\fixme{Does not work}
+\fixme{does not work}
 <<PMML-Audit>>=
 if (!file.exists("AuditTree.xml"))
     download.file("http://www.dmg.org/pmml_examples/rattle_pmml_examples/AuditTree.xml",
@@ -197,77 +245,42 @@ if (!file.exists("IrisTree.xml"))
 pmmlTreeModel("IrisTree.xml")
 @
 
-The \pkg{RWeka} package \citep{RWeka} provides and interface to the
-\proglang{WEKA} machine learning library and we can use the \code{J48} function to
-fit a J4.8 tree to the Titanic data
-<<J48>>=
-library("RWeka")
-(j48 <- J48(Survived ~ ., data = ttnc))
-@
-This object can be coerced to a \code{party} object using
-<<J48_party>>=
-(party_j48 <- as.party(j48))
-@
-and, again, the print method from the \pkg{partykit} package creates a textual display. Note
-that, unlike the \code{rpart} trees, this tree included multiway splits. The \code{plot} method
-draws this tree, see Figure~\ref{J48_plot}.
-
-\begin{sidewaysfigure}
-\begin{center}
-<<J48-plot, fig = TRUE, width = 15, height = 9>>=
-plot(party_j48)
-@
-\caption{\code{J48} tree of Titanic data plotted using \pkg{partykit}
-         infrastructure. \label{J48_plot}}
-\end{center}
-\end{sidewaysfigure}
-
-The conditional class probabilities computed by the \code{predict} methods implemented
-in packages \pkg{RWeka} and \pkg{partykit} are equivalent:
-<<J48-pred>>=
-all.equal(predict(j48, type = "prob"), 
-          predict(party_j48, type = "prob"), 
-          check.attributes = FALSE)
-@
-
-
 \section{Growing a simple regression tree} 
 
-Package \pkg{partykit} does not offer unified infrastructure for growing trees. However,
-once you know how to estimate splits from data, it is fairly straightforward to
-implement trees. Consider a very simple tree algorithm. We assume that both response
-and features are numeric. We search for the binary best split by means of $t$-test 
-$p$-values, i.e., we cycle through all variables and potential split points and assess
-the quality of the split by comparing the distributions of the response in the so-defined
-two groups. We select the feature/split point combination with lowest two-sided $p$-value,
-however only if this result is significant at level $\alpha = 0.05$.
+Package \pkg{partykit} does not offer unified infrastructure for growing
+trees.  However, once you know how to estimate splits from data, it is
+fairly straightforward to implement trees.  Consider a very simple tree
+algorithm.  We assume that both response and explantory variables are
+numeric.  We search for the binary best split by means of $t$-test
+$p$-values, i.e., we cycle through all variables and potential split points
+and assess the quality of the split by comparing the distributions of the
+response in the so-defined two groups.  We select the feature/split point
+combination with lowest two-sided $p$-value, however, only if this result is
+significant at level $\alpha = 0.05$.
 
-This strategy can be implemented based on the data (response and features) and 
-some case weights as follows (\code{response} is just the name of the response
-and \code{data} is a data frame with all variables):
-<<mytree-1, echo = TRUE>>=
+This strategy can be implemented based on the data (response and explanatory
+variables) and some case weights as follows (\code{response} is just the
+name of the response and \code{data} is a data frame with all variables):
+<<mytree-1, echo = TRUE>>= 
 findsplit <- function(response, data, weights) {
 
   ### extract response values from data
   y <- data[[response]]
 
-  logpmin <- 0
-  xselect <- NULL
-
   ### cycle through all features
+  logpmin <- 0; xselect <- NULL
   for (i in which(names(data) != response)) {
 
-    ### expand data
+    ### expand data by case weights 
     x <- data[[i]]
     xt <- rep(x, weights)
     yt <- rep(y, weights)
 
-    ### potential split points (not too many)
+    ### obtain potential split points (not too many)
     qx <- unique(quantile(xt, 
         	 prob = seq(from = 0.1, to = 0.9, by = 0.05)))
 
-    ### assess all potential splits by their t-test
-    ### log-p-value
+    ### assess all potential splits by their two-sided t-test log p-value
     logp <- sapply(qx, function(q) {
       tt <- t.test(yt[xt <= q], yt[xt > q])
       pt(-abs(tt$statistic), tt$parameter, log = TRUE) + log(2)
@@ -287,7 +300,7 @@ findsplit <- function(response, data, weights) {
 
   ### return split as partysplit object
   return(partysplit(
-      varid = as.integer(xselect),	 ### which variable?
+      varid = as.integer(xselect),       ### which variable?
       breaks = as.numeric(splitpoint),   ### which split point?
       info = list(pvalue = exp(logpmin)  ### save p-value in addition
   )))
@@ -300,7 +313,7 @@ we have to set-up the recursion for growing a recursive
 <<mytree-2, echo = TRUE>>=
 growtree <- function(id = 1L, response, data, weights) {
 
-  ### for less than 30 obs. stop here
+  ### for less than 30 observations stop here
   if (sum(weights) < 30) return(partynode(id = id))
 
   ### find best split
@@ -314,7 +327,7 @@ growtree <- function(id = 1L, response, data, weights) {
   ### set-up all daugther nodes
   kids <- vector(mode = "list", length = max(kidids))
   for (kidid in 1:max(kidids)) {
-  ### select obs for current node
+  ### select observations for current node
   w <- weights
   w[kidids != kidid] <- 0
   ### get next node id
@@ -332,8 +345,8 @@ growtree <- function(id = 1L, response, data, weights) {
 }
 @
 
-A very rough sketch of formula-based user-interface needs
-to set-up the data and call \fct{growtree}:
+A very rough sketch of formula-based user-interface 
+sets-up the data and calls \fct{growtree}:
 <<mytree-3, echo = TRUE>>=
 mytree <- function(formula, data, weights = NULL) {
 
@@ -344,7 +357,7 @@ mytree <- function(formula, data, weights = NULL) {
   ### data is numeric
   stopifnot(all(sapply(data, is.numeric)))
 
-  if (is.null(weights)) weights <- rep(1, nrow(data))
+  if (is.null(weights)) weights <- rep(1L, nrow(data))
   ### weights are case weights, i.e., integers
   stopifnot(length(weights) == nrow(data) &
     max(abs(weights - floor(weights))) < .Machine$double.eps)
@@ -352,9 +365,9 @@ mytree <- function(formula, data, weights = NULL) {
   ### grow tree
   nodes <- growtree(id = 1L, response, data, weights)
 
-  ### compute terminal node number for each obs.
+  ### compute terminal node number for each observation
   fitted <- fitted_node(nodes, data = data)
-  ### return rich object
+  ### return rich constparty object
   ret <- party(nodes, 
     data = data,
     fitted = data.frame(
@@ -371,35 +384,38 @@ We now can fit this tree, for example to the airquality data; the
 \fct{print} method provides us with a first overview on the 
 resulting model
 <<mytree-4, echo = TRUE>>=
-aqt <- mytree(Ozone ~ Solar.R + Wind + Temp, data = airquality)
-aqt
+(aqt <- mytree(Ozone ~ Solar.R + Wind + Temp, data = airquality))
 @
 
-\begin{figure}[t!]
+Of course, we can immediately use the \fct{plot} function to obtain a
+graphical representation of this tree, the result is given in
+Figure~\ref{plottree}.  The default behaviour for trees with numeric
+responses is to depict the conditional distribution of the response in each
+terminal node by means of a box plot.  Using the \fct{node\_ecdf} terminal
+panel function draws the same tree but with the empirical cumulative
+distribution functions (Figure~\ref{plottree_ecdf}).
+
+\begin{figure}
 \centering
 <<mytree-5, echo = TRUE, fig = TRUE, width = 10, height = 6>>=
 plot(aqt)
 @
-\caption{Tree. \label{plottree}}
+\caption{Regression tree fitted by the \fct{mytree} function to the
+         \code{airquality} data. \label{plottree}}
 \end{figure}
 
-\begin{figure}[t!]
+\begin{figure}
 \centering
 <<mytree-5-ecdf, echo = TRUE, fig = TRUE, width = 10, height = 6>>=
 plot(aqt, terminal_panel = node_ecdf)
 @
-\caption{Tree. \label{plottree_ecdf}}
+\caption{Regression tree fitted by the \fct{mytree} function to the
+         \code{airquality} data with empiricial cumulative distribution
+         functions given for each terminal node.  \label{plottree_ecdf}}
 \end{figure}
 
-
-
-We depict the model graphically using \fct{plot} (see Figure~\ref{plottree})
-and compute predictions using
-<<mytree-6, echo = TRUE>>=
-predict(aqt, newdata = airquality[1:10,])
-@
-
-An interesting feature is the ability to extract subsets of trees:
+An interesting feature of \code{party} tree is the ability to extract
+subtrees:
 <<mytree-7, echo = TRUE>>=
 aqt4 <- aqt[4]
 aqt4
@@ -412,7 +428,7 @@ can be plotted easily (see Figure~\ref{subtree}).
 <<mytree-8, echo = TRUE, fig = TRUE, width = 10, height = 6>>=
 plot(aqt4)
 @
-\caption{Subtree. \label{subtree}}
+\caption{A subtree of the \code{airquality} regression tree. \label{subtree}}
 \end{figure}
 
 We also might be interested in extracting the $p$-values in the
@@ -427,7 +443,39 @@ unlist(nodeapply(aqt, ids = iid, FUN = fun))
 
 \section{Predictions}
 
-tbd
+Computing predictions for new observations (here the first ten observations from
+the \code{airquality} data frame) is done using the \fct{predict} method:
+<<mytree-predict, echo = TRUE>>=
+predict(aqt, newdata = airquality[1:10,])
+@
+The default for numeric responses is to compute conditional means for each
+of the rows in \code{newdata}.  One can also simply compute the
+corresponding terminal node numbers via
+<<mytree-node, echo = TRUE>>=
+predict(aqt, newdata = airquality[1:10,], type = "node")
+@
+or estimates of the conditional distribution function (objects of class \code{ecdf}):
+<<mytree-prob, echo = TRUE>>=
+predict(aqt, newdata = airquality[1:10,], type = "prob")
+@
+In principle, any functional of these distribution functions can be computed
+as a prediction, for example the median
+<<mytree-median, echo = TRUE>>=
+predict(aqt, newdata = airquality[1:10,], 
+        FUN = function(y, w) median(rep(y, w)))
+@
+which is a more convenient way compared to direct computation on
+the \code{ecdf} objects:
+<<mytree-median-2, echo = TRUE>>=
+sapply(predict(aqt, newdata = airquality[1:10,], type = "prob"),
+       function(x) quantile(x, .5))
+
+@
+
+The \code{type} argument to the \fct{predict} method has several meanings,
+depending on the class of the response variable.  Table~\ref{predict-type}
+gives an overview on the type of predictions returned in the difference
+settings of response and \code{type} argument.
 
 \begin{table}
 \begin{center}
@@ -440,10 +488,10 @@ Response class & \code{type = "node"} & \code{type = "response"} & \code{type = 
 \end{tabular}
 \caption{Overview on type of predictions computed by the \code{predict}
          method for \code{constparty} objects. For multivariate responses,
-         combinations thereof are returned.}
+         combinations thereof are returned. \label{predict-type}}
 \end{center}
 \end{table}
+
+\bibliography{party}
     
-
-
 \end{document}
