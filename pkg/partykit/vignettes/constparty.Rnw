@@ -383,6 +383,16 @@ plot(aqt)
 \caption{Tree. \label{plottree}}
 \end{figure}
 
+\begin{figure}[t!]
+\centering
+<<mytree-5-ecdf, echo = TRUE, fig = TRUE, width = 10, height = 6>>=
+plot(aqt, terminal_panel = node_ecdf)
+@
+\caption{Tree. \label{plottree_ecdf}}
+\end{figure}
+
+
+
 We depict the model graphically using \fct{plot} (see Figure~\ref{plottree})
 and compute predictions using
 <<mytree-6, echo = TRUE>>=

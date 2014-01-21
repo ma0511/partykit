@@ -355,7 +355,7 @@ predict_party.constparty <- function(party, id, newdata = NULL,
 
 .pred_Surv_response <- function(y, w)
     .median_survival_time(.pred_Surv(y, w))
-                    
+ 
 .pred_factor <- function(y, w) {
     lev <- levels(y)
     sumw <- tapply(w, y, sum)
@@ -373,7 +373,17 @@ predict_party.constparty <- function(party, id, newdata = NULL,
     return(prob) 
 }
                     
-.pred_numeric <- function(y, w) weighted.mean(y, w, na.rm = TRUE)
+.pred_numeric_response <- function(y, w) weighted.mean(y, w, na.rm = TRUE)
+
+.pred_ecdf <- function(y, w) {
+    iw <- as.integer(round(w))
+    if (max(abs(w - iw)) < sqrt(.Machine$double.eps)) {
+        y <- rep(y, w)
+        return(ecdf(y))
+    } else {
+        stop("cannot compute empirical distribution function with non-integer weights")
+    }
+}
 
 ### workhorse: compute predictions based on fitted / response data
 .predict_party_constparty <- function(node, fitted, response, weights,
@@ -388,11 +398,7 @@ predict_party.constparty <- function(party, id, newdata = NULL,
         FUN <- switch(rtype,
             "Surv" = if (type == "response") .pred_Surv_response else .pred_Surv,
             "factor" = if (type == "response") .pred_factor_response else .pred_factor,
-            "numeric" = {
-                if (type == "prob")
-                    stop(sQuote("type = \"prob\""), " ", "is not available")
-                .pred_numeric
-           })
+            "numeric" = if (type == "response") .pred_numeric_response else .pred_ecdf)
     }
       
     ## empirical distribution in each leaf

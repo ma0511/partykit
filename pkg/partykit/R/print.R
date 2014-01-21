@@ -111,7 +111,7 @@ print.constparty <- function(x,
   
   if(is.null(FUN)) FUN <- switch(yclass,
     "numeric" = function(y, w, digits) {
-      yhat <- .pred_numeric(y, w)
+      yhat <- .pred_numeric_response(y, w)
       yerr <- sum(w * (y - yhat)^2)
       digits2 <- max(c(0, digits - 2))
       paste(format(round(yhat, digits = digits), nsmall = digits),

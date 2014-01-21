@@ -144,7 +144,7 @@ as.simpleparty.constparty <- function(obj, ...) {
     
     switch(rtype,
       "numeric" = {
-        yhat <- .pred_numeric(y, w)
+        yhat <- .pred_numeric_response(y, w)
         list(prediction = yhat, n = structure(sum(w), .Names = wnam),
 	  error = sum(w * (y - yhat)^2), distribution = NULL)
       },

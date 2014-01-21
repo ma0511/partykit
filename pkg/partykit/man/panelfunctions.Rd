@@ -7,6 +7,7 @@
 \alias{node_bivplot}
 \alias{node_boxplot}
 \alias{node_surv}
+\alias{node_ecdf}
 \alias{node_mvar}
 
 \title{ Panel-Generators for Visualization of Party Trees }
@@ -37,6 +38,8 @@ node_barplot(obj, col = "black", fill = NULL, beside = NULL,
     reverse = NULL, id = TRUE, mainlab = NULL, gp = gpar())
 
 node_surv(obj, col = "black", ylines = 2, id = TRUE, mainlab = NULL, gp = gpar(), \dots)
+
+node_ecdf(obj, col = "black", ylines = 2, id = TRUE, mainlab = NULL, gp = gpar(), \dots)
 
 node_bivplot(mobobj, which = NULL, id = TRUE, pop = TRUE,
   pointcol = "black", pointcex = 0.5,
@@ -119,8 +122,9 @@ node_mvar(obj, which = NULL, id = TRUE, pop = TRUE, ylines = NULL, mainlab = NUL
   For univariate regressions (typically fitted by \code{}),
   \code{node_surv}
   returns a functions that plots Kaplan-Meier curves in each 
-  terminal node; \code{node_barplot}, \code{node_boxplot}, \code{node_hist} and
-  \code{node_density} can be used to plot bar plots, box plots, histograms and 
+  terminal node; \code{node_barplot}, \code{node_boxplot}, \code{node_hist}, \code{node_ecdf} and
+  \code{node_density} can be used to plot bar plots, box plots, histograms, 
+  empirical cumulative distribution functions and 
   estimated densities into the terminal nodes.
 
   For multivariate regressions (typically fitted by \code{mob}),

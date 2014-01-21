@@ -753,6 +753,113 @@ node_surv <- function(obj, col = "black", ylines = 2,
 }
 class(node_surv) <- "grapcon_generator"
 
+node_ecdf <- function(obj, col = "black", ylines = 2,
+		      id = TRUE, mainlab = NULL, gp = gpar(), ...)
+{
+    ## extract response
+    y <- obj$fitted[["(response)"]]
+    stopifnot(inherits(y, "numeric") || inherits(y, "integer"))
+
+    dostep <- function(f) {
+        x <- knots(f)
+        y <- f(x)
+        ### create a step function based on x, y coordinates
+        ### modified from `survival:print.survfit'
+        if (is.na(x[1] + y[1])) {
+            x <- x[-1]
+            y <- y[-1]
+        }
+        n <- length(x)
+        if (n > 2) {  
+            # replace verbose horizonal sequences like
+            # (1, .2), (1.4, .2), (1.8, .2), (2.3, .2), (2.9, .2), (3, .1)
+            # with (1, .2), (3, .1).  They are slow, and can smear the looks
+            # of the line type.
+            dupy <- c(TRUE, diff(y[-n]) !=0, TRUE)
+            n2 <- sum(dupy)
+
+            #create a step function
+            xrep <- rep(x[dupy], c(1, rep(2, n2-1)))
+            yrep <- rep(y[dupy], c(rep(2, n2-1), 1))
+            RET <- list(x = xrep, y = yrep)
+        } else {
+            if (n == 1) {
+                RET <- list(x = x, y = y)
+            } else {
+                RET <- list(x = x[c(1,2,2)], y = y[c(1,1,2)])
+            }
+        }
+        return(RET)
+    }
+
+    ### panel function for ecdf in nodes
+    rval <- function(node) {
+
+        ## extract data
+	nid <- id_node(node)
+	dat <- data_party(obj, nid)
+	yn <- dat[["(response)"]]
+	wn <- dat[["(weights)"]]
+	if(is.null(wn)) wn <- rep(1, NROW(yn))
+
+        ## get ecdf in node
+        f <- .pred_ecdf(yn, wn)
+        a <- dostep(f)
+
+        ## set up plot
+        yscale <- c(0, 1)
+        xscale <- range(y)
+        a$x <- c(xscale[1], a$x[1], a$x, xscale[2])
+        a$x <- a$x - min(a$x)
+        a$x <- a$x / max(a$x)
+        a$y <- c(0, 0, a$y, 1)
+
+        top_vp <- viewport(layout = grid.layout(nrow = 2, ncol = 3,
+                           widths = unit(c(ylines, 1, 1), 
+                                         c("lines", "null", "lines")),  
+                           heights = unit(c(1, 1), c("lines", "null"))),
+                           width = unit(1, "npc"), 
+                           height = unit(1, "npc") - unit(2, "lines"),
+			   name = paste("node_ecdf", nid, sep = ""), gp = gp)
+
+        pushViewport(top_vp)
+        grid.rect(gp = gpar(fill = "white", col = 0))
+
+        ## main title
+        top <- viewport(layout.pos.col=2, layout.pos.row=1)
+        pushViewport(top)
+        if (is.null(mainlab)) {	
+	  mainlab <- if(id) {
+	    function(id, nobs) sprintf("Node %s (n = %s)", id, nobs)
+  	  } else {
+	    function(id, nobs) sprintf("n = %s", nobs)
+	  }
+        }
+	if (is.function(mainlab)) {
+          mainlab <- mainlab(nid, sum(wn))
+	}
+        grid.text(mainlab)
+        popViewport()
+	
+        plot <- viewport(layout.pos.col=2, layout.pos.row=2,
+                         xscale=xscale, yscale=yscale,
+			 name = paste("node_surv", nid, "plot", 
+                         sep = ""))
+
+        pushViewport(plot)
+        grid.lines(a$x, a$y, gp = gpar(col = col))
+        grid.xaxis()
+        grid.yaxis()
+        grid.rect(gp = gpar(fill = "transparent"))
+        upViewport(2)
+    }
+
+    return(rval)
+}
+class(node_ecdf) <- "grapcon_generator"
+
+
+
 node_mvar <- function(obj, which = NULL, id = TRUE, pop = TRUE, ylines = NULL, mainlab = NULL, varlab = TRUE, ...)
 {  
   ## obtain dependent variables

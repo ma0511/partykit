@@ -28,13 +28,16 @@ predict_party(party, id, newdata = NULL, \dots)
   \item{party}{ objects of class \code{\link{party}}. }
   \item{id}{ a vector of terminal node identifiers. }
   \item{type}{ a character string denoting the type of predicted value
-          returned, ignored when argument \code{FUN} is given.  
-          For \code{"response"}, the mean of a numeric response, the predicted
-          class for a categorical response or the median survival time
-          for a censored response is returned. For a categorical response,
-          \code{"prob"} returns the matrix of conditional class probabilities 
-          (\code{simplify = TRUE}) or a list with the conditional
-          class probabilities for each observation (\code{simplify = FALSE}).
+          returned, ignored when argument \code{FUN} is given.  For
+          \code{"response"}, the mean of a numeric response, the predicted
+          class for a categorical response or the median survival time for a
+          censored response is returned.  For \code{"prob"} the matrix of
+          conditional class probabilities (\code{simplify = TRUE}) or a list
+          with the conditional class probabilities for each observation
+          (\code{simplify = FALSE}) is returned for a categorical response. 
+          For numeric and censored responses, a list with the empirical
+          cumulative distribution functions and empirical survivor functions
+          (Kaplan-Meier estimate) is returned when \code{type = "prob"}. 
           \code{"node"} returns an integer vector of terminal node
           identifiers.}
   \item{FUN}{ a function to compute summary statistics, i.e., constant
@@ -73,6 +76,9 @@ predict_party(party, id, newdata = NULL, \dots)
 
   ## mean predictions
   predict(pr, newdata = solder[c(3, 541, 640),])
+
+  ## ecdf
+  predict(pr, newdata = solder[c(3, 541, 640),], type = "prob")
 
   ## terminal node identifiers
   predict(pr, newdata = solder[c(3, 541, 640),], type = "node")

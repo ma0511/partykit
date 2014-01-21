@@ -9,6 +9,12 @@ Changes in Version 0.2-0
   o deal with empty levels for teststat = "quad"
     (bug reported by Wei-Yin Loh <loh@stat.wisc.edu>)
 
+  o type = "prob" returns ECDF for numeric responses, type = "response" the
+    weighted mean
+
+  o new panel function node_ecdf for plotting empirical cumulative
+    distribution functions in the terminal leaves
+
 Changes in Version 0.1-6
 
   o Bug fix in as.party() method for J48 trees with ordered factors.
