@@ -425,4 +425,25 @@ iid <- nid[!(nid %in% nodeids(aqt, terminal = TRUE))]
 unlist(nodeapply(aqt, ids = iid, FUN = fun))
 @
 
+\section{Predictions}
+
+tbd
+
+\begin{table}
+\begin{center}
+\begin{tabular}{l|lll}
+               & \multicolumn{3}{l}{\code{predict(<party>, }} \\
+Response class & \code{type = "node"} & \code{type = "response"} & \code{type = "prob"} \\ \hline
+\code{factor}  & terminal node number & majority class & class probabilities \\
+\code{numeric} & terminal node number & mean  & ECDF \\
+\code{Surv} & terminal node number & median survival time  & Kaplan-Meier \\
+\end{tabular}
+\caption{Overview on type of predictions computed by the \code{predict}
+         method for \code{constparty} objects. For multivariate responses,
+         combinations thereof are returned.}
+\end{center}
+\end{table}
+    
+
+
 \end{document}
