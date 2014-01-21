@@ -373,7 +373,8 @@ predict_party.constparty <- function(party, id, newdata = NULL,
     return(prob) 
 }
                     
-.pred_numeric_response <- function(y, w) weighted.mean(y, w, na.rm = TRUE)
+.pred_numeric_response <- function(y, w) 
+    weighted.mean(y, w, na.rm = TRUE)
 
 .pred_ecdf <- function(y, w) {
     iw <- as.integer(round(w))
