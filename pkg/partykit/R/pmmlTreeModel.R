@@ -8,10 +8,23 @@ as.party.XMLNode <- function(obj, ...) {
   stopifnot(require("XML"))
   ## check whether XML specifies a TreeModel
   stopifnot(c("DataDictionary", "TreeModel") %in% names(obj))
-  if(any(c("MiningBuildTask", "TransformationDictionary", "Extension") %in% names(obj)))
-    warning("not yet implemented")
+  if(any(warnx <- c("MiningBuildTask", "TransformationDictionary", "Extension") %in% names(obj)))
+    warning(sprintf("%s not yet implemented", paste(names(obj)[warnx], collapse = ", ")))
   
-  ## needed? obj[["Header"]]
+  ## process header information
+  if("Header" %in% names(obj)) {
+    hdr <- obj[["Header"]]
+    h_info <- c(Header = paste(as.character(xmlAttrs(hdr)), collapse = ", "))
+    if(length(hdr) > 0L) {
+      h_info <- c(h_info,
+        xmlSApply(hdr, function(x)
+	  paste(c(as.character(xmlAttrs(x)), xmlValue(x)), collapse = ", ")
+	)
+      )
+    }
+  } else {
+    h_info <- NULL
+  }
   
   ## parse data dictionary
   extract_empty_model_frame <- function(x) {
@@ -20,7 +33,7 @@ as.party.XMLNode <- function(obj, ...) {
     dd <- x[["DataDictionary"]]
 
     ## currently we can only look at DataField  
-    if(!all(names(dd) == "DataField")) warning("not yet implemented")
+    if(!all(names(dd) == "DataField")) warning("data specifications other than DataField are not yet implemented")
   
     ## check columns
     nc <- as.numeric(xmlAttrs(dd)["numberOfFields"])
@@ -36,11 +49,11 @@ as.party.XMLNode <- function(obj, ...) {
       switch(optype,
         "categorical" = {
            mf[[i]] <- factor(integer(0),
-	     levels = xmlSApply(dd[[i]], function(x) xmlAttrs(x)["value"]))
+	     levels = xmlSApply(dd[[i]], function(x) gsub("&amp;", "&", xmlAttrs(x)["value"], fixed = TRUE)))
         },
         "ordinal" = {
            mf[[i]] <- factor(integer(0), ordered = TRUE,
-	     levels = xmlSApply(dd[[i]], function(x) xmlAttrs(x)["value"]))
+	     levels = xmlSApply(dd[[i]], function(x) gsub("&amp;", "&", xmlAttrs(x)["value"], fixed = TRUE)))
         },
         "continuous" = {
           dataType <- xmlAttrs(dd[[i]])["dataType"]
@@ -64,7 +77,7 @@ as.party.XMLNode <- function(obj, ...) {
     ms <- ms[["MiningSchema"]]
     
     ## currently we can only look at MiningField  
-    if(!all(names(ms) == "MiningField")) warning("not yet implemented")
+    if(!all(names(ms) == "MiningField")) warning("MiningField not yet implemented")
     
     ## extract variable info
     vars <- t(xmlSApply(ms, xmlAttrs))
@@ -81,7 +94,7 @@ as.party.XMLNode <- function(obj, ...) {
   
   ## parse TreeModel
   tm <- obj[["TreeModel"]]
-  tm_info <- xmlAttrs(tm)
+  tm_info <- c(xmlAttrs(tm), h_info)
 
   ## check response
   stopifnot(tm_info["functionName"] %in% c("classification", "regression"))
@@ -109,7 +122,7 @@ as.party.XMLNode <- function(obj, ...) {
     sapply(wi, function(i) {
       if(names(x)[i] %in% c("SimplePredicate", "SimpleSetPredicate")) return(TRUE)
       if(identical(as.vector(xmlAttrs(x[[i]])["booleanOperator"]), "or")) return(TRUE)
-      stop("not yet implemented")
+      stop("CompoundPredicate not yet implemented")
     })
   }
   n_splits <- function(xnode) {
@@ -178,7 +191,7 @@ as.party.XMLNode <- function(obj, ...) {
         wii <- which(names(nj) %in% c("SimplePredicate", "SimpleSetPredicate"))[i]      
         c("predicateType" = as.vector(names(nj)[wii]), xmlAttrs(nj[[wii]]))
       } else {
-        if(sum(names(nj) == "CompoundPredicate") != 1) stop("malformatted XML")
+        if(sum(names(nj) == "CompoundPredicate") != 1) stop("multiple CompoundPredicate declarations, invalid PMML?")
 	nj <- nj[["CompoundPredicate"]]
 	if(!identical(as.vector(xmlAttrs(nj)["booleanOperator"]), "or")) stop("not yet implemented")
 	if(any(names(nj) %in% c("SimpleSetPredicate", "CompoundPredicate"))) stop("not yet implemented")
@@ -219,8 +232,12 @@ as.party.XMLNode <- function(obj, ...) {
           wii <- which(names(nj) %in% c("SimplePredicate", "SimpleSetPredicate"))[i]      
           ar <- nj[[wii]][["Array"]]
 	  stopifnot(xmlAttrs(ar)["type"] == "string")
-  	  rv <- strsplit(xmlValue(ar), " ")[[1]]
-	  rv <- gsub("&quot;", "", rv, fixed = TRUE) ## FIXME: labels seem to be quoted in new PMML
+	  rv <- xmlValue(ar)
+	  rv <- if(substr(rv, 1, 1) == "\"" & substr(rv, nchar(rv), nchar(rv)) == "\"") {
+	    strsplit(substr(rv, 2, nchar(rv) - 1), "\" \"")[[1]]
+	  } else {
+	    strsplit(rv, " ")[[1]]
+	  }
 	  stopifnot(length(rv) == as.numeric(xmlAttrs(ar)["n"]))
 	  return(rv)
 	} else {
@@ -232,6 +249,9 @@ as.party.XMLNode <- function(obj, ...) {
 	  else idx[which(!(lev %in% lab[[j]]))] <- j
       }
       stopifnot(all(na.omit(idx) > 0))
+      if(min(idx, na.rm = TRUE) != 1) stop(sprintf("variable levels (%s) and split labels (%s)",
+        paste(lev, collapse = ", "), paste(sapply(lab, paste, collapse = ", "), collapse = " | ")))
+      
       partysplit(
         varid = varid,
 	breaks = NULL,
@@ -261,7 +281,7 @@ as.party.XMLNode <- function(obj, ...) {
   
   ## set up node
   ii <- 0
-  if(is_root(tm[["Node"]])) nd <- pmml_node(tm[["Node"]]) else stop("mal-formed XML")
+  if(is_root(tm[["Node"]])) nd <- pmml_node(tm[["Node"]]) else stop("root node not declared, invalid PMML?")
 
   ## set up party
   ## FIXME: extend info slot?
