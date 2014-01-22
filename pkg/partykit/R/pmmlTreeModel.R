@@ -233,6 +233,7 @@ as.party.XMLNode <- function(obj, ...) {
           ar <- nj[[wii]][["Array"]]
 	  stopifnot(xmlAttrs(ar)["type"] == "string")
 	  rv <- xmlValue(ar)
+	  rv <- gsub("&quot;", "\"", rv, fixed = TRUE)
 	  rv <- if(substr(rv, 1, 1) == "\"" & substr(rv, nchar(rv), nchar(rv)) == "\"") {
 	    strsplit(substr(rv, 2, nchar(rv) - 1), "\" \"")[[1]]
 	  } else {
