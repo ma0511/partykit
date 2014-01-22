@@ -82,7 +82,7 @@ as.party.XMLNode <- function(obj, ...) {
     ## extract variable info
     vars <- t(xmlSApply(ms, xmlAttrs))
     if(sum(vars[,2] == "predicted") > 1) stop("multivariate responses not yet implemented")
-    if(!all(vars[,2] %in% c("predicted", "active"))) warning("not yet implemented")
+    if(!all(vars[,2] %in% c("predicted", "active", "supplementary"))) warning("not yet implemented")
     
     ## set up formula
     ff <- as.formula(paste(vars[vars[,2] == "predicted",1], "~",
@@ -109,7 +109,7 @@ as.party.XMLNode <- function(obj, ...) {
   n_obs <- function(xnode) as.numeric(xmlAttrs(xnode)["recordCount"])
   has_surrogates <- function(x) {
     ns <- sum(c("SimplePredicate", "SimpleSetPredicate", "CompoundPredicate") %in% names(x))
-    if(ns != 1) stop("malformatted XML")
+    if(ns != 1) stop("invalid PMML")
     if("CompoundPredicate" %in% names(x)) {
       if(identical(as.vector(xmlAttrs(x[["CompoundPredicate"]])["booleanOperator"]), "surrogate")) return(TRUE)
         else return(FALSE)
@@ -130,10 +130,10 @@ as.party.XMLNode <- function(obj, ...) {
     rval <- unique(sapply(wi, function(i) {
       xnodei <- if(has_surrogates(xnode[[i]])) xnode[[i]][["CompoundPredicate"]] else xnode[[i]]
       rval <- has_single_splits(xnodei)
-      if(!all(rval)) stop("malformatted XML")
+      if(!all(rval)) stop("invalid PMML")
       sum(rval)
     }))
-    if(length(rval) > 1) stop("malformatted XML")
+    if(length(rval) > 1) stop("invalid PMML")
     return(rval)
   }
   kid_ids <- function(xnode) {
@@ -188,11 +188,11 @@ as.party.XMLNode <- function(obj, ...) {
     rval <- sapply(wi, function(j) {
       nj <- if(surrogates) xnode[[j]][["CompoundPredicate"]] else xnode[[j]]
       if(any(c("SimplePredicate", "SimpleSetPredicate") %in% names(nj))) {
-        wii <- which(names(nj) %in% c("SimplePredicate", "SimpleSetPredicate"))[i]      
+        wii <- which(names(nj) %in% c("SimplePredicate", "SimpleSetPredicate"))[i]
         c("predicateType" = as.vector(names(nj)[wii]), xmlAttrs(nj[[wii]]))
       } else {
-        if(sum(names(nj) == "CompoundPredicate") != 1) stop("multiple CompoundPredicate declarations, invalid PMML?")
-	nj <- nj[["CompoundPredicate"]]
+        wii <- which(names(nj) == "CompoundPredicate")[i]
+	nj <- nj[[wii]]
 	if(!identical(as.vector(xmlAttrs(nj)["booleanOperator"]), "or")) stop("not yet implemented")
 	if(any(names(nj) %in% c("SimpleSetPredicate", "CompoundPredicate"))) stop("not yet implemented")
 	rvali <- sapply(which(names(nj) == "SimplePredicate"), function(j)
@@ -242,7 +242,8 @@ as.party.XMLNode <- function(obj, ...) {
 	  stopifnot(length(rv) == as.numeric(xmlAttrs(ar)["n"]))
 	  return(rv)
 	} else {
-	  as.vector(xmlSApply(nj[["CompoundPredicate"]], function(z) xmlAttrs(z)["value"]))
+          wii <- which(names(nj) == "CompoundPredicate")[i]	
+	  as.vector(xmlSApply(nj[[wii]], function(z) xmlAttrs(z)["value"]))
 	}
       })
       for(j in 1:ncol(rval)) {
