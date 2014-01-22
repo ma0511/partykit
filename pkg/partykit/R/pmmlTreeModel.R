@@ -85,7 +85,7 @@ as.party.XMLNode <- function(obj, ...) {
 
   ## check response
   stopifnot(tm_info["functionName"] %in% c("classification", "regression"))
-  mf_response <- model.response(model.frame(trms, data = mf))
+  mf_response <- mf[[deparse(attr(trms, "variables")[[2L]])]]
   if(tm_info["functionName"] == "classification") stopifnot(inherits(mf_response, "factor"))
   if(tm_info["functionName"] == "regression") stopifnot(is.numeric(mf_response))
   
