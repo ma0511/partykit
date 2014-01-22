@@ -245,6 +245,29 @@ if (!file.exists("IrisTree.xml"))
 pmmlTreeModel("IrisTree.xml")
 @
 
+<<PMML-Titantic>>=
+(ttnc_quest <- pmmlTreeModel(
+  file.path(system.file("pmml", package = "partykit"), "ttnc.pmml")))
+@
+
+\begin{figure}
+<<PMML-Titanic-plot, fig = TRUE>>=
+ttnc_cp <- ttnc_quest
+ttnc_cp$data <- ttnc[, names(ttnc_quest$data)]
+for(n in names(ttnc_cp$data)) {
+  if(is.factor(ttnc_cp$data[[n]])) ttnc_cp$data[[n]] <- factor(
+    ttnc_cp$data[[n]], levels = levels(ttnc_quest$data[[n]]))
+}
+ttnc_cp$fitted <- data.frame(
+  "(fitted)" = predict(ttnc_quest, ttnc_cp$data, type = "node"),
+  "(response)" = ttnc$Survived,
+  check.names = FALSE)
+ttnc_cp <- as.constparty(ttnc_cp)
+plot(ttnc_cp)
+@
+\end{figure}
+
+
 \section{Growing a simple regression tree} 
 
 Package \pkg{partykit} does not offer unified infrastructure for growing
