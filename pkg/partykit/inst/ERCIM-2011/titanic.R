@@ -26,6 +26,10 @@ plot(ct)
 j48 <- J48(Survived ~ Gender + Age + Class, data = ttnc)
 plot(as.party(j48))
 
+## QUEST
+qu <- pmmlTreeModel(file.path(system.file("pmml", package = "partykit"), "ttnc.pmml"))
+plot(qu)
+
 ## CHAID
 chd <- chaid(Survived ~ Gender + Age + Class, data = ttnc)
 plot(chd)
