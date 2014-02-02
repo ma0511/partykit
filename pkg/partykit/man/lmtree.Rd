@@ -70,7 +70,7 @@ BostonHousing <- transform(BostonHousing,
 ## linear model tree
 bh_tree <- lmtree(medv ~ log(lstat) + I(rm^2) | zn +
   indus + chas + nox + age + dis + rad + tax + crim + b + ptratio,
-  data = BostonHousing, minsplit = 40)
+  data = BostonHousing, minsize = 40)
 
 ## printing whole tree or individual nodes
 print(bh_tree)
@@ -118,7 +118,7 @@ Journals <- transform(Journals,
 
 ## linear regression tree (OLS)
 j_tree <- lmtree(log(subs) ~ log(price/citations) | price + citations +
-  age + chars + society, data = Journals, minsplit = 10, verbose = TRUE)
+  age + chars + society, data = Journals, minsize = 10, verbose = TRUE)
 
 ## printing and plotting
 j_tree

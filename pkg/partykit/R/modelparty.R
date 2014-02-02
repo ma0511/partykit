@@ -5,8 +5,8 @@ mob <- function(formula, data, subset, na.action, weights, offset,
   stopifnot(require("Formula"))
   
   ## control parameters (used repeatedly)
-  minsplit <- control$minsplit
-  if(!is.null(minsplit) && !is.integer(minsplit)) minsplit <- as.integer(minsplit)
+  minsize <- control$minsize
+  if(!is.null(minsize) && !is.integer(minsize)) minsize <- as.integer(minsize)
   verbose <- control$verbose
   ytype <- control$ytype
   xtype <- control$xtype
@@ -163,7 +163,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
 
     ## get critical values for supLM statistic
     from <- if(control$trim > 1) control$trim else ceiling(n * control$trim)
-    from <- max(from, minsplit)
+    from <- max(from, minsize)
     to <- n - from
     lambda <- ((n - from) * to)/(from * (n - to))
 
@@ -280,9 +280,9 @@ mob <- function(formula, data, subset, na.action, weights, offset,
   ### split in variable zselect, either ordered (numeric or ordinal) or nominal
   mob_grow_findsplit <- function(y, x, zselect, weights, offset, ...)
   {
-    ## process minsplit (to minimal number of observations)
-    if(minsplit > 0.5 & minsplit < 1) minsplit <- 1 - minsplit
-    if(minsplit < 0.5) minsplit <- ceiling(w2n(weights) * minsplit)
+    ## process minsize (to minimal number of observations)
+    if(minsize > 0.5 & minsize < 1) minsize <- 1 - minsize
+    if(minsize < 0.5) minsize <- ceiling(w2n(weights) * minsize)
   
     if(is.numeric(zselect)) {
     ## for numerical variables
@@ -294,7 +294,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
         zs <- zselect <= uz[i]
         start_left <- NULL
         start_right <- NULL
-        if(w2n(weights[zs]) < minsplit || w2n(weights[!zs]) < minsplit) {
+        if(w2n(weights[zs]) < minsize || w2n(weights[!zs]) < minsize) {
           dev[i] <- Inf
         } else {
           fit_left <- afit(y = suby(y, zs), x = subx(x, zs), start = start_left,
@@ -334,7 +334,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
       al <- mob_grow_getlevels(zselect)
       dev <- apply(al, 1L, function(w) {
         zs <- zselect %in% levels(zselect)[w]
-        if(w2n(weights[zs]) < minsplit || w2n(weights[!zs]) < minsplit) {
+        if(w2n(weights[zs]) < minsize || w2n(weights[!zs]) < minsize) {
           return(Inf)
         } else {
 	  if(nrow(al) == 1L) 1 else {
@@ -378,6 +378,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
       if(id == 1L) cat("\n")
       cat(sprintf("-- Node %i %s\n", id, paste(rep("-", 32 - floor(log10(id)) + 1L), collapse = "")))
       cat(sprintf("Number of observations: %i\n", w2n(weights)))
+      ## cat(sprintf("Depth: %i\n", depth))
     }
 
     ## fit model
@@ -387,14 +388,20 @@ mob <- function(formula, data, subset, na.action, weights, offset,
     mod$nobs <- w2n(weights)
     mod$p.value <- NULL
 
-    ## set default for minsplit if not specified
-    if(is.null(minsplit)) minsplit <<- as.integer(ceiling(10L * length(mod$coefficients)/NCOL(y)))
+    ## set default for minsize if not specified
+    if(is.null(minsize)) minsize <<- as.integer(ceiling(10L * length(mod$coefficients)/NCOL(y)))
 
-    ## if too few observations: no split = return terminal node
-    if(w2n(weights) < 2 * minsplit) {
-      if(verbose) {
-        cat(sprintf("Too few observations, stop splitting (minsplit = %i)\n\n", minsplit))
-      }
+    ## if too few observations or maximum depth: no split = return terminal node
+    TERMINAL <- FALSE
+    if(w2n(weights) < 2 * minsize) {
+      if(verbose) cat(sprintf("Too few observations, stop splitting (minsize = %i)\n\n", minsize))
+      TERMINAL <- TRUE
+    }
+    if(depth >= control$maxdepth) {
+      if(verbose) cat(sprintf("Maximum deptch reached, stop splitting (maxdepth = %i)\n\n", maxdepth))
+      TERMINAL <- TRUE
+    }
+    if(TERMINAL) {
       if(!terminal$estfun) mod$estfun <- NULL
       if(!terminal$object) mod$object <- NULL
       return(partynode(id = id, info = mod))
@@ -439,8 +446,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
     
       ## split successful?
       if(is.null(sp$breaks) & is.null(sp$index)) {
-        if(verbose)
-          cat(sprintf("No admissable split found in %s\n\n", sQuote(names(test$stat)[best])))
+        if(verbose) cat(sprintf("No admissable split found in %s\n\n", sQuote(names(test$stat)[best])))
         return(partynode(id = id, info = mod))
       } else {
         sp <- partysplit(as.integer(best), breaks = sp$breaks, index = sp$index)
@@ -453,6 +459,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
     kidids <- kidids_split(sp, data = z)
     
     ## set-up all daugther nodes
+    depth <<- depth + 1L
     kids <- vector(mode = "list", length = max(kidids))
     for(kidid in 1L:max(kidids)) {
       ## select obs for current next node
@@ -469,6 +476,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
       kids[[kidid]] <- mob_grow(id = myid + 1L,
         suby(y, nxt), subx(x, nxt), subz(z, nxt), weights[nxt], offset[nxt], ...)
     }
+    depth <<- depth - 1L
 
     ## shift split varid from z to mf
     sp$varid <- as.integer(sp$varid + nyx)
@@ -478,6 +486,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
   }
 
   ## grow tree
+  depth <- 1L
   nodes <- mob_grow(id = 1L, Y, X, Z, weights, offset, ...)
 
   ## compute terminal node number for each observation
@@ -490,8 +499,8 @@ mob <- function(formula, data, subset, na.action, weights, offset,
   if(!identical(weights, rep.int(1L, n))) fitted[["(weights)"]] <- weights
   if(!is.null(offset)) fitted[["(offset)"]] <- offset
 
-  ## update minsplit (in case it was set internally)
-  control$minsplit <- minsplit
+  ## update minsize (in case it was set internally)
+  control$minsize <- minsize
 
   ## return party object
   rval <- party(nodes, 
@@ -538,8 +547,8 @@ mob_grow_getlevels <- function(z) {
 }
 
 ## control splitting parameters
-mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsplit = NULL, trim = 0.1,
-  breakties = FALSE, parm = NULL, verbose = FALSE, caseweights = TRUE,
+mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
+  trim = 0.1, breakties = FALSE, parm = NULL, verbose = FALSE, caseweights = TRUE,
   ytype = "vector", xtype = "matrix", terminal = "object", inner = terminal,
   model = TRUE, numsplit = "left", catsplit = "binary", vcov = "opg",
   ordinal = "chisq", nrep = 10000)
@@ -556,8 +565,8 @@ mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsplit = NULL, trim =
   vcov <- match.arg(tolower(vcov), c("opg", "info"))
   ordinal <- match.arg(tolower(ordinal), c("l2", "max", "chisq"))
 
-  rval <- list(alpha = alpha, bonferroni = bonferroni, minsplit = minsplit,
-    trim = ifelse(is.null(trim), minsplit, trim),
+  rval <- list(alpha = alpha, bonferroni = bonferroni, minsize = minsize, maxdepth = maxdepth,
+    trim = ifelse(is.null(trim), minsize, trim),
     breakties = breakties, parm = parm, verbose = verbose,
     caseweights = caseweights, ytype = ytype, xtype = xtype,
     terminal = terminal, inner = inner, model = model,

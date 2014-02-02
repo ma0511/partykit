@@ -9,8 +9,8 @@
 }
 
 \usage{
-mob_control(alpha = 0.05, bonferroni = TRUE, minsplit = NULL, trim = 0.1,
-  breakties = FALSE, parm = NULL, verbose = FALSE, caseweights = TRUE,
+mob_control(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
+  trim = 0.1, breakties = FALSE, parm = NULL, verbose = FALSE, caseweights = TRUE,
   ytype = "vector", xtype = "matrix", terminal = "object", inner = terminal,
   model = TRUE, numsplit = "left", catsplit = "binary", vcov = "opg",
   ordinal = "chisq", nrep = 10000)
@@ -19,12 +19,14 @@ mob_control(alpha = 0.05, bonferroni = TRUE, minsplit = NULL, trim = 0.1,
 \arguments{
   \item{alpha}{numeric significance level. A node is splitted when
     the (possibly Bonferroni-corrected) \eqn{p} value for any parameter
-    stability test in that node falls below \code{alpha}.}
+    stability test in that node falls below \code{alpha} (and the stopping
+    criteria \code{minsize} and \code{maxdepth} are not fulfilled).}
   \item{bonferroni}{logical. Should \eqn{p} values be Bonferroni corrected?}
-  \item{minsplit}{integer. The minimum number of observations in a node.
+  \item{minsize}{integer. The minimum number of observations in a node.
     If \code{NULL}, the default is to use 10 times the number of parameters
     to be estimated (divided by the number of responses per observation
     if that is greater than 1).}
+  \item{maxdepth}{integer. The maximum depth of the tree.}
   \item{trim}{numeric. This specifies the trimming in the parameter instability
     test for the numerical variables. If smaller than 1, it is interpreted
     as the fraction relative to the current node size.}
