@@ -819,10 +819,14 @@ provided, including replications of the results from \cite{Zeileis+Hothorn+Horni
     price, its age, and whether it is published by a society, etc.)
   \item Prediction of house prices in the well-known Boston Housing data
     set, also taken from the UCI machine learning repository.
-  \item Teaching ratings.
-  \item Titanic survival.
-  \item Modeling of breast cancer survival and by capturing heterogeneity
-    in certain (treatment) effects across individuals.
+  \item Explore how teaching ratings and beauty scores of professors are
+    associated and how this association changes across further explanatory
+    variables such as age, gender, and native speaker status of the professors.
+  \item Assessment of differences in the preferential treatment of women/children
+    (``women and children first'') across subgroups of passengers on board of the
+    ill-fated maiden voyage of the RMS Titanic.
+  \item Modeling of breast cancer survival by capturing heterogeneity
+    in certain (treatment) effects across patients.
 \end{enumerate}
 More details about the underlying data sets, previous studies exploring
 the data, and the results based on MOB can be found in 
@@ -862,16 +866,6 @@ j_tree <- lmtree(log(subs) ~ log(price/citations) | price + citations +
   age + chars + society, data = Journals, minsize = 10, verbose = TRUE)
 @
 %
-The resulting tree just has one split and two terminal nodes for young journals
-(with a somewhat larger price elasticity) and old journals (with an even lower
-price elasticity), respectively. Figure~\ref{fig:Journals} can be obtained
-by \code{plot(j_tree)} and the corresponding printed representation is
-shown below.
-%
-<<Journals-print>>=
-j_tree
-@
-%
 \begin{figure}[t!]
 \centering
 \setkeys{Gin}{width=0.75\textwidth}
@@ -882,6 +876,16 @@ plot(j_tree)
 data. The plots in the leaves show linear regressions of log(subscriptions) by
 log(price/citation).}
 \end{figure}
+%
+The resulting tree just has one split and two terminal nodes for young journals
+(with a somewhat larger price elasticity) and old journals (with an even lower
+price elasticity), respectively. Figure~\ref{fig:Journals} can be obtained
+by \code{plot(j_tree)} and the corresponding printed representation is
+shown below.
+%
+<<Journals-print>>=
+j_tree
+@
 %
 Finally, various quantities of interest such as the coefficients, standard
 errors and test statistics, and the associated parameter instability tests
@@ -1053,13 +1057,21 @@ coef(tr_tree)[, 2]
 Th $R^2$ of the tree is also clearly improved over the main effects model:
 %
 <<TeachingRatings-rsquared>>=
-1 - deviance(tr_lm)/deviance(tr_null)
-1 - deviance(tr_tree)/deviance(tr_null)
+1 - c(deviance(tr_lm), deviance(tr_tree))/deviance(tr_null)
 @
 
 
 \subsection{Titanic survival data}
 
+To illustrate how differences in treatment effects can be captured by MOB,
+the Titanic survival data is considered: The question is whether ``women
+and children first'' is applied in the same way for all subgroups of the
+passengers of the Titanic. Or, in other words, whether the effectiveness of
+preferential treatment for women/children differed across subgroups.
+
+The \code{Titanic} data is provided in base \proglang{R} as a contingency
+table and transformed here to a `\code{data.frame}' for use with \code{glmtree()}:
+%
 <<Titanic-data>>=
 data("Titanic", package = "datasets")
 ttnc <- as.data.frame(Titanic)
@@ -1069,15 +1081,24 @@ ttnc <- transform(ttnc, Treatment = factor(
   Gender == "Female" | Age == "Child", levels = c(FALSE, TRUE),
   labels = c("Male&Adult", "Female|Child")))
 @
+%
+The data provides factors \code{Survived} (yes/no), \code{Class} (1st,
+2nd, 3rd, crew), \code{Gender} (male, female), and \code{Age} (child, adult).
+Additionally, a factor \code{Treatment} is added that distinguishes women/children
+from male adults.
 
+To investigate how the preferential treatment effect (\code{Survived ~ Treatment})
+differs across the remaining explanatory variables, the following
+logistic-regression-based tree is considered. The significance
+level of \code{alpha = 0.01} is employed here to avoid overfitting and separation
+problems in the logistic regression.
+%
 <<Titanic-tree>>=
-ttnc_tree <- glmtree(Survived ~ Treatment | Class + Gender + Age, data = ttnc,
-  family = binomial, alpha = 0.01)
+ttnc_tree <- glmtree(Survived ~ Treatment | Class + Gender + Age,
+  data = ttnc, family = binomial, alpha = 0.01)
 ttnc_tree
 @
-
-\code{plot(ttnc_tree)}
-
+%
 \begin{figure}[t!]
 \setkeys{Gin}{width=\textwidth}
 <<Titanic-plot,echo=FALSE,results=hide,fig=TRUE,height=6,width=9>>=
@@ -1087,9 +1108,22 @@ plot(ttnc_tree)
 Titanic survival data. The plots in the leaves give spinograms for survival
 status versus preferential treatment (women or children).}
 \end{figure}
+%
+This shows that the treatment differs strongly across passengers classes, see also
+the result of \code{plot(ttnc_tree)} in Figure~\ref{fig:ttnc_tree}. 
+The treatment effect is much lower in the 3rd class where women/children still have
+higher survival rates than adult men but the odds ratio is much lower compared to
+all remaining classes. The split between the 2nd and the remaining two classes (1st, crew)
+is due to a lower overall survival rate (intercepts of \Sexpr{round(coef(ttnc_tree)[2, 1], digits = 2)} and 
+\Sexpr{round(coef(ttnc_tree)[3, 1], digits = 2)}, respectively) while the odds ratios
+associated with the preferential treatment are rather similar
+(\Sexpr{round(coef(ttnc_tree)[2, 2], digits = 2)} and \Sexpr{round(coef(ttnc_tree)[3, 2], digits = 2)},
+respectively).
 
-\code{catsplit = "multiway"}
-
+Another option for assessing the class effect would be to immediately split into
+all four classes rather than using recursive binary splits. This can be obtained
+by setting \code{catsplit = "multiway"} in the \code{glmtree()} call above. This
+yields a tree with just a single split but four daughter nodes.
 
 
 \subsection{German breast cancer data}
@@ -1284,7 +1318,7 @@ implementation of the general algorithm for model-based recursive partitioning u
 fitting functions can be easily provided, especially if standard extractor functions
 (such as \code{coef()}, \code{estfun()}, \code{logLik()}, etc.) are available. The resulting
 model trees can then learned, visualized, investigated, and employed for predictions.
-To allow gain some efficiency in the computations and to allow for further customization
+To gain some efficiency in the computations and to allow for further customization
 (in particular specialized visualization and prediction methods), convenience interfaces
 \code{lmtree()} and \code{glmtree()} are provided for recursive partitioning based on
 (generalized) linear models.
