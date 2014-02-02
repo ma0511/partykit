@@ -40,7 +40,7 @@ options(prompt = "R> ", continue = "+  ", digits = 4, useFancyQuotes = FALSE)
   (1)~fit a parametric model to a data set, (2)~test for parameter instability
   over a set of partitioning variables, (3)~if there is some overall parameter
   instability, split the model with respect to the variable associated with the
-  highest instability, (4)~repeat the procedure in each of the child nodes. It
+  highest instability, (4)~repeat the procedure in each of the resulting subsamples. It
   is discussed how these steps of the conceptual algorithm are translated into
   computational tools in an object-oriented manner, allowing the user to plug in
   various types of parametric models. For representing the resulting trees, the
@@ -87,15 +87,15 @@ the \proglang{R} system for statistical computing \citep{R}. This provided
 one very flexible \code{mob()} function combining \pkg{party}'s \proglang{S}4
 classes for representing trees with binary splits and the \proglang{S}4 model
 wrapper functions from \pkg{modeltools} \citep{modeltools}. However, while
-this supported many applications of interest, it was somewhat limited for
-certain extensions: (1)~The \proglang{S}4 wrappers for the models were
+this supported many applications of interest, it was somewhat limited in several
+directions: (1)~The \proglang{S}4 wrappers for the models were
 somewhat cumbersome to set up. (2)~The tree infrastructure was originally
 designed for \code{ctree()} and somewhat too narrowly focused on it.
 (3)~Writing new ``mobster'' interfaces was not easy because of using
 unexported \proglang{S}4 classes.
 
 Hence, a leaner and more flexible interface (based on \proglang{S}3 classes)
-is provided in \pkg{partykit} \citep{partykit}: (1)~New models are much easier
+is now provided in \pkg{partykit} \citep{partykit}: (1)~New models are much easier
 to provide in a basic version and customization does not require setting up
 an additional \proglang{S}4 class-and-methods layer anymore. (2)~The trees
 are built on top of \pkg{partykit}'s flexible `\code{party}' objects,
@@ -112,14 +112,14 @@ discussing how all steps of the MOB algorithm are implemented and which
 options for customization are available. For illustration logistic-regression-based
 recursive partitioning is applied to the Pima Indians diabetes data set from the
 UCI machine learning repository \citep{mlbench2}. Section~\ref{sec:illustration}
-presents replications of further illustrative examples from \cite{Zeileis+Hothorn+Hornik:2008}
+presents further illustrative examples \citep[including replications from][]{Zeileis+Hothorn+Hornik:2008}
 before Section~\ref{sec:conclusion} provides some concluding remarks.
 
 
 \section{MOB: Model-based recursive partitioning} \label{sec:algorithm}
 
 First, the theory underling the MOB (model-based recursive partitioning)
-is briefly reviewed, a detailed discussion is provided by \cite{Zeileis+Hothorn+Hornik:2008}.
+is briefly reviewed; a more detailed discussion is provided by \cite{Zeileis+Hothorn+Hornik:2008}.
 To fix notation, consider a parametric model $\mathcal{M}(Y, \theta)$
 with (possibly vector-valued) observations $Y$ and a
 $k$-dimensional vector of parameters $\theta$. This model 
@@ -144,7 +144,8 @@ The basic idea is to grow a tee in which every node is associated with a model
 of type $\mathcal{M}$. To assess whether splitting of the node is necessary a
 fluctuation test for parameter instability is performed. If there is significant instability
 with respect to any of the partitioning variables $Z_j$, the node is splitted
-into $B$ locally optimal segments (currently only $B = 2$ is implemented in the software)
+into $B$ locally optimal segments (the currenct version of the software has
+$B = 2$ as the default and as the only option for numeric/ordered variables)
 and then the procedure is repeated in each of the $B$ children.
 If no more significant instabilities can be found, the recursion stops.
 More precisely, the steps of the algorithm are
@@ -182,15 +183,16 @@ tasks by choosing particular models, tests, and methods in each of the steps:
   categorical partitioning variables (see \citealp{Zeileis:2005} and \citealp{Merkle+Zeileis:2013}
   for unifying views emphasizing regression and psychometric models, respectively).
   Furthermore, the test statistics for ordinal partitioning variables suggested by
-  \cite{Merkle+Fan+Zeileis:2013} have been added as further options.
+  \cite{Merkle+Fan+Zeileis:2013} have been added as further options (but are not used
+  by default as the simulation of $p$-values is computationally demanding).
 \item \emph{Partitioning:} As the objective function $\Psi$ is additive, it is easy
   to compute a single optimal split point (or cut point or break point). For each conceivable
   split, the model is estimated on the two resulting subsets and the resulting objective
   functions are summed. The split that optimizes this segmented objective function
   is then selected as the optimal split. For optimally splitting the data into $B > 2$
   segments, the same idea can be used and a full grid search can be avoided by employing
-  a dynamic programming algorithms \citep{Hawkins:2001,Bai+Perron:2003}. At the moment
-  the latter is not implemented in the software; but optionally categorical partitioning
+  a dynamic programming algorithms \citep{Hawkins:2001,Bai+Perron:2003} but at the moment
+  the latter is not implemented in the software. Optionally, however, categorical partitioning
   variables can be split into all of their categories (i.e., in that case $B$ is set to
   the number of levels without searching for optimal groupings).
 \item \emph{Pruning:} For determining the optimal size of the tree, one can either use
@@ -199,7 +201,7 @@ tasks by choosing particular models, tests, and methods in each of the steps:
   node becomes too small). For the latter, one would first grow a large tree (subject only
   to a minimal node size requirement) and then prune back splits that did not improve
   the model, e.g., judging by information criteria such as AIC or BIC \citep[see e.g.,][]{Su+Wang+Fan:2004}.
-  Currently, only the former strategy is implemented using Bonferroni-corrected $p$~values from the
+  Currently, only the former strategy is implemented using Bonferroni-corrected $p$-values from the
   score-based fluctuation tests.
 \end{enumerate}
 %
@@ -345,7 +347,7 @@ function. The \code{fit} function then has to return an output list with
 the following elements:
 \begin{itemize}
   \item \code{coefficients}: Estimated parameters $\hat \theta$.
-  \item \code{objfun}: Value of the minimized objective function $\sum_{i = 1}^n \Psi(y_i, x_, \hat \theta)$.
+  \item \code{objfun}: Value of the minimized objective function $\sum_i \Psi(y_i, x_, \hat \theta)$.
   \item \code{estfun}: Empirical estimating functions (or score function contributions)
     $\Psi'(y_i, x_i, \hat \theta)$. Only needed if \code{estfun = TRUE}, otherwise optionally \code{NULL}.
   \item \code{object}: A model object for which further methods could
@@ -354,7 +356,8 @@ the following elements:
 \end{itemize}
 By making \code{estfun} and \code{object} optional, the fitting function
 might be able to save computation time by only optimizing the objective
-function but avoiding further computations.
+function but avoiding further computations (such as setting up covariance
+matrix, residuals, diagnostics, etc.).
 
 \item The \code{fit} function can also of a simpler interface with only the
 following inputs:
@@ -362,7 +365,7 @@ following inputs:
   fit(y, x = NULL, start = NULL, weights = NULL, offset = NULL, ...)
 \end{Code}
 The meaning of all arguments is the same as above. However, in this case
-\code{fit} needs to returned a classed model object for which methods to
+\code{fit} needs to return a classed model object for which methods to
 \code{coef()}, \code{logLik()}, and \code{estfun()} \citep[see][]{sandwich}
 are available for extracting the parameter estimates, the maximized log-likelihood,
 and associated empirical estimating functions (or score contributions), respectively.
@@ -479,7 +482,7 @@ of the partitioning variables in \code{z} different types of tests are chosen by
 
 \item For numeric partitioning variables (of class `\code{numeric}' or `\code{integer}')
 the sup\textit{LM}~statistic is used which is the maximum over all single-split \textit{LM} statistics.
-Associated $p$~values can be obtained from a table of critical values \citep[based on][]{Hansen:1997}
+Associated $p$-values can be obtained from a table of critical values \citep[based on][]{Hansen:1997}
 stored within the package.
 
 If there are ties in the partitioning variable, the sequence of \textit{LM} statistics (and hence
@@ -500,14 +503,14 @@ a more detailed discussion.
 \item For ordinal partitioning variables (of class `\code{ordered}' inheriting from `\code{factor}')
 the same $\chi^2$ as for the unordered categorical variables is used by default
 \citep[as suggested by][]{Zeileis+Hothorn+Hornik:2008}. Although this test is
-also consistent any parameter instabilities across ordered variables, it does
+consistent for any parameter instabilities across ordered variables, it does
 not exploit the ordering information.
 
 Recently, \cite{Merkle+Fan+Zeileis:2013}
-proposed an adapted max\textit{LM} test for ordered variables along with a
-weighted double maximum test. Both, are optionally availble in the new \code{mob()}
+proposed an adapted max\textit{LM} test for ordered variables and, alternatively, a
+weighted double maximum test. Both are optionally availble in the new \code{mob()}
 implementation by setting \code{ordinal = "L2"} or \code{ordinal = "max"}
-in \code{mob_control()}, respectively. Unfortunately, computing $p$~values from
+in \code{mob_control()}, respectively. Unfortunately, computing $p$-values from
 both tests is more costly than for the default \code{ordinal = "chisq"}. For
 \code{"L2"} suitable tables of critical values have to be simulated on the
 fly using \code{ordL2BB()} from the \pkg{strucchange} package \citep{strucchange}.
@@ -531,28 +534,27 @@ option in \code{mob_control()} is to set \code{vcov = "info"} rather than
 \code{vcov = "opg"} (the default).
 
 For each of the $j = 1, \dots, \ell$ partitioning variables in \code{z} the test selected
-in the control options is employed and the corresponding $p$~value $p_j$ is computed.
+in the control options is employed and the corresponding $p$-value $p_j$ is computed.
 To adjust for multiple testing, the $p$ values can be Bonferroni adjusted
 (which is the default). To determine whether there is some overall instability, it is checked whether
-the minial $p$~value $p_{j^*} = \min_{j = 1, \dots, \ell} p_j$ falls below a
+the minial $p$-value $p_{j^*} = \min_{j = 1, \dots, \ell} p_j$ falls below a
 pre-specified significance level $\alpha$ (by default $\alpha = 0.05$) or not.
 If there is significant instability, the variable $Z_{j^*}$
-associated with the minimal $p$~value is used for splitting the node.
+associated with the minimal $p$-value is used for splitting the node.
 
 \subsubsection*{Illustration}
 
 In the logistic-regression-based MOB \code{pid_tree} computed above, the parameter instability
 tests can be extracted using the \code{sctest()} function from the \pkg{strucchange}
 package (for \underline{s}tructural \underline{c}hange \underline{test}). In the first
-node, the test statistics and Bonferroni-corrected $p$~values are:
-\fixme{Do we need sctest(,log = TRUE)?}
+node, the test statistics and Bonferroni-corrected $p$-values are:
 %
 <<PimaIndiansDiabetes-sctest1>>=
 library("strucchange")
 sctest(pid_tree, node = 1)
 @
 %
-Thus, the body \code{mass} index has the lowest $p$~value and is highly significant
+Thus, the body \code{mass} index has the lowest $p$-value and is highly significant
 and hence used for splitting the data. In the second node, no further significant
 parameter instabilities can be detected and hence partitioning stops in that branch.
 %
@@ -584,7 +586,7 @@ Computationally, this means that the \code{fit} function is applied to the subse
 of \code{y} and \code{x} for each possibly binary split. The ``\code{objfun}'' values
 are simply summed up (because the objective function is assumed to be additive) and
 its minimum across splits is determined. In a search over a numeric partitioning variable,
-this means that typically a lot of subset models have to be fit and often this will not
+this means that typically a lot of subset models have to be fitted and often these will not
 vary a lot from one split to the next. Hence, the parameter estimates ``\code{coefficients}''
 from the previous split are employed as \code{start} values for estimating the coefficients
 associated with the next split. Thus, if the \code{fit} function makes use of these
@@ -630,7 +632,7 @@ names(pid_tree$node$info)
 %
 The \code{coefficients}, \code{objfun}, and \code{object} are the results of the \code{fit}
 function for that node. In \code{nobs} and \code{p.value} the number of observations
-and the minimal $p$~value are provided, respectively. Finally, \code{test} contains
+and the minimal $p$-value are provided, respectively. Finally, \code{test} contains
 the parameter instability test results. Note that the \code{object} element can also
 be suppressed through \code{mob_control()} to save memory space.
 
@@ -667,9 +669,6 @@ function is set up internally as
 \code{predict(object, newdata = newdata, type = type, ...)}, i.e.,
 it relies on a suitable \code{predict()} method being available for
 the fitted models associated with the `\code{party}' object.
-
-\fixme{type = "node": OK; type = "response" has a different meaning as predict.glm;
-       type = "prob" is equal to type = "response" in predict.glm}
 
 \item The \code{plot()} method has the following arguments:
 \code{plot(x, terminal_panel = NULL, FUN = NULL)}.
@@ -797,7 +796,7 @@ additional class `\code{lmtree}'/`\code{glmtree}' to dispatch to its enhanced
 
 The \code{pid_tree2} object was already created above with \code{glmtree()}
 (instead of \code{mob()} as for \code{pid_tree}) to illustrate the enhanced
-plotting capabilities in Figure~\ref{fig:pid_tree2}). Here, the enhanced
+plotting capabilities in Figure~\ref{fig:pid_tree2}. Here, the enhanced
 \code{predict()} method is used to obtain predicted means (i.e., probabilities)
 and associated linear predictors (on the logit scale) in addition to the
 previously available predicted nods IDs.
@@ -812,14 +811,16 @@ predict(pid_tree2, newdata = pid, type = "link")
 \section{Illustrations}
 \label{sec:illustration}
 
-In this section, three further empirical illustrations of the MOB method are
-provided, replicating the results from \cite{Zeileis+Hothorn+Hornik:2008}:
+In this section, further empirical illustrations of the MOB method are
+provided, including replications of the results from \cite{Zeileis+Hothorn+Hornik:2008}:
 \begin{enumerate}
   \item An investigation of the price elasticity of the demand for economics
     journals across covariates describing the type of journal (e.g., its
     price, its age, and whether it is published by a society, etc.)
   \item Prediction of house prices in the well-known Boston Housing data
     set, also taken from the UCI machine learning repository.
+  \item Teaching ratings.
+  \item Titanic survival.
   \item Modeling of breast cancer survival and by capturing heterogeneity
     in certain (treatment) effects across individuals.
 \end{enumerate}
@@ -858,7 +859,7 @@ recursive partitioning is displayed while growing the tree:
 %
 <<Journals-tree>>=
 j_tree <- lmtree(log(subs) ~ log(price/citations) | price + citations +
-  age + chars + society, data = Journals, minsplit = 10, verbose = TRUE)
+  age + chars + society, data = Journals, minsize = 10, verbose = TRUE)
 @
 %
 The resulting tree just has one split and two terminal nodes for young journals
@@ -969,6 +970,127 @@ logLik(bh_tree)
 AIC(bh_tree)
 @
 
+\subsection{Teaching ratings data}
+
+\cite{Hamermesh+Parker:2005} investigate the
+correlation of beauty and teaching evaluations for professors.
+They provide data
+on course evaluations, course characteristics, and professor
+characteristics for 463 courses for the academic years 2000--2002 at the
+University of Texas at Austin. It is of interest how the average teaching
+evaluation per course (on a scale 1--5) depends on a standardized measure
+of beauty (as assessed by a committee of six persons based on photos).
+\cite{Hamermesh+Parker:2005} employ a linear regression, weighted
+by the number of students per course and adjusting for several further
+main effects: gender, whether or not the teacher is from a minority,
+a native speaker, or has tenure, respectively, and whether the course
+is taught in the upper or lower division. Additionally, the age of the
+professors is available as a regressor but not considered by
+\cite{Hamermesh+Parker:2005} because the corresponding main effect is
+not found to be significant in either linear or quadratic form.
+
+Here, we employ a similar model but use the available regressors differently.
+The basic model is again a linear regression for teaching rating by
+beauty, estimated by weighted least squares (WLS). All remaining explanatory
+variables are \emph{not} used as regressors but as partitioning variables
+because we argue that it is unclear how they influence the correlation
+between teaching rating and beauty. Hence, MOB is used to adaptively
+incorporate these further variables and determine potential interactions.
+
+First, the data are loaded from the \pkg{AER} package \citep{AER} and
+only the subset of single-credit courses is excluded. 
+%
+<<TeachingRatings-data>>=
+data("TeachingRatings", package = "AER")
+tr <- subset(TeachingRatings, credits == "more")
+@
+%
+The single-credit courses include elective modules that are quite different
+from the remaining courses (e.g., yoga, aerobics, or dance) and are hence
+omitted from the main analysis.
+
+WLS estimation of the null model (with only an intercept) and the main
+effects model is carried out in a first step:
+%
+<<TeachingRatings-lm>>=
+tr_null <- lm(eval ~ 1, data = tr, weights = students)
+tr_lm <- lm(eval ~ beauty + gender + minority + native + tenure + division,
+  data = tr, weights = students)
+@
+%
+Then, the model-based tree can be estimated with \code{lmtree()} using only
+\code{beauty} as a regressor and all remaining variables for partitioning.
+For WLS estimation, we set \code{weights = students} and \code{caseweights = FALSE}
+(because the weights are only proportionality factors and do not signal exactly
+replicated observations).
+%
+<<TeachingRatings-tree>>=
+tr_tree <- lmtree(eval ~ beauty | minority + age + gender + division +
+  native + tenure, data = tr, weights = students, caseweights = FALSE)
+@
+%
+\begin{figure}[t!]
+\setkeys{Gin}{width=\textwidth}
+<<TeachingRatings-plot,echo=FALSE,results=hide,fig=TRUE,height=8,width=12>>=
+plot(tr_tree)
+@
+\caption{\label{fig:tr_tree} WLS-based tree for the teaching ratings data.
+The plots in the leaves show scatterplots for teaching rating by beauty score.}
+\end{figure}
+%
+The resulting tree can be visualized by \code{plot(tr_tree)} and is shown in
+Figure~\ref{fig:tr_tree}. This shows that despite age not having a significant
+main effect \citep[as reported by][]{Hamermesh+Parker:2005}, it clearly plays
+an important role: While the correlation of teaching rating and beauty score
+is rather moderate for younger professors, there is a clear correlation for
+older professors (with the cutoff age somewhat lower for female professors).
+%
+<<TeachingRatings-coef>>=
+coef(tr_lm)[2]
+coef(tr_tree)[, 2]
+@
+%
+Th $R^2$ of the tree is also clearly improved over the main effects model:
+%
+<<TeachingRatings-rsquared>>=
+1 - deviance(tr_lm)/deviance(tr_null)
+1 - deviance(tr_tree)/deviance(tr_null)
+@
+
+
+\subsection{Titanic survival data}
+
+<<Titanic-data>>=
+data("Titanic", package = "datasets")
+ttnc <- as.data.frame(Titanic)
+ttnc <- ttnc[rep(1:nrow(ttnc), ttnc$Freq), 1:4]
+names(ttnc)[2] <- "Gender"
+ttnc <- transform(ttnc, Treatment = factor(
+  Gender == "Female" | Age == "Child", levels = c(FALSE, TRUE),
+  labels = c("Male&Adult", "Female|Child")))
+@
+
+<<Titanic-tree>>=
+ttnc_tree <- glmtree(Survived ~ Treatment | Class + Gender + Age, data = ttnc,
+  family = binomial, alpha = 0.01)
+ttnc_tree
+@
+
+\code{plot(ttnc_tree)}
+
+\begin{figure}[t!]
+\setkeys{Gin}{width=\textwidth}
+<<Titanic-plot,echo=FALSE,results=hide,fig=TRUE,height=6,width=9>>=
+plot(ttnc_tree)
+@
+\caption{\label{fig:ttnc_tree} Logistic-regression-based tree for the 
+Titanic survival data. The plots in the leaves give spinograms for survival
+status versus preferential treatment (women or children).}
+\end{figure}
+
+\code{catsplit = "multiway"}
+
+
 
 \subsection{German breast cancer data}
 
@@ -1012,9 +1134,9 @@ used for partitioning: age, tumor size and grade, progesterone and estrogen rece
 and menopausal status. The minimal segment size is set to 80.
 %
 <<gbsg2_tree>>=
-gbsg2_tree <- mob(Surv(time, cens) ~ horTh + pnodes | age + tsize + tgrade +
-  progrec + estrec + menostat, data = GBSG2,
-  fit = wbreg, control = mob_control(minsplit = 80))
+gbsg2_tree <- mob(Surv(time, cens) ~ horTh + pnodes | age + tsize +
+  tgrade + progrec + estrec + menostat, data = GBSG2,
+  fit = wbreg, control = mob_control(minsize = 80))
 @
 %
 Based on progesterone receptor, a tree with two leaves is found:
