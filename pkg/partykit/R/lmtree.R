@@ -1,11 +1,31 @@
 ## simple wrapper function to specify fitter and return class
 lmtree <- function(formula, data, subset, na.action, weights, offset, ...)
 {
+  ## TODO: variance as model parameter
+
   ## use dots for setting up mob_control
   control <- mob_control(...)
   if(control$vcov == "info") {
     warning('vcov = "info" not supported in lmtree')
     control$vcov <- "opg"
+  }
+  if(!is.null(control$prune)) {
+    if(is.character(control$prune)) {
+      control$prune <- tolower(control$prune)
+      control$prune <- match.arg(control$prune, c("aic", "bic", "none"))
+      control$prune <- switch(control$prune,
+        "aic" = {
+	  function(objfun, df, nobs) (nobs[1L] * log(objfun[1L]) + 2 * df[1L]) < (nobs[1L] * log(objfun[2L]) + 2 * df[2L])
+	}, "bic" = {
+	  function(objfun, df, nobs) (nobs[1L] * log(objfun[1L]) + log(nobs[2L]) * df[1L]) < (nobs[1L] * log(objfun[2L]) + log(nobs[2L]) * df[2L])
+	}, "none" = {
+	  NULL
+	})      
+    }
+    if(!is.function(control$prune)) {
+      warning("unknown specification of 'prune'")
+      control$prune <- NULL
+    }
   }
 
   ## keep call

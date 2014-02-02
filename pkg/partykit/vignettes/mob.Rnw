@@ -201,11 +201,13 @@ tasks by choosing particular models, tests, and methods in each of the steps:
   node becomes too small). For the latter, one would first grow a large tree (subject only
   to a minimal node size requirement) and then prune back splits that did not improve
   the model, e.g., judging by information criteria such as AIC or BIC \citep[see e.g.,][]{Su+Wang+Fan:2004}.
-  Currently, only the former strategy is implemented using Bonferroni-corrected $p$-values from the
-  score-based fluctuation tests.
+  Currently, pre-pruning is used by default (via Bonferroni-corrected $p$-values
+  from the score-based fluctuation tests) but AIC/BIC-based post-pruning is optionally
+  available (especially for large data sets where traditional significance levels
+  are not useful).
 \end{enumerate}
 %
-In the following it is discussed how most of the possible choices above are embedded
+In the following it is discussed how most of the options above are embedded
 in a common computational framework using \proglang{R}'s facilities for model estimation
 and object orientation.
 

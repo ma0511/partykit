@@ -10,10 +10,10 @@
 
 \usage{
 mob_control(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
-  trim = 0.1, breakties = FALSE, parm = NULL, verbose = FALSE, caseweights = TRUE,
-  ytype = "vector", xtype = "matrix", terminal = "object", inner = terminal,
-  model = TRUE, numsplit = "left", catsplit = "binary", vcov = "opg",
-  ordinal = "chisq", nrep = 10000)
+  trim = 0.1, breakties = FALSE, parm = NULL, splits = TRUE, prune = NULL,
+  verbose = FALSE, caseweights = TRUE, ytype = "vector", xtype = "matrix",
+  terminal = "object", inner = terminal, model = TRUE, numsplit = "left",
+  catsplit = "binary", vcov = "opg", ordinal = "chisq", nrep = 10000)
 }
 
 \arguments{
@@ -35,6 +35,15 @@ mob_control(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
   \item{parm}{numeric or character. Number or name of model parameters
     included in the parameter instability tests (by default all parameters
     are included).}
+  \item{splits}{logical. Should the number of splits be counted in the
+    degrees of freedom when computing information criteria?}
+  \item{prune}{character, numeric, or function for specifying post-pruning rule.
+    If \code{prune} is \code{NULL} (the default), no post-pruning is performed.
+    For likelihood-based \code{mob()} trees, \code{prune} can be set to
+    \code{"AIC"} or \code{"BIC"} for post-pruning based on the corresponding
+    information criteria. More general rules (also in scenarios that are
+    not likelihood-based), can be specified by function arguments to
+    \code{prune}, for details see below.}
   \item{verbose}{logical. Should information about the fitting process
     of \code{\link{mob}} (such as test statistics, \eqn{p} values, selected
     splitting variables and split points) be printed to the screen?}
@@ -86,6 +95,21 @@ mob_control(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
 
 \details{
   See \code{\link{mob}} for more details and references.
+  
+  For post-pruning, \code{prune} can be set to a \code{function(objfun, df, nobs)}
+  which either returns \code{TRUE} to signal that a current node can be pruned
+  or \code{FALSE}. All supplied arguments are of length two: \code{objfun} is the sum of objective
+  function values in the current node and its child nodes, respectively.
+  \code{df} is the degrees of freedom in the current node and its child nodes,
+  respectively. \code{nobs} is vector with the number of observations in the
+  current node and the total number of observations in the dataset, respectively.  
+
+  If the objective function employed in the \code{mob()} call is the negative
+  log-likelihood, then a suitable function is set up on the fly by comparing  
+  \code{(2 * objfun + penalty * df)} in the current and the daughter nodes.
+  The penalty can then be set via a numeric or character value for \code{prune}:
+  AIC is used if \code{prune = "AIC"} or \code{prune = 2} and
+  BIC if \code{prune = "BIC"} or \code{prune = log(n)}.
 }
 
 \seealso{\code{\link{mob}}}

@@ -128,6 +128,26 @@ mob <- function(formula, data, subset, na.action, weights, offset,
     }
   }
 
+  ## process pruning options
+  if(!is.null(control$prune)) {
+    if(is.character(control$prune)) {
+      control$prune <- tolower(control$prune)
+      control$prune <- match.arg(control$prune, c("aic", "bic", "none"))
+      control$prune <- switch(control$prune,
+        "aic" = {
+	  function(objfun, df, nobs) (2 * objfun[1L] + 2 * df[1L]) < (2 * objfun[2L] + 2 * df[2L])
+	}, "bic" = {
+	  function(objfun, df, nobs) (2 * objfun[1L] + log(n) * df[1L]) < (2 * objfun[2L] + log(n) * df[2L])
+	}, "none" = {
+	  NULL
+	})      
+    }
+    if(!is.function(control$prune)) {
+      warning("unknown specification of 'prune'")
+      control$prune <- NULL
+    }
+  }
+
   ## core mob_grow_* functions
 
   ## variable selection: given model scores, conduct
@@ -398,12 +418,10 @@ mob <- function(formula, data, subset, na.action, weights, offset,
       TERMINAL <- TRUE
     }
     if(depth >= control$maxdepth) {
-      if(verbose) cat(sprintf("Maximum deptch reached, stop splitting (maxdepth = %i)\n\n", maxdepth))
+      if(verbose) cat(sprintf("Maximum depth reached, stop splitting (maxdepth = %i)\n\n", control$maxdepth))
       TERMINAL <- TRUE
     }
     if(TERMINAL) {
-      if(!terminal$estfun) mod$estfun <- NULL
-      if(!terminal$object) mod$object <- NULL
       return(partynode(id = id, info = mod))
     }
 
@@ -434,8 +452,6 @@ mob <- function(formula, data, subset, na.action, weights, offset,
     }
     
     ## update model information
-    if(!terminal$estfun) mod$estfun <- NULL
-    if(!terminal$object) mod$object <- NULL
     mod$test <- rbind("statistic" = test$stat, "p.value" = test$pval)
 
     if(TERMINAL) {
@@ -485,9 +501,77 @@ mob <- function(formula, data, subset, na.action, weights, offset,
     return(partynode(id = id, split = sp, kids = kids, info = mod))
   }
 
+  mob_prune <- function(node)
+  {
+    ## turn node to list
+    nd <- as.list(node)
+
+    ## if no pruning selected
+    if(is.null(control$prune)) return(nd)
+
+    ## node information (IDs, kids, ...)
+    id <- seq_along(nd)
+    kids <- lapply(nd, "[[", "kids")
+    tmnl <- sapply(kids, is.null)
+
+    ## check nodes that only have terminal kids
+    check <- sapply(id, function(i) !tmnl[i] && all(tmnl[kids[[i]]]))
+    while(any(check)) {
+
+      ## pruning node information
+      pnode <- which(check)
+      objfun <- sapply(nd, function(x) x$info$objfun)
+      pok <- sapply(pnode, function(i) control$prune(
+        objfun = c(objfun[i], sum(objfun[kids[[i]]])),
+	df = c(length(nd[[1]]$info$coefficients), length(kids[[i]]) * length(nd[[1]]$info$coefficients) + as.integer(control$splits)),
+        nobs = c(nd[[i]]$info$nobs, n)
+      ))
+
+      ## do any nodes need pruning?
+      pnode <- pnode[pok]
+      if(length(pnode) < 1L) break
+
+      ## prune nodes and relabel IDs  
+      pkids <- sort(unlist(sapply(pnode, function(i) nd[[i]]$kids)))
+      for(i in id) {
+        nd[[i]]$kids <- if(nd[[i]]$id %in% pnode || is.null(kids[[i]])) {
+          NULL
+        } else {    
+          nd[[i]]$kids - sapply(kids[[i]], function(x) sum(pkids < x))
+        }
+      }
+      nd[pkids] <- NULL
+      id <- seq_along(nd)
+      for(i in id) nd[[i]]$id <- i
+      
+      ## node information
+      kids <- lapply(nd, "[[", "kids")
+      tmnl <- sapply(kids, is.null)
+      check <- sapply(id, function(i) !tmnl[i] && all(tmnl[kids[[i]]]))
+    }
+   
+    ## return pruned list 
+    return(nd)
+  }
+
   ## grow tree
   depth <- 1L
   nodes <- mob_grow(id = 1L, Y, X, Z, weights, offset, ...)
+
+  ## prune tree
+  if(verbose && !is.null(control$prune)) cat("-- Post-pruning ---------------------------\n")
+  nodes <- mob_prune(nodes)  
+  for(i in seq_along(nodes)) {
+    if(is.null(nodes[[i]]$kids)) {
+      nodes[[i]]$split <- NULL  
+      if(!terminal$estfun) nodes[[i]]$info$estfun <- NULL
+      if(!terminal$object) nodes[[i]]$info$object <- NULL      
+    } else {
+      if(!inner$estfun) nodes[[i]]$info$estfun <- NULL
+      if(!inner$object) nodes[[i]]$info$object <- NULL      
+    }
+  }
+  nodes <- as.partynode(nodes)
 
   ## compute terminal node number for each observation
   fitted <- fitted_node(nodes, data = mf)
@@ -548,8 +632,8 @@ mob_grow_getlevels <- function(z) {
 
 ## control splitting parameters
 mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
-  trim = 0.1, breakties = FALSE, parm = NULL, verbose = FALSE, caseweights = TRUE,
-  ytype = "vector", xtype = "matrix", terminal = "object", inner = terminal,
+  trim = 0.1, breakties = FALSE, parm = NULL, splits = TRUE, prune = NULL, verbose = FALSE,
+  caseweights = TRUE, ytype = "vector", xtype = "matrix", terminal = "object", inner = terminal,
   model = TRUE, numsplit = "left", catsplit = "binary", vcov = "opg",
   ordinal = "chisq", nrep = 10000)
 {
@@ -567,8 +651,8 @@ mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdept
 
   rval <- list(alpha = alpha, bonferroni = bonferroni, minsize = minsize, maxdepth = maxdepth,
     trim = ifelse(is.null(trim), minsize, trim),
-    breakties = breakties, parm = parm, verbose = verbose,
-    caseweights = caseweights, ytype = ytype, xtype = xtype,
+    breakties = breakties, parm = parm, splits = TRUE, prune = prune,
+    verbose = verbose, caseweights = caseweights, ytype = ytype, xtype = xtype,
     terminal = terminal, inner = inner, model = model,
     numsplit = numsplit, catsplit = catsplit, vcov = vcov,
     ordinal = ordinal, nrep = nrep)
@@ -694,8 +778,9 @@ apply_to_models <- function(object, node = NULL, FUN = NULL, drop = FALSE, ...) 
   return(rval)
 }
 
-logLik.modelparty <- function(object, splits = TRUE, ...)
+logLik.modelparty <- function(object, splits = NULL, ...)
 {
+  if(is.null(splits)) splits <- object$info$control$splits
   ids <- nodeids(object, terminal = TRUE)
   ll <- apply_to_models(object, node = ids, FUN = logLik)
   df <- if(splits) length(ll) - 1L else 0L  
