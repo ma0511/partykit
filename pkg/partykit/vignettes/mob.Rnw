@@ -397,7 +397,7 @@ interface of type (2) can be easily set up:
 %
 <<logit>>=
 logit <- function(y, x, start = NULL, weights = NULL, offset = NULL, ...) {
-  glm(y ~ 0 + x, family = binomial, start = start)
+  glm(y ~ 0 + x, family = binomial, start = start, ...)
 }
 @
 %

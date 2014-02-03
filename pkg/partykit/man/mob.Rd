@@ -140,7 +140,7 @@ data("PimaIndiansDiabetes", package = "mlbench")
 
 ## a simple basic fitting function (of type 1) for a logistic regression
 logit <- function(y, x, start = NULL, weights = NULL, offset = NULL, ...) {
-  glm(y ~ 0 + x, family = binomial, start = start)
+  glm(y ~ 0 + x, family = binomial, start = start, ...)
 }
 
 ## set up a logistic regression tree
