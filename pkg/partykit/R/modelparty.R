@@ -32,7 +32,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
   } else {
     if(length(formula)[2L] > 2L) {
       formula <- Formula(formula(formula, rhs = 1L:2L))
-      warning("formula must not have more than two RHS parts")
+      warning("Formula must not have more than two RHS parts")
     }
     xreg <- TRUE
   }
@@ -77,7 +77,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
   ## check fitting function
   fitargs <- names(formals(fit))
   if(!all(c("y", "x", "start", "weights", "offset") %in% fitargs)) {
-    stop("no fitting function")
+    stop("No fitting function")
   }
 
   ## augment fitting function (if necessary)
@@ -121,7 +121,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
   root.matrix <- function(X) {
     if((ncol(X) == 1L)&&(nrow(X) == 1L)) return(sqrt(X)) else {
       X.eigen <- eigen(X, symmetric = TRUE)
-      if(any(X.eigen$values < 0)) stop("matrix is not positive semidefinite")
+      if(any(X.eigen$values < 0)) stop("Matrix is not positive semidefinite")
       sqomega <- sqrt(diag(X.eigen$values))
       V <- X.eigen$vectors
       return(V %*% sqomega %*% t(V))
@@ -143,7 +143,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
 	})      
     }
     if(!is.function(control$prune)) {
-      warning("unknown specification of 'prune'")
+      warning("Unknown specification of 'prune'")
       control$prune <- NULL
     }
   }
@@ -307,7 +307,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
     if(is.numeric(zselect)) {
     ## for numerical variables
       uz <- sort(unique(zselect))
-      if (length(uz) == 0L) stop("cannot find admissible split point in z")
+      if (length(uz) == 0L) stop("Cannot find admissible split point in partitioning variable")
       dev <- vector(mode = "numeric", length = length(uz))
 
       for(i in 1L:length(uz)) {
@@ -350,7 +350,9 @@ mob <- function(formula, data, subset, na.action, weights, offset,
         return(list(breaks = NULL, index = seq_along(levels(zselect))))      
       }
 
-      ## for categorical variables
+      ## for categorical variables      
+      olevels <- levels(zselect) ## full set of original levels
+      zselect <- factor(zselect) ## omit levels that do not occur in the data
       al <- mob_grow_getlevels(zselect)
       dev <- apply(al, 1L, function(w) {
         zs <- zselect %in% levels(zselect)[w]
@@ -374,14 +376,19 @@ mob <- function(formula, data, subset, na.action, weights, offset,
         )
       } else {
         if(is.ordered(zselect)) {
+	  ## map back to set of full original levels
           split <- list(
-            breaks = which.min(dev),
+            breaks = match(levels(zselect)[which.min(dev)], olevels),
 	    index = NULL
           )
         } else {
+	  ## map back to set of full original levels
+	  ix <- structure(rep.int(NA_integer_, length(olevels)), .Names = olevels)
+	  ix[colnames(al)] <- !al[which.min(dev),]
+	  ix <- as.integer(ix) + 1L
           split <- list(
             breaks = NULL,
-	    index = as.integer(!al[which.min(dev),]) + 1L
+	    index = ix
           )
         }
       }
@@ -611,7 +618,7 @@ mob_grow_getlevels <- function(z) {
   if(inherits(z, "ordered")) {
     indx <- diag(nl)
     indx[lower.tri(indx)] <- 1
-    indx <- indx[-nl,]
+    indx <- indx[-nl, , drop = FALSE]
     rownames(indx) <- levels(z)[-nl]
   } else {
     mi <- 2^(nl - 1L) - 1L
