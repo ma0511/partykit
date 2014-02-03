@@ -10,7 +10,7 @@
 
 \usage{
 mob_control(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
-  trim = 0.1, breakties = FALSE, parm = NULL, splits = TRUE, prune = NULL,
+  trim = 0.1, breakties = FALSE, parm = NULL, dfsplit = TRUE, prune = NULL,
   verbose = FALSE, caseweights = TRUE, ytype = "vector", xtype = "matrix",
   terminal = "object", inner = terminal, model = TRUE, numsplit = "left",
   catsplit = "binary", vcov = "opg", ordinal = "chisq", nrep = 10000)
@@ -35,8 +35,8 @@ mob_control(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
   \item{parm}{numeric or character. Number or name of model parameters
     included in the parameter instability tests (by default all parameters
     are included).}
-  \item{splits}{logical. Should the number of splits be counted in the
-    degrees of freedom when computing information criteria?}
+  \item{dfsplit}{logical or numeric. \code{as.integer(dfsplit)} is the degrees of freedom
+    per selected split employed when computing information criteria etc.}
   \item{prune}{character, numeric, or function for specifying post-pruning rule.
     If \code{prune} is \code{NULL} (the default), no post-pruning is performed.
     For likelihood-based \code{mob()} trees, \code{prune} can be set to

@@ -530,7 +530,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
       objfun <- sapply(nd, function(x) x$info$objfun)
       pok <- sapply(pnode, function(i) control$prune(
         objfun = c(objfun[i], sum(objfun[kids[[i]]])),
-	df = c(length(nd[[1]]$info$coefficients), length(kids[[i]]) * length(nd[[1]]$info$coefficients) + as.integer(control$splits)),
+	df = c(length(nd[[1]]$info$coefficients), length(kids[[i]]) * length(nd[[1]]$info$coefficients) + as.integer(control$dfsplit)),
         nobs = c(nd[[i]]$info$nobs, n)
       ))
 
@@ -639,7 +639,7 @@ mob_grow_getlevels <- function(z) {
 
 ## control splitting parameters
 mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
-  trim = 0.1, breakties = FALSE, parm = NULL, splits = TRUE, prune = NULL, verbose = FALSE,
+  trim = 0.1, breakties = FALSE, parm = NULL, dfsplit = TRUE, prune = NULL, verbose = FALSE,
   caseweights = TRUE, ytype = "vector", xtype = "matrix", terminal = "object", inner = terminal,
   model = TRUE, numsplit = "left", catsplit = "binary", vcov = "opg",
   ordinal = "chisq", nrep = 10000)
@@ -658,7 +658,7 @@ mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdept
 
   rval <- list(alpha = alpha, bonferroni = bonferroni, minsize = minsize, maxdepth = maxdepth,
     trim = ifelse(is.null(trim), minsize, trim),
-    breakties = breakties, parm = parm, splits = TRUE, prune = prune,
+    breakties = breakties, parm = parm, dfsplit = dfsplit, prune = prune,
     verbose = verbose, caseweights = caseweights, ytype = ytype, xtype = xtype,
     terminal = terminal, inner = inner, model = model,
     numsplit = numsplit, catsplit = catsplit, vcov = vcov,
@@ -785,15 +785,16 @@ apply_to_models <- function(object, node = NULL, FUN = NULL, drop = FALSE, ...) 
   return(rval)
 }
 
-logLik.modelparty <- function(object, splits = NULL, ...)
+logLik.modelparty <- function(object, dfsplit = NULL, ...)
 {
-  if(is.null(splits)) splits <- object$info$control$splits
+  if(is.null(dfsplit)) dfsplit <- object$info$control$dfsplit
+  dfsplit <- as.integer(dfsplit)
   ids <- nodeids(object, terminal = TRUE)
   ll <- apply_to_models(object, node = ids, FUN = logLik)
-  df <- if(splits) length(ll) - 1L else 0L  
+  dfsplit <- dfsplit * (length(object) - length(ll))
   structure(
     sum(as.numeric(ll)),
-    df = sum(sapply(ll, function(x) attr(x, "df"))) + df,
+    df = sum(sapply(ll, function(x) attr(x, "df"))) + dfsplit,
     nobs = nobs(object),
     class = "logLik"
   )

@@ -239,7 +239,8 @@ detail in Section~\ref{sec:fit}) so that \code{mob()} can extract all informatio
 that is needed in the MOB algorithm for parameter instability tests (see Section~\ref{sec:sctest})
 and partitioning/splitting (see Section~\ref{sec:split}), i.e., the estimated parameters, the associated
 objective function, and the score function contributions. A list of \code{control}
-options can be set up by the \code{mob_control()} function. Additional arguments \code{...}
+options can be set up by the \code{mob_control()} function, including options
+for pruning (see Section~\ref{sec:prune}). Additional arguments \code{...}
 are passed on to the \code{fit} function.
 
 The result is an object of class `\code{modelparty}' inheriting from `\code{party}'.
@@ -453,8 +454,8 @@ plot(pid_tree)
 data. The plots in the leaves report the estimated regression coefficients.}
 
 \setkeys{Gin}{width=\textwidth}
-<<PimaIndiansDiabetes-plot2,echo=FALSE,results=hide,fig=TRUE,height=6,width=9>>=
-plot(pid_tree2)
+<<PimaIndiansDiabetes-plot2,echo=FALSE,results=hide,fig=TRUE,height=6,width=10>>=
+plot(pid_tree2, tp_args = list(ylines = 1, margins = c(1.5, 1.5, 1.5, 2.5)))
 @
 \caption{\label{fig:pid_tree2} Logistic-regression-based tree for the Pima Indians
 diabetes data. The plots in the leaves give spinograms for \code{diabetes} versus 
@@ -600,6 +601,58 @@ For the Pima Indians diabetes data, the split points found for \code{pid_tree}
 are displayed both in the print output and the visualization (see Figure~\ref{fig:pid_tree}
 and~\ref{fig:pid_tree2}).
 
+\subsection{Pruning} \label{sec:prune}
+
+By default, the size of \code{mob()} trees is determined only by the significance tests,
+i.e., when there is no more significant parameter instability (by default at level $\alpha = 0.05$)
+the tree stops growing. Additional stopping criteria are only the minimal node size (\code{minsize})
+and the maximum tree depth (\code{maxdepth}, by default infinity).
+
+However, for very large sample size traditional significance levels are typically not useful
+because even tiny parameter instabilities can be detected. To avoid overfitting in such a situation,
+one would either have to use much smaller significance levels or add some form of post-pruning
+to reduce the size of the tree afterwards. Similarly, one could wish to first grow a very large
+tree (using a large $\alpha$ level) and then prune it afterwards, e.g., using some information
+criterion like AIC or BIC.
+
+To accomodate such post-pruning strategies, \code{mob_control()} has an argument \code{prune} that
+can be a \code{function(objfun, df, nobs)} that either returns \code{TRUE} if a node should be
+pruned or \code{FALSE} if not. The arguments supplied are a vector of objective function values in
+the current node and the sum of all child nodes, a vector of corresponding degrees of freedom,
+and the number of observations in the current node and in total. For example if the objective
+function used is the negative log-likelihood, then for BIC-based pruning the \code{prune} function
+is: \code{(2 * objfun[1] + log(nobs[2]) * df[1]) < (2 * objfun[2] + nobs[2] * df[2])}. As the
+negative log-likelihood is the default objective function when using the ``simple'' \code{fit}
+interface, \code{prune} can also be set to \code{"AIC"} or \code{"BIC"} and then suitable
+functions will be set up internally. Note, however, that for other objective functions this
+strategy is not appropriate and the functions would have to be defined differently (which
+\code{lmtree()} does for example).
+
+In the literature, there is no clear consensus as to how many degrees of freedom should be
+assigned to the selection of a split point. Hence, \code{mob_control()} allows to set
+\code{dfsplit} which by default is \code{dfsplit = TRUE} and then \code{as.integer(dfsplit)}
+(i.e., 1 by default) degrees of freedom per split are used. This can be modified to
+\code{dfsplit = FALSE} (or equivalently \code{dfsplit = 0}) or \code{dfsplit = 3} etc.\
+for lower or higher penalization of additional splits.
+
+\subsubsection*{Illustration}
+
+With $n = \Sexpr{nrow(PimaIndiansDiabetes)}$ observations, the sample size is quite
+reasonable for using the classical significance level of $\alpha = 0.05$ which is also reflected
+by the moderate tree size with three terminal nodes. However, if we wished to explore further
+splits, a conceivable strategy could be the following:
+%
+<<PimaIndiansDiabetes-prune, eval=FALSE>>=
+pid_tree3 <- mob(pid_formula, data = PimaIndiansDiabetes,
+  fit = logit, control = mob_control(verbose = TRUE,
+    minsize = 50, maxdepth = 4, alpha = 0.9, prune = "BIC"))
+@
+This first grows a large tree until the nodes become too small (minimum node size: 50~observations)
+or the tree becomes too deep (maximum depth 4~levels) or the significance levels come very close
+to one (larger than $\alpha = 0.9$). Here, this large tree has eleven nodes which are subsequently
+pruned based on whether or not they improve the BIC of the model. For this data set, the resulting
+BIC-pruned tree is in fact identical to the pre-pruned \code{pid_tree} considered above.
+
 \subsection[Fitted `party' objects]{Fitted `\texttt{party}' objects} \label{sec:object}
 
 The result of \code{mob()} is an object of class `\code{modelparty}' inheriting from `\code{party}'.
@@ -648,7 +701,8 @@ Furthermore, methods are provided that are typically available for models with f
 \code{formula()} (optionally one can set \code{extended = TRUE} to get the `\code{Formula}'), \code{getCall()},
 \code{model.frame()}, \code{weights()}. Finally, there is a standard set of methods
 for statistical model objects: \code{coef()}, \code{residuals()}, \code{logLik()} (optionally
-setting \code{splits = FALSE} suppresses counting the splits in the degrees of freedom),
+setting \code{dfsplit = FALSE} suppresses counting the splits in the degrees of freedom,
+see Section~\ref{sec:prune}),
 \code{deviance()}, \code{fitted()}, and \code{summary()}.
 
 Some of these methods rely on reusing the corresponding methods for the individual model
@@ -1103,8 +1157,8 @@ ttnc_tree
 %
 \begin{figure}[t!]
 \setkeys{Gin}{width=\textwidth}
-<<Titanic-plot,echo=FALSE,results=hide,fig=TRUE,height=6,width=9>>=
-plot(ttnc_tree)
+<<Titanic-plot,echo=FALSE,results=hide,fig=TRUE,height=6,width=10>>=
+plot(ttnc_tree, tp_args = list(ylines = 1, margins = c(1.5, 1.5, 1.5, 2.5)))
 @
 \caption{\label{fig:ttnc_tree} Logistic-regression-based tree for the 
 Titanic survival data. The plots in the leaves give spinograms for survival
