@@ -144,8 +144,8 @@ logit <- function(y, x, start = NULL, weights = NULL, offset = NULL, ...) {
 }
 
 ## set up a logistic regression tree
-pid_tree <- mob(diabetes ~ glucose | pregnant + pressure + triceps + insulin + mass + pedigree + age,
-  data = PimaIndiansDiabetes, fit = logit)
+pid_tree <- mob(diabetes ~ glucose | pregnant + pressure + triceps + insulin +
+  mass + pedigree + age, data = PimaIndiansDiabetes, fit = logit)
 ## see lmtree() and glmtree() for interfaces with more efficient fitting functions
 
 ## print tree

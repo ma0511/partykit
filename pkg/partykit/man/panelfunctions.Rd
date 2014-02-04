@@ -49,7 +49,8 @@ node_bivplot(mobobj, which = NULL, id = TRUE, pop = TRUE,
   ylines = NULL, xlab = FALSE, ylab = FALSE, margins = rep(1.5, 4),
   mainlab = NULL, \dots)
 
-node_mvar(obj, which = NULL, id = TRUE, pop = TRUE, ylines = NULL, mainlab = NULL, varlab = TRUE, ...)
+node_mvar(obj, which = NULL, id = TRUE, pop = TRUE, ylines = NULL,
+  mainlab = NULL, varlab = TRUE, ...)
 }
 
 \arguments{
