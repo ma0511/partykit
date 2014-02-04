@@ -310,10 +310,11 @@ mob <- function(formula, data, subset, na.action, weights, offset,
       if (length(uz) == 0L) stop("Cannot find admissible split point in partitioning variable")
       dev <- vector(mode = "numeric", length = length(uz))
 
+      start_left <- NULL
+      start_right <- NULL
+
       for(i in 1L:length(uz)) {
         zs <- zselect <= uz[i]
-        start_left <- NULL
-        start_right <- NULL
         if(w2n(weights[zs]) < minsize || w2n(weights[!zs]) < minsize) {
           dev[i] <- Inf
         } else {
@@ -321,8 +322,8 @@ mob <- function(formula, data, subset, na.action, weights, offset,
 	    weights = weights[zs], offset = offset[zs], ...)
           fit_right <- afit(y = suby(y, !zs), x = subx(x, !zs), start = start_right,
 	    weights = weights[!zs], offset = offset[!zs], ...)
-  	  start_left <- fit_left$coef
-	  start_right <- fit_right$coef
+  	  # start_left <- fit_left$coefficients   ## FIXME: support for re-using starting values?
+	  # start_right <- fit_right$coefficients ## (might be problematic if actual length of start varies...)
 	  dev[i] <- fit_left$objfun + fit_right$objfun
         }
       }
