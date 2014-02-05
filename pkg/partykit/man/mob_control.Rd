@@ -11,7 +11,7 @@
 \usage{
 mob_control(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
   trim = 0.1, breakties = FALSE, parm = NULL, dfsplit = TRUE, prune = NULL,
-  verbose = FALSE, caseweights = TRUE, ytype = "vector", xtype = "matrix",
+  restart = TRUE, verbose = FALSE, caseweights = TRUE, ytype = "vector", xtype = "matrix",
   terminal = "object", inner = terminal, model = TRUE, numsplit = "left",
   catsplit = "binary", vcov = "opg", ordinal = "chisq", nrep = 10000)
 }
@@ -44,6 +44,12 @@ mob_control(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
     information criteria. More general rules (also in scenarios that are
     not likelihood-based), can be specified by function arguments to
     \code{prune}, for details see below.}
+  \item{restart}{logical. When determining the optimal split point in a numerical
+    variable: Should model estimation be restarted with \code{NULL} starting
+    values for each split? The default is \code{TRUE}. If \code{FALSE}, then
+    the parameter estimates from the previous split point are used as starting
+    values for the next split point (because in practice the difference are
+    often not huge).}
   \item{verbose}{logical. Should information about the fitting process
     of \code{\link{mob}} (such as test statistics, \eqn{p} values, selected
     splitting variables and split points) be printed to the screen?}

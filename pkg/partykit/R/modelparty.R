@@ -315,6 +315,13 @@ mob <- function(formula, data, subset, na.action, weights, offset,
 
       for(i in 1L:length(uz)) {
         zs <- zselect <= uz[i]
+	if(control$restart ||
+	   !identical(names(start_left), names(start_right)) ||
+	   !identical(length(start_left), length(start_right)))
+	{
+	  start_left <- NULL
+	  start_right <- NULL
+	}
         if(w2n(weights[zs]) < minsize || w2n(weights[!zs]) < minsize) {
           dev[i] <- Inf
         } else {
@@ -322,8 +329,8 @@ mob <- function(formula, data, subset, na.action, weights, offset,
 	    weights = weights[zs], offset = offset[zs], ...)
           fit_right <- afit(y = suby(y, !zs), x = subx(x, !zs), start = start_right,
 	    weights = weights[!zs], offset = offset[!zs], ...)
-  	  # start_left <- fit_left$coefficients   ## FIXME: support for re-using starting values?
-	  # start_right <- fit_right$coefficients ## (might be problematic if actual length of start varies...)
+  	  start_left <- fit_left$coefficients
+	  start_right <- fit_right$coefficients
 	  dev[i] <- fit_left$objfun + fit_right$objfun
         }
       }
@@ -640,10 +647,10 @@ mob_grow_getlevels <- function(z) {
 
 ## control splitting parameters
 mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
-  trim = 0.1, breakties = FALSE, parm = NULL, dfsplit = TRUE, prune = NULL, verbose = FALSE,
-  caseweights = TRUE, ytype = "vector", xtype = "matrix", terminal = "object", inner = terminal,
-  model = TRUE, numsplit = "left", catsplit = "binary", vcov = "opg",
-  ordinal = "chisq", nrep = 10000)
+  trim = 0.1, breakties = FALSE, parm = NULL, dfsplit = TRUE, prune = NULL, restart = TRUE,
+  verbose = FALSE, caseweights = TRUE, ytype = "vector", xtype = "matrix",
+  terminal = "object", inner = terminal, model = TRUE,
+  numsplit = "left", catsplit = "binary", vcov = "opg", ordinal = "chisq", nrep = 10000)
 {
   ytype <- match.arg(ytype, c("vector", "data.frame", "matrix"))
   xtype <- match.arg(xtype, c("data.frame", "matrix"))
@@ -659,7 +666,7 @@ mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdept
 
   rval <- list(alpha = alpha, bonferroni = bonferroni, minsize = minsize, maxdepth = maxdepth,
     trim = ifelse(is.null(trim), minsize, trim),
-    breakties = breakties, parm = parm, dfsplit = dfsplit, prune = prune,
+    breakties = breakties, parm = parm, dfsplit = dfsplit, prune = prune, restart = restart,
     verbose = verbose, caseweights = caseweights, ytype = ytype, xtype = xtype,
     terminal = terminal, inner = inner, model = model,
     numsplit = numsplit, catsplit = catsplit, vcov = vcov,
