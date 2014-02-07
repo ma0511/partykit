@@ -298,7 +298,7 @@ plot(bt0, drop = TRUE, tnex = 2,
 
 \textbf{Required functionality:}
 \begin{itemize}
-  \item \emph{Parties:} Class and methods for representing recursive partytions.
+  \item \emph{Parties:} Class and methods for recursive partytions.
   \item \emph{Models:} Fitting functions for statistical models (optimizing suitable objective function).
   \item \emph{Mobsters:} High-level interfaces (\code{lmtree()}, \code{bttree()}, \dots)
     that call lower-level \code{mob()} with suitable options and methods.
@@ -332,7 +332,7 @@ plot(bt0, drop = TRUE, tnex = 2,
   \item \code{mob()} already geared towards (generalized) linear models.
   \item Other interfaces in \emph{psychotree} and \emph{betareg}.
   \item Hard to do fine control due to adopted S4 classes: Many unnecessary
-    computations and data storage.
+    computations and copies of data.
 \end{itemize}
 
 \end{frame}
@@ -444,7 +444,7 @@ Efficiency can be gained through extended approach.
 \begin{frame}[fragile]
 \frametitle{Illustration: Bradley-Terry trees}
 
-Data, packages, and \code{estfun()} method.
+Data, packages, and \code{estfun()} method:
 <<packages, eval=FALSE>>=
 data("Topmodel2007", package = "psychotree")
 library("partykit")
@@ -608,7 +608,7 @@ predict(bt2, tm, type = function(object) t(rank(-worth(object))))
 
 \begin{itemize}
   \item All new implementation of model-based recursive partitioning in \emph{partykit}.
-  \item Enables more efficient computations, rapid prototyping, customization.
+  \item Enables more efficient computations, rapid prototyping, flexible customization.
   \item Some new inference options.
 \end{itemize}
 
