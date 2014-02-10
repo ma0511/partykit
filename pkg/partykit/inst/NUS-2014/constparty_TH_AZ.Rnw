@@ -1,0 +1,592 @@
+\documentclass[11pt,compress,t]{beamer}
+
+\usetheme{uzhneu-en-informal}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsfonts,amstext,amsmath,amssymb,amsthm}
+
+%% need no 
+\usepackage{Sweave}
+\definecolor{InputColor}{rgb}{0,0,0.3}
+\definecolor{OutputColor}{rgb}{0.2,0.2,0.2}
+
+%% commands
+\let\code\texttt
+\let\class\texttt
+\let\fct\texttt
+\let\doi\texttt
+\newcommand{\dquote}[1]{``#1''}
+\newcommand{\ui}{\underline{i}}
+\newcommand{\oi}{\overline{\imath}}
+\newcommand{\darrow}{\stackrel{\mbox{\tiny \textnormal{d}}}{\longrightarrow}}
+\newcommand{\parrow}{\stackrel{\mbox{\tiny \textnormal{p}}}{\longrightarrow}}
+\newcommand{\dotequals}{\stackrel{\cdot}{=}}
+\newcommand{\efp}{\mathrm{\it efp}}
+\newcommand{\given}{\, | \,}
+\newcommand{\ltime}{\lambda_\mathrm{time}}
+\newcommand{\lcomp}{\lambda_\mathrm{comp}}
+\newcommand{\argmin}{\operatorname{argmin}\displaylimits}
+
+\SweaveOpts{engine=R, eps=FALSE, echo=FALSE, results=hide, keep.source=TRUE}
+
+<<packages>>=
+library("partykit")
+library("Formula")
+library("rpart")
+library("RWeka")
+library("evtree")
+@
+
+<<data>>=
+data("Titanic", package = "datasets")
+ttnc <- as.data.frame(Titanic)
+ttnc <- ttnc[rep(1:nrow(ttnc), ttnc$Freq), 1:4]
+names(ttnc)[2] <- "Gender"
+ttnc <- transform(ttnc, Treatment = factor(
+  Gender == "Female" | Age == "Child",
+  levels = c(FALSE, TRUE),
+  labels = c("Normal\n(Male&Adult)", "Preferential\n(Female|Child)")
+))
+@
+
+<<rpart, eval=FALSE>>=
+rp <- rpart(Survived ~ Gender + Age + Class, 
+            data = ttnc)
+@
+
+<<ctree, eval=FALSE>>=
+ct <- ctree(Survived ~ Gender + Age + Class, data = ttnc,
+  control = ctree_control(mincrit = 1 - 0.01, teststat = "max"))
+@
+
+<<evtree, eval=FALSE>>=
+set.seed(1071)
+ev <- evtree(Survived ~ Gender + Age + Class, 
+             data = ttnc, maxdepth = 3)
+@
+
+<<pmml, eval=FALSE>>=
+pm <- pmmlTreeModel(file.path(system.file("pmml", 
+    package = "partykit"), "ttnc.pmml"))
+@
+
+<<mob, eval=FALSE>>=
+mb <- glmtree(Survived ~ Treatment | Age + Gender + Class,
+  data = ttnc, family = binomial, alpha = 0.01)
+@
+
+<<cache>>=
+if(file.exists("slides-trees.rda")) load("slides-trees.rda") else {
+<<rpart>>
+<<ctree>>
+<<evtree>>
+<<pmml>>
+<<mob>>
+save(rp, ct, ev, pm, mb, file = "slides-trees.rda")
+}
+@
+
+<<J48>>=
+j48 <- J48(Survived ~ Gender + Age + Class, 
+           data = ttnc)
+@
+
+
+\begin{document}
+
+\title[Constant Partying]{Constant Partying: \\ 
+      Introducing a Generic Toolkit for Recursive Partitioning in R}
+\author{Torsten Hothorn (Universit\"at Z\"urich) \\
+        Achim Zeileis (Universit\"at Innsbruck)}
+%\URL{http://user.math.uzh.ch/hothorn/}
+%\lecture{partykit: A Toolkit for Recursive Partytioning}
+
+\maketitle
+
+\begin{frame}
+\frametitle{Overview}
+
+\begin{itemize}
+  \item Status quo: R software for tree models
+  \item New package: partykit
+  \begin{itemize}
+    \item Unified infrastructure for recursive partytioning
+    \item Classes and methods
+    \item Interfaces to \code{rpart}, \code{J48}, \dots
+    \item Illustrations
+  \end{itemize}
+  \item Here and now: Intro to partykit for trees with constant fits in each node.
+  \item Future: Next steps
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{R software for tree models}
+
+\textbf{Status quo:}
+The CRAN task view on ``Machine Learning'' at \url{http://CRAN.R-project.org/view=MachineLearning}
+lists numerous packages for tree-based modeling and recursive partitioning, including
+%
+\begin{itemize}
+  \item rpart (CART),
+  \item tree (CART),
+  \item mvpart (multivariate CART),
+  \item RWeka (J4.8, M5', LMT),
+  \item party (CTree, MOB),
+  \item and many more (C50, quint, stima, \dots).
+\end{itemize}
+
+\medskip
+
+\textbf{Related:} Packages for tree-based ensemble methods
+such as random forests or boosting, e.g., randomForest, gbm, mboost, etc.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{R software for tree models}
+
+\textbf{Furthermore:} Tree algorithms/software without R interface, e.g.,
+%
+\begin{itemize}
+  \item QUEST,
+  \item GUIDE,
+  \item LOTUS,
+  \item CRUISE,
+  \item \dots
+\end{itemize}
+
+\medskip
+
+\textbf{Currently:}
+All algorithms/software have to deal with similar problems \emph{but}
+provide different solutions without reusing code.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{R software for tree models}
+
+\textbf{Challenge:} For implementing new algorithms in R, code
+is required not only for fitting the tree model on the learning data
+but also
+\begin{itemize}
+  \item representing fitted trees,
+  \item printing trees,
+  \item plotting trees,
+  \item computing predictions from trees.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{R software for tree models}
+
+\textbf{Question:} Wouldn't it be nice if there were an R package
+that provided code for
+\begin{itemize}
+  \item representing fitted trees,
+  \item printing trees,
+  \item plotting trees,
+  \item computing predictions from trees?
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{R software for tree models}
+
+\textbf{Answer:} The R package \emph{partykit} provides unified
+infrastructure for recursive partytioning, especially
+\begin{itemize}
+  \item representing fitted trees,
+  \item printing trees,
+  \item plotting trees,
+  \item computing predictions from trees!
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{partykit: Unified infrastructure}
+
+\textbf{Design principles:} Toolkit for recursive partytitioning.
+\begin{itemize}
+  \item One `agnostic' base class which can encompass an extremely wide
+        range of different types of trees.
+  \item Subclasses for important types of trees, e.g., trees with constant
+        fits in each terminal node.
+  \item Nodes are recursive objects, i.e., a node can contain child nodes.
+  \item Keep (learning) data out of the recursive node and split structure.
+  \item Basic printing, plotting, and predicting for raw node structure.
+  \item Customization via suitable panel or panel-generating functions.
+  \item Coercion from existing objects (rpart, J48, etc.) to new class.
+  \item Use simple/fast S3 classes and methods.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{partykit: Base classes}
+
+\textbf{Class constructors:} Generate basic building blocks.
+\begin{itemize}
+  \item \code{partysplit(varid, breaks = NULL, index = NULL, ...)}
+
+    where \code{breaks} provides the breakpoints wrt variable \code{varid};
+    \code{index} determines to which kid node observations are assigned.
+
+  \item \code{partynode(id, split = NULL, kids = NULL, ...)}
+
+    where \code{split} is a \class{partysplit} and \code{kids} a list of \class{partynode}s.
+
+  \item \code{party(node, data, fitted = NULL, ...)}
+
+    where \code{node} is a \class{partynode} and \code{data} the
+    corresponding (learning) data (optionally without any rows) and
+    \code{fitted} the corresponding fitted nodes.
+\end{itemize}
+
+\medskip
+
+\textbf{Additionally:} All three objects have an \code{info} slot where
+optionally arbitrary information can be stored.
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{partykit: Further classes and methods}
+
+\textbf{Further classes:} For trees with constant fits in each terminal node,
+both inheriting from \class{party}.
+\begin{itemize}
+  \item \class{constparty}: Stores full observed response and fitted terminal nodes
+    in \code{fitted}; predictions are computed from empirical distribution of
+    the response.
+  \item \class{simpleparty}: Stores only one predicted response value along with
+    some summary details (such as error and sample size) for each terminal node
+    in the corresponding \code{info}.
+\end{itemize}
+
+\medskip
+
+\textbf{Methods:}
+\begin{itemize}
+  \item Display: \fct{print}, \fct{plot}, \fct{predict}.
+  \item Query: \fct{length}, \fct{width}, \fct{depth}, \fct{names}, \fct{nodeids}.
+  \item Extract: \code{[}, \code{[[}, \fct{nodeapply}.
+  \item Coercion: \fct{as.party}. 
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{partykit: Illustration}
+
+\textbf{Intention:}
+\begin{itemize}
+  \item Illustrate several trees using the same data.
+  \item Not use the iris data (or something from mlbench).
+\end{itemize}
+
+\medskip
+
+\textbf{Solution:}
+\begin{itemize}
+  \item Use Titanic survival data (oh well\dots).
+  \item In case you are not familiar with it: Survival status, gender, age (child/adult), and
+    class (1st, 2nd, 3rd, crew) for the \Sexpr{nrow(ttnc)}~persons on the ill-fated
+    maiden voyage of the Titanic.
+\end{itemize}
+
+\medskip
+
+\textbf{Question:} Who survived? Or how does the probability of survival vary across
+the covariates?
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{partykit: Interface to \texttt{rpart}}
+
+\textbf{CART:} Apply \fct{rpart} to preprocessed \code{ttnc} data (see also below).
+
+<<rpart-show, echo=TRUE, eval=FALSE>>=
+<<rpart>>
+@
+
+\medskip
+
+Standard plot:
+
+<<rpart-plot, echo=TRUE, eval=FALSE>>=
+plot(rp)
+text(rp)
+@
+
+\medskip
+
+Visualization via partykit:
+
+<<rpart-party-plot, echo=TRUE, eval=FALSE>>=
+plot(as.party(rp))
+@
+
+\end{frame}
+
+\begin{frame}
+\frametitle{partykit: Interface to \texttt{rpart}}
+
+\vspace*{-0.5cm}
+
+\setkeys{Gin}{width=1.1\textwidth}
+\hspace*{-0.4cm}%
+<<Titanic-rpart-visualization1, fig=TRUE, height=6, width=9>>=
+<<rpart-plot>>
+@
+
+\end{frame}
+
+\begin{frame}
+\frametitle{partykit: Interface to \texttt{rpart}}
+
+\vspace*{-0.5cm}
+
+\setkeys{Gin}{width=1.1\textwidth}
+\hspace*{-0.4cm}%
+<<Titanic-rpart-visualization2, fig=TRUE, height=8, width=12>>=
+<<rpart-party-plot>>
+@
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{partykit: Interface to \texttt{rpart}}
+\small{
+<<rpart-print, echo=TRUE, results=verbatim>>=
+rp
+@
+}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{partykit: Interface to \texttt{rpart}}
+
+\small{
+<<rpart-print, echo=TRUE, results=verbatim>>=
+as.party(rp)
+@
+}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{partykit: Interface to \texttt{rpart}}
+
+\textbf{Prediction:} Compare rpart's C code and partykit's R code
+
+<<rpart-predict, echo=TRUE, results=verbatim>>=
+nd <- ttnc[rep(1:nrow(ttnc), 100), ]
+system.time(p1 <- predict(rp, newdata = nd, 
+                          type = "class"))
+system.time(p2 <- predict(as.party(rp), newdata = nd))
+table(rpart = p1, party = p2)
+@
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{partykit: Interface to \texttt{J48}}
+
+\textbf{J4.8:} Open-source implementation of C4.5 in RWeka.
+
+<<J48-show, echo=TRUE, eval=FALSE>>=
+<<J48>>
+@
+
+\medskip
+
+Results in a tree with multi-way splits which previously
+could only be displayed via Weka itself or Graphviz but not in R
+directly. Now:
+
+<<J48-plot, echo=TRUE, eval=FALSE>>=
+j48p <- as.party(j48)
+plot(j48p)
+@
+
+\medskip
+
+Or just a subtree:
+
+<<J48-subtree, echo=TRUE, eval=FALSE>>=
+plot(j48p[11])
+@
+
+
+\end{frame}
+
+\begin{frame}
+\frametitle{partykit: Interface to \texttt{J48}}
+
+\vspace*{-0.5cm}
+
+\setkeys{Gin}{width=1.1\textwidth}
+\hspace*{-0.4cm}%
+<<Titanic-J48-visualization, fig=TRUE, height=8, width=12>>=
+plot(as.party(j48), tp_args = list(id = FALSE))
+@
+
+\end{frame}
+
+\begin{frame}
+\frametitle{partykit: Interface to \texttt{J48}}
+
+\vspace*{-0.5cm}
+
+\setkeys{Gin}{width=1.1\textwidth}
+\hspace*{-0.4cm}%
+<<Titanic-J48-visualization2, fig=TRUE, height=6, width=9>>=
+plot(as.party(j48)[11], tnex = 1)
+@
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{partykit: Further interfaces}
+
+\textbf{PMML:} Predictive Model Markup Language. XML-based format
+exported by various software packages including SAS, SPSS, R/pmml.
+Here, import QUEST tree.
+
+<<pmml-show, echo=TRUE, eval=FALSE>>=
+<<pmml>>
+@
+
+\medskip
+
+\textbf{evtree:} Evolutionary learning of globally optimal trees, directly
+using partykit.
+
+<<evtree-show, echo=TRUE, eval=FALSE>>=
+<<evtree>>
+@
+
+\medskip
+
+\textbf{CTree:} Conditional inference trees \fct{ctree} are reimplemented
+more efficiently within partykit.
+
+\medskip
+
+\textbf{CHAID:} R package on R-Forge, directly using partykit.
+(Alternatively, use SPSS and export via PMML.)
+
+
+\end{frame}
+
+\begin{frame}
+\frametitle{partykit: QUEST via PMML}
+
+\vspace*{-0.5cm}
+
+\setkeys{Gin}{width=1.1\textwidth}
+\hspace*{-0.4cm}%
+<<Titanic-pmml-visualization, fig=TRUE, height=8, width=12>>=
+plot(pm)
+@
+
+\end{frame}
+
+\begin{frame}
+\frametitle{partykit: evtree}
+
+\vspace*{-0.5cm}
+
+\setkeys{Gin}{width=1.1\textwidth}
+\hspace*{-0.4cm}%
+<<Titanic-evtree-visualization, fig=TRUE, height=8, width=12>>=
+plot(ev)
+@
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Your own tree}
+
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{What's next?}
+
+\textbf{Model-based recursive partitioning:} Trees with parametric models in each node
+(e.g., based on least squares or maximum likelihood). Splitting based on parameter
+instability tests.
+
+\medskip
+
+Talk by Achim; but I'm entitled to a coffee first...
+
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Computational details}
+
+\textbf{Software:} All examples have been produced with
+R~\Sexpr{with(R.Version(), paste(major, minor, sep = "."))} and packages
+partykit~\Sexpr{packageDescription("partykit")$Version},
+rpart~\Sexpr{packageDescription("rpart")$Version},
+RWeka~\Sexpr{packageDescription("RWeka")$Version},
+evtree~\Sexpr{packageDescription("evtree")$Version}. All packages are
+freely available under the GPL from \url{http://CRAN.R-project.org/}.
+
+\bigskip
+
+\textbf{Data:} The contingency table \code{Titanic} is transformed
+as explained in the \code{constparty} package vignette.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{References}
+
+\small
+
+Hothorn T, Zeileis A (2013).
+ \textit{partykit: A Toolkit for Recursive Partytioning.}
+ R~package vignette version~0.1-6.
+ URL~\url{http://CRAN.R-project.org/package=partykit}
+
+\bigskip
+
+Hothorn T, Hornik K, Zeileis A (2006).
+ \dquote{Unbiased Recursive Partitioning: A Conditional Inference Framework.}
+ \textit{Journal of Computational and Graphical Statistics},
+ \textbf{15}(3), 651--674.
+ \doi{10.1198/106186006X133933}
+
+\bigskip
+
+Grubinger T, Zeileis A, Pfeiffer KP (2011).
+ \dquote{evtree: Evolutionary Learning of Globally Optimal Classification and Regression Trees in R.}
+ \textit{Working Paper~2011-20}, Working Papers in Economics and Statistics,
+ Research Platform Empirical and Experimental Economics, Universit\"at Innsbruck.
+ URL~\url{http://EconPapers.RePEc.org/RePEc:inn:wpaper:2011-20}
+
+\bigskip
+
+Zeileis A, Hothorn T, Hornik K (2008).
+ \dquote{Model-Based Recursive Partitioning.}
+  \textit{Journal of Computational and Graphical Statistics},
+  \textbf{17}(2), 492--514.
+  \doi{10.1198/106186008X319331}
+
+\end{frame}
+
+
+\end{document}
