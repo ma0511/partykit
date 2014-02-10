@@ -75,6 +75,120 @@ mb <- glmtree(Survived ~ Treatment | Age + Gender + Class,
   data = ttnc, family = binomial, alpha = 0.01)
 @
 
+<<mytree, eval=FALSE>>=
+findsplit <- function(response, data, weights) {
+
+  ### extract response values from data
+  y <- data[[response]]
+
+  ### cycle through all features
+  logpmin <- 0; xselect <- NULL
+  for (i in which(names(data) != response)) {
+
+    ### expand data by case weights
+    x <- data[[i]]
+    xt <- rep(x, weights) 
+    yt <- rep(y, weights)
+
+    ### set-up all possible splits in two daughter nodes
+    lev <- levels(xt[drop = TRUE])
+    if (length(lev) == 1) next()
+    if (length(lev) == 2) comb <- list(lev[1])
+    if (length(lev) > 2) 
+        comb <- do.call("c", lapply(1:(length(lev) - 2),
+            function(x) combn(lev,x, simplify = FALSE)))
+
+    ### assess all potential splits by their chi^2 test log p-value
+    logp <- sapply(comb, function(q) {   
+      ct <- chisq.test(table(yt, xt %in% q))
+      pchisq(ct$statistic, ct$parameter, log = TRUE, lower.tail = FALSE)
+    })
+
+    ### if the best split in variable i significant AND
+    ### better than what we already had store this information
+    if (min(logp) < logpmin & min(logp) < log(0.01)) {
+      logpmin <- min(logp)
+      xselect <- i
+      splitpoint <- comb[[which.min(logp)]]
+    }
+  }
+   
+  ### no significant split found, give up  
+  if (is.null(xselect)) return(NULL)
+   
+  ### return split as partysplit object
+  return(partysplit(
+      varid = as.integer(xselect),         ### which variable?   
+      index = levels(data[[xselect]]) %in%
+              splitpoint + 1L,             ### which split point?
+      info = list(p.value = exp(logpmin)   ### save p-value in addition
+  )))
+}
+growtree <- function(id = 1L, response, data, weights) {
+
+  ### for less than 30 observations stop here
+  if (sum(weights) < 30) return(partynode(id = id))
+
+  ### find best split
+  sp <- findsplit(response, data, weights)
+  ### no split found, stop here
+  if (is.null(sp)) return(partynode(id = id))
+
+  ### actually split the data
+  kidids <- kidids_split(sp, data = data)
+
+  ### set-up all daugther nodes
+  kids <- vector(mode = "list", length = max(kidids))
+  for (kidid in 1:max(kidids)) {
+  ### select observations for current node
+  w <- weights
+  w[kidids != kidid] <- 0
+  ### get next node id
+  if (kidid > 1) {
+    myid <- max(nodeids(kids[[kidid - 1]]))
+  } else {
+    myid <- id
+  }
+  ### start recursion on this daugther node
+  kids[[kidid]] <- growtree(id = as.integer(myid + 1), response, data, w)
+  }
+
+  ### return nodes  
+  return(partynode(id = as.integer(id), split = sp, kids = kids))
+}
+mytree <- function(formula, data, weights = NULL) {
+
+  ### name of the response variable
+  response <- all.vars(formula)[1]
+  ### data without missing values, response comes last
+  data <- data[complete.cases(data), c(all.vars(formula)[-1], response)]
+  ### data is factors only
+  stopifnot(all(sapply(data, is.factor)))
+
+  if (is.null(weights)) weights <- rep(1L, nrow(data))
+  ### weights are case weights, i.e., integers
+  stopifnot(length(weights) == nrow(data) &
+    max(abs(weights - floor(weights))) < .Machine$double.eps)
+
+  ### grow tree
+  nodes <- growtree(id = 1L, response, data, weights)
+
+  ### compute terminal node number for each observation
+  fitted <- fitted_node(nodes, data = data)
+  ### return rich constparty object
+  ret <- party(nodes, 
+    data = data,
+    fitted = data.frame(
+      "(fitted)" = fitted,
+      "(response)" = data[[response]],
+      "(weights)" = weights,
+      check.names = FALSE),
+    terms = terms(formula))
+  as.constparty(ret)
+}  
+myttnc <- mytree(Survived ~ Class + Age + Gender, data = ttnc)
+@
+
 <<cache>>=
 if(file.exists("slides-trees.rda")) load("slides-trees.rda") else {
 <<rpart>>
@@ -82,7 +196,8 @@ if(file.exists("slides-trees.rda")) load("slides-trees.rda") else {
 <<evtree>>
 <<pmml>>
 <<mob>>
-save(rp, ct, ev, pm, mb, file = "slides-trees.rda")
+<<mytree>>
+save(rp, ct, ev, pm, mb, myttnc, file = "slides-trees.rda")
 }
 @
 
@@ -514,10 +629,44 @@ plot(ev)
 \end{frame}
 
 \begin{frame}
-\frametitle{Your own tree}
+\frametitle{Your first partykit tree}
 
+Finally, we want to set-up a little program that implements the
+following tree algorithm for the Titanic data
+\begin{itemize}
+\item In each node, do
+  \begin{itemize}
+    \item For each explanatory variable, do
+    \begin{itemize}
+      \item compute the minimal $\chi^2$ $p$-value over all
+            possible splits in two groups
+    \end{itemize}
+  \item Select the best variable/split combination
+        and implement the split
+  \end{itemize}
+\item Recurse until $p$-value > .01 or sample size too small.
+\end{itemize}
+
+We only need three little functions:
+\begin{itemize}
+\item \code{findsplit}
+\item \code{growtree}
+\item \code{mytree}
+\end{itemize}
 
 \end{frame}
+
+\begin{frame}
+\frametitle{Your first partykit tree}
+
+\setkeys{Gin}{width=1.1\textwidth}
+\hspace*{-0.4cm}%
+<<Titanic-mytree-vis, fig = TRUE, height=8, width=12>>=
+plot(myttnc)
+@
+
+\end{frame}
+
 
 
 \begin{frame}
