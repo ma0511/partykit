@@ -290,12 +290,12 @@ Package \pkg{partykit} does not offer unified infrastructure for growing
 trees.  However, once you know how to estimate splits from data, it is
 fairly straightforward to implement trees.  Consider a very simple tree
 algorithm.  We assume that both response and explantory variables are
-numeric.  We search for the binary best split by means of $t$-test
+factors, as for the Titanic data set.  We search for the binary best split by means of $t$-test
 $p$-values, i.e., we cycle through all variables and potential split points
 and assess the quality of the split by comparing the distributions of the
 response in the so-defined two groups.  We select the feature/split point
-combination with lowest two-sided $p$-value, however, only if this result is
-significant at level $\alpha = 0.05$.
+combination with lowest $p$-value of a $\chi^2$ test, however, only if this result is
+significant at level $\alpha = 0.01$.
 
 This strategy can be implemented based on the data (response and explanatory
 variables) and some case weights as follows (\code{response} is just the
@@ -310,27 +310,31 @@ findsplit <- function(response, data, weights) {
   logpmin <- 0; xselect <- NULL
   for (i in which(names(data) != response)) {
 
-    ### expand data by case weights 
+    ### expand data by case weights
     x <- data[[i]]
     xt <- rep(x, weights)
     yt <- rep(y, weights)
 
-    ### obtain potential split points (not too many)
-    qx <- unique(quantile(xt, 
-        	 prob = seq(from = 0.1, to = 0.9, by = 0.05)))
+    ### set-up all possible splits in two daughter nodes
+    lev <- levels(xt[drop = TRUE])
+    if (length(lev) == 1) next()
+    if (length(lev) == 2) comb <- list(lev[1])
+    if (length(lev) > 2) 
+        comb <- do.call("c", lapply(1:(length(lev) - 2),
+            function(x) combn(lev,x, simplify = FALSE)))
 
-    ### assess all potential splits by their two-sided t-test log p-value
-    logp <- sapply(qx, function(q) {
-      tt <- t.test(yt[xt <= q], yt[xt > q])
-      pt(-abs(tt$statistic), tt$parameter, log = TRUE) + log(2)
+    ### assess all potential splits by their chi^2 test log p-value
+    logp <- sapply(comb, function(q) {
+      ct <- chisq.test(table(yt, xt %in% q))
+      pchisq(ct$statistic, ct$parameter, log = TRUE, lower.tail = FALSE)
     })
 
     ### if the best split in variable i significant AND
     ### better than what we already had store this information
-    if (min(logp) < logpmin & min(logp) < log(0.05)) {
+    if (min(logp) < logpmin & min(logp) < log(0.01)) {
       logpmin <- min(logp)
       xselect <- i
-      splitpoint <- qx[which.min(logp)]
+      splitpoint <- comb[[which.min(logp)]]
     }
   }
 
@@ -339,9 +343,10 @@ findsplit <- function(response, data, weights) {
 
   ### return split as partysplit object
   return(partysplit(
-      varid = as.integer(xselect),       ### which variable?
-      breaks = as.numeric(splitpoint),   ### which split point?
-      info = list(pvalue = exp(logpmin)  ### save p-value in addition
+      varid = as.integer(xselect),         ### which variable?
+      index = levels(data[[xselect]]) %in% 
+              splitpoint + 1L,             ### which split point?
+      info = list(p.value = exp(logpmin)   ### save p-value in addition
   )))
 }
 @
@@ -393,8 +398,8 @@ mytree <- function(formula, data, weights = NULL) {
   response <- all.vars(formula)[1]
   ### data without missing values, response comes last
   data <- data[complete.cases(data), c(all.vars(formula)[-1], response)]
-  ### data is numeric
-  stopifnot(all(sapply(data, is.numeric)))
+  ### data is factors only
+  stopifnot(all(sapply(data, is.factor)))
 
   if (is.null(weights)) weights <- rep(1L, nrow(data))
   ### weights are case weights, i.e., integers
@@ -423,41 +428,28 @@ We now can fit this tree, for example to the airquality data; the
 \fct{print} method provides us with a first overview on the 
 resulting model
 <<mytree-4, echo = TRUE>>=
-(aqt <- mytree(Ozone ~ Solar.R + Wind + Temp, data = airquality))
+(myttnc <- mytree(Survived ~ Class + Age + Gender, data = ttnc))
 @
 
 Of course, we can immediately use the \fct{plot} function to obtain a
 graphical representation of this tree, the result is given in
 Figure~\ref{plottree}.  The default behaviour for trees with numeric
 responses is to depict the conditional distribution of the response in each
-terminal node by means of a box plot.  Using the \fct{node\_ecdf} terminal
-panel function draws the same tree but with the empirical cumulative
-distribution functions (Figure~\ref{plottree_ecdf}).
+terminal node by means of a bar plot.  
 
 \begin{figure}
 \centering
 <<mytree-5, echo = TRUE, fig = TRUE, width = 10, height = 6>>=
-plot(aqt)
+plot(myttnc)
 @
-\caption{Regression tree fitted by the \fct{mytree} function to the
-         \code{airquality} data. \label{plottree}}
-\end{figure}
-
-\begin{figure}
-\centering
-<<mytree-5-ecdf, echo = TRUE, fig = TRUE, width = 10, height = 6>>=
-plot(aqt, terminal_panel = node_ecdf)
-@
-\caption{Regression tree fitted by the \fct{mytree} function to the
-         \code{airquality} data with empiricial cumulative distribution
-         functions given for each terminal node.  \label{plottree_ecdf}}
+\caption{Classification tree fitted by the \fct{mytree} function to the
+         \code{ttnc} data. \label{plottree}}
 \end{figure}
 
 An interesting feature of \code{party} tree is the ability to extract
 subtrees:
 <<mytree-7, echo = TRUE>>=
-aqt4 <- aqt[4]
-aqt4
+(myttnc7 <- myttnc[7])
 @
 which again are objects inheriting from \class{party} and thus
 can be plotted easily (see Figure~\ref{subtree}).
@@ -465,50 +457,36 @@ can be plotted easily (see Figure~\ref{subtree}).
 \begin{figure}[t!]
 \centering
 <<mytree-8, echo = TRUE, fig = TRUE, width = 10, height = 6>>=
-plot(aqt4)
+plot(myttnc7)
 @
-\caption{A subtree of the \code{airquality} regression tree. \label{subtree}}
+\caption{A subtree of the \code{ttnc} classification tree. \label{subtree}}
 \end{figure}
 
 We also might be interested in extracting the $p$-values in the
 inner nodes in a nicely formatted way:
 <<mytree-10, echo = TRUE>>=
-fun <- function(x) format.pval(info_split(split_node(x))$pvalue,
+fun <- function(x) format.pval(info_split(split_node(x))$p.value,
   digits = 3, eps = 0.001)
-nid <- nodeids(aqt)
-iid <- nid[!(nid %in% nodeids(aqt, terminal = TRUE))]
-unlist(nodeapply(aqt, ids = iid, FUN = fun))
+nid <- nodeids(myttnc)
+iid <- nid[!(nid %in% nodeids(myttnc, terminal = TRUE))]
+unlist(nodeapply(myttnc, ids = iid, FUN = fun))
 @
 
 \section{Predictions}
 
-Computing predictions for new observations (here the first ten observations from
-the \code{airquality} data frame) is done using the \fct{predict} method:
+Computing predictions for new observations is done using the \fct{predict} method:
 <<mytree-predict, echo = TRUE>>=
-predict(aqt, newdata = airquality[1:10,])
+table(predict(ttnc_quest, newdata = ttnc), predict(myttnc, newdata = ttnc))
 @
-The default for numeric responses is to compute conditional means for each
+The default for factors is to compute the predicted class for each
 of the rows in \code{newdata}.  One can also simply compute the
 corresponding terminal node numbers via
 <<mytree-node, echo = TRUE>>=
-predict(aqt, newdata = airquality[1:10,], type = "node")
+predict(myttnc, newdata = ttnc[1:10,], type = "node")
 @
-or estimates of the conditional distribution function (objects of class \code{ecdf}):
+or estimates of the conditional class probabilities 
 <<mytree-prob, echo = TRUE>>=
-predict(aqt, newdata = airquality[1:10,], type = "prob")
-@
-In principle, any functional of these distribution functions can be computed
-as a prediction, for example the median
-<<mytree-median, echo = TRUE>>=
-predict(aqt, newdata = airquality[1:10,], 
-        FUN = function(y, w) median(rep(y, w)))
-@
-which is a more convenient way compared to direct computation on
-the \code{ecdf} objects:
-<<mytree-median-2, echo = TRUE>>=
-sapply(predict(aqt, newdata = airquality[1:10,], type = "prob"),
-       function(x) quantile(x, .5))
-
+predict(myttnc, newdata = ttnc[1:10,], type = "prob")
 @
 
 The \code{type} argument to the \fct{predict} method has several meanings,
