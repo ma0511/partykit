@@ -47,6 +47,7 @@ ttnc <- transform(ttnc, Treatment = factor(
   levels = c(FALSE, TRUE),
   labels = c("Normal\n(Male&Adult)", "Preferential\n(Female|Child)")
 ))
+set.seed(1071)
 @
 
 <<rpart, eval=FALSE>>=
@@ -60,7 +61,6 @@ ct <- ctree(Survived ~ Gender + Age + Class, data = ttnc,
 @
 
 <<evtree, eval=FALSE>>=
-set.seed(1071)
 ev <- evtree(Survived ~ Gender + Age + Class, 
              data = ttnc, maxdepth = 3)
 @
@@ -213,6 +213,7 @@ j48 <- J48(Survived ~ Gender + Age + Class,
       Introducing a Generic Toolkit for Recursive Partitioning in R}
 \author{Torsten Hothorn (Universit\"at Z\"urich) \\
         Achim Zeileis (Universit\"at Innsbruck)}
+\date{NUS 2014}
 %\URL{http://user.math.uzh.ch/hothorn/}
 %\lecture{partykit: A Toolkit for Recursive Partytioning}
 
@@ -402,14 +403,7 @@ both inheriting from \class{party}.
 \textbf{Intention:}
 \begin{itemize}
   \item Illustrate several trees using the same data.
-  \item Not use the iris data (or something from mlbench).
-\end{itemize}
-
-\medskip
-
-\textbf{Solution:}
-\begin{itemize}
-  \item Use Titanic survival data (oh well\dots).
+  \item Here: Titanic survival data.
   \item In case you are not familiar with it: Survival status, gender, age (child/adult), and
     class (1st, 2nd, 3rd, crew) for the \Sexpr{nrow(ttnc)}~persons on the ill-fated
     maiden voyage of the Titanic.
@@ -609,7 +603,7 @@ more efficiently within partykit.
 
 \setkeys{Gin}{width=1.1\textwidth}
 \hspace*{-0.4cm}%
-<<Titanic-pmml-visualization, fig=TRUE, height=8, width=12>>=
+<<Titanic-pmml-visualization, fig=TRUE, height=10, width=16>>=
 plot(pm)
 @
 
@@ -655,6 +649,35 @@ We only need three little functions:
 \end{itemize}
 
 \end{frame}
+
+
+\begin{frame}
+\frametitle{findsplit}
+
+R code
+
+\end{frame}
+
+\begin{frame}
+\frametitle{growtree}
+
+R code
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{mytree}
+
+R code
+
+<<Titanic-mytree-vis, eval = FALSE, echo = TRUE>>=
+plot(mytree(Survived ~ Class + Age + Gender, 
+            data = ttnc))
+@
+
+\end{frame}
+
+
 
 \begin{frame}
 \frametitle{Your first partykit tree}
@@ -706,9 +729,9 @@ as explained in the \code{constparty} package vignette.
 
 \small
 
-Hothorn T, Zeileis A (2013).
+Hothorn T, Zeileis A (2014).
  \textit{partykit: A Toolkit for Recursive Partytioning.}
- R~package vignette version~0.1-6.
+ R~package vignette version~0.2-0.
  URL~\url{http://CRAN.R-project.org/package=partykit}
 
 \bigskip
