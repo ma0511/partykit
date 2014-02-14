@@ -650,8 +650,11 @@ mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdept
   trim = 0.1, breakties = FALSE, parm = NULL, dfsplit = TRUE, prune = NULL, restart = TRUE,
   verbose = FALSE, caseweights = TRUE, ytype = "vector", xtype = "matrix",
   terminal = "object", inner = terminal, model = TRUE,
-  numsplit = "left", catsplit = "binary", vcov = "opg", ordinal = "chisq", nrep = 10000)
+  numsplit = "left", catsplit = "binary", vcov = "opg", ordinal = "chisq", nrep = 10000,
+  minsplit = minsize)
 {
+  if(missing(minsize) & !missing(minsplit)) minsize <- minsplit
+  
   ytype <- match.arg(ytype, c("vector", "data.frame", "matrix"))
   xtype <- match.arg(xtype, c("data.frame", "matrix"))
 

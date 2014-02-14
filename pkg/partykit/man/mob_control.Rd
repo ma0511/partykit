@@ -13,7 +13,8 @@ mob_control(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
   trim = 0.1, breakties = FALSE, parm = NULL, dfsplit = TRUE, prune = NULL,
   restart = TRUE, verbose = FALSE, caseweights = TRUE, ytype = "vector", xtype = "matrix",
   terminal = "object", inner = terminal, model = TRUE, numsplit = "left",
-  catsplit = "binary", vcov = "opg", ordinal = "chisq", nrep = 10000)
+  catsplit = "binary", vcov = "opg", ordinal = "chisq", nrep = 10000,
+  minsplit = minsize)
 }
 
 \arguments{
@@ -22,10 +23,12 @@ mob_control(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
     stability test in that node falls below \code{alpha} (and the stopping
     criteria \code{minsize} and \code{maxdepth} are not fulfilled).}
   \item{bonferroni}{logical. Should \eqn{p} values be Bonferroni corrected?}
-  \item{minsize}{integer. The minimum number of observations in a node.
+  \item{minsize, minsplit}{integer. The minimum number of observations in a node.
     If \code{NULL}, the default is to use 10 times the number of parameters
     to be estimated (divided by the number of responses per observation
-    if that is greater than 1).}
+    if that is greater than 1). \code{minsize} is the recommended name and
+    \code{minsplit} is only included for backward compatibility with previous
+    versions of \code{mob}.}
   \item{maxdepth}{integer. The maximum depth of the tree.}
   \item{trim}{numeric. This specifies the trimming in the parameter instability
     test for the numerical variables. If smaller than 1, it is interpreted
