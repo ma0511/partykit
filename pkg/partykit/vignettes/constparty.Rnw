@@ -80,7 +80,7 @@
 
 \Abstract{
 We describe how one can coerce objects representing trees to objects represented by 
-\pkg{partykit} classes and how one can grow trees using the \pkg{partykit}.
+\pkg{partykit} classes and how one can grow trees using the \pkg{partykit} infrastructure.
 }
 \Keywords{recursive partitioning, regression trees, classification trees, decision trees}
 
@@ -105,6 +105,7 @@ We describe how one can coerce objects representing trees to objects represented
 
 \begin{document}
 
+\setkeys{Gin}{width=\textwidth}
 
 \SweaveOpts{engine=R, eps=FALSE, keep.source=TRUE, eval=TRUE}
 
@@ -123,7 +124,7 @@ coerced into objects that can be dealt with using infrastructure implemented
 in the \pkg{partykit} package.  We focus on displaying such trees in textual
 and graphical ways and on computing predictions.
 
-In the second part we show how one can implement a simple regression tree
+In the second part we show how one can implement a simple classification tree
 algorithm using the \pkg{partykit} tools.
 
 \section{Coercing  tree objects}
@@ -151,8 +152,7 @@ The \code{rp} object of class \code{\Sexpr{class(rp)[1L]}} can be coerced to an
 object of a certain class inheriting from class \code{party} by the
 \code{as.party} function
 <<rpart-party>>=
-party_rp <- as.party(rp)
-party_rp
+(party_rp <- as.party(rp))
 @
 and, instead of the print method for \code{rpart} objects, the print method
 for \code{\Sexpr{class(party_rp)[1L]}} objects creates a textual display of the tree
@@ -220,39 +220,23 @@ library("pmml")
 tfile <- tempfile()
 write(toString(pmml(rp)), file = tfile)
 @
-\fixme{Z: now all the PMML examples work, however I would not use the online examples
-in the vignette because one might want to run the vignette when offline. I think
-the QUEST example would be sufficient. Additionally, one could show the RPart export
-plus import.}
+Now, we can simply read this file and inspect the resulting tree
 <<PMML-read>>=
-try(party_pmml <- pmmlTreeModel(tfile))
-isTRUE(all.equal(party_rp, party_pmml))
+(party_pmml <- pmmlTreeModel(tfile))
 all.equal(predict(party_rp, newdata = ttnc, type = "prob"), 
 	  predict(party_pmml, newdata = ttnc, type = "prob"),
 	  check.attributes = FALSE)
 @
-\fixme{does not work}
-<<PMML-Audit>>=
-if (!file.exists("AuditTree.xml"))
-    download.file("http://www.dmg.org/pmml_examples/rattle_pmml_examples/AuditTree.xml",
-                  destfile = "AuditTree.xml")
-try(pmmlTreeModel("AuditTree.xml"))
-@
-
-\fixme{Seems to work}
-<<PMML-Iris>>=
-if (!file.exists("IrisTree.xml"))
-    download.file("http://www.dmg.org/pmml_examples/rattle_pmml_examples/IrisTree.xml",
-                  destfile = "IrisTree.xml")
-pmmlTreeModel("IrisTree.xml")
-@
-
+We used \proglang{SPSS} to fit a QUEST tree to the Titanic data and exported this
+tree in \proglang{PMML} format. This file is part of the \pkg{partykit} package and we
+read and print the QUEST tree as follows
 <<PMML-Titantic>>=
 (ttnc_quest <- pmmlTreeModel(
   file.path(system.file("pmml", package = "partykit"), "ttnc.pmml")))
 @
 
-Possibly this is more for an appendix than the main paper. It does:
+One problem with the resulting object is that the data are not part of the \proglang{PMML}
+file and thus also missing from this representation of the QUEST tree. We can, however,
 bring the data into the same shape as it is assumed to be by \code{ttnc_quest}.
 Then a new \code{party} is set up and coerced to \code{constparty}.
 <<PMML-Titanic-augmentation>>=
@@ -270,21 +254,19 @@ ttnc_cp <- party(ttnc_quest$node,
 )
 ttnc_cp <- as.constparty(ttnc_cp)
 @
+This object is plotted in Figure~\ref{PMML-Titanic-plot}.
 
-\setkeys{Gin}{width=\textwidth}
-\begin{figure}
+\begin{figure}[t]
 \centering
-<<PMML-Titanic-plot1, echo=FALSE, fig=TRUE, height=9.5, width=16.5>>=
-plot(ttnc_quest)
-@
-
-<<PMML-Titanic-plot2, echo=FALSE, fig=TRUE, height=8.5, width=14>>=
+<<PMML-Titanic-plot, fig=TRUE, height=8.5, width=14>>=
 plot(ttnc_cp)
 @
+\caption{QUEST tree for Titantic data, fitted using \proglang{SPSS}, exported
+         to \proglang{PMML}, and read into \proglang{R} as a \code{constparty} object.
+         \label{PMML-Titanic-plot}}
 \end{figure}
-\setkeys{Gin}{width=0.8\textwidth}
 
-\section{Growing a simple regression tree} 
+\section{Growing a simple classification tree} 
 
 Package \pkg{partykit} does not offer unified infrastructure for growing
 trees.  However, once you know how to estimate splits from data, it is
@@ -439,7 +421,7 @@ terminal node by means of a bar plot.
 
 \begin{figure}
 \centering
-<<mytree-5, echo = TRUE, fig = TRUE, width = 10, height = 6>>=
+<<mytree-5, echo = TRUE, fig = TRUE, height=8.5, width=14>>=
 plot(myttnc)
 @
 \caption{Classification tree fitted by the \fct{mytree} function to the
