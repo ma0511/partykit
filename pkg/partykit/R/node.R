@@ -72,37 +72,33 @@ as.partynode.list <- function(x, ...) {
                                 c("id", "split", "kids", "surrogates", "info"))], 
                                 collapse = ", "))))
     
-    ids <- sapply(x, function(node) node$id)
-    if (!all(ids %in% 1:length(x)))
-        stop("ids must match 1:length(x)")
-
+    ids <- as.integer(sapply(x, function(node) node$id))
+    if(any(duplicated(ids))) stop("nodeids must be unique integers")
     x <- x[order(ids)]
-    if (length(x) == 1) return(do.call("partynode", x[[1]]))
+    ids <- ids[order(ids)]
 
-    new_recnode <- function(id) {
-        if (is.null(x[[id]]$kids))
-            partynode(id = id, info = x[[id]]$info)
+    new_recnode <- function(i) {
+        x_i <- x[[which(ids == i)]]
+        if (is.null(x_i$kids))
+            partynode(id = x_i$id, info = x_i$info)
         else
-            partynode(id = id, split = x[[id]]$split,
-                 kids = lapply(x[[id]]$kids, new_recnode),
-		 surrogates = x[[id]]$surrogates,
-                 info = x[[id]]$info)
+            partynode(id = x_i$id, split = x_i$split,
+                 kids = lapply(x_i$kids, new_recnode),
+		 surrogates = x_i$surrogates,
+                 info = x_i$info)
     }
-        
-    node <- partynode(id = as.integer(1), split = x[[1]]$split,
-                 kids = lapply(x[[1]]$kids, new_recnode), 
-		 surrogates = x[[1]]$surrogates,
-                 info = x[[1]]$info)
-    return(node)
+    
+    new_recnode(ids[1L])
 }
 
-as.list.partynode <- function(x, ...) {
-
-    obj <- list()
+as.list.partynode <- function(x, ...)
+{
+    ids <- nodeids(x)
+    obj <- vector(mode = "list", length = length(ids))
     
     nodelist <- function(node) {
         if (is.terminal(node))
-            obj[[node$id]] <<- list(id = id_node(node), info = info_node(node))
+            obj[[which(ids == id_node(node))]] <<- list(id = id_node(node), info = info_node(node))
         else {
             thisnode <<- list(id = id_node(node), split = split_node(node),
                  kids = sapply(kids_node(node), function(k) id_node(k)))
@@ -110,7 +106,7 @@ as.list.partynode <- function(x, ...) {
 		 thisnode$surrogates <- surrogates_node(node)
              if (!is.null(info_node(node)))
 		 thisnode$info <- info_node(node)
-            obj[[id_node(node)]]  <<- thisnode
+            obj[[which(ids == id_node(node))]] <<- thisnode
             lapply(kids_node(node), nodelist)
         }
     }
