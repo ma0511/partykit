@@ -220,6 +220,19 @@ j48 <- J48(Survived ~ Gender + Age + Class,
 \maketitle
 
 \begin{frame}
+\frametitle{Celebrating 50th anniversary}
+
+\begin{center}
+\includegraphics{aid}
+\end{center}
+JASA $\bold{58}(302)$ June 1963 (well, there were no early online versions, so
+most people read the paper in 1964 for the first time). \\
+
+We need a \textbf{partykit}!
+
+\end{frame}
+
+\begin{frame}
 \frametitle{Overview}
 
 \begin{itemize}
