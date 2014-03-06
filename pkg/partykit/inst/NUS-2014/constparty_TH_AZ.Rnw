@@ -245,7 +245,6 @@ We need a \textbf{partykit}!
     \item Illustrations
   \end{itemize}
   \item Here and now: Intro to partykit for trees with constant fits in each node.
-  \item Future: Next steps
 \end{itemize}
 
 \end{frame}
