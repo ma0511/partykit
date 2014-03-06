@@ -79,8 +79,15 @@
 \Plainauthor{Torsten Hothorn, Achim Zeileis}
 
 \Abstract{
-We describe how one can coerce objects representing trees to objects represented by 
-\pkg{partykit} classes and how one can grow trees using the \pkg{partykit} infrastructure.
+
+This document describes tree objects with very simple one-parameter models
+(constant fits) in each of the terminal nodes.  This class of trees is very
+common and includes all traditional tree variants (AID, CHAID, CART, FACT,
+QUEST, C4.5) and also more recent approaches like CTree.  We describe how
+one can coerce objects representing such trees to objects represented by
+\pkg{partykit} classes and how one can grow trees using the \pkg{partykit}
+infrastructure.
+
 }
 \Keywords{recursive partitioning, regression trees, classification trees, decision trees}
 
@@ -117,15 +124,20 @@ set.seed(290875)
 
 This vignette describes the handling of trees with constant fits in the
 terminal nodes.  This class of regression models includes most classical
-tree algorithms like AID, CHAID, CART, FACT, QUEST, C4.5, etc.  This
+tree algorithms like AID, CHAID, CART, FACT, QUEST, C4.5, etc.  In this
+class of tree models, one can compute simple predictions, such as the
+conditional mean in a regression setup, for a new observation from the
+response values of those learning sample in the same terminal node.  Thus,
+it is sufficient to store the terminal node number and the response (and
+potentially weights) for the observations used for fitting the tree in order
+to compute predictions. This
 document consists of two parts.  In the first part we assume that the trees
 were fitted using external software and we describe how these models can be
 coerced into objects that can be dealt with using infrastructure implemented
 in the \pkg{partykit} package.  We focus on displaying such trees in textual
-and graphical ways and on computing predictions.
-
-In the second part we show how one can implement a simple classification tree
-algorithm using the \pkg{partykit} tools.
+and graphical ways and on computing predictions.  In the second part we show
+how one can implement a simple classification tree algorithm using the
+\pkg{partykit} tools.
 
 \section{Coercing  tree objects}
 
@@ -138,25 +150,25 @@ ttnc <- as.data.frame(Titanic)
 ttnc <- ttnc[rep(1:nrow(ttnc), ttnc$Freq), 1:4]
 names(ttnc)[2] <- "Gender"
 @
-The response variable describes wheather or not the passenger survived the sinking of the ship.
+The response variable describes whether or not the passenger survived the sinking of the ship.
 
 \subsection{Coercing rpart objects}
 
-We first fit a classification tree by means of the the \code{rpart} function 
+We first fit a classification tree by means of the the \fct{rpart} function 
 from package \pkg{rpart} \citep{rpart} to this data set:
 <<rpart>>=
 library("rpart")
 (rp <- rpart(Survived ~ ., data = ttnc))
 @
-The \code{rp} object of class \code{\Sexpr{class(rp)[1L]}} can be coerced to an
-object of a certain class inheriting from class \code{party} by the
-\code{as.party} function
+The \code{rp} object of class \class{\Sexpr{class(rp)[1L]}} can be coerced to an
+object of a certain class inheriting from class \class{party} by the
+\fct{as.party} function
 <<rpart-party>>=
 (party_rp <- as.party(rp))
 @
-and, instead of the print method for \code{rpart} objects, the print method
+and, instead of the print method for \class{rpart} objects, the print method
 for \code{\Sexpr{class(party_rp)[1L]}} objects creates a textual display of the tree
-structure.  In a similar way, the corresponding \code{plot} method 
+structure.  In a similar way, the corresponding \fct{plot} method 
 produces a graphical representation of this tree, see Figure~\ref{party_plot}.
 
 \begin{figure}
@@ -164,45 +176,58 @@ produces a graphical representation of this tree, see Figure~\ref{party_plot}.
 <<rpart-plot, fig = TRUE, width = 10, height = 6>>=
 plot(party_rp)
 @
-\caption{\code{rpart} tree of Titanic data plotted using \pkg{partykit}
+\caption{\class{rpart} tree of Titanic data plotted using \pkg{partykit}
          infrastructure. \label{party_plot}}
 \end{figure}
 
-By default, the \code{predict} method for \code{rpart} object computes conditional
-class probabilities. The same numbers are returned by the \code{predict} method
+By default, the \fct{predict} method for \class{rpart} object computes conditional
+class probabilities. The same numbers are returned by the \fct{predict} method
 for \Sexpr{class(party_rp)[1L]} objects with \code{type = "prob"} argument:
 <<rpart-pred>>=
 all.equal(predict(rp), predict(party_rp, type = "prob"), 
           check.attributes = FALSE)
 @
+Predictions are computed based on the \code{fitted} slot of a
+\class{constparty} object
+<<rpart-fitted>>=
+str(fitted(party_rp))
+@
+which contains the terminal node numbers and the response for each
+of the training samples. So, the conditional class probabilities for
+each terminal node can be computed via
+<<rpart-prob>>=
+prop.table(do.call("table", fitted(party_rp)), 1)
+@
+Optionally, weights can be stored in the \code{fitted} slot as well.
 
 \subsection{Coercing J48 objects}
 
 The \pkg{RWeka} package \citep{RWeka} provides an interface to the
-\proglang{WEKA} machine learning library and we can use the \code{J48} function to
+\proglang{WEKA} machine learning library and we can use the \fct{J48} function to
 fit a J4.8 tree to the Titanic data
 <<J48>>=
 library("RWeka")
 (j48 <- J48(Survived ~ ., data = ttnc))
 @
-This object can be coerced to a \code{party} object using
+This object can be coerced to a \class{party} object using
 <<J48-party>>=
 (party_j48 <- as.party(j48))
 @
-and, again, the print method from the \pkg{partykit} package creates a textual display. Note
-that, unlike the \code{rpart} trees, this tree includes multiway splits. The \code{plot} method
-draws this tree, see Figure~\ref{J48_plot}.
+and, again, the print method from the \pkg{partykit} package creates a
+textual display.  Note that, unlike the \class{rpart} trees, this tree
+includes multiway splits.  The \fct{plot} method draws this tree, see
+Figure~\ref{J48_plot}.
 
 \begin{sidewaysfigure}
 \centering
 <<J48-plot, fig = TRUE, width = 15, height = 9>>=
 plot(party_j48)
 @
-\caption{\code{J48} tree of Titanic data plotted using \pkg{partykit}
+\caption{\class{J48} tree of Titanic data plotted using \pkg{partykit}
          infrastructure. \label{J48_plot}}
 \end{sidewaysfigure}
 
-The conditional class probabilities computed by the \code{predict} methods
+The conditional class probabilities computed by the \fct{predict} methods
 implemented in packages \pkg{RWeka} and \pkg{partykit} are equivalent:
 <<J48-pred>>=
 all.equal(predict(j48, type = "prob"), 
@@ -214,7 +239,7 @@ all.equal(predict(j48, type = "prob"),
 
 Some software packages can output a \proglang{PMML} description of a tree,
 we use the \pkg{pmml} package to create a \proglang{PMML} file containing
-the \code{rpart} tree for the Titanic data
+the \class{rpart} tree for the Titanic data
 <<PMML-write>>=
 library("pmml")
 tfile <- tempfile()
@@ -238,7 +263,7 @@ read and print the QUEST tree as follows
 One problem with the resulting object is that the data are not part of the \proglang{PMML}
 file and thus also missing from this representation of the QUEST tree. We can, however,
 bring the data into the same shape as it is assumed to be by \code{ttnc_quest}.
-Then a new \code{party} is set up and coerced to \code{constparty}.
+Then a new \class{party} is set up and coerced to \class{constparty}.
 <<PMML-Titanic-augmentation>>=
 ttnc2 <- ttnc[, names(ttnc_quest$data)]
 for(n in names(ttnc2)) {
@@ -261,8 +286,8 @@ This object is plotted in Figure~\ref{PMML-Titanic-plot}.
 <<PMML-Titanic-plot, fig=TRUE, height=8.5, width=14>>=
 plot(ttnc_cp)
 @
-\caption{QUEST tree for Titantic data, fitted using \proglang{SPSS}, exported
-         to \proglang{PMML}, and read into \proglang{R} as a \code{constparty} object.
+\caption{QUEST tree for Titanic data, fitted using \proglang{SPSS}, exported
+         to \proglang{PMML}, and read into \proglang{R} as a \class{constparty} object.
          \label{PMML-Titanic-plot}}
 \end{figure}
 
@@ -271,7 +296,7 @@ plot(ttnc_cp)
 Package \pkg{partykit} does not offer unified infrastructure for growing
 trees.  However, once you know how to estimate splits from data, it is
 fairly straightforward to implement trees.  Consider a very simple tree
-algorithm.  We assume that both response and explantory variables are
+algorithm.  We assume that both response and explanatory variables are
 factors, as for the Titanic data set.  We search for the binary best split by means of $t$-test
 $p$-values, i.e., we cycle through all variables and potential split points
 and assess the quality of the split by comparing the distributions of the
@@ -371,7 +396,7 @@ growtree <- function(id = 1L, response, data, weights) {
 }
 @
 
-A very rough sketch of formula-based user-interface 
+A very rough sketch of a formula-based user-interface 
 sets-up the data and calls \fct{growtree}:
 <<mytree-3, echo = TRUE>>=
 mytree <- function(formula, data, weights = NULL) {
@@ -394,19 +419,23 @@ mytree <- function(formula, data, weights = NULL) {
   ### compute terminal node number for each observation
   fitted <- fitted_node(nodes, data = data)
   ### return rich constparty object
-  ret <- party(nodes, 
-    data = data,
-    fitted = data.frame(
-      "(fitted)" = fitted,
-      "(response)" = data[[response]],
-      "(weights)" = weights,
-      check.names = FALSE),
+  ret <- party(nodes, data = data,
+    fitted = data.frame("(fitted)" = fitted,
+                        "(response)" = data[[response]],
+                        "(weights)" = weights,
+                        check.names = FALSE),
     terms = terms(formula))
   as.constparty(ret)
 }
 @
+The call to the constructor \fct{party} sets-up a \class{party}
+object with the tree structure contained in \code{nodes}, the
+training samples in \code{data} and the corresponding \code{terms}
+object. For trees with constant fits, we specify the \code{fitted}
+slot with the terminal node numbers for each sample in the
+training data \code{fitted}, the response and weights.
 
-We now can fit this tree, for example to the airquality data; the
+We now can fit this tree to the Titanic data; the
 \fct{print} method provides us with a first overview on the 
 resulting model
 <<mytree-4, echo = TRUE>>=
@@ -415,9 +444,9 @@ resulting model
 
 Of course, we can immediately use the \fct{plot} function to obtain a
 graphical representation of this tree, the result is given in
-Figure~\ref{plottree}.  The default behaviour for trees with numeric
+Figure~\ref{plottree}.  The default behavior for trees with numeric
 responses is to depict the conditional distribution of the response in each
-terminal node by means of a bar plot.  
+terminal node by means of a bar plot.
 
 \begin{figure}
 \centering
@@ -428,7 +457,7 @@ plot(myttnc)
          \code{ttnc} data. \label{plottree}}
 \end{figure}
 
-An interesting feature of \code{party} tree is the ability to extract
+An interesting feature of \class{party} trees is the ability to extract
 subtrees:
 <<mytree-7, echo = TRUE>>=
 (myttnc7 <- myttnc[7])
@@ -445,7 +474,9 @@ plot(myttnc7)
 \end{figure}
 
 We also might be interested in extracting the $p$-values in the
-inner nodes in a nicely formatted way:
+inner nodes in a nicely formatted way. The \fct{nodeapply} function
+can be used to iterate over a set of nodes, in our case the 
+inner nodes:
 <<mytree-10, echo = TRUE>>=
 fun <- function(x) format.pval(info_split(split_node(x))$p.value,
   digits = 3, eps = 0.001)
@@ -456,9 +487,13 @@ unlist(nodeapply(myttnc, ids = iid, FUN = fun))
 
 \section{Predictions}
 
-Computing predictions for new observations is done using the \fct{predict} method:
+Computing predictions for new observations is done using the \fct{predict} method.
+For example, we compute the predicted classes from the QUEST tree and
+compare these results with the predicted classes from our very simple
+classification tree fitted above
 <<mytree-predict, echo = TRUE>>=
-table(predict(ttnc_quest, newdata = ttnc), predict(myttnc, newdata = ttnc))
+table(predict(ttnc_quest, newdata = ttnc), 
+      predict(myttnc, newdata = ttnc))
 @
 The default for factors is to compute the predicted class for each
 of the rows in \code{newdata}.  One can also simply compute the
@@ -485,10 +520,23 @@ Response class & \code{type = "node"} & \code{type = "response"} & \code{type = 
 \code{numeric} & terminal node number & mean  & ECDF \\
 \code{Surv} & terminal node number & median survival time  & Kaplan-Meier \\
 \end{tabular}
-\caption{Overview on type of predictions computed by the \code{predict}
-         method for \code{constparty} objects. For multivariate responses,
+\caption{Overview on type of predictions computed by the \fct{predict}
+         method for \class{constparty} objects. For multivariate responses,
          combinations thereof are returned. \label{predict-type}}
 \end{table}
+
+\section{Conclusion}
+
+The class \class{constparty} can be used to represent trees with constant
+fits in the terminal nodes, including most of the traditional tree variants. 
+For a number of implementations it is possible to convert the resulting
+trees to a \class{constparty} object.  Thus, \pkg{partykit} offers unified
+methods for representing trees fitted by different algorithms or
+implementations.  Also, computing non-standard predictions, such as the
+median or empirical cumulative distribution functions, is easily possible
+within this framework.  It is rather straightforward to implement a new tree
+algorithm using the \pkg{partykit} infrastructure, at least for prototyping
+purposes.
 
 \bibliography{party}
     
