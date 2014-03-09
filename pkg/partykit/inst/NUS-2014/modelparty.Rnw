@@ -1,0 +1,982 @@
+\documentclass[11pt,compress,t]{beamer}
+\usetheme{Z}
+\usepackage{amsfonts,amstext,amsmath}
+%% need no \usepackage{Sweave}
+\definecolor{InputColor}{rgb}{0,0,0.3}
+\definecolor{OutputColor}{rgb}{0.2,0.2,0.2}
+
+\graphicspath{{../Psychoco-2014/images/}}
+
+%% commands
+\newcommand{\ui}{\underline{i}}
+\newcommand{\oi}{\overline{\imath}}
+\newcommand{\darrow}{\stackrel{\mbox{\tiny \textnormal{d}}}{\longrightarrow}}
+\newcommand{\parrow}{\stackrel{\mbox{\tiny \textnormal{p}}}{\longrightarrow}}
+\newcommand{\dotequals}{\stackrel{\cdot}{=}}
+\newcommand{\efp}{\mathrm{\it efp}}
+\newcommand{\given}{\, | \,}
+\newcommand{\ltime}{\lambda_\mathrm{time}}
+\newcommand{\lcomp}{\lambda_\mathrm{comp}}
+\newcommand{\argmin}{\operatorname{argmin}\displaylimits}
+
+\SweaveOpts{engine=R, eps=FALSE, keep.source=TRUE}
+
+<<packages, echo=FALSE, results=hide>>=
+library("partykit")
+library("psychotools")
+data("Topmodel2007", package = "psychotree")
+options(digits = 4)
+@
+
+<<btfit2, echo=FALSE, results=hide>>=
+btfit2 <- function(y, x = NULL, start = NULL, weights = NULL,
+  offset = NULL, ..., estfun = FALSE, object = FALSE) {
+  rval <- btReg.fit(y, weights = weights, ...,
+    estfun = estfun, vcov = object)
+  list(
+    coefficients = rval$coefficients,
+    objfun = -rval$loglik,
+    estfun = if(estfun) rval$estfun else NULL,
+    object = if(object) rval else NULL
+  )
+}
+@
+
+<<estfun.btReg, echo=FALSE, results=hide>>=
+estfun.btReg <- function(x, ...) x$estfun
+@
+
+<<panelfunction, echo=FALSE, results=hide>>=
+## visualization function
+node_btplot <- function(mobobj, id = TRUE,
+  worth = TRUE, names = TRUE, abbreviate = TRUE, index = TRUE, ref = TRUE,
+  col = "black", linecol = "lightgray", cex = 0.5, pch = 19, xscale = NULL, yscale = NULL, ylines = 1.5)
+{
+    ## node ids
+    node <- nodeids(mobobj, terminal = FALSE)
+    
+    ## get all coefficients 
+    cf <- partykit:::apply_to_models(mobobj, node, FUN = function(z)        
+      if(worth) worth(z) else coef(z, all = FALSE, ref = TRUE))
+    cf <- do.call("rbind", cf)
+    rownames(cf) <- node
+
+    ## get one full model
+    mod <- partykit:::apply_to_models(mobobj, node = 1L, FUN = NULL)
+
+    if(!worth) {
+      if(is.character(ref) | is.numeric(ref)) {
+        reflab <- ref
+        ref <- TRUE
+      } else {
+        reflab <- mod$ref
+      }
+      if(is.character(reflab)) reflab <- match(reflab, mod$labels)
+      cf <- cf - cf[,reflab]
+    }
+
+    ## reference
+    if(worth) {
+      cf_ref <- 1/ncol(cf)
+    } else {
+      cf_ref <- 0
+    }
+
+    ## labeling
+    if(is.character(names)) {
+      colnames(cf) <- names
+      names <- TRUE
+    }
+
+    ## abbreviation
+    if(is.logical(abbreviate)) {
+      nlab <- max(nchar(colnames(cf)))
+      abbreviate <- if(abbreviate) as.numeric(cut(nlab, c(-Inf, 1.5, 4.5, 7.5, Inf))) else nlab
+    }
+    colnames(cf) <- abbreviate(colnames(cf), abbreviate)
+    
+    if(index) {
+      x <- 1:NCOL(cf)
+      if(is.null(xscale)) xscale <- range(x) + c(-0.1, 0.1) * diff(range(x))
+    } else {
+      x <- rep(0, length(cf))
+      if(is.null(xscale)) xscale <- c(-1, 1)      
+    }
+    if(is.null(yscale)) yscale <- range(cf) + c(-0.1, 0.1) * diff(range(cf))
+         
+    ## panel function for bt plots in nodes
+    rval <- function(node) {
+
+      ## node index
+      id <- id_node(node)
+    
+      ## dependent variable setup
+      cfi <- cf[id,]
+
+      ## viewport setup
+      top_vp <- viewport(layout = grid.layout(nrow = 2, ncol = 3,
+    			 widths = unit(c(ylines, 1, 1), c("lines", "null", "lines")),  
+        		 heights = unit(c(1, 1), c("lines", "null"))),
+    			 width = unit(1, "npc"), 
+    			 height = unit(1, "npc") - unit(2, "lines"),
+        		 name = paste("node_btplot", id, sep = ""))
+      pushViewport(top_vp)
+      grid.rect(gp = gpar(fill = "white", col = 0))
+
+      ## main title
+      top <- viewport(layout.pos.col = 2, layout.pos.row = 1)
+      pushViewport(top)
+      mainlab <- paste(ifelse(id, paste("Node", id, "(n = "), ""),
+        	       info_node(node)$nobs, ifelse(id, ")", ""), sep = "")
+      grid.text(mainlab)
+      popViewport()
+
+      ## actual plot  
+      plot_vpi <- viewport(layout.pos.col = 2, layout.pos.row = 2,
+        xscale = xscale, yscale = yscale, 
+        name = paste("node_btplot", id, "plot", sep = ""))
+      pushViewport(plot_vpi)
+
+      grid.lines(xscale, c(cf_ref, cf_ref), gp = gpar(col = linecol), default.units = "native")
+      if(index) {
+        grid.lines(x, cfi, gp = gpar(col = col, lty = 2), default.units = "native")
+        grid.points(x, cfi, gp = gpar(col = col, cex = cex), pch = pch, default.units = "native")
+        grid.xaxis(at = x, label = if(names) names(cfi) else x)
+      } else {  	
+        if(names) grid.text(names(cfi), x = x, y = cfi, default.units = "native")
+          else grid.points(x, cfi, gp = gpar(col = col, cex = cex), pch = pch, default.units = "native")
+      }
+      grid.yaxis(at = c(ceiling(yscale[1] * 100)/100, floor(yscale[2] * 100)/100))
+      grid.rect(gp = gpar(fill = "transparent"))
+
+      upViewport(2)
+    }
+	    
+    return(rval)
+}
+class(node_btplot) <- "grapcon_generator"
+@
+
+
+\begin{document}
+
+\title{Parties, Models, Mobsters\newline
+{\fontsize{11}{15}\selectfont A New Implementation of Model-Based Recursive Partitioning in R}}
+\author{Achim Zeileis, Torsten Hothorn}
+\URL{http://eeecon.uibk.ac.at/~zeileis/}
+\lecture{Parties, Models, Mobsters: A New Implementation of Model-Based Recursive Partitioning in R}
+
+\subsection{Overview}
+
+\begin{frame}
+\frametitle{Overview}
+
+\begin{itemize}
+  \item Model-based recursive partitioning
+  \begin{itemize}
+    \item A generic approach
+    \item Example: Bradley-Terry trees
+  \end{itemize}
+  \item Implementation in R
+  \begin{itemize}
+    \item Building blocks: Parties, models, mobsters
+    \item Old implementation in \emph{party}
+    \item All new implementation in \emph{partykit}
+  \end{itemize}
+  \item Illustration
+\end{itemize}
+
+\end{frame}
+
+
+\subsection{Motivation}
+
+\begin{frame}
+\frametitle{Motivation: Trees}
+
+Breiman (2001, \textit{Statistical Science}) distinguishes two cultures
+of statistical modeling.
+
+\medskip
+
+\begin{itemize}
+  \item \textbf{Data models:} Stochastic models, typically parametric.\\
+        $\rightarrow$ Classical strategy in statistics.
+	Regression models are still the workhorse for many empirical analyses.
+  \item \textbf{Algorithmic models:} Flexible models, data-generating process unknown.
+        $\rightarrow$ Still few applications in many fields, e.g., social sciences or economics.
+\end{itemize}
+
+\medskip
+
+\textbf{Examples:} Recursive partitioning, decision trees.
+Class of flexible methods for classification and regression.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Motivation: Trees}
+
+\textbf{Formally}: Modeling of dependent variable $Y$ by ``learning''
+a recursive partition w.r.t\ explanatory variables $Z_1, \dots, Z_l$.
+
+\bigskip
+
+\textbf{Key features}:
+
+\begin{enumerate}
+  \item Predictive power in nonlinear regression relationships.
+  \item Interpretability (enhanced by visualization), i.e., no ``black box'' methods.
+\end{enumerate}
+
+\bigskip
+
+\textbf{Examples}: CART and C4.5 in statistical and machine learning, respectively.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Motivation: Leaves}
+
+\textbf{Typically:} Simple models for univeriate $Y$, e.g., mean.
+
+\bigskip
+
+\textbf{Idea:} More complex models for multivariate $Y$, e.g., multivariate
+normal model, regression models, etc.
+
+\bigskip
+
+\textbf{Here:} Synthesis of parametric data models and algorithmic tree models.
+
+\bigskip
+
+\textbf{Goal:} Fitting local models by partitioning of the sample space.
+
+\end{frame}
+
+
+\subsection{Recursive partitioning}
+
+\begin{frame}
+\frametitle{Recursive partitioning}
+
+\textbf{Base algorithm}:
+
+\begin{enumerate}
+  \item Fit model for $Y$.
+  \item Assess association of $Y$ and each $Z_j$.
+  \item Split sample along the $Z_{j^*}$ with strongest association:
+        Choose breakpoint with highest improvement of the model fit.
+  \item Repeat steps 1--3 recursively in the subsamples
+        until some stopping criterion is met.
+\end{enumerate}
+
+%% \medskip
+%% 
+%% \textbf{Generally:} Tree algorithms differ w.r.t.\ choice of model (1),
+%% association measure~(2), split strategy (3) and stopping criterion (4).
+
+\bigskip
+
+\textbf{Here:} Segmentation~(3) of parametric models~(1) with 
+additive objective function using parameter instability tests~(2)
+and associated statistical significance~(4).
+
+\end{frame}
+
+
+\subsection{Model estimation}
+
+\begin{frame}
+\frametitle{1.~Model estimation}
+
+\textbf{Models:} $\mathcal{M}(Y, \theta)$ with (potentially) multivariate
+observations $Y \in \mathcal{Y}$ and $k$-dimensional parameter vector
+$\theta \in \Theta$.
+
+\bigskip
+
+\textbf{Parameter estimation:} $\widehat \theta$ by optimization of
+objective function $\Psi(Y, \theta)$ for $n$ observations $Y_i$ ($i = 1, \dots, n$):
+
+\[ \widehat \theta \quad = \quad \argmin_{\theta \in \Theta}
+   \sum_{i = 1}^n \Psi(Y_i, \theta). \]
+
+\bigskip
+
+\textbf{Special cases:} Maximum likelihood (ML), weighted and ordinary
+least squares (OLS and WLS), quasi-ML, and other M-estimators.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{1.~Model estimation}
+
+\textbf{Estimating function:} $\widehat{\theta}$ can also be defined in terms of
+  \[ \sum_{i = 1}^n \psi(Y_i, \widehat{\theta}) = 0, \]
+where $\psi(Y, \theta) = {\partial \Psi(Y, \theta)}/{\partial \theta}$.
+
+\bigskip
+
+\textbf{Central limit theorem:} If there is a true parameter $\theta_0$ and given
+certain weak regularity conditions:
+  \[ \sqrt{n} (\widehat{\theta} - \theta_0) \quad \darrow \quad \mathcal{N}(0, V(\theta_0)), \]
+where $V(\theta_0) = \{A(\theta_0)\}^{-1} B(\theta_0) \{A(\theta_0)\}^{-1}$.
+$A$ and $B$ are the expectation of the derivative of $\psi$ and
+the variance of $\psi$, respectively.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{1.~Model estimation}
+
+\textbf{Idea:}
+In many situations, a single global model 
+$\mathcal{M}(Y, \theta)$ that fits \textbf{all} $n$~observations cannot be found.
+But it might be possible to find a partition w.r.t.\ the variables
+$Z = (Z_1, \dots, Z_l)$ so that a well-fitting model can be found locally
+in each cell of the partition.
+
+\bigskip
+
+\textbf{Tool:} Assess parameter instability w.r.t\ to partitioning variables
+$Z_j \in \mathcal{Z}_j \; (j = 1, \dots, l)$.
+
+\end{frame}
+
+
+\subsection{Parameter instability tests}
+
+\begin{frame}
+\frametitle{2.~Tests for parameter instability}
+
+Generalized M-fluctuation tests
+capture instabilities in $\widehat \theta$ for an ordering w.r.t\ $Z_j$.
+
+\bigskip
+
+\textbf{Basis:} Empirical fluctuation process of cumulative deviations
+w.r.t.\ to an ordering $\sigma(Z_{ij})$.
+
+\[
+W_j(t, \widehat \theta)
+  \quad = \quad {\widehat B}^{-1/2} n^{-1/2}
+                \sum_{i = 1}^{\lfloor nt \rfloor}
+		\psi(Y_{\sigma(Z_{ij})}, \widehat \theta)
+\qquad (0 \le t \le 1)
+\]
+
+\bigskip
+
+\textbf{Functional central limit theorem:} Under parameter stability
+$W_j(\cdot) \, \darrow \, W^0(\cdot)$, where
+$W^0$ is a $k$-dimensional Brownian bridge.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{2.~Tests for parameter instability}
+
+\setkeys{Gin}{width=1.08\textwidth}
+\hspace*{-0.7cm}%
+<<fig=TRUE, height=5, width=10, echo=FALSE, results=hide>>=
+## artificial data
+set.seed(42)
+a <- rnorm(41, mean = 0, sd = 0.12)
+b <- rnorm(41, mean = 1, sd = 0.12)
+b[40] <- b[40]-0.1
+b[41] <- b[41]-0.2
+a[1] <- a[1]+0.2
+a[2] <- a[2]+0.1
+x <- c(b, a)
+
+par(mar = c(5, 5, 3, 1), mfrow = c(1, 2))
+
+## data, model, and residuals
+plot(0:81, x, xlab = expression(Z[j]), ylab = "Y", ylim = c(-2, 3),
+  type = "l", xlim = c(1, 80), axes=FALSE)
+axis(1,at=seq(0,80,20),labels=seq(2004,2012,2),cex.axis=1.2, cex.lab=1.2)
+axis(2,at=seq(-2,3,1),labels=seq(200,1200,200),cex.axis=1.2, cex.lab=1.2)
+box()
+abline(h = mean(x), lty = 3)
+for(i in c(5, 15, 25, 35)) {
+  segments(x0 = i, x1 = i, y0 = x[i+1], y1 = mean(x), lty = 2)
+  i <- i + 40
+  segments(x0 = i, x1 = i, y0 = mean(x), y1 = x[i+1], lty = 2)
+}
+
+## CUSUM graph
+x_efp <- c(0, cumsum(x - mean(x)))/sqrt(length(x) * var(x))
+plot(-1:81, x_efp, xlab = expression(Z[j]), ylab = "Fluctuation Process", 
+  type = "l", xlim = c(1, 80), ylim = c(-5, 5), axes=FALSE)
+axis(1,at=seq(0,80,20),labels=seq(2004,2012,2),cex.axis=1.2, cex.lab=1.2)
+axis(2, cex.axis=1.2, cex.lab=1.2)
+box()
+abline(h = 0, lty = 3)
+for(i in seq(5, 75, by = 10)) segments(x0 = i, x1 = i, y0 = 0, y1 = x_efp[i+2], lty = 2)
+@
+
+\end{frame}
+
+\begin{frame}
+\frametitle{2.~Tests for parameter instability}
+
+\textbf{Test statistics:} Scalar functional $\lambda(W_j)$
+that captures deviations from zero.
+
+\bigskip
+
+\textbf{Null distribution:} Asymptotic distribution of $\lambda(W^0)$.
+
+\bigskip
+
+\textbf{Special cases:} Class of test encompasses many well-known
+tests for different classes of models.
+Certain functionals~$\lambda$ are particularly intuitive for numeric and
+categorical $Z_j$, respectively.
+
+\bigskip
+
+\textbf{Advantage:} Model $\mathcal{M}(Y, \widehat \theta)$ just has to be
+estimated once. Empirical estimating functions $\psi(Y_i, \widehat \theta)$
+just have to be re-ordered and aggregated for each $Z_j$.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{2.~Tests for parameter instability}
+
+\textbf{Splitting numeric variables:} Assess instability using
+sup$\mathit{LM}$ statistics.
+
+\[
+\lambda_{\mbox{sup}\mathit{LM}} (W_j) \quad = \quad
+\max_{i = \ui, \dots, \oi}  \, \left(\frac{i}{n} \cdot \frac{n-i}{n} \right)^{-1}
+\left| \left| W_j \left( \frac{i}{n} \right) \right| \right|^2_2.
+\]
+
+\bigskip
+
+\textbf{Interpretation:} Maximization of single shift $\mathit{LM}$ statistics
+for all conceivable breakpoints in $[\ui, \oi]$.
+
+\bigskip
+
+\textbf{Limiting distribution:} Supremum of a squared, $k$-dimensional tied-down
+Bessel process.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{2.~Tests for parameter instability}
+
+\textbf{Splitting categorical variables:} Assess instability using
+$\chi^2$ statistics.
+
+\[ \lambda_{\chi^2} (W_j) \quad = \quad
+\sum_{c = 1}^C 
+\frac{n}{|I_c|}  \left| \left| \Delta_{I_c} W_j \left( \frac{i}{n} \right) \right| \right|^2_2
+\]
+
+\bigskip
+
+\textbf{Feature:} Invariant for re-ordering of the $C$ categories and the
+observations within each category.
+
+\bigskip
+
+\textbf{Interpretation:} Captures instability for split-up into $C$ categories.
+
+\bigskip
+
+\textbf{Limiting distribution:} $\chi^2$ with $k \cdot (C-1)$ degrees of freedom.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{2.~Tests for parameter instability}
+
+\textbf{Splitting ordinal variables:} FIXME
+
+like categorical
+
+like numeric but invariant to reordering within ties
+
+\end{frame}
+
+
+\subsection{Segmentation}
+
+\begin{frame}
+\frametitle{3.~Segmentation}
+
+\textbf{Goal:} Split model into $b = 1, \dots, B$ segments along the
+partitioning variable $Z_j$ associated with the highest parameter instability.
+Local optimization of
+
+\[ \sum_b \sum_{i \in I_b} \Psi(Y_i, \theta_b). \]
+
+\bigskip
+
+$B = 2$: Exhaustive search of order $O(n)$.
+
+\bigskip
+
+$B > 2$: Exhaustive search is of order $O(n^{B-1})$, but can be replaced
+by dynamic programming of order $O(n^2)$. Different methods (e.g., information
+criteria) can choose $B$ adaptively.
+
+\bigskip
+
+\textbf{Here:} Binary partitioning.
+
+\end{frame}
+
+
+\subsection{Pruning}
+
+\begin{frame}
+\frametitle{4.~Pruning}
+
+\textbf{Pruning:} Avoid overfitting.
+
+\bigskip
+
+\textbf{Pre-pruning:} Internal stopping criterium. Stop splitting when
+there is no significant parameter instability based on
+Bonferroni-corrected $p$~values of the fluctuation tests.
+
+\bigskip
+
+\textbf{Post-pruning:} Grow large tree and prune splits that do not
+improve the model fit based on information criteria (e.g., AIC or BIC).
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Bradley-Terry trees}
+
+\hspace*{0.2cm}%
+\includegraphics[width=0.23\textwidth]{Barbara.jpg} \hspace*{0.1cm}
+\includegraphics[width=0.23\textwidth]{Anni.jpg} \hspace*{0.1cm}
+\includegraphics[width=0.23\textwidth]{Hana.jpg} \hspace*{0.1cm}
+\includegraphics[width=0.23\textwidth]{Fiona.jpg}
+
+\vspace*{0.1cm}
+\hspace*{0.2cm}%
+\includegraphics[width=0.23\textwidth]{Mandy.jpg} \hspace*{0.1cm}
+\includegraphics[width=0.23\textwidth]{Anja.jpg} \hspace*{0.2cm}%
+\begin{tabular}{p{0.48\textwidth}}
+\textbf{Questions:} Which of these
+
+women is more attractive?
+
+How does the answer depend on
+
+age, gender, and the familiarity
+
+with the associated TV show
+
+Germany's Next Topmodel?
+\vspace*{3.4cm}
+\end{tabular}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Bradley-Terry trees}
+
+<<topmodel-tree, echo=FALSE, results=hide>>=
+bt0 <- mob(preference ~ 1 | gender + age + q1 + q2 + q3,
+  data = Topmodel2007, fit = btfit2)
+@
+
+\vspace*{-0.5cm}
+
+\setkeys{Gin}{width=1.15\textwidth}
+\hspace*{-0.7cm}%
+<<topmodel-plot, echo=FALSE, results=hide, fig=TRUE, height=6.2, width=10>>=
+plot(bt0, drop = TRUE, tnex = 2,
+  terminal_panel = node_btplot(bt0, abbreviate = 1, yscale = c(0, 0.5)))
+@
+
+\end{frame}
+
+
+\subsection{Implementation in R}
+
+\begin{frame}
+\frametitle{Implementation: Building blocks}
+
+\textbf{Workhorse function:} \code{mob()} for
+\begin{itemize}
+  \item data handling,
+  \item calling model fitters,
+  \item carrying out parameter instability tests and
+  \item recursive partitioning algorithm.
+\end{itemize}
+
+\bigskip
+
+\textbf{Required functionality:}
+\begin{itemize}
+  \item \emph{Parties:} Class and methods for recursive partytions.
+  \item \emph{Models:} Fitting functions for statistical models (optimizing suitable objective function).
+  \item \emph{Mobsters:} High-level interfaces (\code{lmtree()}, \code{bttree()}, \dots)
+    that call lower-level \code{mob()} with suitable options and methods.
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Implementation: Old \texttt{mob()} in \emph{party}}
+
+\textbf{Parties:} S4 class `\code{BinaryTree}'.
+\begin{itemize}
+  \item Originally developed only for \code{ctree()} and somewhat ``abused''.
+  \item Rather rigid and hard to extend.
+\end{itemize}
+
+\medskip
+
+\textbf{Models:} S4 `\code{StatModel}' objects.
+\begin{itemize}
+  \item Intended to conceptualize unfitted model objects.
+  \item Required some ``glue code'' to accomodate non-standard
+    interface for data handling and model fitting.
+\end{itemize}
+
+\medskip
+
+\textbf{Mobsters:}
+\begin{itemize}
+  \item \code{mob()} already geared towards (generalized) linear models.
+  \item Other interfaces in \emph{psychotree} and \emph{betareg}.
+  \item Hard to do fine control due to adopted S4 classes: Many unnecessary
+    computations and copies of data.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Implementation: New \texttt{mob()} in \emph{partykit}}
+
+\textbf{Parties:} S3 class `\code{modelparty}' built on `\code{party}'.
+\begin{itemize}
+  \item Separates data and tree structure.
+  \item Inherits generic infrastructure for printing, predicting,
+    plotting, \dots
+\end{itemize}
+
+\medskip
+
+\textbf{Models:} Plain functions with input/output convention.
+\begin{itemize}
+  \item Basic and extended interface for rapid prototyping and for
+    speeding up computings, respectively.
+  \item Only minimial glue code required if models are well-designed.
+\end{itemize}
+
+\medskip
+
+\textbf{Mobsters:}
+\begin{itemize}
+  \item \code{mob()} completely agnostic regarding models employed.
+  \item Separate interfaces \code{lmtree()}, \code{glmtree()}, \dots
+  \item New interfaces typically need to bring their model fitter and adapt the
+    main methods \code{print()}, \code{plot()}, \code{predict()} etc.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Implementation: New \texttt{mob()} in \emph{partykit}}
+
+\textbf{New inference options:} Not used by default by optionally available.
+\begin{itemize}
+  \item New parameter instability tests for ordinal partitioning variables.
+    Alternative to unordered $\chi^2$ test but computationally intensive.
+  \item Post-pruning based on information criteria (e.g., AIC or BIC), especially
+    for very large datasets where traditional significance levels are not useful.
+  \item Multiway splits for categorical partitioning variables.
+  \item Treat weights as proportionality weights and not as case weights.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Implementation: Models}
+
+\textbf{Input:} Basic interface.
+\begin{Soutput}
+  fit(y, x = NULL, start = NULL, weights = NULL,
+    offset = NULL, ...)
+\end{Soutput}
+\code{y}, \code{x}, \code{weights}, \code{offset} are (the subset of)
+the preprocessed data.
+
+Starting values and further fitting arguments are in \code{start} and \code{...}.
+
+\bigskip
+
+\textbf{Output:} Fitted model object of class with suitable methods.
+\begin{itemize}
+  \item \code{coef()}: Estimated parameters $\hat \theta$.
+  \item \code{logLik()}: Maximized log-likelihood function $-\sum_i \Psi(y_i, x_, \hat \theta)$.
+  \item \code{estfun()}: Empirical estimating functions
+    $\Psi'(y_i, x_i, \hat \theta)$.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Implementation: Models}
+
+\textbf{Input:} Extended interface.
+\begin{Soutput}
+  fit(y, x = NULL, start = NULL, weights = NULL,
+    offset = NULL, ..., estfun = FALSE, object = FALSE)
+\end{Soutput}
+
+\medskip
+
+\textbf{Output:} List.
+\begin{itemize}
+  \item \code{coefficients}: Estimated parameters $\hat \theta$.
+  \item \code{objfun}: Minimized objective function $\sum_i \Psi(y_i, x_, \hat \theta)$.
+  \item \code{estfun}: Empirical estimating functions
+    $\Psi'(y_i, x_i, \hat \theta)$. Only needed if \code{estfun = TRUE}, otherwise optionally \code{NULL}.
+  \item \code{object}: A model object for which further methods could
+    be available (e.g., \code{predict()}, or \code{fitted()}, etc.).
+    Only needed if \code{object = TRUE}, otherwise optionally \code{NULL}.
+\end{itemize}
+
+
+\medskip
+
+\textbf{Internally:} Extended interface constructed from basic interface if supplied.
+Efficiency can be gained through extended approach.
+
+\end{frame}
+
+
+\subsection{Bradley-Terry trees}
+
+\begin{frame}[fragile]
+\frametitle{Illustration: Bradley-Terry trees}
+
+Data, packages, and \code{estfun()} method:
+<<packages, eval=FALSE>>=
+data("Topmodel2007", package = "psychotree")
+library("partykit")
+library("psychotools")
+<<estfun.btReg>>
+@
+
+\medskip
+
+Basic model fitting function:
+
+<<btfit1>>=
+btfit1 <- function(y, x = NULL, start = NULL, weights = NULL,
+  offset = NULL, ...) btReg.fit(y, weights = weights, ...)
+@
+
+
+\medskip
+
+Fit Bradley-Terry tree:
+
+<<bt1>>=
+system.time(bt1 <- mob(
+  preference ~ 1 | gender + age + q1 + q2 + q3,
+  data = Topmodel2007, fit = btfit1))
+@
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Illustration: Bradley-Terry trees}
+
+Extended model fitting function:
+
+<<btfit2-2>>=
+<<btfit2>>
+@
+
+\medskip
+
+Fit Bradley-Terry tree again:
+
+<<bt2>>=
+system.time(bt2 <- mob(
+  preference ~ 1 | gender + age + q1 + q2 + q3,
+  data = Topmodel2007, fit = btfit2))
+@
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Illustration: Bradley-Terry trees}
+
+<<bt2-print, echo=FALSE>>=
+out <- capture.output(bt2)
+writeLines(out[1:21])
+@
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Illustration: Bradley-Terry trees}
+
+<<bt2-print, echo=FALSE>>=
+out <- capture.output(bt2)
+writeLines(out[-(1:22)])
+@
+
+\medskip
+
+Standard methods readily available:
+<<bt2-coef>>=
+plot(bt2)
+coef(bt2)
+@
+
+\medskip
+
+Customization:
+<<bt2-worthf, eval=FALSE>>=
+worthf <- function(info) paste(info$object$labels,
+  format(round(worth(info$object), digits = 2)), sep = ": ")
+plot(bt2, FUN = worthf)
+@
+
+\code{}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Illustration: Bradley-Terry trees}
+
+\vspace*{-0.5cm}
+
+\setkeys{Gin}{width=1.15\textwidth}
+\hspace*{-0.7cm}%
+<<bt2-plot, fig=TRUE, height=7.4, width=12, echo=FALSE>>=
+plot(bt2)
+@
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Illustration: Bradley-Terry trees}
+
+\vspace*{-0.5cm}
+
+\setkeys{Gin}{width=1.15\textwidth}
+\hspace*{-0.7cm}%
+<<bt2-plot2, fig=TRUE, height=7.4, width=12, echo=FALSE>>=
+<<bt2-worthf>>
+@
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Illustration: Bradley-Terry trees}
+
+\vspace*{-0.5cm}
+
+\setkeys{Gin}{width=\textwidth}
+<<bt2-nodeapply, fig=TRUE, height=7, width=9, echo=FALSE, results=hide>>=
+par(mfrow = c(2, 2))
+nodeapply(bt2, ids = c(3, 5, 6, 7), FUN = function(n)
+  plot(n$info$object, main = n$id, ylim = c(0, 0.4)))
+@
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Illustration: Bradley-Terry trees}
+
+Apply plotting in all terminal nodes:
+<<nodeapply, eval=FALSE>>=
+<<bt2-nodeapply>>
+@
+
+\medskip
+
+<<tm, echo=FALSE>>=
+tm <- data.frame(age = c(60, 25, 35), gender = c("male", "female", "female"),
+  q1 = "no", q2 = c("no", "no", "yes"), q3 = "no")
+@
+
+\medskip
+
+Predicted nodes and ranking:
+<<predict>>=
+tm
+predict(bt2, tm, type = "node")
+predict(bt2, tm, type = function(object) t(rank(-worth(object))))
+@
+%predict(bt2, tm, type = function(object) t(worth(object)))
+
+\end{frame}
+
+\subsection{Summary}
+
+\begin{frame}
+\frametitle{Summary}
+
+\begin{itemize}
+  \item All new implementation of model-based recursive partitioning in \emph{partykit}.
+  \item Enables more efficient computations, rapid prototyping, flexible customization.
+  \item Some new inference options.
+\end{itemize}
+
+\end{frame}
+
+\subsection{References}
+
+\begin{frame}
+\frametitle{References}
+
+\small
+
+Hothorn T, Zeileis A (2014).
+ \textit{partykit: A Toolkit for Recursive Partytioning.}
+ R~package version~0.2-0.
+ URL~\url{http://R-Forge.R-project.org/projects/partykit/}
+
+\bigskip
+
+Zeileis A, Hothorn T (2014).
+ \textit{Parties, Models, Mobsters: A New Implementation of Model-Based Recursive Partitioning in R.}
+ \code{vignette("mob", package = "partykit")}.
+
+\bigskip
+
+Strobl C, Wickelmaier F, Zeileis A (2011).
+  \dquote{Accounting for Individual Differences in Bradley-Terry Models by Means of Recursive Partitioning.}
+  \textit{Journal of Educational and Behavioral Statistics}, \textbf{36}(2), 135--153.
+  \doi{10.3102/1076998609359791}
+
+\bigskip
+
+Zeileis A, Hothorn T, Hornik K (2008).
+ \dquote{Model-Based Recursive Partitioning.}
+  \textit{Journal of Computational and Graphical Statistics},
+  \textbf{17}(2), 492--514.
+  \doi{10.1198/106186008X319331}
+
+\end{frame}
+
+
+\end{document}
