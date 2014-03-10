@@ -593,7 +593,8 @@ the internal structure might be changed/extended in future release).
 \subsubsection{Overview}
 
 Inner and terminal nodes are represented by objects of class \class{partynode}.
-Each node has a unique identifier \code{id}. A node consisting only
+Each node has a unique identifier \code{id}. The root node has identifier 1;
+the nodes down the tree are assumed to be in infix order. A node consisting only
 of such an identifier (and possibly additional information  
 in \code{info}) is a terminal node:
 %
