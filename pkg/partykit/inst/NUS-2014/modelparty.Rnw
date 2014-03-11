@@ -209,21 +209,15 @@ of statistical modeling.
 
 \medskip
 
-\textbf{Examples:} Recursive partitioning, decision trees.
-Class of flexible methods for classification and regression.
+\textbf{Classical example}: Trees, i.e., modeling of dependent variable $y$ by ``learning''
+a recursive partition w.r.t\ explanatory variables $z_1, \dots, z_l$.
 
 \end{frame}
 
 \begin{frame}
-\frametitle{Motivation: Trees}
-
-\textbf{Formally}: Modeling of dependent variable $Y$ by ``learning''
-a recursive partition w.r.t\ explanatory variables $Z_1, \dots, Z_l$.
-
-\bigskip
+\frametitle{Motivation: Leaves}
 
 \textbf{Key features}:
-
 \begin{enumerate}
   \item Predictive power in nonlinear regression relationships.
   \item Interpretability (enhanced by visualization), i.e., no ``black box'' methods.
@@ -231,19 +225,12 @@ a recursive partition w.r.t\ explanatory variables $Z_1, \dots, Z_l$.
 
 \bigskip
 
-\textbf{Examples}: CART and C4.5 in statistical and machine learning, respectively.
-
-\end{frame}
-
-\begin{frame}
-\frametitle{Motivation: Leaves}
-
-\textbf{Typically:} Simple models for univeriate $Y$, e.g., mean.
+\textbf{Typically:} Simple models for univeriate $y$, e.g., mean.
 
 \bigskip
 
-\textbf{Idea:} More complex models for multivariate $Y$, e.g., multivariate
-normal model, regression models, etc.
+\textbf{Idea:} More complex models for more complex $y$, e.g.,
+regression models, multivariate normal model, item responses, etc.
 
 \bigskip
 
@@ -261,27 +248,16 @@ normal model, regression models, etc.
 \begin{frame}
 \frametitle{Recursive partitioning}
 
-\textbf{Base algorithm}:
+\textbf{Model-based algorithm}:
 
 \begin{enumerate}
-  \item Fit model for $Y$.
-  \item Assess association of $Y$ and each $Z_j$.
-  \item Split sample along the $Z_{j^*}$ with strongest association:
+  \item Fit the parametric model in the current subsample.
+  \item Assess the stability of the parameters across each partitioning variable $z_j$.
+  \item Split sample along the $z_{j^*}$ with strongest instability:
         Choose breakpoint with highest improvement of the model fit.
   \item Repeat steps 1--3 recursively in the subsamples
         until some stopping criterion is met.
 \end{enumerate}
-
-%% \medskip
-%% 
-%% \textbf{Generally:} Tree algorithms differ w.r.t.\ choice of model (1),
-%% association measure~(2), split strategy (3) and stopping criterion (4).
-
-\bigskip
-
-\textbf{Here:} Segmentation~(3) of parametric models~(1) with 
-additive objective function using parameter instability tests~(2)
-and associated statistical significance~(4).
 
 \end{frame}
 
@@ -291,17 +267,17 @@ and associated statistical significance~(4).
 \begin{frame}
 \frametitle{1.~Model estimation}
 
-\textbf{Models:} $\mathcal{M}(Y, \theta)$ with (potentially) multivariate
-observations $Y \in \mathcal{Y}$ and $k$-dimensional parameter vector
+\textbf{Models:} $\mathcal{M}(y, x, \theta)$ with (potentially multivariate)
+observations $y$, optionally regressors $x$, and $k$-dimensional parameter vector
 $\theta \in \Theta$.
 
 \bigskip
 
 \textbf{Parameter estimation:} $\widehat \theta$ by optimization of
-objective function $\Psi(Y, \theta)$ for $n$ observations $Y_i$ ($i = 1, \dots, n$):
+objective function $\Psi(y, x, \theta)$ for $n$ observations $y_i$ ($i = 1, \dots, n$):
 
 \[ \widehat \theta \quad = \quad \argmin_{\theta \in \Theta}
-   \sum_{i = 1}^n \Psi(Y_i, \theta). \]
+   \sum_{i = 1}^n \Psi(y_i, x_i, \theta). \]
 
 \bigskip
 
@@ -315,8 +291,8 @@ least squares (OLS and WLS), quasi-ML, and other M-estimators.
 \frametitle{1.~Model estimation}
 
 \textbf{Estimating function:} $\widehat{\theta}$ can also be defined in terms of
-  \[ \sum_{i = 1}^n \psi(Y_i, \widehat{\theta}) = 0, \]
-where $\psi(Y, \theta) = {\partial \Psi(Y, \theta)}/{\partial \theta}$.
+  \[ \sum_{i = 1}^n \psi(y_i, x_i, \widehat{\theta}) = 0, \]
+where $\psi(y, x, \theta) = {\partial \Psi(y, x, \theta)}/{\partial \theta}$.
 
 \bigskip
 
@@ -335,15 +311,19 @@ the variance of $\psi$, respectively.
 
 \textbf{Idea:}
 In many situations, a single global model 
-$\mathcal{M}(Y, \theta)$ that fits \textbf{all} $n$~observations cannot be found.
+$\mathcal{M}(y, x, \theta)$ that fits \textbf{all} $n$~observations cannot be found.
 But it might be possible to find a partition w.r.t.\ the variables
-$Z = (Z_1, \dots, Z_l)$ so that a well-fitting model can be found locally
+$z_1, \dots, z_l$ so that a well-fitting model can be found locally
 in each cell of the partition.
 
 \bigskip
 
-\textbf{Tool:} Assess parameter instability w.r.t\ to partitioning variables
-$Z_j \in \mathcal{Z}_j \; (j = 1, \dots, l)$.
+\textbf{Tools:}
+\begin{itemize}
+  \item Assess parameter instability w.r.t\ to partitioning variables
+        $z_j \; (j = 1, \dots, l)$.
+  \item A general measure of deviation from the model is the estimating function $\psi(y, x, \theta)$.
+\end{itemize}
 
 \end{frame}
 
@@ -354,18 +334,18 @@ $Z_j \in \mathcal{Z}_j \; (j = 1, \dots, l)$.
 \frametitle{2.~Tests for parameter instability}
 
 Generalized M-fluctuation tests
-capture instabilities in $\widehat \theta$ for an ordering w.r.t\ $Z_j$.
+capture instabilities in $\widehat \theta$ for an ordering w.r.t\ $z_j$.
 
 \bigskip
 
 \textbf{Basis:} Empirical fluctuation process of cumulative deviations
-w.r.t.\ to an ordering $\sigma(Z_{ij})$.
+w.r.t.\ to an ordering $\sigma(z_{ij})$.
 
 \[
 W_j(t, \widehat \theta)
   \quad = \quad {\widehat B}^{-1/2} n^{-1/2}
                 \sum_{i = 1}^{\lfloor nt \rfloor}
-		\psi(Y_{\sigma(Z_{ij})}, \widehat \theta)
+		\psi(y_{\sigma(z_{ij})}, x_{\sigma(z_{ij})}, \widehat \theta)
 \qquad (0 \le t \le 1)
 \]
 
@@ -396,7 +376,7 @@ x <- c(b, a)
 par(mar = c(5, 5, 3, 1), mfrow = c(1, 2))
 
 ## data, model, and residuals
-plot(0:81, x, xlab = expression(Z[j]), ylab = "Y", ylim = c(-2, 3),
+plot(0:81, x, xlab = expression(z[j]), ylab = "y", ylim = c(-2, 3),
   type = "l", xlim = c(1, 80), axes=FALSE)
 axis(1,at=seq(0,80,20),labels=seq(2004,2012,2),cex.axis=1.2, cex.lab=1.2)
 axis(2,at=seq(-2,3,1),labels=seq(200,1200,200),cex.axis=1.2, cex.lab=1.2)
@@ -410,7 +390,7 @@ for(i in c(5, 15, 25, 35)) {
 
 ## CUSUM graph
 x_efp <- c(0, cumsum(x - mean(x)))/sqrt(length(x) * var(x))
-plot(-1:81, x_efp, xlab = expression(Z[j]), ylab = "Fluctuation Process", 
+plot(-1:81, x_efp, xlab = expression(z[j]), ylab = "Fluctuation Process", 
   type = "l", xlim = c(1, 80), ylim = c(-5, 5), axes=FALSE)
 axis(1,at=seq(0,80,20),labels=seq(2004,2012,2),cex.axis=1.2, cex.lab=1.2)
 axis(2, cex.axis=1.2, cex.lab=1.2)
@@ -436,13 +416,13 @@ that captures deviations from zero.
 \textbf{Special cases:} Class of test encompasses many well-known
 tests for different classes of models.
 Certain functionals~$\lambda$ are particularly intuitive for numeric and
-categorical $Z_j$, respectively.
+categorical $z_j$, respectively.
 
 \bigskip
 
-\textbf{Advantage:} Model $\mathcal{M}(Y, \widehat \theta)$ just has to be
-estimated once. Empirical estimating functions $\psi(Y_i, \widehat \theta)$
-just have to be re-ordered and aggregated for each $Z_j$.
+\textbf{Advantage:} Model $\mathcal{M}(y, x, \widehat \theta)$ just has to be
+estimated once. Empirical estimating functions $\psi(y_i, x_i, \widehat \theta)$
+just have to be re-ordered and aggregated for each $z_j$.
 
 \end{frame}
 
@@ -454,7 +434,7 @@ just have to be re-ordered and aggregated for each $Z_j$.
 sup$\mathit{LM}$ statistics.
 
 \[
-\lambda_{\mbox{sup}\mathit{LM}} (W_j) \quad = \quad
+\lambda_{\mathit{supLM}} (W_j) \quad = \quad
 \max_{i = \ui, \dots, \oi}  \, \left(\frac{i}{n} \cdot \frac{n-i}{n} \right)^{-1}
 \left| \left| W_j \left( \frac{i}{n} \right) \right| \right|^2_2.
 \]
@@ -469,6 +449,12 @@ for all conceivable breakpoints in $[\ui, \oi]$.
 \textbf{Limiting distribution:} Supremum of a squared, $k$-dimensional tied-down
 Bessel process.
 
+\bigskip
+
+\textbf{Potential alternatives:} Many other parameter instability tests from the same
+class of tests, e.g., a Cram\'{e}r-von Mises test (or Nyblom-Hansen test),
+MOSUM tests, etc.
+
 \end{frame}
 
 
@@ -480,7 +466,7 @@ $\chi^2$ statistics.
 
 \[ \lambda_{\chi^2} (W_j) \quad = \quad
 \sum_{c = 1}^C 
-\frac{n}{|I_c|}  \left| \left| \Delta_{I_c} W_j \left( \frac{i}{n} \right) \right| \right|^2_2
+\frac{n}{|I_c|}  \left| \left| \Delta_{I_c} W_j \left( \frac{i}{n} \right) \right| \right|^2_2.
 \]
 
 \bigskip
@@ -501,11 +487,28 @@ observations within each category.
 \begin{frame}
 \frametitle{2.~Tests for parameter instability}
 
-\textbf{Splitting ordinal variables:} FIXME
+\textbf{Splitting ordinal variables:} Several strategies conceivable.
+Assess instability either as for categorical variables (if $C$ is low),
+or as for numeric variables (if $C$ is high), or via a specialized test.
+\begin{eqnarray*}
+  \lambda_\mathit{maxLMo}(W_j) & = & \max_{i \in \{i_1, \dots, i_{C-1} \}} ~
+    \left(\frac{i}{n} \cdot \frac{n-i}{n} \right)^{-1}
+    \left| \left| W_j \left( \frac{i}{n} \right) \right| \right|^2_2,\\
+  \lambda_\mathit{WDMo}(W_j) & = & \max_{i \in \{i_1, \dots, i_{C-1} \}} ~
+    \left(\frac{i}{n} \cdot \frac{n-i}{n} \right)^{-1/2}      
+    \left| \left| W_j\left( \frac{i}{n} \right) \right| \right|_{\infty}.
+\end{eqnarray*}
 
-like categorical
+\bigskip
 
-like numeric but invariant to reordering within ties
+\textbf{Interpretation:} Assess only the possible splitpoints $i_1, \dots, i_{C-1}$,
+based on $L_2$ or $L_\infty$ norm.
+
+\bigskip
+
+\textbf{Limiting distribution:} Maximum from selected points in a squared
+Bessel process or multivariate normal distribution, respectively.
+
 
 \end{frame}
 
@@ -516,10 +519,10 @@ like numeric but invariant to reordering within ties
 \frametitle{3.~Segmentation}
 
 \textbf{Goal:} Split model into $b = 1, \dots, B$ segments along the
-partitioning variable $Z_j$ associated with the highest parameter instability.
+partitioning variable $z_j$ associated with the highest parameter instability.
 Local optimization of
 
-\[ \sum_b \sum_{i \in I_b} \Psi(Y_i, \theta_b). \]
+\[ \sum_b \sum_{i \in I_b} \Psi(y_i, x_i, \theta_b). \]
 
 \bigskip
 
@@ -533,7 +536,8 @@ criteria) can choose $B$ adaptively.
 
 \bigskip
 
-\textbf{Here:} Binary partitioning.
+\textbf{Here:} Binary partitioning. Optionally, $B = C$ can be chosen (without search)
+for categorical variables.
 
 \end{frame}
 
@@ -543,18 +547,30 @@ criteria) can choose $B$ adaptively.
 \begin{frame}
 \frametitle{4.~Pruning}
 
-\textbf{Pruning:} Avoid overfitting.
+\textbf{Goal:} Avoid overfitting.
 
 \bigskip
 
-\textbf{Pre-pruning:} Internal stopping criterium. Stop splitting when
-there is no significant parameter instability based on
-Bonferroni-corrected $p$~values of the fluctuation tests.
+\textbf{Pre-pruning:}
+\begin{itemize}
+  \item Internal stopping criterium.
+  \item Stop splitting when there is no significant parameter instability.
+  \item Based on Bonferroni-corrected $p$~values of the fluctuation tests.
+\end{itemize}
 
 \bigskip
 
-\textbf{Post-pruning:} Grow large tree and prune splits that do not
-improve the model fit based on information criteria (e.g., AIC or BIC).
+\textbf{Post-pruning:}
+\begin{itemize}
+  \item Grow large tree (e.g., with high significance level).
+  \item Prune splits that do not improve the model fit
+        based on information criteria (e.g., AIC or BIC).
+\end{itemize}
+
+\bigskip
+
+\textbf{Hyperparameters:} Significance level and information criterion penalty
+can be chosen manually (or possibly through cross-validation etc.).
 
 \end{frame}
 
