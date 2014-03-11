@@ -594,7 +594,10 @@ the internal structure might be changed/extended in future release).
 
 Inner and terminal nodes are represented by objects of class \class{partynode}.
 Each node has a unique identifier \code{id}. The root node has identifier 1;
-the nodes down the tree are assumed to be in infix order. A node consisting only
+the first daughter node has identifier 2, those daughter (if present) has identifier
+3 and so on. So, we first look at the root node, visit the first daugther node and all
+its daugthers, then the second daughter node and all its daughters and so on. This is
+called \emph{pre-order tree traversal}, see \cite{tree_traversal}. A node consisting only
 of such an identifier (and possibly additional information  
 in \code{info}) is a terminal node:
 %
