@@ -677,10 +677,15 @@ R code
 
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}
 \frametitle{mytree}
 
 R code
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{OK, fire away!}
 
 <<Titanic-mytree-vis, eval = FALSE, echo = TRUE>>=
 plot(mytree(Survived ~ Class + Age + Gender, 
@@ -688,7 +693,6 @@ plot(mytree(Survived ~ Class + Age + Gender,
 @
 
 \end{frame}
-
 
 
 \begin{frame}
