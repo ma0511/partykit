@@ -24,8 +24,20 @@
 <<packages, echo=FALSE, results=hide>>=
 library("partykit")
 library("psychotools")
-data("Topmodel2007", package = "psychotree")
 options(digits = 4)
+@
+
+<<data, echo=FALSE, results=hide>>=
+data("Topmodel2007", package = "psychotree")
+data("Titanic", package = "datasets")
+ttnc <- as.data.frame(Titanic)
+ttnc <- ttnc[rep(1:nrow(ttnc), ttnc$Freq), 1:4]
+names(ttnc)[2] <- "Gender"
+ttnc <- transform(ttnc, Treatment = factor(
+  Gender == "Female" | Age == "Child",
+  levels = c(FALSE, TRUE),
+  labels = c("Normal\n(Male&Adult)", "Preferential\n(Female|Child)")
+))
 @
 
 <<btfit2, echo=FALSE, results=hide>>=
@@ -172,10 +184,14 @@ class(node_btplot) <- "grapcon_generator"
 \frametitle{Overview}
 
 \begin{itemize}
-  \item Model-based recursive partitioning
+  \item Motivation: Trees and leaves
+  \item Model-based (MOB) recursive partitioning
   \begin{itemize}
-    \item A generic approach
-    \item Example: Bradley-Terry trees
+    \item Model estimation
+    \item Tests for parameter instability
+    \item Segmentation
+    \item Pruning
+    \item Local models
   \end{itemize}
   \item Implementation in R
   \begin{itemize}
@@ -183,7 +199,12 @@ class(node_btplot) <- "grapcon_generator"
     \item Old implementation in \emph{party}
     \item All new implementation in \emph{partykit}
   \end{itemize}
-  \item Illustration
+  \item Application
+  \begin{itemize}
+    \item Paired comparisons for Germany's Topmodel finalists
+    \item Bradley-Terry trees
+    \item Implementation from scratch
+  \end{itemize}
 \end{itemize}
 
 \end{frame}
@@ -248,7 +269,7 @@ regression models, multivariate normal model, item responses, etc.
 \begin{frame}
 \frametitle{Recursive partitioning}
 
-\textbf{Model-based algorithm}:
+\textbf{Model-based (MOB) algorithm}:
 
 \begin{enumerate}
   \item Fit the parametric model in the current subsample.
@@ -258,6 +279,55 @@ regression models, multivariate normal model, item responses, etc.
   \item Repeat steps 1--3 recursively in the subsamples
         until some stopping criterion is met.
 \end{enumerate}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Recursive partitioning}
+
+\textbf{Example:} Logistic regression, assessing differences in
+the effect of ``preferential treatment'' (``women and children first''?).
+
+\bigskip
+
+\textbf{Result:} Log-odds ratio of survival given treatment differs across
+classes (slope), as does the survival probability of male adults (intercept).
+
+\bigskip
+
+\textbf{In R:} Generalized linear model tree with binomial family (and default logit link).
+
+<<ttnc, results=hide>>=
+mb <- glmtree(Survived ~ Treatment | Age + Gender + Class,
+  data = ttnc, family = binomial, alpha = 0.05, prune = "BIC")
+plot(mb)
+print(mb)
+@
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Recursive partitioning}
+
+\vspace*{-0.3cm}
+
+\setkeys{Gin}{width=1.1\textwidth}
+\hspace*{-0.4cm}%
+<<ttnc-plot, fig=TRUE, height=7, width=12, echo=FALSE, results=hide>>=
+plot(mb, tp_args = list(margins = c(1.5, 2, 1.5, 2.5)))
+@
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Recursive partitioning}
+
+<<ttnc-print, echo=FALSE>>=
+ttnc$Treatment <- factor(ttnc$Treatment, labels = c("Normal", "Preferential"))
+mb0 <- glmtree(Survived ~ Treatment | Age + Gender + Class,
+  data = ttnc, family = binomial, alpha = 0.05, prune = "BIC")
+mb0
+@
 
 \end{frame}
 
@@ -476,7 +546,7 @@ observations within each category.
 
 \bigskip
 
-\textbf{Interpretation:} Captures instability for split-up into $C$ categories.
+\textbf{Interpretation:} Capture instability for split-up into $C$ categories.
 
 \bigskip
 
@@ -575,53 +645,31 @@ can be chosen manually (or possibly through cross-validation etc.).
 \end{frame}
 
 
+\subsection{Local models}
 
 \begin{frame}
-\frametitle{Bradley-Terry trees}
+\frametitle{Local models}
 
-\hspace*{0.2cm}%
-\includegraphics[width=0.23\textwidth]{Barbara.jpg} \hspace*{0.1cm}
-\includegraphics[width=0.23\textwidth]{Anni.jpg} \hspace*{0.1cm}
-\includegraphics[width=0.23\textwidth]{Hana.jpg} \hspace*{0.1cm}
-\includegraphics[width=0.23\textwidth]{Fiona.jpg}
+\textbf{Goals:}
+\begin{itemize}
+  \item Detection of interactions and nonlinearities in regressions.
+  \item Add explanatory variables for models without regressors.
+  \item Detect violations of parameter stability (measurement invariance)
+    across several variables adaptively.
+\end{itemize}
 
-\vspace*{0.1cm}
-\hspace*{0.2cm}%
-\includegraphics[width=0.23\textwidth]{Mandy.jpg} \hspace*{0.1cm}
-\includegraphics[width=0.23\textwidth]{Anja.jpg} \hspace*{0.2cm}%
-\begin{tabular}{p{0.48\textwidth}}
-\textbf{Questions:} Which of these
+\bigskip
 
-women is more attractive?
-
-How does the answer depend on
-
-age, gender, and the familiarity
-
-with the associated TV show
-
-Germany's Next Topmodel?
-\vspace*{3.4cm}
-\end{tabular}
-
-\end{frame}
-
-\begin{frame}
-\frametitle{Bradley-Terry trees}
-
-<<topmodel-tree, echo=FALSE, results=hide>>=
-bt0 <- mob(preference ~ 1 | gender + age + q1 + q2 + q3,
-  data = Topmodel2007, fit = btfit2)
-@
-
-\vspace*{-0.5cm}
-
-\setkeys{Gin}{width=1.15\textwidth}
-\hspace*{-0.7cm}%
-<<topmodel-plot, echo=FALSE, results=hide, fig=TRUE, height=6.2, width=10>>=
-plot(bt0, drop = TRUE, tnex = 2,
-  terminal_panel = node_btplot(bt0, abbreviate = 1, yscale = c(0, 0.5)))
-@
+\textbf{Mobsters:}
+\begin{itemize}
+  \item Linear and generalized linear model trees (Zeileis \emph{et al.} 2008).
+  \item Censored survival regression trees: parametric proportional hazard
+    and accelerated failure time models (Zeileis \emph{et al.}~2008).
+  \item Beta regression trees (Gr\"un \emph{et al.}~2012).
+  \item Bradley-Terry trees for paired comparisons (Strobl \emph{et al.}~2011).
+  \item Item response theory (IRT) trees: Rasch, rating scale and partial credit model
+    (Strobl \emph{et al.}~2014, Abou El-Komboz \emph{et al.}~2014).
+\end{itemize}
 
 \end{frame}
 
@@ -783,11 +831,100 @@ Efficiency can be gained through extended approach.
 
 \end{frame}
 
+\begin{frame}[fragile]
+\frametitle{Implementation: Class}
+
+\textbf{Class:} `\code{modelparty}'.
+
+FIXME
+
+\end{frame}
+
 
 \subsection{Bradley-Terry trees}
 
+\begin{frame}
+\frametitle{Bradley-Terry trees}
+
+\hspace*{0.2cm}%
+\includegraphics[width=0.23\textwidth]{Barbara.jpg} \hspace*{0.1cm}
+\includegraphics[width=0.23\textwidth]{Anni.jpg} \hspace*{0.1cm}
+\includegraphics[width=0.23\textwidth]{Hana.jpg} \hspace*{0.1cm}
+\includegraphics[width=0.23\textwidth]{Fiona.jpg}
+
+\vspace*{0.1cm}
+\hspace*{0.2cm}%
+\includegraphics[width=0.23\textwidth]{Mandy.jpg} \hspace*{0.1cm}
+\includegraphics[width=0.23\textwidth]{Anja.jpg} \hspace*{0.2cm}%
+\begin{tabular}{p{0.48\textwidth}}
+\textbf{Questions:} Which of these
+
+women is more attractive?
+
+How does the answer depend on
+
+age, gender, and the familiarity
+
+with the associated TV show
+
+Germany's Next Topmodel?
+\vspace*{3.4cm}
+\end{tabular}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Bradley-Terry trees}
+
+\textbf{Task:} Preference scaling of attractiveness.
+
+\bigskip
+
+\textbf{Model:} Paired comparison via Bradley-Terry.
+\begin{itemize}
+  \item Paired comparisons of attractiveness for
+    \emph{Germany's Next Topmodel~2007} finalists:
+    Barbara, Anni, Hana, Fiona, Mandy, Anja.
+  \item Survey with 192~respondents at Universit{\"a}t T{\"u}bingen.
+  \item Available covariates: Gender, age, familiarty with the TV~show.
+  \item Familiarity assessed by yes/no questions:
+    (1)~Do you recognize the women?/Do you know the show?
+    (2)~Did you watch it regularly?
+    (3)~Did you watch the final show?/Do you know who won?
+\end{itemize}
+
+\bigskip
+
+\textbf{Mobster:} \code{bttree()} in \emph{psychotree} (Strobl \emph{et al.}~2011).
+
+\bigskip
+
+\textbf{Here:} Use \code{mob()} directly to build model from scratch.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Bradley-Terry trees}
+
+<<topmodel-tree, echo=FALSE, results=hide>>=
+bt0 <- mob(preference ~ 1 | gender + age + q1 + q2 + q3,
+  data = Topmodel2007, fit = btfit2)
+@
+
+\vspace*{-0.5cm}
+
+\setkeys{Gin}{width=1.15\textwidth}
+\hspace*{-0.7cm}%
+<<topmodel-plot, echo=FALSE, results=hide, fig=TRUE, height=6.2, width=10>>=
+plot(bt0, drop = TRUE, tnex = 2,
+  terminal_panel = node_btplot(bt0, abbreviate = 1, yscale = c(0, 0.5)))
+@
+
+\end{frame}
+
+
 \begin{frame}[fragile]
-\frametitle{Illustration: Bradley-Terry trees}
+\frametitle{Bradley-Terry trees}
 
 Data, packages, and \code{estfun()} method:
 <<packages, eval=FALSE>>=
@@ -820,7 +957,7 @@ system.time(bt1 <- mob(
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Illustration: Bradley-Terry trees}
+\frametitle{Bradley-Terry trees}
 
 Extended model fitting function:
 
@@ -841,7 +978,7 @@ system.time(bt2 <- mob(
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Illustration: Bradley-Terry trees}
+\frametitle{Bradley-Terry trees}
 
 <<bt2-print, echo=FALSE>>=
 out <- capture.output(bt2)
@@ -851,7 +988,7 @@ writeLines(out[1:21])
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Illustration: Bradley-Terry trees}
+\frametitle{Bradley-Terry trees}
 
 <<bt2-print, echo=FALSE>>=
 out <- capture.output(bt2)
@@ -880,7 +1017,7 @@ plot(bt2, FUN = worthf)
 \end{frame}
 
 \begin{frame}
-\frametitle{Illustration: Bradley-Terry trees}
+\frametitle{Bradley-Terry trees}
 
 \vspace*{-0.5cm}
 
@@ -893,7 +1030,7 @@ plot(bt2)
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Illustration: Bradley-Terry trees}
+\frametitle{Bradley-Terry trees}
 
 \vspace*{-0.5cm}
 
@@ -906,7 +1043,7 @@ plot(bt2)
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Illustration: Bradley-Terry trees}
+\frametitle{Bradley-Terry trees}
 
 \vspace*{-0.5cm}
 
@@ -920,7 +1057,7 @@ nodeapply(bt2, ids = c(3, 5, 6, 7), FUN = function(n)
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Illustration: Bradley-Terry trees}
+\frametitle{Bradley-Terry trees}
 
 Apply plotting in all terminal nodes:
 <<nodeapply, eval=FALSE>>=
@@ -952,9 +1089,14 @@ predict(bt2, tm, type = function(object) t(rank(-worth(object))))
 \frametitle{Summary}
 
 \begin{itemize}
-  \item All new implementation of model-based recursive partitioning in \emph{partykit}.
+  \item Synthesis of parametric data models and algorithmic tree models.
+  \item Based on modern class of parameter instability tests.
+  \item Aims to minimize clearly defined objective function by greedy forward search.
+  \item Can be applied general class of parametric models.
+  \item Alternative to traditional means of model specification,
+        especially for variables with unknown association.
+  \item All new implementation in \emph{partykit}.
   \item Enables more efficient computations, rapid prototyping, flexible customization.
-  \item Some new inference options.
 \end{itemize}
 
 \end{frame}
@@ -964,27 +1106,58 @@ predict(bt2, tm, type = function(object) t(rank(-worth(object))))
 \begin{frame}
 \frametitle{References}
 
-\small
+\footnotesize
+
+\textbf{Software:}
+
+\medskip
 
 Hothorn T, Zeileis A (2014).
  \textit{partykit: A Toolkit for Recursive Partytioning.}
  R~package version~0.2-0.
  URL~\url{http://R-Forge.R-project.org/projects/partykit/}
 
-\bigskip
+\medskip
 
 Zeileis A, Hothorn T (2014).
  \textit{Parties, Models, Mobsters: A New Implementation of Model-Based Recursive Partitioning in R.}
- \code{vignette("mob", package = "partykit")}.
+ \texttt{vignette("mob",~package~=~"partykit")}.
 
 \bigskip
 
-Strobl C, Wickelmaier F, Zeileis A (2011).
-  \dquote{Accounting for Individual Differences in Bradley-Terry Models by Means of Recursive Partitioning.}
-  \textit{Journal of Educational and Behavioral Statistics}, \textbf{36}(2), 135--153.
-  \doi{10.3102/1076998609359791}
+\textbf{Inference:}
 
-\bigskip
+\medskip
+
+Zeileis A, Hornik K (2007).
+ \dquote{Generalized {M}-Fluctuation Tests for Parameter Instability.}
+ \textit{Statistica Neerlandica},
+ \textbf{61}(4), 488--508.
+ \doi{10.1111/j.1467-9574.2007.00371.x}
+
+\medskip
+
+Merkle EC, Zeileis A (2013).
+ \dquote{Tests of Measurement Invariance without Subgroups: A Generalization of Classical Methods.}
+ \textit{Psychometrika}, \textbf{78}(1), 59--82.
+ \doi{10.1007/S11336-012-9302-4}
+
+\medskip
+
+Merkle EC, Fan J, Zeileis A (2014).
+ \dquote{Testing for Measurement Invariance with Respect to an Ordinal Variable.}
+ \textit{Psychometrika}. Forthcoming.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{References}
+
+\footnotesize
+
+\textbf{Trees:}
+
+\medskip
 
 Zeileis A, Hothorn T, Hornik K (2008).
  \dquote{Model-Based Recursive Partitioning.}
@@ -992,7 +1165,41 @@ Zeileis A, Hothorn T, Hornik K (2008).
   \textbf{17}(2), 492--514.
   \doi{10.1198/106186008X319331}
 
-\end{frame}
+\medskip
 
+Strobl C, Wickelmaier F, Zeileis A (2011).
+  \dquote{Accounting for Individual Differences in Bradley-Terry Models by Means of Recursive Partitioning.}
+  \textit{Journal of Educational and Behavioral Statistics}, \textbf{36}(2), 135--153.
+  \doi{10.3102/1076998609359791}
+
+\medskip
+
+Gr\"un B, Kosmidis I, Zeileis A (2012).
+  \dquote{Extended Beta Regression in R: Shaken, Stirred, Mixed, and Partitioned.}
+  \textit{Journal of Statistical Software}, \textbf{48}(11), 1--25.
+  URL~\url{http://www.jstatsoft.org/v48/i11/}
+
+%% \medskip
+%% 
+%% Rusch T, Lee I, Hornik K, Jank W, Zeileis A (2013).
+%%   \dquote{Influencing Elections with Statistics: Targeting Voters with Logistic Regression Trees.}
+%%   \textit{The Annals of Applied Statistics}, \textbf{7}(3), 1612--1639.
+%%   \doi{10.1214/13-AOAS648}
+
+\medskip
+
+Strobl C, Kopf J, Zeileis A (2013).
+  \dquote{A New Method for Detecting Differential Item Functioning in the Rasch Model.}
+  \textit{Psychometrika}. Forthcoming.
+  \doi{10.1007/s11336-013-9388-3}
+
+\medskip
+
+Abou El-Komboz B, Zeileis A, Strobl C (2014).
+  \dquote{Detecting Differential Item and Step Functioning with Rating Scale and Partial Credit Trees.}
+  \textit{Technical Report 152}, Department of Statistics, Ludwig-Maximilians-Universit\"at M\"unchen.
+  URL~\url{http://epub.ub.uni-muenchen.de/17984/}
+
+\end{frame}
 
 \end{document}
