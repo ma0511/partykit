@@ -36,10 +36,13 @@ is.partynode <- function(x) {
 as.partynode <- function(x, ...)
     UseMethod("as.partynode")
 
-as.partynode.partynode <- function(x, from = NULL, ...) {
+as.partynode.partynode <- function(x, from = NULL, recursive = TRUE, ...) {
     if(is.null(from)) from <- id_node(x)
     from <- as.integer(from)
-    if(is.partynode(x) & id_node(x) == from) return(x)
+    if (!recursive) {
+        if(is.partynode(x) & 
+           id_node(x) == from) return(x)
+    }
     id <- from - 1L
      
     new_node <- function(x) {
@@ -88,7 +91,12 @@ as.partynode.list <- function(x, ...) {
                  info = x_i$info)
     }
     
-    new_recnode(ids[1L])
+    ret <- new_recnode(ids[1L])
+    ### <FIXME> duplicates recursion but makes sure
+    ###    that the ids are in pre-order notation with
+    ###    from defined in as.partynode.partynode 
+    ### </FIXME>
+    as.partynode(ret, ...)
 }
 
 as.list.partynode <- function(x, ...)

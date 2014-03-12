@@ -24,7 +24,7 @@
 \usage{
 is.partynode(x)
 as.partynode(x, \dots)
-\method{as.partynode}{partynode}(x, from = NULL, \dots)
+\method{as.partynode}{partynode}(x, from = NULL, recursive = TRUE, \dots)
 \method{as.partynode}{list}(x, \dots)
 \method{as.list}{partynode}(x, \dots)
 \method{length}{partynode}(x)
@@ -45,6 +45,9 @@ width(x, \dots)
 \arguments{
   \item{x}{ an object of class \code{partynode} or \code{list}.}
   \item{from}{ an integer giving the identifier of the root node.}
+  \item{recursive}{ a logical, if \code{FALSE}, only the id of the root node
+                    is checked against \code{from}. If 
+                    \code{TRUE}, the ids of all nodes are checked.}
   \item{i}{ an integer specifying the kid to extract.}
   \item{root}{ a logical. Should the root count be counted in \code{depth}? }
   \item{data}{ an optional \code{data.frame}.}
