@@ -1,5 +1,7 @@
 useDynLib("partykit")
 import("stats")
+import("graphics")
+import("grid")
 importFrom("survival", "survfit")
 
 export(
@@ -35,6 +37,7 @@ export(
   "nodeapply",
   "nodeids",
   "width",
+  "nodeprune",
 
   ## exported methods (to facilitate re-use)
   "plot.party",
@@ -42,6 +45,7 @@ export(
   "plot.modelparty",
   "predict.modelparty",
   "print.modelparty",
+  "nodeprune.party",
 
   ## workhorse infrastructure
   "breaks_split",
@@ -100,6 +104,7 @@ S3method("nodeapply", "party")
 S3method("nodeids", "party")
 S3method("predict", "party")
 S3method("width", "party")
+S3method("nodeprune", "party")
 
 ## methods for class partynode
 S3method("[", "partynode")

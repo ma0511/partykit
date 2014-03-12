@@ -463,7 +463,19 @@ subtrees:
 (myttnc7 <- myttnc[7])
 @
 which again are objects inheriting from \class{party} and thus
-can be plotted easily (see Figure~\ref{subtree}).
+can be plotted easily (see Figure~\ref{subtree}). Also, it is possible
+to prune-off nodes based on their node identifiers or their names
+using \fct{nodeprune}; see Figure~\ref{prunetree}.
+
+\begin{figure}
+\centering
+<<mytree-5-nodeprune, echo = TRUE, fig = TRUE, height=8.5, width=14>>=
+plot(nodeprune(myttnc, 10))
+@
+\caption{Pruned classification tree fitted by the \fct{mytree} function to the
+         \code{ttnc} data. \label{prunetree}}
+\end{figure}
+
 
 \begin{figure}[t!]
 \centering

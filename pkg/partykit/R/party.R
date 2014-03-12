@@ -350,11 +350,15 @@ predict_party.constparty <- function(party, id, newdata = NULL,
 }
 
 ### functions for node prediction based on fitted / response
-.pred_Surv <- function(y, w)
+.pred_Surv <- function(y, w) {
+    if (length(y) == 0) return(NA)
     survfit(y ~ 1, weights = w, subset = w > 0)
+}
 
-.pred_Surv_response <- function(y, w)
+.pred_Surv_response <- function(y, w) {
+    if (length(y) == 0) return(NA)
     .median_survival_time(.pred_Surv(y, w))
+}
  
 .pred_factor <- function(y, w) {
     lev <- levels(y)
@@ -377,6 +381,7 @@ predict_party.constparty <- function(party, id, newdata = NULL,
     weighted.mean(y, w, na.rm = TRUE)
 
 .pred_ecdf <- function(y, w) {
+    if (length(y) == 0) return(NA)
     iw <- as.integer(round(w))
     if (max(abs(w - iw)) < sqrt(.Machine$double.eps)) {
         y <- rep(y, w)
@@ -410,7 +415,10 @@ predict_party.constparty <- function(party, id, newdata = NULL,
         ### id may also refer to inner nodes
         tab <- as.array(lapply(sort(unique(id)), function(i) {
             index <- fitted %in% nodeids(node, i, terminal = TRUE)
-            FUN(response[index], weights[index])
+            ret <- FUN(response[index], weights[index])
+            ### no information about i in fitted
+            if (all(!index)) ret[1] <- NA
+            return(ret)
         }))
         names(tab) <- as.character(sort(unique(id)))
     }
@@ -482,6 +490,59 @@ width.party <- function(x, ...) {
 depth.party <- function(x, root = FALSE, ...) {
   depth(node_party(x), root = root, ...)
 }
+
+nodeprune <- function(x, ids, ...)
+    UseMethod("nodeprune")
+
+nodeprune.party <- function(x, ids, ...) {
+
+    ### map names to nodeids
+    if (!is.numeric(ids))
+        ids <- match(ids, names(x))
+    stopifnot(ids %in% nodeids(x))
+
+    ### compute indices path to each node
+    ### to be pruned off
+    idxs <- lapply(ids, .get_path, obj = x)
+
+    ### [[.party is NOT [[.list
+    cls <- class(x)
+    x <- unclass(x)
+
+    for (i in 1:length(idxs)) {
+    
+        idx <- idxs[[i]]
+        ### check if we already pruned-off this node
+        tmp <- try(x[[idx]], silent = TRUE)
+        if (inherits(tmp, "try-error"))
+            next()
+
+        ### node ids of off-pruned daugther nodes
+        idrm <- nodeids(x[[idx]])[-1]
+
+        ### prune node by introducing a "new" terminal node
+        x[[idx]] <- partynode(id = id_node(x[[idx]]),
+                              info = info_node(x[[idx]]))
+
+        ### constparty only: make sure the node ids in
+        ### fitted are corrected
+        if (length(idrm) > 0) {
+             if(!is.null(x$fitted) && 
+                 "(fitted)" %in% names(x$fitted)) {
+                     j <- x$fitted[["(fitted)"]] %in% idrm
+                     x$fitted[["(fitted)"]][j] <- ids[i]
+             }
+        }
+    }
+
+    ### reindex to 1:max(nodeid)
+    class(x) <- cls
+    nodeids(x) <- 1:length(nodeids(x))
+    x
+}
+
+nodeprune.default <- function(x, ids, ...)
+    stop("No", sQuote("nodeprune"), "method for class", class(x), "implemented")
 
 .list.rules.party <- function(x, i = NULL, ...) {
     if (is.null(i)) i <- nodeids(x, terminal = TRUE)
