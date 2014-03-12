@@ -706,7 +706,16 @@ plot(myttnc)
 
 \end{frame}
 
+\begin{frame}[fragile]
+\frametitle{Too big a tree? Prune!}
 
+\setkeys{Gin}{width=\textwidth}
+\hspace*{-0.4cm}%
+<<Titanic-mytree-prune, echo = TRUE, fig = TRUE, height=8, width=12>>=
+plot(nodeprune(myttnc, 10))
+@ 
+
+\end{frame}
 
 \begin{frame}
 \frametitle{What's next?}
