@@ -1458,7 +1458,8 @@ records   n.max n.start  events  median 0.95LCL 0.95UCL
 > 	
 > ct <- ctree(Species ~ ., data = iris)
 Loading required package: Formula
-> (ctp <- nodeprune(ct, 4))
+> nt <- node_party(ctree(Species ~ ., data = iris))
+> (ctp <- nodeprune(ct, 4)) ### party method
 
 Model formula:
 Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width
@@ -1472,6 +1473,18 @@ Fitted party:
 
 Number of inner nodes:    2
 Number of terminal nodes: 3
+> (ntp <- nodeprune(nt, 4)) ### partynode method
+[1] root
+|   [2] V4 <= 1.9 *
+|   [3] V4 > 1.9
+|   |   [4] V5 <= 1.7 *
+|   |   [5] V5 > 1.7 *
+> 
+> ### check if both methods do the same
+> p1 <- predict(party(ntp, 
++     data = model.frame(terms(ct), data = iris)), type = "node")
+> p2 <- predict(ctp, type = "node")
+> stopifnot(max(abs(p1 - p2)) == 0)
 > 
 > names(ct) <- LETTERS[nodeids(ct)]
 > (ctp <- nodeprune(ct, "D"))
@@ -1552,4 +1565,4 @@ Number of terminal nodes: 1
 > 
 > proc.time()
    user  system elapsed 
-  1.988   0.260   2.030 
+  1.864   0.180   1.850 

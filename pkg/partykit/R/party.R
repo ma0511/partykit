@@ -503,15 +503,16 @@ nodeprune.party <- function(x, ids, ...) {
 
     ### compute indices path to each node
     ### to be pruned off
-    idxs <- lapply(ids, .get_path, obj = x)
+    idxs <- lapply(ids, .get_path, obj = node_party(x))
 
     ### [[.party is NOT [[.list
     cls <- class(x)
     x <- unclass(x)
+    ni <- which(names(x) == "node")
 
     for (i in 1:length(idxs)) {
     
-        idx <- idxs[[i]]
+        idx <- c(ni, idxs[[i]])
         ### check if we already pruned-off this node
         tmp <- try(x[[idx]], silent = TRUE)
         if (inherits(tmp, "try-error"))
@@ -538,7 +539,36 @@ nodeprune.party <- function(x, ids, ...) {
     ### reindex to 1:max(nodeid)
     class(x) <- cls
     nodeids(x) <- 1:length(nodeids(x))
-    x
+    return(x)
+}
+
+nodeprune.partynode <- function(x, ids, ...) {
+
+    stopifnot(ids %in% nodeids(x))
+
+    ### compute indices path to each node
+    ### to be pruned off
+    idxs <- lapply(ids, .get_path, obj = x)
+
+    ### [[.partynode is NOT [[.list
+    cls <- class(x)
+    x <- unclass(x)
+
+    for (i in 1:length(idxs)) {
+    
+        idx <- idxs[[i]]
+        ### check if we already pruned-off this node
+        tmp <- try(x[[idx]], silent = TRUE)
+        if (inherits(tmp, "try-error"))
+            next()
+
+        ### prune node by introducing a "new" terminal node
+        x[[idx]] <- partynode(id = id_node(x[[idx]]),
+                              info = info_node(x[[idx]]))
+    }
+
+    class(x) <- cls
+    return(as.partynode(x, from = 1L))
 }
 
 nodeprune.default <- function(x, ids, ...)

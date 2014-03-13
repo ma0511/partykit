@@ -15,6 +15,7 @@
 \alias{width}
 \alias{width.partynode}
 \alias{print.partynode}
+\alias{nodeprune.partynode}
 \title{ Methods for Node Objects}
 \description{
 
@@ -41,6 +42,7 @@ width(x, \dots)
     terminal_panel = function(node) " *",
     prefix = "", first = TRUE, digits = getOption("digits") - 2, 
     \dots)
+\method{nodeprune}{partynode}(x, ids, ...)
 }
 \arguments{
   \item{x}{ an object of class \code{partynode} or \code{list}.}
@@ -57,6 +59,7 @@ width(x, \dots)
   \item{prefix}{ lines start with this symbol.}
   \item{first}{ a logical.}
   \item{digits}{ number of digits to be printed.}
+  \item{ids}{ a vector of node ids to be pruned-off.}
   \item{\dots}{ additional arguments.}
 }
 \details{

@@ -13,10 +13,10 @@
 }
 
 ### get the recursive index
-### obj is of class "party"
+### obj is of class "partynode"
 .get_path <- function(obj, i) {
 
-    idx <- which(names(unclass(obj)) == "node")
+    idx <- c()
     recFun <- function(node, i) {
         if (id_node(node) == i) return(NULL)
         idx <<- c(idx, which(names(unclass(node)) == "kids"))
@@ -25,7 +25,7 @@
         idx <<- c(idx, nextid)
         return(recFun(node[[nextid]], i))
     }
-    out <- recFun(node_party(obj), i)
+    out <- recFun(obj, i)
     return(idx)
 }
 
@@ -38,11 +38,12 @@
   id1 <- as.integer(value)
   stopifnot(identical(id1, 1:length(id0)))
 
-  idxs <- lapply(id0, .get_path, obj = obj)
+  idxs <- lapply(id0, .get_path, obj = node_party(obj))
   x <- unclass(obj)
+  ni <- which(names(x) == "node")
   nm <- x$names
   for (i in 1:length(idxs))
-      x[[idxs[[i]]]]$id <- id1[i]
+      x[[c(ni, idxs[[i]])]]$id <- id1[i]
   class(x) <- class(obj)
   if (!is.null(nm)) 
       names(x) <- nm[id0]
