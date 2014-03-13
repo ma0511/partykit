@@ -1,6 +1,15 @@
-Changes in Version 0.2-0
+Changes in Version 0.8-0
 
   o Reimplementation of the model-based recursive partitioning algorithm
     (MOB) using "partykit" infrastructure. The generic algorithm and the
     corresponding convenience interfaces lmtree() and glmtree() are
     described in detail in vignette("MOB", package = "partykit").
+
+  o Improved implementation of conditional inference trees (CTree), see
+    vignette("ctree", package = "partykit") for details
+
+  o Extended documentation in vignette("partykit", package = "partykit")
+    and vignette("constparty", package = "partykit")
+
+  o New "nodeprune()" generic and "party" method
+
