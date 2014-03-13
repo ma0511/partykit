@@ -614,7 +614,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
       fit = afit,
       control = control,
       dots = list(...),
-      nreg = as.integer(xreg) * (nyx - NCOL(Y)))
+      nreg = max(0L, as.integer(xreg) * (nyx - NCOL(Y))))
   )
   class(rval) <- c("modelparty", class(rval))
   return(rval)
