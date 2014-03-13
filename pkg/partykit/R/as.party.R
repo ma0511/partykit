@@ -14,10 +14,10 @@ as.party.rpart <- function(obj, ...) {
     splitindex <- list()
     splitindex$primary <- numeric(n)
     splitindex$primary[!is.leaf] <- index[c(!is.leaf, FALSE)]
-    splitindex$surrogate <- lapply(1:n, function(i) {
+    splitindex$surrogate <- lapply(1L:n, function(i) {
         prim <- splitindex$primary[i]
         if (prim < 1 || ff[i, "nsurrogate"] == 0) return(NULL)
-        else return(prim + ff[i, "ncompete"] + 1:ff[i, "nsurrogate"])
+        else return(prim + ff[i, "ncompete"] + 1L:ff[i, "nsurrogate"])
     })
     
     mf <- model.frame(obj)
@@ -33,8 +33,8 @@ as.party.rpart <- function(obj, ...) {
 
     rpart_kids <- function(i) {
         if (is.leaf[i]) return(NULL)
-        else return(c(i + 1, 
-            which((cumsum(!is.leaf[-(1:i)]) + 1) == cumsum(is.leaf[-(1:i)]))[1] + 1 + i))
+        else return(c(i + 1L, 
+            which((cumsum(!is.leaf[-(1L:i)]) + 1L) == cumsum(is.leaf[-(1L:i)]))[1L] + 1L + i))
     }
 
     rpart_onesplit <- function(j) {
@@ -47,11 +47,11 @@ as.party.rpart <- function(obj, ...) {
                       index = if(obj$split[j, "ncat"] > 0) 2:1)
         } else {
             index <- obj$csplit[obj$split[j, "index"],]
-            ### csplit has columns 1:max(nlevels) for all factors
-            ### index <- index[1:obj$split[j, "ncat"]] ??? safer ???
-            index <- index[1:nlevels(mf[, rownames(obj$split)[j]])]
-            index[index == 2] <- NA ### level not present in split
-            index[index == 3] <- 2  ### 1..left, 3..right
+            ### csplit has columns 1L:max(nlevels) for all factors
+            ### index <- index[1L:obj$split[j, "ncat"]] ??? safer ???
+            index <- index[1L:nlevels(mf[, rownames(obj$split)[j]])]
+            index[index == 2L] <- NA ### level not present in split
+            index[index == 3L] <- 2L  ### 1..left, 3..right
             ret <- partysplit(varid = which(rownames(obj$split)[j] == names(mf)),
                       index = as.integer(index))
         }
@@ -71,8 +71,8 @@ as.party.rpart <- function(obj, ...) {
 	           surrogates = rpart_surrogates(i))
 
         ### determine majority for (non-random) splitting
-        left <- nodeids(kids_node(nd)[[1]], terminal = TRUE)
-        right <- nodeids(kids_node(nd)[[2]], terminal = TRUE)
+        left <- nodeids(kids_node(nd)[[1L]], terminal = TRUE)
+        right <- nodeids(kids_node(nd)[[2L]], terminal = TRUE)
         nd$split$prob <- c(0, 0)
         nl <- sum(fitted[["(fitted)"]] %in% left)
         nr <- sum(fitted[["(fitted)"]] %in% right)
@@ -83,7 +83,7 @@ as.party.rpart <- function(obj, ...) {
 
     node <- rpart_node(1)
 
-    rval <- party(node = node, data = mf[0,], fitted = fitted,
+    rval <- party(node = node, data = mf[0L,], fitted = fitted,
       terms = obj$terms, info = list(method = "rpart"))
     class(rval) <- c("constparty", class(rval))
     return(rval)
@@ -164,7 +164,7 @@ as.party.Weka_tree <- function(obj, ...) {
       
       split <- partysplit(varid = as.integer(var_id),
         breaks = breaks, right = TRUE,
-	index = if(split[[1]][1] == ">") 2:1)
+	index = if(split[[1L]][1L] == ">") 2L:1L)
     }
     return(split)
   }
@@ -181,17 +181,17 @@ as.party.Weka_tree <- function(obj, ...) {
   if(j48) {
     pty <- party(
       node = node,
-      data = mf[0,],
+      data = mf[0L,],
       fitted = data.frame("(fitted)" = fitted_node(node, mf),
         		  "(response)" = model.response(mf),
         		  check.names = FALSE),
       terms = obj$terms,
       info = list(method = "J4.8"))
-    class(pty) <- c("constparty", class(j48))
+    class(pty) <- c("constparty", class(pty))
   } else {
     pty <- party(
       node = node,
-      data = mf[0,],
+      data = mf[0L,],
       fitted = data.frame("(fitted)" = fitted_node(node, mf), check.names = FALSE),
       terms = obj$terms,
       info = list(method = class(obj)[1L]))      
