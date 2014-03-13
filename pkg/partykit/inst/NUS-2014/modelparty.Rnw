@@ -838,6 +838,8 @@ Efficiency can be gained through extended approach.
 
 FIXME
 
+\emph{Formula}
+
 \end{frame}
 
 
@@ -1106,7 +1108,7 @@ predict(bt2, tm, type = function(object) t(rank(-worth(object))))
 \begin{frame}
 \frametitle{References}
 
-\footnotesize
+\scriptsize
 
 \textbf{Software:}
 
@@ -1121,7 +1123,14 @@ Hothorn T, Zeileis A (2014).
 
 Zeileis A, Hothorn T (2014).
  \textit{Parties, Models, Mobsters: A New Implementation of Model-Based Recursive Partitioning in R.}
- \texttt{vignette("mob",~package~=~"partykit")}.
+ \texttt{vignette("mob",~package~=~"partykit")}
+
+\medskip
+
+Zeileis A, Croissant Y (2010).
+  \dquote{Extended Model Formulas in R: Multiple Parts and Multiple Responses.}
+  \textit{Journal of Statistical Software}, \textbf{34}(1), 1--13. 
+  URL~\url{http://www.jstatsoft.org/v34/i01/}
 
 \bigskip
 
@@ -1153,7 +1162,7 @@ Merkle EC, Fan J, Zeileis A (2014).
 \begin{frame}
 \frametitle{References}
 
-\footnotesize
+\scriptsize
 
 \textbf{Trees:}
 
@@ -1179,12 +1188,12 @@ Gr\"un B, Kosmidis I, Zeileis A (2012).
   \textit{Journal of Statistical Software}, \textbf{48}(11), 1--25.
   URL~\url{http://www.jstatsoft.org/v48/i11/}
 
-%% \medskip
-%% 
-%% Rusch T, Lee I, Hornik K, Jank W, Zeileis A (2013).
-%%   \dquote{Influencing Elections with Statistics: Targeting Voters with Logistic Regression Trees.}
-%%   \textit{The Annals of Applied Statistics}, \textbf{7}(3), 1612--1639.
-%%   \doi{10.1214/13-AOAS648}
+\medskip
+
+Rusch T, Lee I, Hornik K, Jank W, Zeileis A (2013).
+  \dquote{Influencing Elections with Statistics: Targeting Voters with Logistic Regression Trees.}
+  \textit{The Annals of Applied Statistics}, \textbf{7}(3), 1612--1639.
+  \doi{10.1214/13-AOAS648}
 
 \medskip
 
