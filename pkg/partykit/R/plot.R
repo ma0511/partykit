@@ -35,7 +35,9 @@ node_inner <- function(obj, id = TRUE, pval = TRUE, abbreviate = FALSE, fill = "
       klab <- if(is.terminal(node)) "" else unlist(lapply(kids_node(node), maxstr))
       lab <- c(lab, klab)
       lab <- unlist(lapply(lab, function(x) strsplit(x, "\n")))
-      return(lab[which.max(nchar(lab))])
+      lab <- lab[which.max(nchar(lab))]
+      if(length(lab) < 1L) lab <- ""
+      return(lab)
   }
 
   nstr <- maxstr(node_party(obj))
@@ -421,8 +423,8 @@ node_barplot <- function(obj,
       prob
     }
     probs <- do.call("rbind", nodeapply(obj, nodeids(obj), probs_and_n, by_node = FALSE))
-    nobs <- probs[,"nobs"]
-    probs <- probs[,-ncol(probs)]
+    nobs <- probs[, "nobs"]
+    probs <- probs[, -ncol(probs), drop = FALSE]
     
     if(is.factor(y)) {
         ylevels <- levels(y)
