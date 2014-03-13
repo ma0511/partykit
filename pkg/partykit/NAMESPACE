@@ -82,7 +82,7 @@ export(
   "node_terminal",
 
   ## coercion methods for (non-imported) external classes
-  "as.party.J48",
+  "as.party.Weka_tree",
   "as.party.rpart",
   "as.party.XMLNode",
   "as.simpleparty.XMLNode",

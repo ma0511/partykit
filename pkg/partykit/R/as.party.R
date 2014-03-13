@@ -109,10 +109,13 @@ model.frame.rpart <- function(formula, ...) {
   return(mf)
 }
 
-as.party.J48 <- function(obj, ...) {
+as.party.Weka_tree <- function(obj, ...) {
 
   ## needs RWeka and rJava
   stopifnot(require("RWeka"))
+
+  ## J48 tree? (can be transformed to "constparty")
+  j48 <- inherits(obj, "J48")
 
   ## construct metadata
   mf <- model.frame(obj)
@@ -120,21 +123,27 @@ as.party.J48 <- function(obj, ...) {
   mf_levels <- lapply(mf, levels)
 
   x <- rJava::.jcall(obj$classifier, "S", "graph")
+  if(j48) {
+    info <- NULL
+  } else {
+    info <- RWeka::parse_Weka_digraph(x, plainleaf = FALSE)$nodes[, 2L]
+    info <- strsplit(info, " (", fixed = TRUE)
+    info <- lapply(info, function(x) if(length(x) == 1L) x else c(x[1L], paste("(", x[-1L], sep = "")))
+  }
   x <- RWeka::parse_Weka_digraph(x, plainleaf = TRUE)
   nodes <- x$nodes
   edges <- x$edges
   is.leaf <- x$nodes[, "splitvar"] == ""
 
-  j48_kids <- function(i) {
+  weka_tree_kids <- function(i) {
     if (is.leaf[i]) return(NULL)
       else return(which(nodes[,"name"] %in% edges[nodes[i,"name"] == edges[,"from"], "to"]))
   }
 
-  j48_split <- function(i) {
+  weka_tree_split <- function(i) {
     if(is.leaf[i]) return(NULL)
     
     var_id <- which(nodes[i, "splitvar"] == names(mf))
-    ##
     edges <- edges[nodes[i,"name"] == edges[,"from"], "label"]
     split <- Map(c, sub("^([[:punct:]]+).*$", "\\1", edges), sub("^([[:punct:]]+) *", "", edges))
     ## ## for J48 the following suffices
@@ -160,21 +169,33 @@ as.party.J48 <- function(obj, ...) {
     return(split)
   }
 
-  j48_node <- function(i) {
-    if(is.null(j48_kids(i))) return(partynode(as.integer(i)))
-    partynode(as.integer(i), split = j48_split(i), kids = lapply(j48_kids(i), j48_node))
+  weka_tree_node <- function(i) {
+    if(is.null(weka_tree_kids(i))) return(partynode(as.integer(i), info = info[[i]]))
+    partynode(as.integer(i),
+      split = weka_tree_split(i),
+      kids = lapply(weka_tree_kids(i), weka_tree_node))
   }
 
-  node <- j48_node(1)
+  node <- weka_tree_node(1)
 
-  j48 <- party(node = node,
-               data = mf[0,],
-               fitted = data.frame("(fitted)" = fitted_node(node, mf),
-	                           "(response)" = model.response(mf),
-				   check.names = FALSE),
-               terms = obj$terms,
-	       info = list(method = "J4.8"))
+  if(j48) {
+    pty <- party(
+      node = node,
+      data = mf[0,],
+      fitted = data.frame("(fitted)" = fitted_node(node, mf),
+        		  "(response)" = model.response(mf),
+        		  check.names = FALSE),
+      terms = obj$terms,
+      info = list(method = "J4.8"))
+    class(pty) <- c("constparty", class(j48))
+  } else {
+    pty <- party(
+      node = node,
+      data = mf[0,],
+      fitted = data.frame("(fitted)" = fitted_node(node, mf), check.names = FALSE),
+      terms = obj$terms,
+      info = list(method = class(obj)[1L]))      
+  }
 
-  class(j48) <- c("constparty", class(j48))
-  return(j48)
+  return(pty)
 }
