@@ -3,13 +3,19 @@ Changes in Version 0.8-0
   o Reimplementation of the model-based recursive partitioning algorithm
     (MOB) using "partykit" infrastructure. The generic algorithm and the
     corresponding convenience interfaces lmtree() and glmtree() are
-    described in detail in vignette("MOB", package = "partykit").
+    described in detail in vignette("mob", package = "partykit").
 
   o Improved implementation of conditional inference trees (CTree), see
-    vignette("ctree", package = "partykit") for details
+    vignette("ctree", package = "partykit") for details.
 
-  o Extended documentation in vignette("partykit", package = "partykit")
-    and vignette("constparty", package = "partykit")
+  o Extended and improved introductory documentation. The basic classes
+    and class constructors partynode/partysplit/party are introduced in 
+    vignette("partykit", package = "partykit"). The class constparty
+    (inheriting from party) for representing party objects with constant
+    fits in the nodes (along with coercion methods for rpart, J48, etc.)
+    is now described in more detail in vignette("constparty", package =
+    "partykit").
 
-  o New "nodeprune()" generic and "party" method
+  o New nodeprune() generic along with methods for "party" and "partynode"
+    objects.
 
