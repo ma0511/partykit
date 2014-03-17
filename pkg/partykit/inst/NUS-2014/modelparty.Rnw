@@ -286,12 +286,8 @@ regression models, multivariate normal model, item responses, etc.
 \frametitle{Recursive partitioning}
 
 \textbf{Example:} Logistic regression, assessing differences in
-the effect of ``preferential treatment'' (``women and children first''?).
-
-\bigskip
-
-\textbf{Result:} Log-odds ratio of survival given treatment differs across
-classes (slope), as does the survival probability of male adults (intercept).
+the effect of ``preferential treatment'' (``women and children first''?)
+in the Titanic survival data.
 
 \bigskip
 
@@ -303,6 +299,12 @@ mb <- glmtree(Survived ~ Treatment | Age + Gender + Class,
 plot(mb)
 print(mb)
 @
+
+\bigskip
+
+\textbf{Result:} Log-odds ratio of survival given treatment differs across
+classes (slope), as does the survival probability of male adults (intercept).
+
 
 \end{frame}
 
@@ -344,7 +346,7 @@ $\theta \in \Theta$.
 \bigskip
 
 \textbf{Parameter estimation:} $\widehat \theta$ by optimization of
-objective function $\Psi(y, x, \theta)$ for $n$ observations $y_i$ ($i = 1, \dots, n$):
+additive objective function $\Psi(y, x, \theta)$ for $n$ observations $y_i$ ($i = 1, \dots, n$):
 
 \[ \widehat \theta \quad = \quad \argmin_{\theta \in \Theta}
    \sum_{i = 1}^n \Psi(y_i, x_i, \theta). \]
@@ -410,7 +412,6 @@ capture instabilities in $\widehat \theta$ for an ordering w.r.t\ $z_j$.
 
 \textbf{Basis:} Empirical fluctuation process of cumulative deviations
 w.r.t.\ to an ordering $\sigma(z_{ij})$.
-
 \[
 W_j(t, \widehat \theta)
   \quad = \quad {\widehat B}^{-1/2} n^{-1/2}
@@ -902,10 +903,9 @@ Germany's Next Topmodel?
 
 \bigskip
 
-\textbf{Model:} Paired comparison via Bradley-Terry.
+\textbf{Data:} Paired comparisons of attractiveness.
 \begin{itemize}
-  \item Paired comparisons of attractiveness for
-    \emph{Germany's Next Topmodel~2007} finalists:
+  \item \emph{Germany's Next Topmodel~2007} finalists:
     Barbara, Anni, Hana, Fiona, Mandy, Anja.
   \item Survey with 192~respondents at Universit{\"a}t T{\"u}bingen.
   \item Available covariates: Gender, age, familiarty with the TV~show.
@@ -915,13 +915,30 @@ Germany's Next Topmodel?
     (3)~Did you watch the final show?/Do you know who won?
 \end{itemize}
 
+\end{frame}
+
+\begin{frame}
+\frametitle{Bradley-Terry trees}
+
+\textbf{Model:} Bradley-Terry (or Bradley-Terry-Luce) model.
+\begin{itemize}
+  \item Standard model for paired comparisons in social sciences.
+  \item Parametrizes probability $\pi_{ij}$ for preferring object $i$ over $j$
+    in terms of corresponding ``ability'' or ``worth'' parameters $\theta_i$.
+    \begin{eqnarray*}
+          \pi_{ij}\phantom{)}  & = & \frac{\theta_i}{\theta_i + \theta_j} \\
+      \mathsf{logit}(\pi_{ij}) & = & \log(\theta_i) - \log(\theta_j)
+    \end{eqnarray*}
+  \item Maximum likelihood as a logistic or log-linear GLM.
+\end{itemize}
+
 \bigskip
 
 \textbf{Mobster:} \code{bttree()} in \emph{psychotree} (Strobl \emph{et al.}~2011).
 
 \bigskip
 
-\textbf{Here:} Use \code{mob()} directly to build model from scratch.
+\textbf{Here:} Use \code{mob()} directly to build model from scratch using \code{btReg.fit()} from \emph{psychotree}.
 
 \end{frame}
 
