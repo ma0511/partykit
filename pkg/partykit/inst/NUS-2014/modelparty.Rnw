@@ -1153,7 +1153,7 @@ predict(bt2, tm, type = function(object) t(rank(-worth(object))))
 
 Hothorn T, Zeileis A (2014).
  \textit{partykit: A Toolkit for Recursive Partytioning.}
- R~package version~0.2-0.
+ R~package version~0.8-0.
  URL~\url{http://R-Forge.R-project.org/projects/partykit/}
 
 \medskip
