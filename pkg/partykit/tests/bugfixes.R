@@ -720,3 +720,47 @@ p2 <- sapply(names(p), function(n)
     teststat = "quad")))
 stopifnot(max(abs(p - p2)) < sqrt(.Machine$double.eps))
 
+### check coersion of constparties to simpleparties
+### containing terminal nodes without corresponding observations
+## create party
+data("WeatherPlay", package = "partykit")
+py <- party(
+  partynode(1L,
+    split = partysplit(1L, index = 1:3),
+    kids = list(
+      partynode(2L,
+        split = partysplit(3L, breaks = 75),
+        kids = list(
+          partynode(3L, info = "yes"),
+          partynode(4L, info = "no"))),
+      partynode(5L, 
+        split = partysplit(3L, breaks = 20),
+        kids = list(
+          partynode(6L, info = "no"),
+          partynode(7L, info = "yes"))),
+      partynode(8L,
+        split = partysplit(4L, index = 1:2),
+        kids = list(
+          partynode(9L, info = "yes"),
+          partynode(10L, info = "no"))))),
+  WeatherPlay)
+names(py) <- LETTERS[nodeids(py)]
+
+pn <- node_party(py)
+cp <- party(pn,
+  data = WeatherPlay,
+  fitted = data.frame(
+    "(fitted)" = fitted_node(pn, data = WeatherPlay),
+    "(response)" = WeatherPlay$play,
+    check.names = FALSE),
+  terms = terms(play ~ ., data = WeatherPlay),
+)
+print(cp)
+cp <- as.constparty(cp)
+
+nd <- data.frame(outlook = factor("overcast", levels = levels(WeatherPlay$outlook)), 
+                 humidity = 10, temperature = 10, windy = "yes")
+predict(cp, type = "node", newdata = nd)
+predict(cp, type = "response", newdata = nd)
+as.simpleparty(cp)
+print(cp)

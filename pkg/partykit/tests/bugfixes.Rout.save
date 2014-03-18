@@ -1,6 +1,6 @@
 
-R version 3.0.2 (2013-09-25) -- "Frisbee Sailing"
-Copyright (C) 2013 The R Foundation for Statistical Computing
+R version 3.0.3 (2014-03-06) -- "Warm Puppy"
+Copyright (C) 2014 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -761,7 +761,102 @@ Loading required package: splines
 +     teststat = "quad")))
 > stopifnot(max(abs(p - p2)) < sqrt(.Machine$double.eps))
 > 
+> ### check coersion of constparties to simpleparties
+> ### containing terminal nodes without corresponding observations
+> ## create party
+> data("WeatherPlay", package = "partykit")
+> py <- party(
++   partynode(1L,
++     split = partysplit(1L, index = 1:3),
++     kids = list(
++       partynode(2L,
++         split = partysplit(3L, breaks = 75),
++         kids = list(
++           partynode(3L, info = "yes"),
++           partynode(4L, info = "no"))),
++       partynode(5L, 
++         split = partysplit(3L, breaks = 20),
++         kids = list(
++           partynode(6L, info = "no"),
++           partynode(7L, info = "yes"))),
++       partynode(8L,
++         split = partysplit(4L, index = 1:2),
++         kids = list(
++           partynode(9L, info = "yes"),
++           partynode(10L, info = "no"))))),
++   WeatherPlay)
+> names(py) <- LETTERS[nodeids(py)]
+> 
+> pn <- node_party(py)
+> cp <- party(pn,
++   data = WeatherPlay,
++   fitted = data.frame(
++     "(fitted)" = fitted_node(pn, data = WeatherPlay),
++     "(response)" = WeatherPlay$play,
++     check.names = FALSE),
++   terms = terms(play ~ ., data = WeatherPlay),
++ )
+> print(cp)
+[1] root
+|   [2] outlook in sunny
+|   |   [3] humidity <= 75: yes
+|   |   [4] humidity > 75: no
+|   [5] outlook in overcast
+|   |   [6] humidity <= 20: no
+|   |   [7] humidity > 20: yes
+|   [8] outlook in rainy
+|   |   [9] windy in false: yes
+|   |   [10] windy in true: no
+> cp <- as.constparty(cp)
+> 
+> nd <- data.frame(outlook = factor("overcast", levels = levels(WeatherPlay$outlook)), 
++                  humidity = 10, temperature = 10, windy = "yes")
+> predict(cp, type = "node", newdata = nd)
+1 
+6 
+> predict(cp, type = "response", newdata = nd)
+   1 
+<NA> 
+Levels: yes no
+> as.simpleparty(cp)
+
+Model formula:
+play ~ outlook + temperature + humidity + windy
+
+Fitted party:
+[1] root
+|   [2] outlook in sunny
+|   |   [3] humidity <= 75: yes (n = 2, err = 0.0%)
+|   |   [4] humidity > 75: no (n = 3, err = 0.0%)
+|   [5] outlook in overcast
+|   |   [6] humidity <= 20: NA (n = 0, err = NA)
+|   |   [7] humidity > 20: yes (n = 4, err = 0.0%)
+|   [8] outlook in rainy
+|   |   [9] windy in false: yes (n = 3, err = 0.0%)
+|   |   [10] windy in true: no (n = 2, err = 0.0%)
+
+Number of inner nodes:    4
+Number of terminal nodes: 6
+> print(cp)
+
+Model formula:
+play ~ outlook + temperature + humidity + windy
+
+Fitted party:
+[1] root
+|   [2] outlook in sunny
+|   |   [3] humidity <= 75: yes (n = 2, err = 0.0%)
+|   |   [4] humidity > 75: no (n = 3, err = 0.0%)
+|   [5] outlook in overcast
+|   |   [6] humidity <= 20: NA (n = 0, err = NA)
+|   |   [7] humidity > 20: yes (n = 4, err = 0.0%)
+|   [8] outlook in rainy
+|   |   [9] windy in false: yes (n = 3, err = 0.0%)
+|   |   [10] windy in true: no (n = 2, err = 0.0%)
+
+Number of inner nodes:    4
+Number of terminal nodes: 6
 > 
 > proc.time()
    user  system elapsed 
-  4.176   0.148   4.321 
+  3.656   0.100   3.759 

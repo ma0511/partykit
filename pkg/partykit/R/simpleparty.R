@@ -133,6 +133,11 @@ as.simpleparty.constparty <- function(obj, ...) {
   FUN <- function(node, fitted) {
     fitted <- subset(fitted,
       fitted[["(fitted)"]] %in% nodeids(node, terminal = TRUE))
+
+    if (nrow(fitted) == 0)
+      return(list(prediction = NA, n = 0,
+                  error = NA, distribution = NULL))
+
     y <- fitted[["(response)"]]
     w <- fitted[["(weights)"]]
     if(is.null(w)) {
@@ -167,7 +172,8 @@ as.simpleparty.constparty <- function(obj, ...) {
     nlevels <- levels(fit)
     for(i in 1:length(idlist)) nlevels[match(idlist[[i]], levels(fit))] <- i
     levels(fit) <- nlevels
-    as.numeric(factor(fit))
+    ret <- factor(as.numeric(as.character(fit)), labels = 1:length(idlist), levels = 1:length(idlist))
+    ret
   }
 
   ## cycle through node
@@ -177,7 +183,7 @@ as.simpleparty.constparty <- function(obj, ...) {
       info = FUN(onode, fitted)))
     kids <- kids_node(onode)
     kids_tid <- lapply(kids, nodeids, terminal = TRUE)
-    kids_fitted <- base::split.data.frame(fitted, fit2id(fitted[["(fitted)"]], kids_tid))
+    kids_fitted <- base::split.data.frame(fitted, fit2id(fitted[["(fitted)"]], kids_tid), drop = FALSE)
     partynode(id = onode$id, split = onode$split,
       kids = lapply(1:length(kids), function(i) new_node(kids[[i]], kids_fitted[[i]])),
       surrogates = onode$surrogates,
