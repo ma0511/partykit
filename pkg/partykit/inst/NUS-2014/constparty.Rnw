@@ -862,8 +862,6 @@ R~\Sexpr{with(R.Version(), paste(major, minor, sep = "."))} and packages
 All packages are
 freely available under the GPL from \url{http://CRAN.R-project.org/}.
 
-FIXME: partykit still only on R-Forge
-
 \end{frame}
 
 \begin{frame}
