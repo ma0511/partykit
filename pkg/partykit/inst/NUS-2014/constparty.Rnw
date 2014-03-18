@@ -265,7 +265,8 @@ ms63p <- partynode(1L,
       kids = list(
         partynode(16L, info = "$2500"),
 	partynode(17L, info = "$5000")
-      )
+      ),
+      info = "$3000"
     )
   ),
   info = "$5000"
