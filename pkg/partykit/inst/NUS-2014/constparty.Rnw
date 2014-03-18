@@ -5,16 +5,22 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amsfonts,amstext,amsmath,amssymb,amsthm}
 
-%% need no 
-\usepackage{Sweave}
+%% instead of \usepackage{Sweave}
 \definecolor{InputColor}{rgb}{0,0,0.3}
 \definecolor{OutputColor}{rgb}{0.2,0.2,0.2}
+\setkeys{Gin}{width=0.8\textwidth}
+\RequirePackage{fancyvrb,upquote}
+\renewcommand{\ttdefault}{laett}
+\DefineVerbatimEnvironment{Scode}{Verbatim}{}
+\DefineVerbatimEnvironment{Sinput}{Verbatim}{formatcom=\color{InputColor}}
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{formatcom=\color{OutputColor}}
+\newenvironment{Schunk}{\fontsize{9}{10}\selectfont}{}
 
 %% commands
-\let\code\texttt
-\let\class\texttt
-\let\fct\texttt
-\let\doi\texttt
+\newcommand{\code}[1]{{\tt \small #1}}
+\let\class\code
+\let\fct\code
+\let\doi\code
 \newcommand{\dquote}[1]{``#1''}
 \newcommand{\ui}{\underline{i}}
 \newcommand{\oi}{\overline{\imath}}
@@ -51,8 +57,7 @@ set.seed(1071)
 @
 
 <<rpart, eval=FALSE>>=
-rp <- rpart(Survived ~ Gender + Age + Class, 
-            data = ttnc)
+rp <- rpart(Survived ~ Gender + Age + Class, data = ttnc)
 @
 
 <<ctree, eval=FALSE>>=
@@ -66,8 +71,8 @@ ev <- evtree(Survived ~ Gender + Age + Class,
 @
 
 <<pmml, eval=FALSE>>=
-pm <- pmmlTreeModel(file.path(system.file("pmml", 
-    package = "partykit"), "ttnc.pmml"))
+pm <- pmmlTreeModel(system.file("pmml", "ttnc.pmml",
+    package = "partykit"))
 @
 
 <<mob, eval=FALSE>>=
@@ -190,22 +195,83 @@ myttnc <- mytree(Survived ~ Class + Age + Gender, data = ttnc)
 @
 
 <<cache>>=
-if(file.exists("slides-trees.rda")) load("slides-trees.rda") else {
+if(file.exists("constparty-trees.rda")) load("constparty-trees.rda") else {
 <<rpart>>
 <<ctree>>
 <<evtree>>
 <<pmml>>
 <<mob>>
 <<mytree>>
-save(rp, ct, ev, pm, mb, myttnc, file = "slides-trees.rda")
+save(rp, ct, ev, pm, mb, myttnc, file = "constparty-trees.rda")
 }
 @
 
 <<J48>>=
-j48 <- J48(Survived ~ Gender + Age + Class, 
-           data = ttnc)
+j48 <- J48(Survived ~ Gender + Age + Class, data = ttnc)
 @
 
+<<Morgen+Sonquist-1963>>=
+ms63d <- data.frame(
+  earnings = numeric(),
+  ethnicity = factor(, levels = 1:2, labels = c("other", "afam")),
+  age = numeric(),
+  occupation = factor(, levels = 1:2, labels = c("other", "farmer")),
+  education = factor(, levels = 1:4, labels = c("elementary", "highschool", "college", "university"), ordered = TRUE)
+)
+
+ms63p <- partynode(1L,
+  split = partysplit(2L, index = 1:2),
+  kids = list(
+    partynode(2L,
+      split = partysplit(3L, breaks = 65, right = FALSE),
+      kids = list(
+        partynode(3L,
+	  split = partysplit(4L, index = 1:2),
+	  kids = list(
+	    partynode(4L,
+	      split = partysplit(5L, breaks = 3L, right = FALSE),
+	      kids = list(
+	        partynode(5L,
+		  split = partysplit(5L, breaks = 2L, right = FALSE),
+		  kids = list(
+		    partynode(6L, info = "$5000"),
+		    partynode(7L, info = "$6500")
+		  )
+		),
+		partynode(8L,
+		  split = partysplit(3L, breaks = 45, right = FALSE),
+		  kids = list(
+		    partynode(9L, info = "$7000"),
+		    partynode(10L, info = "$9000")
+		  )
+		)
+	      )
+	    ),
+	    partynode(11L, info = "$4500")
+	  )
+	),
+	partynode(12L,
+	  split = partysplit(5L, breaks = 2L, right = FALSE),
+	  kids = list(
+	    partynode(13L, info = "$2200"),
+	    partynode(14L, info = "$4500")
+	  )
+	)
+      ),
+      info = "$5500"
+    ),
+    partynode(15L,
+      split = partysplit(5L, breaks = 2L, right = FALSE),
+      kids = list(
+        partynode(16L, info = "$2500"),
+	partynode(17L, info = "$5000")
+      )
+    )
+  ),
+  info = "$5000"
+)
+ms63p <- party(ms63p, ms63d)
+@
 
 \begin{document}
 
@@ -223,12 +289,22 @@ j48 <- J48(Survived ~ Gender + Age + Class,
 \frametitle{Celebrating 50th anniversary}
 
 \begin{center}
-\includegraphics{aid}
+\includegraphics{aid-abstract}
 \end{center}
 JASA $\bold{58}(302)$ June 1963 (well, there were no early online versions, so
 most people read the paper in 1964 for the first time). \\
 
 We need a \textbf{partykit}!
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Celebrating 50th anniversary}
+
+\vspace*{-0.5cm}
+\begin{center}
+\includegraphics[width=\textwidth]{aid-tree}
+\end{center}
 
 \end{frame}
 
@@ -297,7 +373,7 @@ provide different solutions without reusing code.
 \frametitle{R software for tree models}
 
 \textbf{Challenge:} For implementing new algorithms in R, code
-is required not only for fitting the tree model on the learning data
+is required not only for fitting the tree model
 but also
 \begin{itemize}
   \item representing fitted trees,
@@ -345,11 +421,11 @@ infrastructure for recursive partytioning, especially
         range of different types of trees.
   \item Subclasses for important types of trees, e.g., trees with constant
         fits in each terminal node.
-  \item Nodes are recursive objects, i.e., a node can contain child nodes.
-  \item Keep (learning) data out of the recursive node and split structure.
-  \item Basic printing, plotting, and predicting for raw node structure.
-  \item Customization via suitable panel or panel-generating functions.
-  \item Coercion from existing objects (rpart, J48, etc.) to new class.
+  \item Nodes are recursive objects: nodes can contain child nodes.
+  \item Keep data out of the recursive node and split structure.
+  \item Basic print, plot, and predict for raw node structure.
+  \item Customization via panel or panel-generating functions.
+  \item Coercion from existing objects (e.g., rpart) to new class.
   \item Use simple/fast S3 classes and methods.
 \end{itemize}
 
@@ -373,13 +449,51 @@ infrastructure for recursive partytioning, especially
 
     where \code{node} is a \class{partynode} and \code{data} the
     corresponding (learning) data (optionally without any rows) and
-    \code{fitted} the corresponding fitted nodes.
+    \code{fitted} the corresponding fitted node ids.
 \end{itemize}
 
 \medskip
 
 \textbf{Additionally:} All three objects have an \code{info} slot where
 optionally arbitrary information can be stored.
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{partykit: Base classes}
+
+<<ms63-party, echo=TRUE, results=verbatim>>=
+ms63d
+pn <- partynode(1L,
+  split = partysplit(2L, index = 1:2),
+  kids = list(
+    partynode(2L, info = "$5500"),
+    partynode(3L, info = "$3000")
+  )
+)
+py <- party(pn, ms63d)
+print(py)
+plot(py)
+@
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{partykit: Base classes}
+
+<<ms63-plot1, fig=TRUE>>=
+plot(py)
+@
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{partykit: Base classes}
+
+\setkeys{Gin}{width=1.15\textwidth}
+<<ms63-plot2, fig=TRUE, height=8, width=14>>=
+plot(ms63p, drop = TRUE)
+@
 
 \end{frame}
 
@@ -510,8 +624,7 @@ as.party(rp)
 
 <<rpart-predict, echo=TRUE, results=verbatim>>=
 nd <- ttnc[rep(1:nrow(ttnc), 100), ]
-system.time(p1 <- predict(rp, newdata = nd, 
-                          type = "class"))
+system.time(p1 <- predict(rp, newdata = nd, type = "class"))
 system.time(p2 <- predict(as.party(rp), newdata = nd))
 table(rpart = p1, party = p2)
 @
@@ -580,7 +693,7 @@ plot(as.party(j48)[11], tnex = 1)
 
 \textbf{PMML:} Predictive Model Markup Language. XML-based format
 exported by various software packages including SAS, SPSS, R/pmml.
-Here, import QUEST tree.
+Here, import QUEST tree from SPSS.
 
 <<pmml-show, echo=TRUE, eval=FALSE>>=
 <<pmml>>
@@ -688,8 +801,7 @@ R code
 \frametitle{OK, fire away!}
 
 <<Titanic-mytree-vis, eval = FALSE, echo = TRUE>>=
-plot(mytree(Survived ~ Class + Age + Gender, 
-            data = ttnc))
+plot(mytree(Survived ~ Class + Age + Gender, data = ttnc))
 @
 
 \end{frame}
