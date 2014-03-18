@@ -464,7 +464,7 @@ optionally arbitrary information can be stored.
 \frametitle{partykit: Base classes}
 
 <<ms63-party, echo=TRUE, results=verbatim>>=
-ms63d
+str(ms63d)
 pn <- partynode(1L,
   split = partysplit(2L, index = 1:2),
   kids = list(
@@ -497,7 +497,7 @@ plot(py)
 \setkeys{Gin}{width=1.2\textwidth}
 \hspace*{-1cm}%
 <<ms63-plot2, fig=TRUE, height=8, width=14>>=
-plot(ms63p, drop = TRUE)
+plot(ms63p, drop = TRUE, ep_args = list(justmin = 10))
 @
 
 \end{frame}
