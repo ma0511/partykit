@@ -1,8 +1,11 @@
 
 partynode <- function(id, split = NULL, kids = NULL, surrogates = NULL, info = NULL) {
 
-    if (!is.integer(id) || length(id) != 1)
-        stop(sQuote("id"), " ", "must be a single integer")
+    if (!is.integer(id) || length(id) != 1) {
+        id <- as.integer(id0 <- id)
+        if (any(is.na(id)) || !isTRUE(all.equal(id0, id)) || length(id) != 1)
+            stop(sQuote("id"), " ", "must be a single integer")
+    }
 
     if (is.null(split) != is.null(kids)) {
         stop(sQuote("split"), " ", "and", " ", sQuote("kids"), " ", 
