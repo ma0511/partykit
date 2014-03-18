@@ -1,4 +1,4 @@
-	\documentclass[nojss]{jss}
+\documentclass[nojss]{jss}
 
 %\VignetteIndexEntry{partykit: A Toolkit for Recursive Partytioning}
 %\VignetteDepends{partykit}
@@ -93,11 +93,14 @@ C4.5 \citep{Quinlan:1993}, QUEST/GUIDE \citep{Loh+Shih:1997,Loh:2002},
 and CTree \citep{Hothorn+Hornik+Zeileis:2006} among many others
 \citep[see][for a recent overview]{Loh:2014}. Reflecting the heterogeneity
 of conceptual algorithms, a wide range of computational implementations
-in various software packages emerged. Prominent packages in the
-\proglang{R} system for statistical computing \citep{R} include
+in various software systems emerged: Typically the original authors of the
+algorithms also provide software and furthermore collections of various
+types of trees are available in many software systems such as
+\pkg{Weka} \citep{Witten+Frank:2005} or the \proglang{R} system for
+statistical computing \citep{R}. Within \proglang{R} the list of prominent packages includes
 \pkg{rpart} \citep[implementing the CART algorithm]{rpart},
 \pkg{mvpart} \citep[for multivariate CART]{mvpart},
-\pkg{RWeka} \citep[containing interfaces to J4.8, M5', LMT]{RWeka}, and
+\pkg{RWeka} \citep[containing interfaces to J4.8, M5', LMT from \pkg{Weka}]{RWeka}, and
 \pkg{party} \citep[implementing CTree and MOB]{party} among
 many others. See the CRAN task view ``Machine Learning''
 \citep{ctv} for an overview.
@@ -141,7 +144,7 @@ built on top of it: \code{"constparty"} covers the eponymous class for
 constant-fit trees along with suitable coercion functions, and
 \code{"ctree"} and \code{"mob"} discuss the new \fct{ctree} and
 \fct{mob} implementations, respectively. Each of the vignettes can be viewed
-within \proglang{R} via \code{vignette(}\emph{name}\code{, package = "partykit")}.
+within \proglang{R} via \code{vignette(}\emph{``name''}\code{, package = "partykit")}.
 
 Normal users reading this vignette will typically be interested only
 in the motivating example in Section~\ref{sec:intro} while the remaining
@@ -255,7 +258,7 @@ pn <- partynode(1L, split = sp_o, kids = list(
 @
 %
 where the previously created \class{partysplit} objects are used as splits
-and the nodes are simply numbered from~1 to~8. For the terminal nodes of the
+and the nodes are simply numbered (depth first) from~1 to~8. For the terminal nodes of the
 tree there are no \code{kids} and the corresponding \code{play} decision
 is stored in the \code{info} argument. Printing the \class{partynode} object
 reflects the recursive structure stored.
