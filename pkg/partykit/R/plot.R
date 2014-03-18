@@ -166,20 +166,39 @@ node_terminal <- function(obj,
 }
 class(node_terminal) <- "grapcon_generator"
 
-edge_simple <- function(obj, digits = 3, abbreviate = FALSE)
+edge_simple <- function(obj, digits = 3, abbreviate = FALSE,
+  justmin = Inf, just = c("alternate", "increasing", "decreasing", "equal"))
 {
   meta <- obj$data
 
+  justfun <- function(i, split) {
+    myjust <- if(mean(nchar(split)) > justmin) {
+      match.arg(just, c("alternate", "increasing", "decreasing", "equal"))
+    } else {
+      "equal"
+    }
+    k <- length(split)
+    rval <- switch(myjust,
+      "equal" = rep.int(0, k),
+      "alternate" = rep(c(0.5, -0.5), length.out = k),
+      "increasing" = seq(from = -k/2, to =  k/2, by = 1),
+      "decreasing" = seq(from =  k/2, to = -k/2, by = -1)
+    )
+    unit(0.5, "npc") + unit(rval[i], "lines")
+  }
+
   ### panel function for simple edge labelling
   function(node, i) {
-    split <- character_split(split_node(node), meta)$levels[i]
+    split <- character_split(split_node(node), meta)$levels
+    y <- justfun(i, split)
+    split <- split[i]
     # try() because the following won't work for split = "< 10 Euro", for example.
     if(any(grep(">", split) > 0) | any(grep("<", split) > 0)) {
       tr <- suppressWarnings(try(parse(text = paste("phantom(0)", split)), silent = TRUE))
       if(!inherits(tr, "try-error")) split <- tr
     }
-    grid.rect(gp = gpar(fill = "white", col = 0), width = unit(1, "strwidth", split)) 
-    grid.text(split, just = "center")
+    grid.rect(y = y, gp = gpar(fill = "white", col = 0), width = unit(1, "strwidth", split))
+    grid.text(split, y = y, just = "center")
   }
 }
 class(edge_simple) <- "grapcon_generator"

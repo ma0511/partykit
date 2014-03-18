@@ -28,7 +28,8 @@ node_terminal(obj, digits = 3, abbreviate = FALSE,
     just = c("center", "top"), top = 0.85,
     align = c("center", "left", "right"), gp = NULL, FUN = NULL)
 
-edge_simple(obj, digits = 3, abbreviate = FALSE)
+edge_simple(obj, digits = 3, abbreviate = FALSE, justmin = Inf,
+  just = c("alternate", "increasing", "decreasing", "equal"))
 
 node_boxplot(obj, col = "black", fill = "lightgray", width = 0.5,
     yscale = NULL, ylines = 3, cex = 0.5, id = TRUE, mainlab = NULL, gp = gpar())
@@ -63,7 +64,12 @@ node_mvar(obj, which = NULL, id = TRUE, pop = TRUE, ylines = NULL,
   \item{id}{ logical. Should node IDs be plotted?}
   \item{pval}{ logical. Should node p values be plotted (if they are
     available)?}
-  \item{just}{justification of terminal panel viewport.}
+  \item{just}{justification of terminal panel viewport (\code{node_terminal}),
+    or edge labels (\code{edge_simple}).}
+  \item{justmin}{minimum average edge label length to employ justification
+    via \code{just} in \code{edge_panel}, otherwise \code{just = "equal"}
+    is used. Thus, by default \code{"equal"} justification is always used
+    but other justifications could be employed for finite \code{justmin}.}
   \item{top}{in case of top justification, the npc coordinate at which the
     viewport is justified.}
   \item{align}{alignment of text within terminal panel viewport.}
