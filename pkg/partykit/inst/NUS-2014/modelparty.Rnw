@@ -841,16 +841,11 @@ Efficiency can be gained through extended approach.
 
 \textbf{Main addition:} Data handling for regressor and partitioning variables.
 \begin{itemize}
-  \item The \emph{Formula} package is used for Two-part formulas, e.g.,\\
+  \item The \emph{Formula} package is used for two-part formulas, e.g.,\\
     \code{y ~ x1 + x2 | z1 + z2 + z3}.
   \item The corresponding terms are stored for the combined
     model and only for the partitioning variables.
 \end{itemize}
-
-\medskip
-
-\textbf{Reusability:} Could in principle be used for other model trees as well (inferred
-by other algorithms than MOB).
 
 \medskip
 
@@ -860,6 +855,11 @@ by other algorithms than MOB).
     \code{fit}, \code{control}, \code{dots}, \code{nreg}.
   \item \code{coefficients}, \code{objfun}, \code{object}, \code{nobs}, \code{p.value}, \code{test}.
 \end{itemize}
+
+\medskip
+
+\textbf{Reusability:} Could in principle be used for other model trees as well (inferred
+by other algorithms than MOB).
 
 \end{frame}
 
