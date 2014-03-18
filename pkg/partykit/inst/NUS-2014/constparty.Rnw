@@ -67,12 +67,12 @@ ct <- ctree(Survived ~ Gender + Age + Class, data = ttnc,
 
 <<evtree, eval=FALSE>>=
 ev <- evtree(Survived ~ Gender + Age + Class, 
-             data = ttnc, maxdepth = 3)
+  data = ttnc, maxdepth = 3)
 @
 
 <<pmml, eval=FALSE>>=
 pm <- pmmlTreeModel(system.file("pmml", "ttnc.pmml",
-    package = "partykit"))
+  package = "partykit"))
 @
 
 <<mob, eval=FALSE>>=
@@ -213,7 +213,7 @@ j48 <- J48(Survived ~ Gender + Age + Class, data = ttnc)
 <<Morgen+Sonquist-1963>>=
 ms63d <- data.frame(
   earnings = numeric(),
-  ethnicity = factor(, levels = 1:2, labels = c("other", "afam")),
+  ethnicity = factor(, levels = 1:2, labels = c("cauc", "afam")),
   age = numeric(),
   occupation = factor(, levels = 1:2, labels = c("other", "farmer")),
   education = factor(, levels = 1:4, labels = c("elementary", "highschool", "college", "university"), ordered = TRUE)
@@ -481,16 +481,20 @@ plot(py)
 \begin{frame}[fragile]
 \frametitle{partykit: Base classes}
 
+\setkeys{Gin}{width=0.65\textwidth}
+\begin{center}
 <<ms63-plot1, fig=TRUE>>=
 plot(py)
 @
+\end{center}
 
 \end{frame}
 
 \begin{frame}[fragile]
 \frametitle{partykit: Base classes}
 
-\setkeys{Gin}{width=1.15\textwidth}
+\setkeys{Gin}{width=1.2\textwidth}
+\hspace*{-1cm}%
 <<ms63-plot2, fig=TRUE, height=8, width=14>>=
 plot(ms63p, drop = TRUE)
 @
@@ -724,11 +728,11 @@ more efficiently within partykit.
 \begin{frame}
 \frametitle{partykit: QUEST via PMML}
 
-\vspace*{-0.5cm}
+\vspace*{-0.2cm}
 
 \setkeys{Gin}{width=1.1\textwidth}
 \hspace*{-0.4cm}%
-<<Titanic-pmml-visualization, fig=TRUE, height=10, width=16>>=
+<<Titanic-pmml-visualization, fig=TRUE, height=12, width=17>>=
 plot(pm)
 @
 
@@ -854,10 +858,16 @@ RWeka~\Sexpr{packageDescription("RWeka")$Version},
 evtree~\Sexpr{packageDescription("evtree")$Version}. All packages are
 freely available under the GPL from \url{http://CRAN.R-project.org/}.
 
+FIXME: partykit still only on R-Forge
+
 \bigskip
 
 \textbf{Data:} The contingency table \code{Titanic} is transformed
 as explained in the \code{constparty} package vignette.
+
+FIXME: Show code for completeness?
+
+FIXME: Change/update/enhance references?
 
 \end{frame}
 
@@ -868,7 +878,7 @@ as explained in the \code{constparty} package vignette.
 
 Hothorn T, Zeileis A (2014).
  \textit{partykit: A Toolkit for Recursive Partytioning.}
- R~package vignette version~0.2-0.
+ R~package vignette version~0.8-0.
  URL~\url{http://CRAN.R-project.org/package=partykit}
 
 \bigskip
