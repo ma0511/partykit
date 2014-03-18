@@ -295,7 +295,7 @@ ms63p <- party(ms63p, ms63d)
 JASA $\bold{58}(302)$ June 1963 (well, there were no early online versions, so
 most people read the paper in 1964 for the first time). \\
 
-We need a \textbf{partykit}!
+We need a partykit!
 
 \end{frame}
 
@@ -402,7 +402,7 @@ that provided code for
 \begin{frame}
 \frametitle{R software for tree models}
 
-\textbf{Answer:} The R package \emph{partykit} provides unified
+\textbf{Answer:} The R package partykit provides unified
 infrastructure for recursive partytioning, especially
 \begin{itemize}
   \item representing fitted trees,
@@ -550,7 +550,7 @@ the covariates?
 \begin{frame}[fragile]
 \frametitle{partykit: Interface to \texttt{rpart}}
 
-\textbf{CART:} Apply \fct{rpart} to preprocessed \code{ttnc} data (see also below).
+\textbf{CART:} Apply \fct{rpart} to preprocessed \code{ttnc} data (see \code{constparty} vignette in partykit).
 
 <<rpart-show, echo=TRUE, eval=FALSE>>=
 <<rpart>>
@@ -851,24 +851,18 @@ Talk by Achim; but I'm entitled to a coffee first...
 \begin{frame}[fragile]
 \frametitle{Computational details}
 
-\textbf{Software:} All examples have been produced with
+All examples have been produced with
 R~\Sexpr{with(R.Version(), paste(major, minor, sep = "."))} and packages
-partykit~\Sexpr{packageDescription("partykit")$Version},
-rpart~\Sexpr{packageDescription("rpart")$Version},
-RWeka~\Sexpr{packageDescription("RWeka")$Version},
-evtree~\Sexpr{packageDescription("evtree")$Version}. All packages are
+\begin{itemize}
+\item partykit~\Sexpr{packageDescription("partykit")$Version},
+\item rpart~\Sexpr{packageDescription("rpart")$Version},
+\item  RWeka~\Sexpr{packageDescription("RWeka")$Version},
+\item evtree~\Sexpr{packageDescription("evtree")$Version}. 
+\end{itemize}
+All packages are
 freely available under the GPL from \url{http://CRAN.R-project.org/}.
 
 FIXME: partykit still only on R-Forge
-
-\bigskip
-
-\textbf{Data:} The contingency table \code{Titanic} is transformed
-as explained in the \code{constparty} package vignette.
-
-FIXME: Show code for completeness?
-
-FIXME: Change/update/enhance references?
 
 \end{frame}
 
@@ -897,14 +891,6 @@ Grubinger T, Zeileis A, Pfeiffer KP (2011).
  \textit{Working Paper~2011-20}, Working Papers in Economics and Statistics,
  Research Platform Empirical and Experimental Economics, Universit\"at Innsbruck.
  URL~\url{http://EconPapers.RePEc.org/RePEc:inn:wpaper:2011-20}
-
-\bigskip
-
-Zeileis A, Hothorn T, Hornik K (2008).
- \dquote{Model-Based Recursive Partitioning.}
-  \textit{Journal of Computational and Graphical Statistics},
-  \textbf{17}(2), 492--514.
-  \doi{10.1198/106186008X319331}
 
 \end{frame}
 
