@@ -938,7 +938,7 @@ Germany's Next Topmodel?
 
 \bigskip
 
-\textbf{Here:} Use \code{mob()} directly to build model from scratch using \code{btReg.fit()} from \emph{psychotree}.
+\textbf{Here:} Use \code{mob()} directly to build model from scratch using \code{btReg.fit()} from \emph{psychotools}.
 
 \end{frame}
 
@@ -1234,7 +1234,7 @@ Rusch T, Lee I, Hornik K, Jank W, Zeileis A (2013).
 
 \medskip
 
-Strobl C, Kopf J, Zeileis A (2013).
+Strobl C, Kopf J, Zeileis A (2014).
   \dquote{A New Method for Detecting Differential Item Functioning in the Rasch Model.}
   \textit{Psychometrika}. Forthcoming.
   \doi{10.1007/s11336-013-9388-3}
