@@ -16,7 +16,7 @@
 %% additional commands
 \newcommand{\squote}[1]{`{#1}'}
 \newcommand{\dquote}[1]{``{#1}''}
-\newcommand{\fct}[1]{{\texttt{#1()}\index{#1@\texttt{#1()}}}}
+\newcommand{\fct}[1]{\texttt{#1()}}
 \newcommand{\class}[1]{\squote{\texttt{#1}}}
 
 %% for internal use
@@ -30,7 +30,7 @@
 
 \author{Achim Zeileis\\Universit\"at Innsbruck
    \And Torsten Hothorn\\Universit\"at Z\"urich}
-\Plainauthor{Achim Zeieis, Torsten Hothorn}
+\Plainauthor{Achim Zeileis, Torsten Hothorn}
 
 \Abstract{
   The \pkg{partykit} package provides a flexible toolkit with infrastructure for
@@ -38,13 +38,13 @@
   regression and classification models. The functionality encompasses: (a)~Basic
   infrastructure for \emph{representing} trees (inferred by any algorithm) so that
   unified \code{print}/\code{plot}/\code{predict} methods are available.
-  (b)~Dedicated methods for trees with \emph{constant fits} in the leafs (or terminal nodes)
+  (b)~Dedicated methods for trees with \emph{constant fits} in the leaves (or terminal nodes)
   along with suitable coercion functions to create such tree models (e.g., by
   \pkg{rpart}, \pkg{RWeka}, PMML). (c)~A reimplementation of \emph{conditional inference
   trees} (\code{ctree}, originally provided in the \pkg{party} package). (d)~An extended
   reimplementation of \emph{model-based recursive partitioning} (\code{mob}, also originally
   in \pkg{party}) along with dedicated methods for trees with parametric models in the
-  leafs. This vignette gives a brief overview of the package and discusses in detail
+  leaves. This vignette gives a brief overview of the package and discusses in detail
   the generic infrastructure for representing trees (a). Items~(b)--(d) are discussed
   in the remaining vignettes in the package.
 }
@@ -93,11 +93,11 @@ C4.5 \citep{Quinlan:1993}, QUEST/GUIDE \citep{Loh+Shih:1997,Loh:2002},
 and CTree \citep{Hothorn+Hornik+Zeileis:2006} among many others
 \citep[see][for a recent overview]{Loh:2014}. Reflecting the heterogeneity
 of conceptual algorithms, a wide range of computational implementations
-in various software systems emerged: Typically the original authors of the
-algorithms also provide software and furthermore collections of various
-types of trees are available in many software systems such as
-\pkg{Weka} \citep{Witten+Frank:2005} or the \proglang{R} system for
-statistical computing \citep{R}. Within \proglang{R} the list of prominent packages includes
+in various software systems emerged: Typically the original authors of an
+algorithms also provide accompanying software but many software systems,
+e.g., including \pkg{Weka} \citep{Witten+Frank:2005} or \proglang{R} \citep{R},
+also provide collections of various types of trees.
+Within \proglang{R} the list of prominent packages includes
 \pkg{rpart} \citep[implementing the CART algorithm]{rpart},
 \pkg{mvpart} \citep[for multivariate CART]{mvpart},
 \pkg{RWeka} \citep[containing interfaces to J4.8, M5', LMT from \pkg{Weka}]{RWeka}, and
@@ -117,7 +117,8 @@ reuse of code.
 
 The \pkg{partykit} tries to address the latter point and improve the
 computational situation by providing a common unified infrastructure
-for recursive partytioning in \proglang{R}. In particular, \pkg{partykit}
+for recursive partytioning in the \proglang{R} system for statistical
+computing. In particular, \pkg{partykit}
 provides tools for representing fitted trees along with printing,
 plotting, and computing predictions. The design principles are:
 \begin{itemize}
