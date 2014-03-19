@@ -781,24 +781,82 @@ We only need three little functions:
 \end{frame}
 
 
-\begin{frame}
+\begin{frame}[fragile]
 \frametitle{findsplit}
 
-R code
+\begin{Schunk}
+\begin{Sinput}
+findsplit <- function(response, data, weights) {
+  ### response: name of the response variable   
+  ### data: data.frame with all variables
+  ### weights: case weights for current node
+ 
+  ### ... some computations
+ 
+  ### return split as partysplit object
+  return(partysplit(
+      varid = as.integer(xselect),         ### which variable?
+      index = levels(data[[xselect]]) %in%
+              splitpoint + 1L,             ### which split point?
+      info = list(p.value = exp(logpmin)   ### save p-value
+  )))
+}
+\end{Sinput}
+\end{Schunk}
 
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
 \frametitle{growtree}
 
-R code
+\begin{Schunk}
+\begin{Sinput}
+growtree <- function(id = 1L, response, data, weights) {
+  ### recursive function of
+  ### id: node identifier
+  ### response: name of the response variable 
+  ### data: data.frame with all variables 
+  ### weights: case weights for current node
+
+  ### ... some computations, call to findsplit()
+  ### and growtree()
+
+  ### return nodes  
+  return(partynode(id = as.integer(id), split = sp, kids = kids))
+}
+\end{Sinput}
+\end{Schunk}
 
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
 \frametitle{mytree}
 
-R code
+\begin{Schunk}
+\begin{Sinput}
+mytree <- function(formula, data, weights = NULL) {
+  ### formula: a model formula
+  ### data: data.frame with all variables 
+  ### weights: case weights for root node
+
+  ### ... some computations
+
+  nodes <- growtree(id = 1L, response, data, weights)
+
+  ### ... some computations
+
+  ### return rich constparty object
+  ret <- party(nodes, data = data,
+    fitted = data.frame(
+      "(fitted)" = fitted,
+      "(response)" = data[[response]],
+      "(weights)" = weights,
+      check.names = FALSE), 
+    terms = terms(formula)) 
+  as.constparty(ret)
+}  
+\end{Sinput}
+\end{Schunk}
 
 \end{frame}
 
@@ -860,7 +918,8 @@ R~\Sexpr{with(R.Version(), paste(major, minor, sep = "."))} and packages
 \item evtree~\Sexpr{packageDescription("evtree")$Version}. 
 \end{itemize}
 All packages are
-freely available under the GPL from \url{http://CRAN.R-project.org/}.
+freely available under the GPL from \url{http://R-forge.R-project.org/} (partykit~\Sexpr{packageDescription("partykit")$Version})
+or \url{http://CRAN.R-project.org/}.
 
 \end{frame}
 
@@ -872,7 +931,7 @@ freely available under the GPL from \url{http://CRAN.R-project.org/}.
 Hothorn T, Zeileis A (2014).
  \textit{partykit: A Toolkit for Recursive Partytioning.}
  R~package vignette version~0.8-0.
- URL~\url{http://CRAN.R-project.org/package=partykit}
+ URL~\url{https://r-forge.r-project.org/projects/partykit}
 
 \bigskip
 
