@@ -6,9 +6,9 @@ meanvarfit <- function(y, x = NULL, start = NULL, weights = NULL, offset = NULL,
   s2 <- mean(res^2 * weights)/mean(weights)
 
   rval <- list(
-    coefficients = c(m, log(s2)),
+    coefficients = structure(c(m, log(s2)), .Names = c("mean", "log(variance)")),
     objfun = -sum(weights * dnorm(y, mean = m, sd = sqrt(s2), log = TRUE)),
-    estfun = if(estfun) cbind(res, res^2 - s2) * weights else NULL,
+    estfun = if(estfun) cbind(res, (res^2 - s2)/2) * (1/s2) * weights else NULL,
     object = NULL
   )
 }
@@ -40,7 +40,12 @@ meanvartree <- function(formula, data, na.action, weights, subset, minsplit = 7L
 }
 
 if(FALSE) {
+library("partykit")
+
 airq <- subset(airquality, !is.na(Ozone) & !is.na(Solar.R))
 mv <- meanvartree(Ozone ~ Solar.R + Wind + Temp + Month + Day, data = airq)
 plot(mv)
+coef(mv)
+
+coef(mv)[as.character(predict(mv, type = "node")), ]
 }
