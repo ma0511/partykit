@@ -8,7 +8,7 @@
 \graphicspath{{../Psychoco-2014/images/}}
 
 %% commands
-\newcommand{\ui}{\underline{i}}
+\newcommand{\ui}{\underline{\dot{\imath}}}
 \newcommand{\oi}{\overline{\imath}}
 \newcommand{\darrow}{\stackrel{\mbox{\tiny \textnormal{d}}}{\longrightarrow}}
 \newcommand{\parrow}{\stackrel{\mbox{\tiny \textnormal{p}}}{\longrightarrow}}
@@ -795,7 +795,7 @@ Starting values and further fitting arguments are in \code{start} and \code{...}
 \textbf{Output:} Fitted model object of class with suitable methods.
 \begin{itemize}
   \item \code{coef()}: Estimated parameters $\hat \theta$.
-  \item \code{logLik()}: Maximized log-likelihood function $-\sum_i \Psi(y_i, x_, \hat \theta)$.
+  \item \code{logLik()}: Maximized log-likelihood function $-\sum_i \Psi(y_i, x_i, \hat \theta)$.
   \item \code{estfun()}: Empirical estimating functions
     $\Psi'(y_i, x_i, \hat \theta)$.
 \end{itemize}
@@ -816,7 +816,7 @@ Starting values and further fitting arguments are in \code{start} and \code{...}
 \textbf{Output:} List.
 \begin{itemize}
   \item \code{coefficients}: Estimated parameters $\hat \theta$.
-  \item \code{objfun}: Minimized objective function $\sum_i \Psi(y_i, x_, \hat \theta)$.
+  \item \code{objfun}: Minimized objective function $\sum_i \Psi(y_i, x_i, \hat \theta)$.
   \item \code{estfun}: Empirical estimating functions
     $\Psi'(y_i, x_i, \hat \theta)$. Only needed if \code{estfun = TRUE}, otherwise optionally \code{NULL}.
   \item \code{object}: A model object for which further methods could
