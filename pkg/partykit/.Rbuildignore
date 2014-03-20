@@ -1,3 +1,4 @@
+R/meanvartree.R
 inst/pmml/auto.pmml
 inst/soc09
 inst/mloss
