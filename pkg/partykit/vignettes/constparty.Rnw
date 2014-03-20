@@ -428,12 +428,25 @@ mytree <- function(formula, data, weights = NULL) {
   as.constparty(ret)
 }
 @
-The call to the constructor \fct{party} sets-up a \class{party}
-object with the tree structure contained in \code{nodes}, the
-training samples in \code{data} and the corresponding \code{terms}
-object. For trees with constant fits, we specify the \code{fitted}
-slot with the terminal node numbers for each sample in the
-training data \code{fitted}, the response and weights.
+The call to the constructor \fct{party} sets-up a \class{party} object with
+the tree structure contained in \code{nodes}, the training samples in
+\code{data} and the corresponding \code{terms} object.  Class
+\class{constparty} inherits all slots from class \class{party} and has an
+additional \code{fitted} slot for storing the terminal node numbers for each
+sample in the training data, the response variable(s) and case weights.  The
+\code{fitted} slot is a \class{data.frame} containing three variables: The
+fitted terminal node identifiers \code{"(fitted)"}, an integer vector of the
+same length as \code{data}; the response variables \code{"(response)"} as a
+vector (or \code{data.frame} for multivariate responses) with the same
+number of observations; and optionally a vector of weights
+\code{"(weights)"}.  The additional \code{fitted} slot allows to compute
+arbitrary summary measures for each terminal node by simply subsetting the
+\code{"response")} and \code{"(weights)"} slots by \code{"(fitted)"} before
+computing (weighted) means, medians, empirical cumulative distribution
+functions, Kaplan-Meier estimates or whatever summary statistic might be
+appropriate for a certain response. The \code{print}, \code{plot}, and \code{predict}
+methods for class \class{constparty} work this way with suitable defaults for the
+summary statistics depending on the class of the response(s).
 
 We now can fit this tree to the Titanic data; the
 \fct{print} method provides us with a first overview on the 
