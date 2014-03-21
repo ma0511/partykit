@@ -10,7 +10,7 @@
 
 \usage{
 mob_control(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
-  trim = 0.1, breakties = FALSE, parm = NULL, dfsplit = TRUE, prune = NULL,
+  mtry = Inf, trim = 0.1, breakties = FALSE, parm = NULL, dfsplit = TRUE, prune = NULL,
   restart = TRUE, verbose = FALSE, caseweights = TRUE, ytype = "vector", xtype = "matrix",
   terminal = "object", inner = terminal, model = TRUE, numsplit = "left",
   catsplit = "binary", vcov = "opg", ordinal = "chisq", nrep = 10000,
@@ -30,6 +30,10 @@ mob_control(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
     \code{minsplit} is only included for backward compatibility with previous
     versions of \code{mob}.}
   \item{maxdepth}{integer. The maximum depth of the tree.}
+  \item{mtry}{integer. The number of partitioning variables randomly sampled
+    as candidates in each node for forest-style algorithms. If \code{mtry}
+    is greater than the number of partitioning variables, no random selection
+    is performed. (Thus, by default all available partitioning variables are considered.)}
   \item{trim}{numeric. This specifies the trimming in the parameter instability
     test for the numerical variables. If smaller than 1, it is interpreted
     as the fraction relative to the current node size.}

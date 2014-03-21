@@ -29,26 +29,6 @@ mob <- function(formula, data, subset, na.action, weights, offset,
     afit <- fit
   }
 
-  ## process pruning options
-  if(!is.null(control$prune)) {
-    if(is.character(control$prune)) {
-      control$prune <- tolower(control$prune)
-      control$prune <- match.arg(control$prune, c("aic", "bic", "none"))
-      control$prune <- switch(control$prune,
-        "aic" = {
-	  function(objfun, df, nobs) (2 * objfun[1L] + 2 * df[1L]) < (2 * objfun[2L] + 2 * df[2L])
-	}, "bic" = {
-	  function(objfun, df, nobs) (2 * objfun[1L] + log(n) * df[1L]) < (2 * objfun[2L] + log(n) * df[2L])
-	}, "none" = {
-	  NULL
-	})      
-    }
-    if(!is.function(control$prune)) {
-      warning("Unknown specification of 'prune'")
-      control$prune <- NULL
-    }
-  }
-
   ## call
   cl <- match.call()
   if(missing(data)) data <- environment(formula)
@@ -107,6 +87,26 @@ mob <- function(formula, data, subset, na.action, weights, offset,
   if(length(weights) == 1L) weights <- rep.int(weights, n)
   weights <- as.vector(weights)
   offset <- if(xreg) model.offset(mf) else NULL
+
+  ## process pruning options (done here because of "n")
+  if(!is.null(control$prune)) {
+    if(is.character(control$prune)) {
+      control$prune <- tolower(control$prune)
+      control$prune <- match.arg(control$prune, c("aic", "bic", "none"))
+      control$prune <- switch(control$prune,
+        "aic" = {
+	  function(objfun, df, nobs) (2 * objfun[1L] + 2 * df[1L]) < (2 * objfun[2L] + 2 * df[2L])
+	}, "bic" = {
+	  function(objfun, df, nobs) (2 * objfun[1L] + log(n) * df[1L]) < (2 * objfun[2L] + log(n) * df[2L])
+	}, "none" = {
+	  NULL
+	})      
+    }
+    if(!is.function(control$prune)) {
+      warning("Unknown specification of 'prune'")
+      control$prune <- NULL
+    }
+  }
 
   ## grow the actual tree
   nodes <- mob_partynode(Y = Y, X = X, Z = Z, weights = weights, offset = offset,
@@ -198,9 +198,12 @@ mob_partynode <- function(Y, X, Z, weights = NULL, offset = NULL,
   {  
     ## set up return values
     m <- NCOL(z)
-    pval <- rep.int(0, m)
+    pval <- rep.int(NA_real_, m)
     stat <- rep.int(0, m)
     ifac <- rep.int(FALSE, m)
+    
+    ## variables to test
+    mtest <- if(m <= control$mtry) 1L:m else sort(sample(1L:m, control$mtry))
 
     ## estimating functions (dropping zero weight observations)
     process <- as.matrix(estfun)
@@ -242,13 +245,13 @@ mob_partynode <- function(Y, X, Z, weights = NULL, offset = NULL,
         p <- ifelse(x <= 1.5 * k, (x/(1.5 * k))^sqrt(k) * logp_estrella2003(1.5 * k, k, lambda), logp_estrella2003(x, k, lambda))
       } else {
         ## use Hansen (1997) approximation
-        m <- ncol(beta) - 1L
+        nb <- ncol(beta) - 1L
         if(lambda<1) tau <- lambda
         else tau <- 1/(1 + sqrt(lambda))
         beta <- beta[(((k - 1) * 25 + 1):(k * 25)),]
-        dummy <- beta[,(1L:m)]%*%x^(0:(m-1))
+        dummy <- beta[,(1L:nb)]%*%x^(0:(nb-1))
         dummy <- dummy*(dummy>0)
-        pp <- pchisq(dummy, beta[,(m+1)], lower.tail = FALSE, log.p = TRUE)
+        pp <- pchisq(dummy, beta[,(nb+1)], lower.tail = FALSE, log.p = TRUE)
         if(tau == 0.5)
           p <- pchisq(x, k, lower.tail = FALSE, log.p = TRUE)
         else if(tau <= 0.01)
@@ -266,7 +269,7 @@ mob_partynode <- function(Y, X, Z, weights = NULL, offset = NULL,
     }
 
     ## compute statistic and p-value for each ordering
-    for(i in 1L:m) {
+    for(i in mtest) {
       zi <- z[,i]
       if(is.factor(zi)) {
         proci <- process[order(zi), , drop = FALSE]
@@ -283,7 +286,7 @@ mob_partynode <- function(Y, X, Z, weights = NULL, offset = NULL,
         # compute statistic only if at least two levels are left
         if(length(segweights) < 2L) {
           stat[i] <- 0
-	  pval[i] <- NA
+	  pval[i] <- NA_real_
         } else if(iord) {
           proci <- apply(proci, 2L, cumsum)
           tt <- head(cumsum(segweights), -1L)
@@ -489,7 +492,7 @@ mob_partynode <- function(Y, X, Z, weights = NULL, offset = NULL,
       if(control$bonferroni) {
         pval1 <- pmin(1, sum(!is.na(test$pval)) * test$pval)
         pval2 <- 1 - (1 - test$pval)^sum(!is.na(test$pval))
-        test$pval <- ifelse(!is.na(test$pval) & (test$pval > 0.01), pval2, pval1)
+        test$pval <- ifelse(!is.na(test$pval) & (test$pval > 0.001), pval2, pval1)
       }
 
       best <- test$best
@@ -644,9 +647,9 @@ mob_grow_getlevels <- function(z) {
   } else {
     mi <- 2^(nl - 1L) - 1L
     indx <- matrix(0, nrow = mi, ncol = nl)
-    for (i in 1:mi) {
+    for (i in 1L:mi) {
       ii <- i
-      for (l in 1:nl) {
+      for (l in 1L:nl) {
         indx[i, l] <- ii %% 2L
 	ii <- ii %/% 2L   
       }
@@ -660,13 +663,16 @@ mob_grow_getlevels <- function(z) {
 
 ## control splitting parameters
 mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
-  trim = 0.1, breakties = FALSE, parm = NULL, dfsplit = TRUE, prune = NULL, restart = TRUE,
+  mtry = Inf, trim = 0.1, breakties = FALSE, parm = NULL, dfsplit = TRUE, prune = NULL, restart = TRUE,
   verbose = FALSE, caseweights = TRUE, ytype = "vector", xtype = "matrix",
   terminal = "object", inner = terminal, model = TRUE,
   numsplit = "left", catsplit = "binary", vcov = "opg", ordinal = "chisq", nrep = 10000,
   minsplit = minsize)
 {
   if(missing(minsize) & !missing(minsplit)) minsize <- minsplit
+  if(is.finite(mtry)) {
+    mtry <- if(mtry < 1L) Inf else as.integer(mtry)
+  }
   
   ytype <- match.arg(ytype, c("vector", "data.frame", "matrix"))
   xtype <- match.arg(xtype, c("data.frame", "matrix"))
@@ -681,7 +687,7 @@ mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdept
   ordinal <- match.arg(tolower(ordinal), c("l2", "max", "chisq"))
 
   rval <- list(alpha = alpha, bonferroni = bonferroni, minsize = minsize, maxdepth = maxdepth,
-    trim = ifelse(is.null(trim), minsize, trim),
+    mtry = mtry, trim = ifelse(is.null(trim), minsize, trim),
     breakties = breakties, parm = parm, dfsplit = dfsplit, prune = prune, restart = restart,
     verbose = verbose, caseweights = caseweights, ytype = ytype, xtype = xtype,
     terminal = terminal, inner = inner, model = model,
