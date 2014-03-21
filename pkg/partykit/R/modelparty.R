@@ -4,16 +4,50 @@ mob <- function(formula, data, subset, na.action, weights, offset,
   ## required packages
   stopifnot(require("Formula"))
   
-  ## control parameters (used repeatedly)
-  minsize <- control$minsize
-  if(!is.null(minsize) && !is.integer(minsize)) minsize <- as.integer(minsize)
-  verbose <- control$verbose
-  ytype <- control$ytype
-  xtype <- control$xtype
-  rnam <- c("estfun", "object")
-  terminal <- lapply(rnam, function(x) x %in% control$terminal)
-  inner    <- lapply(rnam, function(x) x %in% control$inner)
-  names(terminal) <- names(inner) <- rnam
+  ## check fitting function
+  fitargs <- names(formals(fit))
+  if(!all(c("y", "x", "start", "weights", "offset") %in% fitargs)) {
+    stop("No fitting function")
+  }
+
+  ## augment fitting function (if necessary)
+  if(!all(c("estfun", "object") %in% fitargs)) {
+    stopifnot(require("sandwich"))
+    afit <- function(y,
+      x = NULL, start = NULL, weights = NULL, offset = NULL, ...,
+      estfun = FALSE, object = FALSE)
+    {
+      obj <- fit(y = y, x = x, start = start, weights = weights, offset = offset, ...)
+      list(
+        coefficients = coef(obj),
+        objfun = -as.numeric(logLik(obj)),
+        estfun = if(estfun) estfun(obj) else NULL,
+        object = if(object) obj else NULL
+      )
+    }
+  } else {
+    afit <- fit
+  }
+
+  ## process pruning options
+  if(!is.null(control$prune)) {
+    if(is.character(control$prune)) {
+      control$prune <- tolower(control$prune)
+      control$prune <- match.arg(control$prune, c("aic", "bic", "none"))
+      control$prune <- switch(control$prune,
+        "aic" = {
+	  function(objfun, df, nobs) (2 * objfun[1L] + 2 * df[1L]) < (2 * objfun[2L] + 2 * df[2L])
+	}, "bic" = {
+	  function(objfun, df, nobs) (2 * objfun[1L] + log(n) * df[1L]) < (2 * objfun[2L] + log(n) * df[2L])
+	}, "none" = {
+	  NULL
+	})      
+    }
+    if(!is.function(control$prune)) {
+      warning("Unknown specification of 'prune'")
+      control$prune <- NULL
+    }
+  }
 
   ## call
   cl <- match.call()
@@ -46,12 +80,12 @@ mob <- function(formula, data, subset, na.action, weights, offset,
   mt <- terms(formula, data = data)
   mtY <- terms(formula, data = data, rhs = if(xreg) 1L else 0L)
   mtZ <- delete.response(terms(formula, data = data, rhs = 2L))
-  Y <- switch(ytype,
+  Y <- switch(control$ytype,
     "vector" = model.part(formula, mf, lhs = 1L)[[1L]],
     "matrix" = model.matrix(~ 0 + ., model.part(formula, mf, lhs = 1L)),
     "data.frame" = model.part(formula, mf, lhs = 1L)
   )
-  X <- if(!xreg) NULL else switch(xtype,
+  X <- if(!xreg) NULL else switch(control$xtype,
     "matrix" = model.matrix(mtY, mf),
     "data.frame" = model.part(formula, mf, rhs = 1L)
   )
@@ -74,35 +108,63 @@ mob <- function(formula, data, subset, na.action, weights, offset,
   weights <- as.vector(weights)
   offset <- if(xreg) model.offset(mf) else NULL
 
-  ## check fitting function
-  fitargs <- names(formals(fit))
-  if(!all(c("y", "x", "start", "weights", "offset") %in% fitargs)) {
-    stop("No fitting function")
-  }
+  ## grow the actual tree
+  nodes <- mob_partynode(Y = Y, X = X, Z = Z, weights = weights, offset = offset,
+    fit = afit, control = control, nyx = nyx, ...)
 
-  ## augment fitting function (if necessary)
-  if(!all(c("estfun", "object") %in% fitargs)) {
-    stopifnot(require("sandwich"))
-    afit <- function(y,
-      x = NULL, start = NULL, weights = NULL, offset = NULL, ...,
-      estfun = FALSE, object = FALSE)
-    {
-      obj <- fit(y = y, x = x, start = start, weights = weights, offset = offset, ...)
-      list(
-        coefficients = coef(obj),
-        objfun = -as.numeric(logLik(obj)),
-        estfun = if(estfun) estfun(obj) else NULL,
-        object = if(object) obj else NULL
-      )
-    }
-  } else {
-    afit <- fit
-  }
+  ## compute terminal node number for each observation
+  fitted <- fitted_node(nodes, data = mf)
+  fitted <- data.frame(
+      "(fitted)" = fitted,
+      ## "(response)" = Y, ## probably not really needed
+      check.names = FALSE,
+      row.names = rownames(mf))
+  if(!identical(weights, rep.int(1L, n))) fitted[["(weights)"]] <- weights
+  if(!is.null(offset)) fitted[["(offset)"]] <- offset
+
+  ## return party object
+  rval <- party(nodes, 
+    data = if(control$model) mf else mf[0,],
+    fitted = fitted,
+    terms = mt,
+    info = list(
+      call = cl,
+      formula = oformula,
+      Formula = formula,
+      terms = list(response = mtY, partitioning = mtZ),
+      fit = afit,
+      control = control,
+      dots = list(...),
+      nreg = max(0L, as.integer(xreg) * (nyx - NCOL(Y))))
+  )
+  class(rval) <- c("modelparty", class(rval))
+  return(rval)
+}
+
+## set up partynode object
+mob_partynode <- function(Y, X, Z, weights = NULL, offset = NULL,
+  fit, control = mob_control(), nyx = 0L, ...)
+{
+  ## are there regressors?
+  if(missing(X)) X <- NULL
+  xreg <- !is.null(X)
+  n <- nrow(Z)
+  if(is.null(weights)) weights <- 1L
+  if(length(weights) < n) weights <- rep(weights, length.out = n)
+
+  ## control parameters (used repeatedly)
+  minsize <- control$minsize
+  if(!is.null(minsize) && !is.integer(minsize)) minsize <- as.integer(minsize)
+  verbose <- control$verbose
+  rnam <- c("estfun", "object")
+  terminal <- lapply(rnam, function(x) x %in% control$terminal)
+  inner    <- lapply(rnam, function(x) x %in% control$inner)
+  names(terminal) <- names(inner) <- rnam
 
   ## convenience functions
   w2n <- function(w) if(control$caseweights) sum(w) else sum(w > 0)
   suby <- function(y, index) {
-    if(ytype == "vector") y[index] else y[index, , drop = FALSE]
+    if(control$ytype == "vector") y[index] else y[index, , drop = FALSE]
   }
   subx <- if(xreg) {
     function(x, index) {
@@ -125,26 +187,6 @@ mob <- function(formula, data, subset, na.action, weights, offset,
       sqomega <- sqrt(diag(X.eigen$values))
       V <- X.eigen$vectors
       return(V %*% sqomega %*% t(V))
-    }
-  }
-
-  ## process pruning options
-  if(!is.null(control$prune)) {
-    if(is.character(control$prune)) {
-      control$prune <- tolower(control$prune)
-      control$prune <- match.arg(control$prune, c("aic", "bic", "none"))
-      control$prune <- switch(control$prune,
-        "aic" = {
-	  function(objfun, df, nobs) (2 * objfun[1L] + 2 * df[1L]) < (2 * objfun[2L] + 2 * df[2L])
-	}, "bic" = {
-	  function(objfun, df, nobs) (2 * objfun[1L] + log(n) * df[1L]) < (2 * objfun[2L] + log(n) * df[2L])
-	}, "none" = {
-	  NULL
-	})      
-    }
-    if(!is.function(control$prune)) {
-      warning("Unknown specification of 'prune'")
-      control$prune <- NULL
     }
   }
 
@@ -325,9 +367,9 @@ mob <- function(formula, data, subset, na.action, weights, offset,
         if(w2n(weights[zs]) < minsize || w2n(weights[!zs]) < minsize) {
           dev[i] <- Inf
         } else {
-          fit_left <- afit(y = suby(y, zs), x = subx(x, zs), start = start_left,
+          fit_left <- fit(y = suby(y, zs), x = subx(x, zs), start = start_left,
 	    weights = weights[zs], offset = offset[zs], ...)
-          fit_right <- afit(y = suby(y, !zs), x = subx(x, !zs), start = start_right,
+          fit_right <- fit(y = suby(y, !zs), x = subx(x, !zs), start = start_right,
 	    weights = weights[!zs], offset = offset[!zs], ...)
   	  start_left <- fit_left$coefficients
 	  start_right <- fit_right$coefficients
@@ -368,9 +410,9 @@ mob <- function(formula, data, subset, na.action, weights, offset,
           return(Inf)
         } else {
 	  if(nrow(al) == 1L) 1 else {
-            fit_left <- afit(y = suby(y, zs), x = subx(x, zs), start = NULL,
+            fit_left <- fit(y = suby(y, zs), x = subx(x, zs), start = NULL,
 	      weights = weights[zs], offset = offset[zs], ...)
-            fit_right <- afit(y = suby(y, !zs), x = subx(x, !zs), start = NULL,
+            fit_right <- fit(y = suby(y, !zs), x = subx(x, !zs), start = NULL,
 	      weights = weights[!zs], offset = offset[!zs], ...)
     	    fit_left$objfun + fit_right$objfun
 	  }
@@ -417,7 +459,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
     }
 
     ## fit model
-    mod <- afit(y, x, weights = weights, offset = offset, ...,
+    mod <- fit(y, x, weights = weights, offset = offset, ...,
       estfun = TRUE, object = terminal$object | control$vcov == "info")
     mod$test <- NULL
     mod$nobs <- w2n(weights)
@@ -586,38 +628,9 @@ mob <- function(formula, data, subset, na.action, weights, offset,
       if(!inner$object) nodes[[i]]$info$object <- NULL      
     }
   }
-  nodes <- as.partynode(nodes)
-
-  ## compute terminal node number for each observation
-  fitted <- fitted_node(nodes, data = mf)
-  fitted <- data.frame(
-      "(fitted)" = fitted,
-      ## "(response)" = Y, ## probably not really needed
-      check.names = FALSE,
-      row.names = rownames(mf))
-  if(!identical(weights, rep.int(1L, n))) fitted[["(weights)"]] <- weights
-  if(!is.null(offset)) fitted[["(offset)"]] <- offset
-
-  ## update minsize (in case it was set internally)
-  control$minsize <- minsize
-
-  ## return party object
-  rval <- party(nodes, 
-    data = if(control$model) mf else mf[0,],
-    fitted = fitted,
-    terms = mt,
-    info = list(
-      call = cl,
-      formula = oformula,
-      Formula = formula,
-      terms = list(response = mtY, partitioning = mtZ),
-      fit = afit,
-      control = control,
-      dots = list(...),
-      nreg = max(0L, as.integer(xreg) * (nyx - NCOL(Y))))
-  )
-  class(rval) <- c("modelparty", class(rval))
-  return(rval)
+  
+  ## return as partynode
+  as.partynode(nodes)
 }
 
 ## determine all possible splits for a factor, both nominal and ordinal
