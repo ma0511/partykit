@@ -296,65 +296,66 @@ plot(ttnc_cp)
 Package \pkg{partykit} does not offer unified infrastructure for growing
 trees.  However, once you know how to estimate splits from data, it is
 fairly straightforward to implement trees.  Consider a very simple tree
-algorithm.  We assume that both response and explanatory variables are
-factors, as for the Titanic data set.  We search for the binary best split by means of $t$-test
-$p$-values, i.e., we cycle through all variables and potential split points
-and assess the quality of the split by comparing the distributions of the
-response in the so-defined two groups.  We select the feature/split point
-combination with lowest $p$-value of a $\chi^2$ test, however, only if this result is
-significant at level $\alpha = 0.01$.
+algorithm (in fact so simple that we would advise not to use it for any real
+application).  We assume that both response and explanatory variables are
+factors, as for the Titanic data set.  First we determine the best
+explanatory variable by means of a global $\chi^2$ test, i.e., splitting
+up the response into all levels of each explanatory variable. Then,
+for the selected explanatory variable we search for the binary best split
+by means of $\chi^2$ tests, i.e., we cycle through all potential split
+points and assess the quality of the split by comparing the distributions
+of the response in the so-defined two groups.  In both cases, we select the
+split variable/point with lowest $p$-value from the $\chi^2$ test, however,
+only if the global test is significant at Bonferroni-corrected level $\alpha = 0.01$.
 
 This strategy can be implemented based on the data (response and explanatory
 variables) and some case weights as follows (\code{response} is just the
 name of the response and \code{data} is a data frame with all variables):
 <<mytree-1, echo = TRUE>>= 
-findsplit <- function(response, data, weights) {
+findsplit <- function(response, data, weights, alpha = 0.01) {
 
   ### extract response values from data
-  y <- data[[response]]
+  y <- factor(rep(data[[response]], weights))
 
-  ### cycle through all features
-  logpmin <- 0; xselect <- NULL
-  for (i in which(names(data) != response)) {
+  ## perform chi-squared test of y vs. x
+  mychisqtest <- function(x) {
+    x <- factor(x)
+    if(length(levels(x)) < 2) return(0)
+    ct <- suppressWarnings(chisq.test(table(y, factor(x)), correct = FALSE))
+    pchisq(ct$statistic, ct$parameter, log = TRUE, lower.tail = FALSE)
+  }
+  xselect <- which(names(data) != response)
+  logp <- sapply(xselect, function(i) mychisqtest(rep(data[[i]], weights)))
+  names(logp) <- names(data)[xselect]
 
-    ### expand data by case weights
-    x <- data[[i]]
-    xt <- rep(x, weights)
-    yt <- rep(y, weights)
+  ## Bonferroni-adjusted p-value small enough?
+  minp <- exp(min(logp))
+  minp <- 1 - (1 - minp)^length(xselect)
+  if(minp > alpha) return(NULL)
 
-    ### set-up all possible splits in two daughter nodes
-    lev <- levels(xt[drop = TRUE])
-    if (length(lev) == 1) next()
-    if (length(lev) == 2) comb <- list(lev[1])
-    if (length(lev) > 2) 
-        comb <- do.call("c", lapply(1:(length(lev) - 2),
-            function(x) combn(lev,x, simplify = FALSE)))
+  ## for selected variable, search for split minimizing p-value  
+  xselect <- xselect[which.min(logp)]
+  x <- rep(data[[xselect]], weights)
 
-    ### assess all potential splits by their chi^2 test log p-value
-    logp <- sapply(comb, function(q) {
-      ct <- chisq.test(table(yt, xt %in% q))
-      pchisq(ct$statistic, ct$parameter, log = TRUE, lower.tail = FALSE)
-    })
-
-    ### if the best split in variable i significant AND
-    ### better than what we already had store this information
-    if (min(logp) < logpmin & min(logp) < log(0.01)) {
-      logpmin <- min(logp)
-      xselect <- i
-      splitpoint <- comb[[which.min(logp)]]
-    }
+  ## set-up all possible splits in two daughter nodes
+  lev <- levels(x[drop = TRUE])
+  if(length(lev) == 2) {
+    splitpoint <- lev[1]
+  } else {
+    comb <- do.call("c", lapply(1:(length(lev) - 2),
+      function(x) combn(lev, x, simplify = FALSE)))
+    xlogp <- min(sapply(comb, function(q) mychisqtest(x %in% q)))
+    xlogpmin <- min(logp)
+    splitpoint <- comb[[which.min(xlogp)]]
   }
 
-  ### no significant split found, give up
-  if (is.null(xselect)) return(NULL)
+  ## split into two groups (setting groups that don't occur to NA)
+  splitindex <- levels(data[[xselect]]) %in% splitpoint + 1L
+  splitindex[!(levels(data[[xselect]]) %in% lev)] <- NA_integer_
 
   ### return split as partysplit object
-  return(partysplit(
-      varid = as.integer(xselect),         ### which variable?
-      index = levels(data[[xselect]]) %in% 
-              splitpoint + 1L,             ### which split point?
-      info = list(p.value = exp(logpmin)   ### save p-value in addition
-  )))
+  return(partysplit(varid = as.integer(xselect),
+    index = splitindex, info = list(p.value = exp(logp))))
 }
 @
 
@@ -376,8 +377,8 @@ growtree <- function(id = 1L, response, data, weights) {
   kidids <- kidids_split(sp, data = data)
 
   ### set-up all daugther nodes
-  kids <- vector(mode = "list", length = max(kidids))
-  for (kidid in 1:max(kidids)) {
+  kids <- vector(mode = "list", length = max(kidids, na.rm = TRUE))
+  for (kidid in 1:length(kids)) {
   ### select observations for current node
   w <- weights
   w[kidids != kidid] <- 0
@@ -392,7 +393,8 @@ growtree <- function(id = 1L, response, data, weights) {
   }
 
   ### return nodes
-  return(partynode(id = as.integer(id), split = sp, kids = kids))
+  return(partynode(id = as.integer(id), split = sp, kids = kids,
+    info = list(p.value = min(info_split(sp)$p.value))))
 }
 @
 
@@ -454,56 +456,61 @@ resulting model
 <<mytree-4, echo = TRUE>>=
 (myttnc <- mytree(Survived ~ Class + Age + Gender, data = ttnc))
 @
-
-Of course, we can immediately use the \fct{plot} function to obtain a
-graphical representation of this tree, the result is given in
-Figure~\ref{plottree}.  The default behavior for trees with numeric
-responses is to depict the conditional distribution of the response in each
-terminal node by means of a bar plot.
-
-\begin{figure}
+%
+\begin{figure}[t!]
 \centering
-<<mytree-5, echo = TRUE, fig = TRUE, height=8.5, width=14>>=
+<<mytree-5, echo = FALSE, fig = TRUE, height=8.5, width=14>>=
 plot(myttnc)
 @
 \caption{Classification tree fitted by the \fct{mytree} function to the
          \code{ttnc} data. \label{plottree}}
 \end{figure}
+%
+Of course, we can immediately use \code{plot(myttnc)} to obtain a
+graphical representation of this tree, the result is given in
+Figure~\ref{plottree}.  The default behavior for trees with numeric
+responses is to depict the conditional distribution of the response in each
+terminal node by means of a bar plot.
 
 An interesting feature of \class{party} trees is the ability to extract
-subtrees:
-<<mytree-7, echo = TRUE>>=
-(myttnc7 <- myttnc[7])
+subtrees, e.g., the right branch:
+<<mytree-9, echo = TRUE>>=
+(myttnc9 <- myttnc[9])
 @
-which again are objects inheriting from \class{party} and thus
-can be plotted easily (see Figure~\ref{subtree}). Also, it is possible
-to prune-off nodes based on their node identifiers or their names
-using \fct{nodeprune}; see Figure~\ref{prunetree}.
-
-\begin{figure}
-\centering
-<<mytree-5-nodeprune, echo = TRUE, fig = TRUE, height=8.5, width=14>>=
-plot(nodeprune(myttnc, 10))
-@
-\caption{Pruned classification tree fitted by the \fct{mytree} function to the
-         \code{ttnc} data. \label{prunetree}}
-\end{figure}
-
-
+%
 \begin{figure}[t!]
 \centering
-<<mytree-8, echo = TRUE, fig = TRUE, width = 10, height = 6>>=
-plot(myttnc7)
+<<mytree-8, echo = FALSE, fig = TRUE, width = 10, height = 6>>=
+plot(myttnc9)
 @
 \caption{A subtree of the \code{ttnc} classification tree. \label{subtree}}
 \end{figure}
+%
+which again are objects inheriting from \class{party} and thus
+can be plotted easily (see Figure~\ref{subtree}). Also, it is possible
+to prune nodes based on their node id or their names
+using \fct{nodeprune}, e.g., pruning all children of nodes 4, 11, and 14
+(see Figure~\ref{prunetree}).
+<<mytree-5-nodeprune, echo = TRUE, eval=FALSE>>=
+plot(nodeprune(myttnc, c(4, 11, 14)))
+@
+
+\begin{figure}[t!]
+\centering
+<<mytree-5-nodeprune-plot, echo = FALSE, fig = TRUE, height=8.5, width=14>>=
+<<mytree-5-nodeprune>>
+@
+\caption{Pruned classification tree fitted by the \fct{mytree} function to the
+\code{ttnc} data. \label{prunetree}}
+\end{figure}
+
 
 We also might be interested in extracting the $p$-values in the
 inner nodes in a nicely formatted way. The \fct{nodeapply} function
 can be used to iterate over a set of nodes, in our case the 
 inner nodes:
 <<mytree-10, echo = TRUE>>=
-fun <- function(x) format.pval(info_split(split_node(x))$p.value,
+fun <- function(x) format.pval(info_node(x)$p.value,
   digits = 3, eps = 0.001)
 nid <- nodeids(myttnc)
 iid <- nid[!(nid %in% nodeids(myttnc, terminal = TRUE))]
@@ -524,11 +531,14 @@ The default for factors is to compute the predicted class for each
 of the rows in \code{newdata}.  One can also simply compute the
 corresponding terminal node numbers via
 <<mytree-node, echo = TRUE>>=
-predict(myttnc, newdata = ttnc[1:10,], type = "node")
+nttnc <- expand.grid(Class = levels(ttnc$Class),
+  Gender = levels(ttnc$Gender), Age = levels(ttnc$Age))
+nttnc
+predict(myttnc, newdata = nttnc, type = "node")
 @
 or estimates of the conditional class probabilities 
 <<mytree-prob, echo = TRUE>>=
-predict(myttnc, newdata = ttnc[1:10,], type = "prob")
+predict(myttnc, newdata = nttnc, type = "prob")
 @
 
 The \code{type} argument to the \fct{predict} method has several meanings,
