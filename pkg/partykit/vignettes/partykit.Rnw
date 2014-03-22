@@ -433,8 +433,8 @@ from splits, nodes, or trees, \pkg{partykit} provides
 functions (that are applicable to \class{partysplit}, \class{partynode},
 and \class{party} objects, repectively).
 
-An example for the information \emph{foo} might be \code{kidids}. Hence, in the printing example above
-using \code{info_node(n)} rather than \code{n$info} for some node \code{n} would have been the
+An example for the information \emph{foo} might be \code{kidids} or \code{info}. Hence, in the printing example above
+using \code{info_node(n)} rather than \code{n$info} for a node \code{n} would have been the
 preferred syntax; at least when programming new functionality on top of \pkg{partykit}.
 
 \item As already illustrated above, printing and plotting relies on
@@ -588,7 +588,7 @@ no specific structure of the \code{info} is used.
 
 Programmers that employ this functionality in their own functions/packages
 should access the elements of a \class{partysplit} object by the
-corresponding accessor function (and not just the \code{$} operatore as
+corresponding accessor function (and not just the \code{$} operator as
 the internal structure might be changed/extended in future release).
 
 
