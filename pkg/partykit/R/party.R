@@ -96,6 +96,7 @@ is.constparty <- function(party) {
 }
 
 as.constparty <- function(obj, ...) {
+    if(!inherits(obj, "party")) obj <- as.party(obj)
     if (!is.constparty(obj)) {
         if(is.null(obj$fitted))
 	  obj$fitted <- data.frame("(fitted)" = predict(obj, type = "node"), check.names = FALSE)
