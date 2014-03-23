@@ -158,7 +158,7 @@ top of \pkg{partykit}.
 \subsection{Data}
 
 To illustrate how \pkg{partykit} can be used to represent trees,
-we employ the simple artificial data set taken from \cite{Witten+Frank:2005}.
+we employ a simple artificial data set taken from \cite{Witten+Frank:2005}.
 It concerns the conditions suitable for playing some unspecified game:
 %
 <<weather-data>>=
@@ -169,7 +169,7 @@ WeatherPlay
 To represent the \code{play} decision based on the corresponding
 weather condition variables one could use the tree displayed in
 Figure~\ref{fig:weather-plot}. For now, it is ignored how this tree
-was \emph{inferred} and it is simply assumed to be given.
+was inferred and it is simply assumed to be given.
 
 \setkeys{Gin}{width=0.8\textwidth}
 \begin{figure}[t!]
@@ -206,12 +206,12 @@ be associated with a data set in an object of class \class{party}.
 \subsection{Splits}
 
 First, we employ the \fct{partysplit} function to create the three
-splits in the ``weather tree'' from Figure~\ref{fig:weather-plot}. The
+splits in the ``play tree'' from Figure~\ref{fig:weather-plot}. The
 function takes the following arguments
 \begin{Code}
   partysplit(varid, breaks = NULL, index = NULL, ..., info = NULL)
 \end{Code}
-where \code{varid} is an integer id (column number) of the variable used for splitting
+where \code{varid} is an integer id (column number) of the variable used for splitting,
 e.g., \code{1L} for \code{outlook}, \code{3L} for \code{humidity},
 \code{4L} for \code{windy} etc. Then, \code{breaks} and \code{index}
 determine which observations are sent to which of the branches, e.g.,
@@ -304,11 +304,11 @@ i.e., \code{fitted} values, a \code{terms} object, arbitrary additional
 \code{info}, and again some further arguments comprised in \code{...}.
 
 
-\subsection{Methods}
+\subsection{Methods and other utilities}
 
 The main idea about the \class{party} class is that tedious tasks
 such as \fct{print}, \fct{plot}, \fct{predict} do not have to be
-reimplemented for every new kind of decision tree but simply be
+reimplemented for every new kind of decision tree but can simply be
 reused. However, in addition to these three basic tasks (as already illustrated
 above) developers of tree model software also need further basic utiltities
 for working with trees: e.g., functions for querying or subsetting
@@ -371,11 +371,15 @@ nodeapply(py, ids = nodeids(py, terminal = TRUE),
   FUN = function(n) paste("Play decision:", n$info))
 @
 %
-Similar to the functions applied in a \fct{nodeapply}, the \fct{print} and
+Similar to the functions applied in a \fct{nodeapply}, the \fct{print}, \fct{predict}, and
 \fct{plot} methods can be customized through panel function that format
-certain parts of the tree (such as header, footer, node, etc.). For example,
-an extended formatting with multiple lines is easily accomodated by supplying
-a character vector in every node:
+certain parts of the tree (such as header, footer, node, etc.). Hence,
+the same kind of panel function employed above can also be used for predictions:
+<<weather-methods-predict>>=
+predict(py, FUN = function(n) paste("Play decision:", n$info))
+@
+As a variation of this approach, an extended formatting with multiple
+lines can be easily accomodated by supplying a character vector in every node:
 %
 <<weather-methods-print>>=
 print(py, terminal_panel = function(n)
@@ -451,8 +455,8 @@ function when applied to the \class{party} object.
 
 \subsubsection{Overview}
 
-A split is basically a function that maps data, 
-more specifically a partitioning variable, to daugther nodes. 
+A split is basically a function that maps data --
+or more specifically a partitioning variable -- to daugther nodes. 
 Objects of class \class{partysplit} are designed to represent 
 such functions and are set up by the \fct{partysplit} 
 constructor. For example, a binary split in the numeric
@@ -467,7 +471,7 @@ class(sp_h)
 The internal structure of class \class{partysplit} contains
 information about the partitioning variable, the splitpoints
 (or cutpoints or breakpoints), the handling of splitpoints, the treatment of observations with
-missing values and the daughter nodes to send observations to:
+missing values and the kid nodes to send observations to:
 %
 <<partysplit-2, echo = TRUE>>=
 unclass(sp_h)
@@ -488,7 +492,7 @@ kidids_split(sp_h, data = WeatherPlay)
 @
 %
 For each observation in \code{WeatherPlay} the split is performed and the 
-number of the daughter node to send this observation to
+number of the kid node to send this observation to
 is returned. Of course, this is a very complicated way of saying
 %
 <<partysplit-5, echo = TRUE>>=
@@ -497,7 +501,8 @@ as.numeric(!(WeatherPlay$humidity <= 75)) + 1
 
 \subsubsection{Mathematical notation}
 
-More formally, \pkg{partykit} considers a split to represent a function $f$ mapping
+To explain the splitting strategy more formally, we employ some mathematical notation.
+\pkg{partykit} considers a split to represent a function $f$ mapping
 an element $x = (x_1, \dots, x_p)$ of a $p$-dimensional 
 sample space $\mathcal{X}$ into a set of $k$ daugther nodes $\mathcal{D} = \{d_1, \dots, d_k\}$.
 This mapping is defined as a composition $f = h \circ g$ of two functions $g: \mathcal{X} \rightarrow \mathcal{I}$
@@ -553,7 +558,7 @@ table(kidids_split(sp_o2, data = WeatherPlay), WeatherPlay$outlook)
 @
 %
 The internal structure of this object contains the \code{index} slot
-that maps levels to daughter nodes. 
+that maps levels to kid nodes. 
 %
 <<partysplit-6, echo = TRUE>>=
 unclass(sp_o2)
@@ -597,11 +602,7 @@ the internal structure might be changed/extended in future release).
 \subsubsection{Overview}
 
 Inner and terminal nodes are represented by objects of class \class{partynode}.
-Each node has a unique identifier \code{id}. The root node has identifier 1;
-the first daughter node has identifier 2, those daughter (if present) has identifier
-3 and so on. So, we first look at the root node, visit the first daugther node and all
-its daugthers, then the second daughter node and all its daughters and so on. This is
-called \emph{pre-order tree traversal}, see \cite{tree_traversal}. A node consisting only
+Each node has a unique identifier \code{id}. A node consisting only
 of such an identifier (and possibly additional information  
 in \code{info}) is a terminal node:
 %
@@ -621,9 +622,21 @@ surrogate splits can be supplied in argument \code{surrogates}. These
 are used in case the variable needed for the primary split has missing
 values in a particular data set.
 
-Note that \class{partynode} objects are not directly connected to the
+The IDs in a \class{partynode} should be numbered ``depth first''
+(sometimes also called ``infix'' or ``pre-order traversal''). This simply means
+that the root node has identifier 1; the first kid node has identifier 2,
+whose kid (if present) has identifier 3 and so on. If other IDs are desired,
+then one can simply set \fct{names} (see above) for the tree; however, internally
+the depth-first numbering needs to be used. Note that the \fct{partynode} constructor
+also allows to create \class{partynode} objects with other ID schemes as this is
+necessary for growing the tree. If one wants to assure the a given \class{partynode}
+object has the correct IDs, one can simply apply \fct{as.partynode} once more to
+assure the right order of IDs.
+
+Finally, let us emphasize that \class{partynode} objects are not directly connected to the
 actual data (only indirectly through the associated \class{partysplit}
 objects).
+
 
 \subsubsection{Examples}
 
@@ -637,7 +650,7 @@ n1 <- partynode(id = 1L, split = sp_o, kids = lapply(2L:4L, partynode))
 print(n1, data = WeatherPlay)
 @
 %
-Now that we have defined our first simple tree, we want to assign
+Now that we have defined this simple tree, we want to assign
 observations to terminal nodes:
 %
 <<partynode-3, echo = TRUE>>=
@@ -668,8 +681,8 @@ kid.
 
 The \fct{as.partynode} and \fct{as.list} methods can be used
 to convert flat list structures into recursive \class{partynode}
-objects and vice versa. \fct{as.partynode} applied to
-\class{partynode} objects renumbers the recursive nodes
+objects and vice versa. As pointed out above, \fct{as.partynode} applied to
+\class{partynode} objects also renumbers the recursive nodes
 starting with root node identifier \code{from}.
 
 Furthermore, many of the methods defined for the class \class{party} illustrated
@@ -681,11 +694,11 @@ the number of terminal nodes.
  
 \subsection{Trees} \label{sec:trees}
 
-\subsubsection{Trees and data}
-
 Although tree structures can be represented by \class{partynode} objects,
 a tree is more than a number of nodes and splits. More information about
 (parts of the) corresponding data is necessary for high-level computations on trees.
+
+\subsubsection{Trees and data}
 
 First, the raw node/split structure needs to be associated with a corresponding
 data set.
@@ -705,13 +718,13 @@ party(n1, data = WeatherPlay[0, ])
 
 \subsubsection{Response variables and regression relationships}
 
-Second, for decision trees or regression and classification trees
-more information the response variable and its fitted values are
-required. Hence, a \class{data.frame} can be supplied in \code{fitted}
+Second, for decision trees (or regression and classification trees)
+more information is required: namely, the response variable and its fitted
+values. Hence, a \class{data.frame} can be supplied in \code{fitted}
 that has at least one variable \code{(fitted)} containing the terminal
 node numbers of data used for fitting the tree. For representing the
 dependence of the response on the partitioning variables, a \code{terms}
-object can be provided that is leveraged for appropriate preprocessing
+object can be provided that is leveraged for appropriately preprocessing
 new data in predictions. Finally, any additional (currently unstructured)
 information can be stored in \code{info} again. 
 %
@@ -728,7 +741,10 @@ t2 <- party(n1,
 %
 The information that is now contained in the tree \code{t2} is sufficient
 for all operations that should typically be performed on constant-fit
-trees. Hence, it can simply be coerced to an object of class \class{constparty}
+trees. For this type of trees there is also a dedicated class 
+\class{constparty} that provides some further convenience methods, especially
+for plotting and predicting. If a suitable \class{party} object like
+\code{t2} is already available, it just needs to be coerced:
 %
 <<party-3, echo=TRUE>>=
 t2 <- as.constparty(t2)
@@ -746,10 +762,11 @@ plot(t2, tnex = 1.5)
 \end{figure}
 \setkeys{Gin}{width=\textwidth}
 %
-This has an enhanced \fct{plot} and \fct{predict} method. For example, \code{plot(t2)}
-now produces stacked bar plots in the leaves (see Figure~\ref{fig:constparty-plot})
-as \code{t2} is a classification tree. For regression and survival trees, boxplots and
-Kaplan-Meier curves are employed automatically, respectively.
+As pointed out above, \class{constparty} objects have enhanced \fct{plot} and \fct{predict}
+methods. For example, \code{plot(t2)} now produces stacked bar plots in the leaves
+(see Figure~\ref{fig:constparty-plot}) as \code{t2} is a classification tree
+For regression and survival trees, boxplots and Kaplan-Meier curves are employed
+automatically, respectively.
 
 As there is information about the response variable, the \fct{predict} method can now
 produce more than just the predicted node IDs. The default is to predict the \code{"response"}, i.e.,
@@ -763,12 +780,17 @@ predict(t2, newdata = nd, type = "response")
 predict(t2, newdata = nd, type = "prob")
 predict(t2, newdata = nd, type = "node")
 @
-%
-\fixme{type = "node": OK; type = "response" has a different meaning as predict.glm;
-       type = "prob" is equal to type = "response" in predict.glm}
 More details on how \class{constparty} objects and their methods work
 can be found in the corresponding \code{vignette("constparty", package = "partykit")}.
 
+\section{Summary}
+
+This vignette (\code{"partykit"}) introduces the package \pkg{partykit} that
+provides a toolkit for computing with recursive partytions, especially
+decision/regression/classification trees. In this vignette, the basic \class{party} class
+and associated infrastructure are discussed: splits, nodes, and trees with functions
+for printing, plotting, and predicting. Further vignettes in the package
+discuss in more detail the tools built on top of it.
 
 \bibliography{party}
 
