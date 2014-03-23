@@ -1,4 +1,36 @@
 
+### constructor for forest objects
+forest <- function(parties, data, fitted = NULL, terms = NULL, info = NULL) {
+
+    stopifnot(all(sapply(parties, function(party) inherits(party, "party"))))
+    stopifnot(inherits(data, "data.frame"))
+
+    if(!is.null(fitted)) {
+        stopifnot(inherits(fitted, "data.frame"))
+        stopifnot(nrow(data) == 0L | nrow(data) == nrow(fitted))
+        if (nrow(data) == 0L)
+            stopifnot("(response)" %in% names(fitted))
+    } else {
+        stopifnot(nrow(data) > 0L)
+        stopifnot(!is.null(terms))
+        fitted <- data.frame("(response)" = model.response(model.frame(terms, data = data)),
+                             check.names = FALSE)
+    }
+
+    forest <- list(parties = parties, data = data, fitted = fitted)
+    class(forest) <- "forest"
+
+    if(!is.null(terms)) {
+        stopifnot(inherits(terms, "terms"))
+        forest$terms <- terms
+    }
+
+    if (!is.null(info))
+        forest$info <- info
+
+    forest
+}
+
 perturbe <- function(replace = TRUE, fraction = .632) {
     ret <- function(prob) {
         if (replace) {
@@ -14,7 +46,8 @@ perturbe <- function(replace = TRUE, fraction = .632) {
 }
 
 boot <- function() perturbe(replace = TRUE)
-sampsplit <- function(fraction = 0.632) perturbe(replace = FALSE, fraction = fraction)
+sampsplit <- function(fraction = 0.632) 
+    perturbe(replace = FALSE, fraction = fraction)
 
 cforest <- function(formula, data, weights, subset, na.action = na.pass, 
                     control = ctree_control(...), ytrafo = NULL, 
@@ -99,13 +132,12 @@ cforest <- function(formula, data, weights, subset, na.action = na.pass,
         ret
     })
 
-    ret <- list(
-        forest = forest,
-        "(response)" = dat[,response, drop = length(response) == 1]
+    ret <- forest(parties = forest, data = dat[-(1:nrow(dat)),,drop = FALSE],
+        fitted = data.frame("(response)" = dat[,response, drop = length(response) == 1], check.names = FALSE),
+        terms = terms(mf)
     )
-    class(ret) <- "cforest"
+    class(ret) <- c("cforest", class(ret))
 
-    ret$terms <- terms(mf)
     return(ret)
 }
 
@@ -113,15 +145,15 @@ cforest <- function(formula, data, weights, subset, na.action = na.pass,
 predict.cforest <- function(object, newdata = NULL, type = c("weights", "response", "prob"), 
                             OOB = FALSE, FUN = NULL, simplify = TRUE) {
 
-    responses <- object[["(response)"]]
+    responses <- object$fitted[["(response)"]]
     if (is.null(newdata)) {
-        nam <- rownames(object$forest[[1]]$fitted)
+        nam <- rownames(object$parties[[1]]$fitted)
     } else {
         nam <- rownames(newdata)
     }
 
-    w <- matrix(0L, nrow = NROW(object[["(response)"]]), ncol = NROW(newdata))
-    forest <- object$forest
+    w <- matrix(0L, nrow = NROW(object$fitted[["(response)"]]), ncol = length(nam))
+    forest <- object$parties
     for (b in 1:length(forest)) {
 
         ids <- nodeids(forest[[b]], terminal = TRUE)
@@ -142,7 +174,7 @@ predict.cforest <- function(object, newdata = NULL, type = c("weights", "respons
     type <- match.arg(type)
     if (type == "weights") {
         ret <- w
-        rownames(ret) <- rownames(newdata)
+        rownames(ret) <- nam
         return(ret)
     }
     
@@ -165,7 +197,7 @@ predict.cforest <- function(object, newdata = NULL, type = c("weights", "respons
             ret[[j]] <- FUN(response, w[,j])
         ret <- as.array(ret)
         dim(ret) <- NULL
-        names(ret) <- rownames(newdata)
+        names(ret) <- nam
          
         if (simplify)
             ret <- partykit:::.simplify_pred(ret, names(ret), names(ret))
