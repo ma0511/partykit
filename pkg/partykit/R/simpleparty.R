@@ -107,11 +107,13 @@ as.simpleparty <- function(obj, ...) UseMethod("as.simpleparty")
 as.simpleparty.simpleparty <- function(obj, ...) obj
 
 as.simpleparty.party <- function(obj, ...) {
-  if (is.simpleparty(obj)) 
+  if (is.simpleparty(obj)) {
+      class(obj) <- unique(c("simpleparty", class(obj)))
       return(obj)
+  }
   if (is.constparty(obj)) 
       return(as.simpleparty(as.constparty(obj)))
-  stop("can't coerse objects of class ", sQuote(class(obj)), 
+  stop("cannot coerce objects of class ", sQuote(class(obj)), 
        " to class ", sQuote("simpleparty"))
 }
 
