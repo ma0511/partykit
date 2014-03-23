@@ -16,8 +16,9 @@
 predict_party(party, id, newdata = NULL, \dots)
 \method{predict_party}{default}(party, id, newdata = NULL, FUN = NULL, \dots) 
 \method{predict_party}{constparty}(party, id, newdata = NULL,
-    type = c("response", "prob", "node"), FUN = NULL, 
-    simplify = TRUE, \dots)
+    type = c("response", "prob", "quantile", "density", "node"),
+    at = if (type == "quantile") c(0.1, 0.5, 0.9),
+    FUN = NULL, simplify = TRUE, \dots)
 \method{predict_party}{simpleparty}(party, id, newdata = NULL,
     type = c("response", "prob", "node"), \dots)
 }
@@ -45,6 +46,10 @@ predict_party(party, id, newdata = NULL, \dots)
               this is a function of a terminal node only, for the \code{constparty} method, 
               predictions for each node have to be computed based on arguments \code{(y, w)}
               where \code{y} is the response and \code{w} are case weights.}
+  \item{at}{ if the return value is a function (as the empirical cumulative distribution
+             function or the empirical quantile function), this function is evaluated
+             at values \code{at} and these numeric values are returned. If \code{at} is
+             \code{NULL}, the functions themselves are returned in a list.}
   \item{simplify}{ a logical indicating whether the resulting list 
                    of predictions should be converted to a suitable
                    vector or matrix (if possible).}

@@ -1563,6 +1563,259 @@ Fitted party:
 Number of inner nodes:    0
 Number of terminal nodes: 1
 > 
+> ### check different predict flavours for numeric responses
+> x <- runif(100)
+> dd <- data.frame(y = rnorm(length(x), mean = 2 * (x < .5)), x = x)
+> ct <- ctree(y ~ x, data = dd)
+> nd <- data.frame(x = (1:9) / 10)
+> predict(ct, newdata = nd, type = "node")
+1 2 3 4 5 6 7 8 9 
+2 2 2 2 2 4 4 4 5 
+> predict(ct, newdata = nd, type = "response")
+         1          2          3          4          5          6          7 
+ 2.1123074  2.1123074  2.1123074  2.1123074  2.1123074  0.3779526  0.3779526 
+         8          9 
+ 0.3779526 -0.5112136 
+> predict(ct, newdata = nd, type = "prob")
+$`1`
+Empirical CDF 
+Call: ecdf(y)
+ x[1:58] = -0.30626, -0.14847, 0.11198,  ..., 3.5936, 3.8115
+
+$`2`
+Empirical CDF 
+Call: ecdf(y)
+ x[1:58] = -0.30626, -0.14847, 0.11198,  ..., 3.5936, 3.8115
+
+$`3`
+Empirical CDF 
+Call: ecdf(y)
+ x[1:58] = -0.30626, -0.14847, 0.11198,  ..., 3.5936, 3.8115
+
+$`4`
+Empirical CDF 
+Call: ecdf(y)
+ x[1:58] = -0.30626, -0.14847, 0.11198,  ..., 3.5936, 3.8115
+
+$`5`
+Empirical CDF 
+Call: ecdf(y)
+ x[1:58] = -0.30626, -0.14847, 0.11198,  ..., 3.5936, 3.8115
+
+$`6`
+Empirical CDF 
+Call: ecdf(y)
+ x[1:26] = -1.416, -0.69778, -0.65081,  ..., 1.6409, 1.7415
+
+$`7`
+Empirical CDF 
+Call: ecdf(y)
+ x[1:26] = -1.416, -0.69778, -0.65081,  ..., 1.6409, 1.7415
+
+$`8`
+Empirical CDF 
+Call: ecdf(y)
+ x[1:26] = -1.416, -0.69778, -0.65081,  ..., 1.6409, 1.7415
+
+$`9`
+Empirical CDF 
+Call: ecdf(y)
+ x[1:16] = -2.0379, -1.6793, -1.6389,  ..., 0.69065,  1.245
+
+> predict(ct, newdata = nd, type = "quantile")
+         10%        50%      90%
+1  1.0641709  2.1259409 3.253851
+2  1.0641709  2.1259409 3.253851
+3  1.0641709  2.1259409 3.253851
+4  1.0641709  2.1259409 3.253851
+5  1.0641709  2.1259409 3.253851
+6 -0.5344305  0.3963687 1.361417
+7 -0.5344305  0.3963687 1.361417
+8 -0.5344305  0.3963687 1.361417
+9 -1.6591116 -0.3834531 0.485164
+> predict(ct, newdata = nd, type = "quantile", at = NULL)
+$`1`
+function (p, ...) 
+quantile(y, probs = p, ...)
+<environment: 0x2e49ed0>
+
+$`2`
+function (p, ...) 
+quantile(y, probs = p, ...)
+<environment: 0x2e49ed0>
+
+$`3`
+function (p, ...) 
+quantile(y, probs = p, ...)
+<environment: 0x2e49ed0>
+
+$`4`
+function (p, ...) 
+quantile(y, probs = p, ...)
+<environment: 0x2e49ed0>
+
+$`5`
+function (p, ...) 
+quantile(y, probs = p, ...)
+<environment: 0x2e49ed0>
+
+$`6`
+function (p, ...) 
+quantile(y, probs = p, ...)
+<environment: 0x2e49668>
+
+$`7`
+function (p, ...) 
+quantile(y, probs = p, ...)
+<environment: 0x2e49668>
+
+$`8`
+function (p, ...) 
+quantile(y, probs = p, ...)
+<environment: 0x2e49668>
+
+$`9`
+function (p, ...) 
+quantile(y, probs = p, ...)
+<environment: 0x2e48e38>
+
+> predict(ct, newdata = nd, type = "density")
+$`1`
+
+Call:
+	density.default(x = y, weights = w/sum(w))
+
+Data: y (58 obs.);	Bandwidth 'bw' = 0.3689
+
+       x                 y            
+ Min.   :-1.4128   Min.   :0.0002665  
+ 1st Qu.: 0.1699   1st Qu.:0.0276172  
+ Median : 1.7526   Median :0.0958471  
+ Mean   : 1.7526   Mean   :0.1577926  
+ 3rd Qu.: 3.3353   3rd Qu.:0.3196403  
+ Max.   : 4.9181   Max.   :0.3739235  
+
+$`2`
+
+Call:
+	density.default(x = y, weights = w/sum(w))
+
+Data: y (58 obs.);	Bandwidth 'bw' = 0.3689
+
+       x                 y            
+ Min.   :-1.4128   Min.   :0.0002665  
+ 1st Qu.: 0.1699   1st Qu.:0.0276172  
+ Median : 1.7526   Median :0.0958471  
+ Mean   : 1.7526   Mean   :0.1577926  
+ 3rd Qu.: 3.3353   3rd Qu.:0.3196403  
+ Max.   : 4.9181   Max.   :0.3739235  
+
+$`3`
+
+Call:
+	density.default(x = y, weights = w/sum(w))
+
+Data: y (58 obs.);	Bandwidth 'bw' = 0.3689
+
+       x                 y            
+ Min.   :-1.4128   Min.   :0.0002665  
+ 1st Qu.: 0.1699   1st Qu.:0.0276172  
+ Median : 1.7526   Median :0.0958471  
+ Mean   : 1.7526   Mean   :0.1577926  
+ 3rd Qu.: 3.3353   3rd Qu.:0.3196403  
+ Max.   : 4.9181   Max.   :0.3739235  
+
+$`4`
+
+Call:
+	density.default(x = y, weights = w/sum(w))
+
+Data: y (58 obs.);	Bandwidth 'bw' = 0.3689
+
+       x                 y            
+ Min.   :-1.4128   Min.   :0.0002665  
+ 1st Qu.: 0.1699   1st Qu.:0.0276172  
+ Median : 1.7526   Median :0.0958471  
+ Mean   : 1.7526   Mean   :0.1577926  
+ 3rd Qu.: 3.3353   3rd Qu.:0.3196403  
+ Max.   : 4.9181   Max.   :0.3739235  
+
+$`5`
+
+Call:
+	density.default(x = y, weights = w/sum(w))
+
+Data: y (58 obs.);	Bandwidth 'bw' = 0.3689
+
+       x                 y            
+ Min.   :-1.4128   Min.   :0.0002665  
+ 1st Qu.: 0.1699   1st Qu.:0.0276172  
+ Median : 1.7526   Median :0.0958471  
+ Mean   : 1.7526   Mean   :0.1577926  
+ 3rd Qu.: 3.3353   3rd Qu.:0.3196403  
+ Max.   : 4.9181   Max.   :0.3739235  
+
+$`6`
+
+Call:
+	density.default(x = y, weights = w/sum(w))
+
+Data: y (26 obs.);	Bandwidth 'bw' = 0.2617
+
+       x                 y          
+ Min.   :-2.2010   Min.   :0.00066  
+ 1st Qu.:-1.0191   1st Qu.:0.05529  
+ Median : 0.1628   Median :0.18250  
+ Mean   : 0.1628   Mean   :0.21129  
+ 3rd Qu.: 1.3447   3rd Qu.:0.30889  
+ Max.   : 2.5266   Max.   :0.59900  
+
+$`7`
+
+Call:
+	density.default(x = y, weights = w/sum(w))
+
+Data: y (26 obs.);	Bandwidth 'bw' = 0.2617
+
+       x                 y          
+ Min.   :-2.2010   Min.   :0.00066  
+ 1st Qu.:-1.0191   1st Qu.:0.05529  
+ Median : 0.1628   Median :0.18250  
+ Mean   : 0.1628   Mean   :0.21129  
+ 3rd Qu.: 1.3447   3rd Qu.:0.30889  
+ Max.   : 2.5266   Max.   :0.59900  
+
+$`8`
+
+Call:
+	density.default(x = y, weights = w/sum(w))
+
+Data: y (26 obs.);	Bandwidth 'bw' = 0.2617
+
+       x                 y          
+ Min.   :-2.2010   Min.   :0.00066  
+ 1st Qu.:-1.0191   1st Qu.:0.05529  
+ Median : 0.1628   Median :0.18250  
+ Mean   : 0.1628   Mean   :0.21129  
+ 3rd Qu.: 1.3447   3rd Qu.:0.30889  
+ Max.   : 2.5266   Max.   :0.59900  
+
+$`9`
+
+Call:
+	density.default(x = y, weights = w/sum(w))
+
+Data: y (16 obs.);	Bandwidth 'bw' = 0.4796
+
+       x                 y            
+ Min.   :-3.4768   Min.   :0.0005934  
+ 1st Qu.:-1.9366   1st Qu.:0.0264379  
+ Median :-0.3965   Median :0.1444973  
+ Mean   :-0.3965   Mean   :0.1621336  
+ 3rd Qu.: 1.1437   3rd Qu.:0.2522045  
+ Max.   : 2.6839   Max.   :0.4145445  
+
+> 
 > proc.time()
    user  system elapsed 
-  1.864   0.180   1.850 
+  1.888   0.212   1.870 

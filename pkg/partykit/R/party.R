@@ -314,7 +314,9 @@ predict_party.default <- function(party, id, newdata = NULL, FUN = NULL, ...) {
 }
 
 predict_party.constparty <- function(party, id, newdata = NULL,
-    type = c("response", "prob", "node"), FUN = NULL, simplify = TRUE, ...)
+    type = c("response", "prob", "quantile", "density", "node"),
+    at = if (type == "quantile") c(0.1, 0.5, 0.9),
+    FUN = NULL, simplify = TRUE, ...)
 {
     ## extract fitted information
     response <- party$fitted[["(response)"]]
@@ -338,7 +340,7 @@ predict_party.constparty <- function(party, id, newdata = NULL,
     if (is.data.frame(response)) {
         ret <- lapply(response, function(r) {
             ret <- .predict_party_constparty(node_party(party), fitted = fitted, 
-                response = r, weights, id = id, type = type, FUN = FUN, ...)
+                response = r, weights, id = id, type = type, at = at, FUN = FUN, ...)
             if (simplify) .simplify_pred(ret, id, nam) else ret
         })
         if (all(sapply(ret, is.atomic)))
@@ -349,7 +351,7 @@ predict_party.constparty <- function(party, id, newdata = NULL,
 
     ### univariate response
     ret <- .predict_party_constparty(node_party(party), fitted = fitted, response = response, 
-        weights = weights, id = id, type = type, FUN = FUN, ...)
+        weights = weights, id = id, type = type, at = at, FUN = FUN, ...)
     if (simplify) .simplify_pred(ret, id, nam) else ret[as.character(id)]
 }
 
@@ -395,20 +397,38 @@ predict_party.constparty <- function(party, id, newdata = NULL,
     }
 }
 
+.pred_quantile <- function(y, w) {
+    y <- rep(y, w)
+    function(p, ...) quantile(y, probs = p, ...)
+}
+
+.pred_density <- function(y, w)
+    density(y, weights = w / sum(w))
+
 ### workhorse: compute predictions based on fitted / response data
 .predict_party_constparty <- function(node, fitted, response, weights,
-    id = id, type = c("response", "prob"), FUN = NULL, ...) {
+    id = id, type = c("response", "prob", "quantile", "density"),
+    at = if (type == "quantile") c(0.1, 0.5, 0.9), FUN = NULL, ...) {
 
+    type <- match.arg(type)
     if (is.null(FUN)) {
 
         rtype <- class(response)[1]
         if (rtype == "ordered") rtype <- "factor"    
         if (rtype == "integer") rtype <- "numeric"
 
+        if (type %in% c("quantile", "density") && rtype != "numeric")
+            stop("quantile and density estimation currently only implemented for numeric responses")
+
         FUN <- switch(rtype,
             "Surv" = if (type == "response") .pred_Surv_response else .pred_Surv,
             "factor" = if (type == "response") .pred_factor_response else .pred_factor,
-            "numeric" = if (type == "response") .pred_numeric_response else .pred_ecdf)
+            "numeric" = switch(type,
+                "response" = .pred_numeric_response,
+                "prob" = .pred_ecdf,
+                "quantile" = .pred_quantile, 
+                "density" = .pred_density) 
+       )
     }
       
     ## empirical distribution in each leaf
@@ -426,6 +446,8 @@ predict_party.constparty <- function(party, id, newdata = NULL,
         }))
         names(tab) <- as.character(sort(unique(id)))
     }
+    if (inherits(tab[[1]], "function") && !is.null(at))
+        tab <- lapply(tab, function(f) f(at))
     tn <- names(tab)
     dim(tab) <- NULL
     names(tab) <- tn

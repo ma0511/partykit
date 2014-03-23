@@ -182,12 +182,6 @@ predict.cforest <- function(object, newdata = NULL, type = c("weights", "respons
     ret
 }
 
-.pred_quantile <- function(probs = c(0.1, 0.5, 0.9), ...)
-    function(y, w) quantile(rep(y, w), probs = probs, ...)
-
-.pred_density <- function(y, w)
-    density(y, weights = w / sum(w))
-
 if (FALSE) {
 
 library("partykit")
@@ -198,14 +192,18 @@ p <- predict(cf, newdata = cars, type = "response")
 plot(dist ~ speed, data = cars)
 lines(cars$speed, unlist(p))
 
-p <- predict(cf, newdata = cars, type = "response", FUN = .pred_quantile())
+myquantile <- function(y, w) quantile(rep(y, w), probs = c(0.1, 0.5, 0.9))
+
+p <- predict(cf, newdata = cars, type = "response", FUN = myquantile)
 
 plot(dist ~ speed, data = cars)
 lines(cars$speed, p[,1])
 lines(cars$speed, p[,2])
 lines(cars$speed, p[,3])
 
-p <- predict(cf, newdata = cars, type = "response", FUN = .pred_density)
+mydensity <- partykit:::.pred_density
+
+p <- predict(cf, newdata = cars, type = "response", FUN = mydensity)
 
 for (i in 1:length(p)) 
     plot(p[[i]], xlim = c(-10, 150), ylim = c(0, .025))
