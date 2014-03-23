@@ -285,8 +285,39 @@ ctree <- function(formula, data, weights, subset, na.action = na.pass,
             }
         }
     }
-    ret <- .ctree_fit(dat, response, weights = weights, ctrl = control, 
-                      ytrafo = ytrafo)
+
+    if (is.null(weights))
+        weights <- rep(1, nrow(mf))
+    storage.mode(weights) <- "integer"
+
+    nvar <- sum(!(colnames(dat) %in% response))
+
+    control$cfun <- function(...) {
+        if (control$teststat == "quad")
+            p <- .pX2(..., pval = (control$testtype != "Teststatistic"))
+        if (control$teststat == "max")
+            p <- .pmaxT(..., pval = (control$testtype != "Teststatistic"))
+        names(p) <- c("teststat", "pval")
+
+        if (control$testtype == "Bonferroni")
+            p["pval"] <- p["pval"] * min(nvar, control$mtry)
+        crit <-  p["teststat"]
+        if (control$testtype != "Teststatistic")
+        crit <- p["pval"]
+        c(crit, p)
+    }
+
+    tree <- .ctree_fit(dat, response, weights = weights, ctrl = control, 
+                       ytrafo = ytrafo)
+
+    fitted <- data.frame("(fitted)" = fitted_node(tree, dat), 
+                         "(weights)" = weights,
+                         check.names = FALSE)
+    fitted[[3]] <- dat[, response, drop = length(response) == 1]
+    names(fitted)[3] <- "(response)"
+    ret <- party(tree, data = dat, fitted = fitted)
+    class(ret) <- c("constparty", class(ret))
+
     ### doesn't work for Surv objects
     # ret$terms <- terms(formula, data = mf)
     ret$terms <- terms(mf)
@@ -297,39 +328,19 @@ ctree <- function(formula, data, weights, subset, na.action = na.pass,
 }
 
 .ctree_fit <- function(data, response, weights = NULL,
-                      ctrl = ctree_control(), ytrafo = NULL) {
+                       ctrl, ytrafo = NULL) {
 
     inputs <- !(colnames(data) %in% response)
-
-    infl <- .y2infl(data, response, ytrafo = ytrafo)
 
     if (is.null(weights))
         weights <- rep(1, nrow(data))
     storage.mode(weights) <- "integer"
 
-    ctrl$cfun <- function(...) {
-        if (ctrl$teststat == "quad")
-            p <- .pX2(..., pval = (ctrl$testtype != "Teststatistic"))
-        if (ctrl$teststat == "max")
-            p <- .pmaxT(..., pval = (ctrl$testtype != "Teststatistic"))
-        names(p) <- c("teststat", "pval")
+    infl <- .y2infl(data, response, ytrafo = ytrafo) ### weights???
 
-        if (ctrl$testtype == "Bonferroni")
-            p["pval"] <- p["pval"] * min(sum(inputs), ctrl$mtry)
-        crit <-  p["teststat"]
-        if (ctrl$testtype != "Teststatistic")
-        crit <- p["pval"]
-        c(crit, p)
-    }
     tree <- .cnode(1L, data, infl, inputs, weights, ctrl)
-    fitted <- data.frame("(fitted)" = fitted_node(tree, data), 
-                         "(weights)" = weights,
-                         check.names = FALSE)
-    fitted[[3]] <- data[, response, drop = length(response) == 1]
-    names(fitted)[3] <- "(response)"
-    ret <- party(tree, data = data, fitted = fitted)
-    class(ret) <- c("constparty", class(ret))
-    return(ret)
+
+    return(tree)
 }
 
 .logrank_trafo <- function(x, ties.method = c("logrank", "HL")) {
