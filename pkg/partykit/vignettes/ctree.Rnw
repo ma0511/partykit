@@ -73,7 +73,7 @@
 \Plainauthor{Torsten Hothorn, Kurt Hornik, Achim Zeileis}
 
 \Abstract{
-  This document describes an implementation 
+  This vignette describes an implementation 
   of conditional inference trees which
   embed tree-structured regression models into a well defined theory of
   conditional inference procedures. This non-parametric class of regression
@@ -126,7 +126,7 @@ set.seed(290875)
 
 \setkeys{Gin}{width=\textwidth}
 
-This document describes \code{partykit::ctree}, an implementation of
+This vignette describes \code{partykit::ctree}, an implementation of
 conditional inference trees \citep{Hothorn+Hornik+Zeileis:2006}.  The
 reference implementation of this method is \code{party::ctree}.  Both
 functions produce the same output, however, transformations of the

@@ -105,7 +105,7 @@ fitted models associated with the tree's nodes. (3)~New ``mobsters''
 dedicated to specific models, e.g., \code{lmtree()} and \code{glmtree()}
 for MOBs of (generalized) linear models, are readily provided.
 
-The remainder of this manuscript is organized as follows: Section~\ref{sec:algorithm}
+The remainder of this vignette is organized as follows: Section~\ref{sec:algorithm}
 very briefly reviews the original MOB algorithm of \cite{Zeileis+Hothorn+Hornik:2008}
 and also highlights relevant subsequent work. Section~\ref{sec:implementation}
 introduces the new \code{mob()} function in \pkg{partykit} in detail,
