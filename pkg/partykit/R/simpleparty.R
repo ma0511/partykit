@@ -93,15 +93,13 @@ predict_party.simpleparty <- function(party, id, newdata = NULL,
 
   ## predictions
   if(type == "response") {
-    .simplify_pred(nodeapply(party, nodeids(party),
-      function(x) x$info$prediction, by_node = TRUE), id, nam)
+    FUN <- function(x) x$info$prediction
   } else {
     if(is.null(node_party(party)$info$distribution)) stop("probabilities not available")
     scale <- any(node_party(party)$info$distribution > 1)
-    .simplify_pred(nodeapply(party, nodeids(party),
-      function(x) if(scale) prop.table(x$info$distribution) else x$info$distribution,
-      by_node = TRUE), id, nam)
+    FUN <- function(x) if(scale) prop.table(x$info$distribution) else x$info$distribution
   }
+  predict_party.default(party, id, nam, FUN = FUN, ...)
 }
 
 as.simpleparty <- function(obj, ...) UseMethod("as.simpleparty")

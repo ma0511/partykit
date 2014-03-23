@@ -14,7 +14,7 @@
 \usage{
 \method{predict}{party}(object, newdata = NULL, \dots)
 predict_party(party, id, newdata = NULL, \dots)
-\method{predict_party}{default}(party, id, newdata = NULL, \dots) 
+\method{predict_party}{default}(party, id, newdata = NULL, FUN = NULL, \dots) 
 \method{predict_party}{constparty}(party, id, newdata = NULL,
     type = c("response", "prob", "node"), FUN = NULL, 
     simplify = TRUE, \dots)
@@ -40,8 +40,10 @@ predict_party(party, id, newdata = NULL, \dots)
           (Kaplan-Meier estimate) is returned when \code{type = "prob"}. 
           \code{"node"} returns an integer vector of terminal node
           identifiers.}
-  \item{FUN}{ a function to compute summary statistics, i.e., constant
-              predictions for each node with argument list \code{(y, w)}
+  \item{FUN}{ a function to extract (\code{default} method) or compute 
+              (\code{constparty} method) summary statistics. For the \code{default} method,
+              this is a function of a terminal node only, for the \code{constparty} method, 
+              predictions for each node have to be computed based on arguments \code{(y, w)}
               where \code{y} is the response and \code{w} are case weights.}
   \item{simplify}{ a logical indicating whether the resulting list 
                    of predictions should be converted to a suitable

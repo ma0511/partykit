@@ -291,7 +291,7 @@ predict_party <- function(party, id, newdata = NULL, ...)
     UseMethod("predict_party")
 
 ### do nothing expect returning the fitted ids
-predict_party.default <- function(party, id, newdata = NULL, ...) {
+predict_party.default <- function(party, id, newdata = NULL, FUN = NULL, ...) {
 
     if (length(list(...)) > 1) 
         warning("argument(s)", " ", sQuote(names(list(...))), " ", "have been ignored")
@@ -304,6 +304,10 @@ predict_party.default <- function(party, id, newdata = NULL, ...) {
       rownames(newdata)
     }
     if(length(nam) != length(id)) nam <- NULL
+
+    if (!is.null(FUN))
+        return(.simplify_pred(nodeapply(party, 
+            nodeids(party, terminal = TRUE), FUN, by_node = TRUE), id, nam))
 
     ## special case: fitted ids
     return(structure(id, .Names = nam))
