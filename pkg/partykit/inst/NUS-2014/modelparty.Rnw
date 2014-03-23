@@ -1051,8 +1051,6 @@ worthf <- function(info) paste(info$object$labels,
 plot(bt2, FUN = worthf)
 @
 
-\code{}
-
 \end{frame}
 
 \begin{frame}
