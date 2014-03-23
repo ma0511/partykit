@@ -8,6 +8,7 @@
 \newcommand{\oi}{\overline{\imath}}
 \newcommand{\argmin}{\operatorname{argmin}\displaylimits}
 \newcommand{\fixme}[1]{\emph{\marginpar{FIXME} (#1)}}
+\newcommand{\class}[1]{`\texttt{#1}'}
 
 %% neet no \usepackage{Sweave}
 \SweaveOpts{engine=R, eps=FALSE, keep.source=TRUE}
@@ -18,7 +19,7 @@ options(prompt = "R> ", continue = "+  ", digits = 4, useFancyQuotes = FALSE)
 @
 
 %\VignetteIndexEntry{Parties, Models, Mobsters: A New Implementation of Model-Based Recursive Partitioning in R}
-%\VignetteDepends{AER,Formula,mlbench,sandwich,strucchange,survival,TH.data,vcd}
+%\VignetteDepends{AER,Formula,mlbench,sandwich,strucchange,survival,TH.data,vcd,psychotools,psychotree}
 %\VignetteKeywords{parametric models, object-orientation, recursive partitioning}
 %\VignettePackage{partykit}
 
@@ -112,7 +113,7 @@ discussing how all steps of the MOB algorithm are implemented and which
 options for customization are available. For illustration logistic-regression-based
 recursive partitioning is applied to the Pima Indians diabetes data set from the
 UCI machine learning repository \citep{mlbench2}. Section~\ref{sec:illustration}
-presents further illustrative examples \citep[including replications from][]{Zeileis+Hothorn+Hornik:2008}
+and~\ref{sec:mobster} present further illustrative examples \citep[including replications from][]{Zeileis+Hothorn+Hornik:2008}
 before Section~\ref{sec:conclusion} provides some concluding remarks.
 
 
@@ -137,9 +138,23 @@ likelihood (ML) estimation, respectively.
 
 If a global model for all $n$ observations does not fit well and further
 covariates $Z_1, \dots, Z_\ell$ are available, it might be possible to partition
-the $n$ observations with respect to these variables and find a fitting model
+the $n$ observations with respect to these variables and find a fitting local model
 in each cell of the partition. The MOB algorithm tries to find
-such a partition adaptively using a greedy forward search.
+such a partition adaptively using a greedy forward search. The reasons
+for looking at such local models might be different for different types of
+models: First, the detection of interactions and nonlinearities in
+regression relationships might be of interest just like in standard
+classification and regression trees \citep[see e.g.,][]{Zeileis+Hothorn+Hornik:2008}.
+Additionally, however, this approach allows to add explanatory variables to
+models that otherwise do not have regressors or where the link between the
+regressors and the parameters of the model is inclear \citep[this idea is
+pursued by][]{Strobl+Wickelmaier+Zeileis:2011}. Finally, the model-based
+tree can be employed as a thorough diagnostic test of the parameter stability
+assumption (also termed measurement invariance in psychometrics). If the tree does
+not split at all, parameter stability (or measurement invariance) cannot be rejected
+while a tree with splits would indicate in which way the assumption is violated
+\citep[][employ this idea in psychometric item response theory models]{Strobl+Kopf+Zeileis:2013}.
+
 The basic idea is to grow a tee in which every node is associated with a model
 of type $\mathcal{M}$. To assess whether splitting of the node is necessary a
 fluctuation test for parameter instability is performed. If there is significant instability
@@ -867,7 +882,7 @@ predict(pid_tree2, newdata = pid, type = "link")
 \section{Illustrations}
 \label{sec:illustration}
 
-In this section, further empirical illustrations of the MOB method are
+In the remainder of the vignette, further empirical illustrations of the MOB method are
 provided, including replications of the results from \cite{Zeileis+Hothorn+Hornik:2008}:
 \begin{enumerate}
   \item An investigation of the price elasticity of the demand for economics
@@ -883,16 +898,21 @@ provided, including replications of the results from \cite{Zeileis+Hothorn+Horni
     ill-fated maiden voyage of the RMS Titanic.
   \item Modeling of breast cancer survival by capturing heterogeneity
     in certain (treatment) effects across patients.
+  \item Modeling of paired comparisons of topmodel candidates
+    by capturing heterogeneity in their attractiveness scores across
+    participants in a survey.
 \end{enumerate}
-More details about the underlying data sets, previous studies exploring
+More details about several of the underlying data sets, previous studies exploring
 the data, and the results based on MOB can be found in 
 \cite{Zeileis+Hothorn+Hornik:2008}.
 
 Here, we focus on using the \pkg{partykit} package to replicate the analysis
-and explore the resulting trees. The first two illustrations employ the
-\code{lmtree()} convenience function while the latter uses \code{survreg()}
+and explore the resulting trees. The first three illustrations employ the
+\code{lmtree()} convenience function, the fourth is based on logistic regression
+using \code{glmtree()}, and the fifth uses \code{survreg()}
 from \pkg{survival} \citep{survival} in combination with \code{mob()} directly.
-
+The sixth and last illustration is deferred to a separate section and shows
+in detail how to set up new ``mobster'' functionality from scratch.
 
 \subsection{Demand for economic journals}
 
@@ -1179,7 +1199,7 @@ respectively).
 Another option for assessing the class effect would be to immediately split into
 all four classes rather than using recursive binary splits. This can be obtained
 by setting \code{catsplit = "multiway"} in the \code{glmtree()} call above. This
-yields a tree with just a single split but four daughter nodes.
+yields a tree with just a single split but four kid nodes.
 
 
 \subsection{German breast cancer data}
@@ -1229,20 +1249,6 @@ gbsg2_tree <- mob(Surv(time, cens) ~ horTh + pnodes | age + tsize +
   fit = wbreg, control = mob_control(minsize = 80))
 @
 %
-Based on progesterone receptor, a tree with two leaves is found:
-%
-<<gbsg2_tree-methods>>=
-gbsg2_tree
-coef(gbsg2_tree)
-logLik(gbsg2_tree)
-@
-%
-The visualization produced by \code{plot(gbsg2_tree)} is shown in Figure~\ref{fig:GBSG2}.
-A nicer graphical display using a scatter plot (with indication of censoring) and
-fitted regression curves is shown in Figure~\ref{fig:GBSG2-scatter}. This uses a
-custom panel function whose code is too long and elaborate to be shown here.
-Interested readers are referred to the \proglang{R} code underlying the vignette.
-
 \begin{figure}[p!]
 \centering
 \setkeys{Gin}{width=0.6\textwidth}
@@ -1359,10 +1365,335 @@ breast cancer data. The plots in the leaves depict censored (hollow) and uncenso
 (solid) survival time by number of positive lymph nodes along with fitted median
 survival for patients with (dashed line) and without (solid line) hormonal therapy.}
 \end{figure}
+%
+Based on progesterone receptor, a tree with two leaves is found:
+%
+<<gbsg2_tree-methods>>=
+gbsg2_tree
+coef(gbsg2_tree)
+logLik(gbsg2_tree)
+@
+%
+The visualization produced by \code{plot(gbsg2_tree)} is shown in Figure~\ref{fig:GBSG2}.
+A nicer graphical display using a scatter plot (with indication of censoring) and
+fitted regression curves is shown in Figure~\ref{fig:GBSG2-scatter}. This uses a
+custom panel function whose code is too long and elaborate to be shown here.
+Interested readers are referred to the \proglang{R} code underlying the vignette.
 
 The visualization shows that for higher progesterone receptor levels: (1)~survival times are
 higher overall, (2)~the treatment effect of hormonal therapy is higher, and
 (3)~the negative effect of the main risk factor (number of positive lymph nodes) is less severe.
+
+
+
+\section{Setting up a new mobster} \label{sec:mobster}
+
+To conclude this vignette, we present another illustration that shows how
+to set up new mobster functionality from scratch. To do so, we implement the
+Bradley-Terry tree suggested by \cite{Strobl+Wickelmaier+Zeileis:2011} ``by hand''.
+The \pkg{psychotree} package already provides an easy-to-use mobster called
+\code{bttree()} but as an implementation exercise we recreate its functionality
+here.
+
+The only inputs required are a suitable data set with paired comparisons
+(\code{Topmodel2007} from \pkg{psychotree}), a parametric model for paired
+comparison data (\code{btReg.fit()} from \pkg{psychotools}, implementing the
+Bradley-Terry model), and an extractor method for the corresponding empirical
+estimating functions (which are computed by default in \code{btReg.fit()} already
+and just need to be extracted):
+<<bt-packages>>=
+data("Topmodel2007", package = "psychotree")
+library("psychotools")
+estfun.btReg <- function(x, ...) x$estfun
+@
+
+The Bradley-Terry (or Bradley-Terry-Luce) model is a standard model for paired
+comparisons in social sciences. It parametrizes the probability $\pi_{ij}$
+for preferring some object $i$ over another object $j$ in terms of corresponding
+``ability'' or ``worth'' parameters $\theta_i$:
+\begin{eqnarray*}
+      \pi_{ij}\phantom{)}  & = & \frac{\theta_i}{\theta_i + \theta_j} \\
+  \mathsf{logit}(\pi_{ij}) & = & \log(\theta_i) - \log(\theta_j)
+\end{eqnarray*}
+This model can be easily estimated by maximum likelihood as a logistic or
+log-linear GLM. This is the approach used internally by \code{btReg.fit()}.
+
+The \code{Topmodel2007} data provide paired comparisons of attractiveness among
+the six finalists of the TV show \emph{Germany's Next Topmodel~2007}:
+Barbara, Anni, Hana, Fiona, Mandy, Anja. The data were collected in a
+survey with 192~respondents at Universit{\"a}t T{\"u}bingen and the available
+covariates comprise gender, age, and familiarty with the TV~show. The latter
+is assess by three by yes/no questions:
+(1)~Do you recognize the women?/Do you know the show?
+(2)~Did you watch it regularly?
+(3)~Did you watch the final show?/Do you know who won?
+
+To fit the Bradley-Terry tree to the data, the available building blocks
+just have to be tied together. First, we set up the basic/simple model fitting
+interface described in Section~\ref{sec:fit}:
+%
+<<btfit1>>=
+btfit1 <- function(y, x = NULL, start = NULL, weights = NULL,
+  offset = NULL, ...) btReg.fit(y, ...)
+@
+%
+The function \code{btfit1()} simply calls \code{btReg.fit()} ignoring all arguments
+except \code{y} as the others are not needed here. No more processing is required
+because \class{btReg} objects come with a \code{coef()} and \code{logLik()} method
+and an \code{estfun()} method was already defined above. Hence, we can call \code{mob()}
+now specifying the response and the partitioning variable (and no regressors because
+there are no regressors in this model).
+%
+<<bt1>>=
+system.time(bt1 <- mob(preference ~ 1 | gender + age + q1 + q2 + q3,
+  data = Topmodel2007, fit = btfit1))
+@
+%
+An alternative way to fit the exact same tree somewhat more quickly would be to
+employ the extended interface described in Section~\ref{sec:fit}:
+%
+<<btfit2, echo=FALSE, results=hide>>=
+btfit2 <- function(y, x = NULL, start = NULL, weights = NULL,
+  offset = NULL, ..., estfun = FALSE, object = FALSE) {
+  rval <- btReg.fit(y, ..., estfun = estfun, vcov = object)
+  list(
+    coefficients = rval$coefficients,
+    objfun = -rval$loglik,
+    estfun = if(estfun) rval$estfun else NULL,
+    object = if(object) rval else NULL
+  )
+}
+@
+%
+Still \code{btReg.fit()} is employed for fitting the model but the quantities
+\code{estfun} and \code{vcov} are only computed if they are really required. This
+saves some computation time (about 20\% on the authors' machine) when computing
+the tree:
+%
+<<bt2>>=
+system.time(bt2 <- mob(preference ~ 1 | gender + age + q1 + q2 + q3,
+  data = Topmodel2007, fit = btfit2))
+@
+%
+The speed-up is not huge but comes almost for free: just a few additional lines
+of code in \code{btfit2()} are required. For other models where it is more costly
+to set up a full model (with variance-covariance matrix, predictions, residuals, etc.)
+larger speed-ups are also possible.
+
+Both trees, \code{bt1} and \code{bt2}, are equivalent (except for the details of the
+fitting function). Hence, in the following we only explore \code{bt2}. However, the
+same code can be applied to \code{bt1} as well.
+
+Many tools come completely for free and are inherited from the general \class{modelparty}/\class{party}.
+For example, both printing (\code{print(bt2)}) and plotting (\code{plot(bt2)})
+shows the estimated parameters in the terminal nodes which can also be extracted by
+the \code{coef()} method:
+<<bt2-print>>=
+bt2
+coef(bt2)
+@
+The corresponding visualization is shown in the upper panel of Figure~\ref{fig:topmodel-plot1}.
+In all cases, the estimated coefficients on the logit scale omitting the
+fixed zero reference level (Anja) are reported. To show the corresponding worth
+parameters $\theta_i$ including the reference level, one can simply provide
+a small panel function \code{worthf()}. This applies the \code{worth()} function
+from \pkg{psychotools} to the fitted-model object stored in the \code{info} slot
+of each node, yielding the lower panel in Figure~\ref{fig:topmodel-plot1}.
+%
+<<bt2-worthf, eval=FALSE>>=
+worthf <- function(info) paste(info$object$labels,
+  format(round(worth(info$object), digits = 3)), sep = ": ")
+plot(bt2, FUN = worthf)
+@
+%
+\begin{figure}[p!]
+\centering
+<<bt2-plot, fig=TRUE, height=7.4, width=12, echo=FALSE>>=
+plot(bt2)
+@
+
+\vspace*{0.5cm}
+
+<<bt2-plot2, fig=TRUE, height=7.4, width=12, echo=FALSE>>=
+<<bt2-worthf>>
+@
+\caption{\label{fig:topmodel-plot1} Bradley-Terry-based tree for the topmodel attractiveness
+data. The default plot (upper panel) reports the estimated coefficients on the log scale and
+while the adapted plot (lower panel) shows the corresponding worth parameters.}
+\end{figure}
+%
+To show a graphical display of these worth parameters rather than
+printing their numerical values, one can use a simply glyph-style plot.
+A simply way to generate these is to use the \code{plot()} method for
+\class{btReg} objects from \pkg{partykit} and \code{nodeapply} this to
+all terminal nodes (see Figure~\ref{fig:topmodel-plot2}):
+%
+<<bt2-nodeapply, eval=FALSE>>=
+par(mfrow = c(2, 2))
+nodeapply(bt2, ids = c(3, 5, 6, 7), FUN = function(n)
+  plot(n$info$object, main = n$id, ylim = c(0, 0.4)))
+@
+%
+\begin{figure}[t!]
+\centering
+<<bt2-nodeapply-plot, fig=TRUE, height=7, width=9, echo=FALSE, results=hide>>=
+<<bt2-nodeapply>>
+@
+\caption{\label{fig:topmodel-plot2} Worth parameters in the terminal nodes
+of the Bradley-Terry-based tree for the topmodel attractiveness data.}
+\end{figure}
+%
+Alternatively, one could set up a proper panel-generating function in \pkg{grid}
+that allows to create the glyphs within the terminal nodes of the tree (see
+Figure~\ref{fig:topmodel-plot3}). As the code for this panel-generating function
+\code{node_btplot()} is too complicated to display within the vignette, we
+refer interested readers to the underlying code. Given this panel-generating
+function Figure~\ref{fig:topmodel-plot3} can be generated with
+<<bt2-plot3, eval=FALSE>>=
+plot(bt2, drop = TRUE, tnex = 2,
+  terminal_panel = node_btplot(bt2, abbreviate = 1, yscale = c(0, 0.5)))
+@
+
+\begin{figure}[t!]
+\centering
+<<node_btplot, echo=FALSE, results=hide, fig=TRUE, height=6.2, width=10>>=
+## visualization function
+node_btplot <- function(mobobj, id = TRUE,
+  worth = TRUE, names = TRUE, abbreviate = TRUE, index = TRUE, ref = TRUE,
+  col = "black", linecol = "lightgray", cex = 0.5, pch = 19, xscale = NULL, yscale = NULL, ylines = 1.5)
+{
+    ## node ids
+    node <- nodeids(mobobj, terminal = FALSE)
+    
+    ## get all coefficients 
+    cf <- partykit:::apply_to_models(mobobj, node, FUN = function(z)        
+      if(worth) worth(z) else coef(z, all = FALSE, ref = TRUE))
+    cf <- do.call("rbind", cf)
+    rownames(cf) <- node
+
+    ## get one full model
+    mod <- partykit:::apply_to_models(mobobj, node = 1L, FUN = NULL)
+
+    if(!worth) {
+      if(is.character(ref) | is.numeric(ref)) {
+        reflab <- ref
+        ref <- TRUE
+      } else {
+        reflab <- mod$ref
+      }
+      if(is.character(reflab)) reflab <- match(reflab, mod$labels)
+      cf <- cf - cf[,reflab]
+    }
+
+    ## reference
+    if(worth) {
+      cf_ref <- 1/ncol(cf)
+    } else {
+      cf_ref <- 0
+    }
+
+    ## labeling
+    if(is.character(names)) {
+      colnames(cf) <- names
+      names <- TRUE
+    }
+
+    ## abbreviation
+    if(is.logical(abbreviate)) {
+      nlab <- max(nchar(colnames(cf)))
+      abbreviate <- if(abbreviate) as.numeric(cut(nlab, c(-Inf, 1.5, 4.5, 7.5, Inf))) else nlab
+    }
+    colnames(cf) <- abbreviate(colnames(cf), abbreviate)
+    
+    if(index) {
+      x <- 1:NCOL(cf)
+      if(is.null(xscale)) xscale <- range(x) + c(-0.1, 0.1) * diff(range(x))
+    } else {
+      x <- rep(0, length(cf))
+      if(is.null(xscale)) xscale <- c(-1, 1)      
+    }
+    if(is.null(yscale)) yscale <- range(cf) + c(-0.1, 0.1) * diff(range(cf))
+         
+    ## panel function for bt plots in nodes
+    rval <- function(node) {
+
+      ## node index
+      id <- id_node(node)
+    
+      ## dependent variable setup
+      cfi <- cf[id,]
+
+      ## viewport setup
+      top_vp <- viewport(layout = grid.layout(nrow = 2, ncol = 3,
+    			 widths = unit(c(ylines, 1, 1), c("lines", "null", "lines")),  
+        		 heights = unit(c(1, 1), c("lines", "null"))),
+    			 width = unit(1, "npc"), 
+    			 height = unit(1, "npc") - unit(2, "lines"),
+        		 name = paste("node_btplot", id, sep = ""))
+      pushViewport(top_vp)
+      grid.rect(gp = gpar(fill = "white", col = 0))
+
+      ## main title
+      top <- viewport(layout.pos.col = 2, layout.pos.row = 1)
+      pushViewport(top)
+      mainlab <- paste(ifelse(id, paste("Node", id, "(n = "), ""),
+        	       info_node(node)$nobs, ifelse(id, ")", ""), sep = "")
+      grid.text(mainlab)
+      popViewport()
+
+      ## actual plot  
+      plot_vpi <- viewport(layout.pos.col = 2, layout.pos.row = 2,
+        xscale = xscale, yscale = yscale, 
+        name = paste("node_btplot", id, "plot", sep = ""))
+      pushViewport(plot_vpi)
+
+      grid.lines(xscale, c(cf_ref, cf_ref), gp = gpar(col = linecol), default.units = "native")
+      if(index) {
+        grid.lines(x, cfi, gp = gpar(col = col, lty = 2), default.units = "native")
+        grid.points(x, cfi, gp = gpar(col = col, cex = cex), pch = pch, default.units = "native")
+        grid.xaxis(at = x, label = if(names) names(cfi) else x)
+      } else {  	
+        if(names) grid.text(names(cfi), x = x, y = cfi, default.units = "native")
+          else grid.points(x, cfi, gp = gpar(col = col, cex = cex), pch = pch, default.units = "native")
+      }
+      grid.yaxis(at = c(ceiling(yscale[1] * 100)/100, floor(yscale[2] * 100)/100))
+      grid.rect(gp = gpar(fill = "transparent"))
+
+      upViewport(2)
+    }
+	    
+    return(rval)
+}
+class(node_btplot) <- "grapcon_generator"
+
+plot(bt2, drop = TRUE, tnex = 2,
+  terminal_panel = node_btplot(bt2, abbreviate = 1, yscale = c(0, 0.5)))
+@
+\caption{\label{fig:topmodel-plot3} Bradley-Terry-based tree for the topmodel attractiveness
+data with visualizations of the worth parameters in the terminal nodes.}
+\end{figure}
+
+Finally, to illustrate how different predictions can be easily computed,
+we set up a small data set with three new individuals:
+%
+<<tm, echo=FALSE>>=
+tm <- data.frame(age = c(60, 25, 35), gender = c("male", "female", "female"),
+  q1 = "no", q2 = c("no", "no", "yes"), q3 = "no")
+tm
+@
+%
+For these we can easily compute (1)~the predicted node ID, (2)~the corresponding
+worth parameters, (3)~the associated ranks.
+<<tm-predict>>=
+tm
+predict(bt2, tm, type = "node")
+predict(bt2, tm, type = function(object) t(worth(object)))
+predict(bt2, tm, type = function(object) t(rank(-worth(object))))
+@
+
+This completes the tour of fitting, printing, plotting, and predicting the
+Bradley-Terry tree model. Convenience interfaces that employ code like shown
+above can be easily defined and collected in new packages such as \pkg{psychotree}.
 
 
 \section{Conclusion}
