@@ -29,7 +29,7 @@ set.seed(290875)
 %% header declarations
 \author{Torsten Hothorn \\ \addr{Universit\"at Z\"urich} \\ \addr{E-mail: Torsten.Hothorn@R-project.org} \AND
         Achim Zeileis \\ \addr{Universit\"at Innsbruck} \\ \addr{E-mail: Achim.Zeileis@R-project.org}}
-\title{\pkg{partykit}: An Open-Source Toolkit for Recursive Partytioning in \proglang{R}}
+\title{\pkg{partykit}: A Modular Toolkit for Recursive Partytioning in \proglang{R}}
 \editor{(submission for MLOSS track)}
 
 % hyperref setup
@@ -131,19 +131,42 @@ and \fct{mob} for model-based recursive partitioning \citep{Zeileis+Hothorn+Horn
 
 \section{Installation and Documentation}
 
-installation information
+The \pkg{partykit} package is an add-on package for the \proglang{R} system
+for statistical computing. It is available from the Comprehensive \proglang{R}
+Archive Network (CRAN) at \url{http://CRAN.R-project.org/package=partykit} and
+can be easily installed in the usual ways from within \proglang{R} using
+\fct{install.packages}. It depends on \proglang{R} (at least 2.15.0) as well
+as the base packages \pkg{graphics}, \pkg{grid}, \pkg{stats}, and the recommended
+\pkg{survival} package. Furthermore, various suggested packages are needed
+for certain special functionalities in the package. To install all of these
+required and suggested packages in one go, the command
+\code{install.packages("partykit", dependencies = TRUE)} can be used.
 
-\proglang{R}-Forge \citep{Theussl+Zeileis:2009}
+In addition to the stable release version of the package on CRAN, the
+current development release can be installed from \proglang{R}-Forge
+\citep{Theussl+Zeileis:2009}. In addition to source and binary packages
+of \pkg{partykit} the entire version history is available through
+\proglang{R}-Forge's \pkg{Subversion} source code management system.
 
-The vignette (\code{"partykit"}) introduces the basic \class{party} class
+Along with the package extensive documentation and examples are shipped.
+The manual pages provide basic technical information on all functions while
+much more detailed descriptions along with worked examples are provided in
+the four package vignettes. First, the vignette \code{"partykit"}
+introduces the basic \class{party} class
 and associated infrastructure while three further vignettes discuss the tools
-built on top of it: \code{"constparty"} covers the eponymous class for
-constant-fit trees along with suitable coercion functions, and
-\code{"ctree"} and \code{"mob"} discuss the new \fct{ctree} and
-\fct{mob} implementations, respectively. Each of the vignettes can be viewed
-within \proglang{R} via \code{vignette(}\emph{``name''}\code{, package = "partykit")}.
+built on top of it: \code{"constparty"} covers the eponymous class (as well as
+the simplified \class{simpleparty} class) for constant-fit trees along with
+suitable coercion functions, and \code{"ctree"} and \code{"mob"} discuss the
+new \fct{ctree} and \fct{mob} implementations, respectively. Each of the
+vignettes can be viewed within \proglang{R} via
+\code{vignette(}\emph{``name''}\code{, package = "partykit")} and the underlying
+source code (in \proglang{R} with {\LaTeX} text) is also available in the source
+package.
 
 \section{User Interface}
+
+two blocks: basic infrastructure (next section) and methods for learning trees,
+either directly or via coercion.
 
 formula interface
 
@@ -152,6 +175,25 @@ as.party
 PMML
 
 print, plot, predict
+
+nodeapply, nodeprune
+
+\begin{table}
+\centering
+\begin{tabular}{llll}
+\hline
+Algorithm  & Software                                                 & Object class       & Original reference \\ \hline
+CART/RPart & \code{rpart::rpart} + \code{as.party}                   & \code{constparty}  & \cite{Breiman+Friedman+Olshen:1984} \\
+C4.5/J4.8  & \pkg{Weka}/\code{RWeka::J48} + \code{as.party}          & \code{constparty}  & \cite{Quinlan:1993} \\
+QUEST      & \proglang{SPSS}/\pkg{AnswerTree} + \code{pmmlTreeModel} & \code{simpleparty} & \cite{Loh+Shih:1997} \\
+CTree      & \code{ctree}                                             & \code{constparty}  & \cite{Hothorn+Hornik+Zeileis:2006} \\
+MOB        & \code{mob}, \code{lmtree}, \code{glmtree}, \dots         & \code{modelparty}  & \cite{Zeileis+Hothorn+Hornik:2008} \\
+EvTree     & \code{evtree::evtree}                                    & \code{constparty}  & \cite{evtree} \\ \hline
+\end{tabular}
+\caption{\label{tab:overview} Selected tree algorithms than can be interfaced through \pkg{partykit}. The
+  software column lists external software, \proglang{R} functions from other packages (with \code{::} syntax)
+  and from \pkg{partykit}.}
+\end{table}
 
 <<Titanic>>=
 data("Titanic", package = "datasets")
@@ -182,27 +224,32 @@ grid.newpage()
 pushViewport(viewport(layout = grid.layout(1, 2)))
 pushViewport(viewport(layout.pos.col = 1, layout.pos.row = 1))
 plot(ttnc_rp, newpage = FALSE, pop = TRUE,
-  tp_args = list(reverse = FALSE, fill = grey(c(0.45, 0.8))))
+  tp_args = list(reverse = FALSE, fill = grey(c(0.45, 0.85))))
 popViewport()
 pushViewport(viewport(layout.pos.col = 2, layout.pos.row = 1))
 plot(ttnc_mob, newpage = FALSE, pop = TRUE, tp_args = list(ylines = 1.3,
-  margins = c(1.5, 1, 1.5, 2.2), gp = gpar(fill = grey(c(0.45, 0.8))),
+  margins = c(1.5, 1, 1.5, 2.2), gp = gpar(fill = grey(c(0.45, 0.85))),
   linecol = "black"))
 popViewport(2)
 @
 \caption{\label{fig} Tree visualizations of survival on Titanic:
-\class{rpart} tree visualized by \pkg{partykit} (left) and
+\class{rpart} tree converted with \fct{as.party} and visualized by \pkg{partykit} (left); and
 logistic-regression-based tree fitted by \fct{glmtree} (right).}
 \end{figure}
 
 
 \section{Internal Structure}
 
+especially for developers who either want to implement new tree algorithms
+or represent trees learning in other systems in \proglang{R} to facilitate
+predictions, comparisons, etc.
+
 partysplit
 partynode
 party
 
 constparty
+simpleparty
 modelparty
 
 extractor functions
@@ -215,8 +262,9 @@ run-time, memory requirements, benchmarks?
 
 We are thankful to the organizers and participants of the ``Workshop on Classification and Regression Trees'' 2014,
 sponsored by the Institute for Mathematical Sciences of the National University of Singapore,
-for feedback and discussions.
+for helpful feedback and stimulating discussions.
 
+\newpage
 
 \bibliography{../../vignettes/party.bib}
 
