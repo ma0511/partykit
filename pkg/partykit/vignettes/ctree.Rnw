@@ -129,15 +129,25 @@ set.seed(290875)
 
 \section{Overview}
 
-This vignette describes \code{partykit::ctree}, an implementation of
-conditional inference trees \citep{Hothorn+Hornik+Zeileis:2006}.  The
-reference implementation of this method is \code{party::ctree}.  Both
-functions produce the same output, however, transformations of the
-explanatory variables, resampling distributions of the test statistics, and
-extraction of split-statistics are not yet implemented in \code{party::ctree}.
-
-\fixme{Communicate partykit to be the reference implementation now -- except
-for few features that have not yet been ported.}
+This vignette describes 
+conditional inference trees \citep{Hothorn+Hornik+Zeileis:2006}.  The original
+implementation of this method is \code{party::ctree} and the 
+reference implementation is \code{partykit::ctree}.  Both
+functions produce essentially the same output, with the following exceptions: 
+\begin{itemize}
+\item transformations of the explanatory variables,
+\item resampling distributions of the test statistics, and
+\item extraction of split-statistics are not yet implemented in \code{partykit::ctree}.
+\end{itemize}
+There is a new argument \code{majority = FALSE} in \code{partykit::ctree\_control}
+that enables random assignment of non-splitable observations to daugther nodes preserving
+the node distribution. With \code{majority = TRUE}, these observations go with the majority
+(as also implemented in \code{partykit::ctree}). Both implementations do not
+fit surrogate splits by default, so users need to make sure to set the \code{maxsurrogate}
+argument if missing values are a problem in their learning or testing data.
+The implementation of 
+\code{ctree} in package \pkg{partykit} is almost entirely written in \proglang{R}, whereas 
+the original implementation in \pkg{party} is almost entirely written in \proglang{C}.
 
 \section{Introduction}
 
