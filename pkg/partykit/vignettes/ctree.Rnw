@@ -14,6 +14,7 @@
 %% need no \usepackage{Sweave}
 
 %% commands
+\newcommand{\fixme}[1]{\emph{\marginpar{FIXME} (#1)}}
 \renewcommand{\Prob}{\mathbb{P} }
 \renewcommand{\E}{\mathbb{E}}
 \newcommand{\V}{\mathbb{V}}
@@ -126,12 +127,17 @@ set.seed(290875)
 
 \setkeys{Gin}{width=\textwidth}
 
+\section{Overview}
+
 This vignette describes \code{partykit::ctree}, an implementation of
 conditional inference trees \citep{Hothorn+Hornik+Zeileis:2006}.  The
 reference implementation of this method is \code{party::ctree}.  Both
 functions produce the same output, however, transformations of the
 explanatory variables, resampling distributions of the test statistics, and
 extraction of split-statistics are not yet implemented in \code{party::ctree}.
+
+\fixme{Communicate partykit to be the reference implementation now -- except
+for few features that have not yet been ported.}
 
 \section{Introduction}
 
