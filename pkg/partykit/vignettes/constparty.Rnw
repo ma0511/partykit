@@ -348,7 +348,7 @@ Group web page, e.g.,
 Although the \pkg{partykit} package offers an extensive toolbox for handling
 trees along with implementations of various tree algorithms, it does not offer
 unified infrastructure for \emph{growing} trees.  However, once you know how to estimate splits from data, it is
-fairly straightforward to implement trees.  Consider a very simple tree
+fairly straightforward to implement trees.  Consider a very simple CHAID-style
 algorithm (in fact so simple that we would advise \emph{not to use it} for any real
 application).  We assume that both response and explanatory variables are
 factors, as for the Titanic data set.  First we determine the best
@@ -394,11 +394,11 @@ findsplit <- function(response, data, weights, alpha = 0.01) {
   ## set up all possible splits in two kid nodes
   lev <- levels(x[drop = TRUE])
   if(length(lev) == 2) {
-    splitpoint <- lev[1]
+    splitpoint <- lev[2]
   } else {
     comb <- do.call("c", lapply(1:(length(lev) - 2),
       function(x) combn(lev, x, simplify = FALSE)))
-    xlogp <- min(sapply(comb, function(q) mychisqtest(x %in% q)))
+    xlogp <- sapply(comb, function(q) mychisqtest(x %in% q))
     splitpoint <- comb[[which.min(xlogp)]]
   }
 
@@ -531,9 +531,9 @@ tree to a more reasonable size. For this purpose the \pkg{partykit}
 package provides the \fct{nodeprune} function that can prune back
 to nodes with selected IDs. As \fct{nodeprune} (by design) does not
 provide a specific pruning criterion, we need to determine ourselves
-which nodes to prune, Here, one idea would be to stop splitting when
-the $p$-value is larger than $10^{-5}$ rather than at $10^{-2}$ as
-used by default in \fct{mytree}. Hence we use \fct{nodeapply} to
+which nodes to prune. Here, one idea could be to impose significance
+at a higher level than the default $10^{-2}$ -- say $10^{-5}$ to obtain a strongly
+pruned tree. Hence we use \fct{nodeapply} to
 extract the minimal Bonferroni-corrected $p$-value from all inner nodes:
 %
 <<mytree-pval, echo = TRUE>>=
@@ -551,6 +551,7 @@ myttnc2 <- nodeprune(myttnc, ids = iid[pval > 1e-5])
 %
 The corresponding visualization is shown in Figure~\ref{prunetree}.
 
+\setkeys{Gin}{width=0.75\textwidth}
 \begin{figure}[t!]
 \centering
 <<mytree-nodeprune-plot, echo = FALSE, fig = TRUE, height=6, width=10>>=
@@ -559,6 +560,7 @@ plot(myttnc2)
 \caption{Pruned classification tree fitted by the \fct{mytree} function to the
 \code{ttnc} data. \label{prunetree}}
 \end{figure}
+\setkeys{Gin}{width=\textwidth}
 
 
 \section{Predictions} \label{sec:prediction}
