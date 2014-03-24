@@ -418,8 +418,21 @@ text in terminal nodes (right).}
 \end{figure}
 \setkeys{Gin}{width=\textwidth}
 
-
-
+Finally, an important utility function is \fct{nodeprune} which allows to
+prune \class{party} trees. It takes a vector of node IDs and prunes
+all of their kids, i.e., making all the indicated node IDs terminal nodes.
+<<weather-prune>>=
+nodeprune(py, 2)
+nodeprune(py, c(2, 6))
+@
+Note that for the pruned versions of this particular \class{party} tree,
+the new terminal nodes are displayed with a \code{*} rather than the
+play decision. This is because we did not store any play decisions in the
+\code{info} of the inner nodes of \code{py}. We could have of course done so initially,
+or could do so now, or we might want to do so automatically. For the latter,
+we would have to know how predictions should be obtained from the data and
+this is briefly discussed at the end of this vignette and in more
+detail in \code{vignette("constparty", package = "partykit")}.
 
 \section{Technical details}
 
