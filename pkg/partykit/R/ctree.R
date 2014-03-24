@@ -200,6 +200,10 @@
     ret$info <- list(criterion = p, p.value = fmP(p)[iselp])
     thissurr <- NULL
     kidids <- kidids_node(ret, data)
+    prob <- prop.table(table(kidids))
+    if (ctrl$majority)  ### go with majority
+        prob <- numeric(0) + 1:length(prob) %in% which.max(prob)
+    ret$prob <- prob
 
     if (ctrl$maxsurrogate > 0) {
         inp <- inputs
@@ -228,8 +232,8 @@
 ctree_control <- function(teststat = c("quad", "max"),
     testtype = c("Bonferroni", "Univariate", "Teststatistic"),
     mincriterion = 0.95, minsplit = 20L, minbucket = 7L, minprob = 0.01,
-    stump = FALSE, maxsurrogate = 2L, mtry = Inf, maxdepth = Inf, 
-    multiway = FALSE, splittry = 2L) {
+    stump = FALSE, maxsurrogate = 0L, mtry = Inf, maxdepth = Inf, 
+    multiway = FALSE, splittry = 2L, majority = FALSE) {
 
     teststat <- match.arg(teststat)
     if (teststat == "max") stopifnot(require("mvtnorm"))
@@ -239,7 +243,7 @@ ctree_control <- function(teststat = c("quad", "max"),
          minsplit = minsplit, minbucket = minbucket, 
          minprob = minprob, stump = stump, mtry = mtry, 
          maxdepth = maxdepth, multiway = multiway, splittry = splittry,
-         maxsurrogate = maxsurrogate)
+         maxsurrogate = maxsurrogate, majority = majority)
 }
 
 ctree <- function(formula, data, weights, subset, na.action = na.pass, 

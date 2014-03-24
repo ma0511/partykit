@@ -62,6 +62,7 @@ fun <- function(args) {
     old <- treeresponse(oldmod, newdata = test)
     ct <- partykit:::ctree_control
     ctrl <- do.call("ct", args[-(1:2)])
+    ctrl$majority <- TRUE
     nt <- system.time(newmod <- try(partykit:::ctree(y ~ ., data = learn, control = ctrl)))[1]
     if (inherits(newmod, "try-error")) {
         new <- as.list(rep(1, length(old)))

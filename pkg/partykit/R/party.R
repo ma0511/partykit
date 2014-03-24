@@ -403,8 +403,10 @@ predict_party.constparty <- function(party, id, newdata = NULL,
     function(p, ...) quantile(y, probs = p, ...)
 }
 
-.pred_density <- function(y, w)
-    density(y, weights = w / sum(w))
+.pred_density <- function(y, w) {
+    d <- density(y, weights = w / sum(w))
+    approxfun(d[1:2], rule = 2)
+}
 
 ### workhorse: compute predictions based on fitted / response data
 .predict_party_constparty <- function(node, fitted, response, weights,
