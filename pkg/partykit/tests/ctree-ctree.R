@@ -4,7 +4,6 @@
 
 library("partykit")
 library("party")
-library("parallel")
 
 set.seed(29)
 
@@ -48,6 +47,9 @@ gr[["response"]] <- as.character(gr[["response"]])
 gr[["teststat"]] <- as.character(gr[["teststat"]])
 gr[["testtype"]] <- as.character(gr[["testtype"]])
 
+### random splits are done differently in party::ctree
+gr <- subset(gr, !na | (na & maxsurrogate > 0))
+
 
 fun <- function(args) {
 
@@ -70,7 +72,7 @@ fun <- function(args) {
     list(error = max(abs(unlist(old) - unlist(new))), time = c(ot, nt))
 }
 
-ret <- mclapply(1:nrow(gr), function(i) { print(i); fun(gr[i, ,drop = FALSE]); })
+ret <- lapply(1:nrow(gr), function(i) { print(i); fun(gr[i, ,drop = FALSE]); })
 
 tm <- t(sapply(ret, function(x) x$time))
 err <- sapply(ret, function(x) x$error)
@@ -151,3 +153,6 @@ tree2
 (w2 <- where(tree2))
 
 stopifnot(max(abs(w1 - w2)) == 0)
+
+gr <- cbind(gr, err = err)
+subset(gr, !na & err > 0.01)
