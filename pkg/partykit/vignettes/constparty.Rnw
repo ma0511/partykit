@@ -61,6 +61,7 @@ classes, (b)~parsing of XML descriptions of trees learned in other software syst
 
   Achim Zeileis\\
   Department of Statistics \\
+  Faculty of Economics and Statistics \\
   Universit\"at Innsbruck \\
   Universit\"atsstr.~15 \\
   6020 Innsbruck, Austria \\
@@ -118,7 +119,7 @@ of the levels etc.
 In case the full response from the learning sample is not available but only
 the constant fit from each terminal node, then a \class{constparty} cannot
 be set up. Specifically, this is the case for trees saved in the XML format
-PMML (Predictive Model Markup Language) that does not provide the full learning
+PMML \citep[Predictive Model Markup Language,][]{DMG:2014} that does not provide the full learning
 sample. To also support such constant-fit trees based on
 simpler information \pkg{partykit} provides the \class{simpleparty} class.
 Inspired by the PMML format, this requires that the \code{info} of every node
@@ -166,8 +167,8 @@ from package \pkg{rpart} \citep{rpart} to this data set:
 library("rpart")
 (rp <- rpart(Survived ~ ., data = ttnc))
 @
-The object \code{rp} of class \class{rpart} can be coerced to
-a \class{constparty} by the \fct{as.party} function. Internally, this transforms
+The \class{rpart} object \code{rp} can be coerced to
+a \class{constparty} by \fct{as.party}. Internally, this transforms
 the tree structure of the \class{rpart} tree to a \class{partynode} and combines
 it with the associated learning sample as described in Section~\ref{sec:classes}.
 All of this is done automatically by
@@ -195,7 +196,8 @@ and \pkg{partykit} (bottom) infrastructure. \label{party_plot}}
 
 By default, the \fct{predict} method for \class{rpart} objects computes conditional
 class probabilities. The same numbers are returned by the \fct{predict} method
-for \Sexpr{class(party_rp)[1L]} objects with \code{type = "prob"} argument:
+for \Sexpr{class(party_rp)[1L]} objects with \code{type = "prob"} argument (see
+Section~\ref{sec:prediction} for more details):
 <<rpart-pred>>=
 all.equal(predict(rp), predict(party_rp, type = "prob"), 
   check.attributes = FALSE)
@@ -323,7 +325,8 @@ plot(ttnc_quest2)
 \end{figure}
 
 Furthermore, we briefly point out that there is also the \proglang{R}
-package \pkg{pmml}, part of the \pkg{rattle} project, that allows to
+package \pkg{pmml} \citep{pmml}, part of the \pkg{rattle} project
+\citep{rattle}, that allows to
 export PMML files for \pkg{rpart} trees from \proglang{R}. For example,
 for the \class{rpart} tree for the Titanic data:
 <<PMML-write>>=
@@ -395,7 +398,7 @@ findsplit <- function(response, data, weights, alpha = 0.01) {
   ## set up all possible splits in two kid nodes
   lev <- levels(x[drop = TRUE])
   if(length(lev) == 2) {
-    splitpoint <- lev[2]
+    splitpoint <- lev[1]
   } else {
     comb <- do.call("c", lapply(1:(length(lev) - 2),
       function(x) combn(lev, x, simplify = FALSE)))
@@ -404,8 +407,9 @@ findsplit <- function(response, data, weights, alpha = 0.01) {
   }
 
   ## split into two groups (setting groups that do not occur to NA)
-  splitindex <- levels(data[[xselect]]) %in% splitpoint + 1L
+  splitindex <- !(levels(data[[xselect]]) %in% splitpoint)
   splitindex[!(levels(data[[xselect]]) %in% lev)] <- NA_integer_
+  splitindex <- splitindex - min(splitindex, na.rm = TRUE) + 1L
 
   ## return split as partysplit object
   return(partysplit(varid = as.integer(xselect),
@@ -552,7 +556,7 @@ myttnc2 <- nodeprune(myttnc, ids = iid[pval > 1e-5])
 %
 The corresponding visualization is shown in Figure~\ref{prunetree}.
 
-\setkeys{Gin}{width=0.75\textwidth}
+\setkeys{Gin}{width=0.85\textwidth}
 \begin{figure}[t!]
 \centering
 <<mytree-nodeprune-plot, echo = FALSE, fig = TRUE, height=6, width=10>>=
@@ -574,15 +578,7 @@ by supplying a suitable aggregation function. However, as certain
 types of predictions are much more commonly used, these are available even more easily
 by setting a \code{type} argument.
 
-The prediction \code{type} can either be \code{"node"}, \code{"response"}, or
-\code{"prob"} (see Table~\ref{predict-type}). The idea is that \code{"response"} always
-returns a prediction of the same class as the original response and \code{"prob"}
-returns some object that characterizes the entire empirical distribution. Hence,
-for different response classes, different types of predictions are produced, see
-Table~\ref{predict-type} for an overview. Additionally, for \class{numeric} responses
-\code{type = "quantile"} and \code{type = "density"} is available.
-
-\begin{table}[t!]
+\begin{table}[b!]
 \centering
 \begin{tabular}{llll}
 \hline
@@ -595,6 +591,17 @@ Response class  & \code{type = "node"} & \code{type = "response"} & \code{type =
          method for \class{constparty} objects. For multivariate responses,
          combinations thereof are returned. \label{predict-type}}
 \end{table}
+
+The prediction \code{type} can either be \code{"node"}, \code{"response"}, or
+\code{"prob"} (see Table~\ref{predict-type}). The idea is that \code{"response"} always
+returns a prediction of the same class as the original response and \code{"prob"}
+returns some object that characterizes the entire empirical distribution. Hence,
+for different response classes, different types of predictions are produced, see
+Table~\ref{predict-type} for an overview. Additionally, for \class{numeric} responses
+\code{type = "quantile"} and \code{type = "density"} is available. By default, these
+return functions for computing predicted quantiles and probability densities, respectively,
+but optionally these functions can be directly evaluated \code{at} given values and then
+return a vector/matrix.
 
 Here, we illustrate all different predictions for all possible combinations
 of the explanatory factor levels.
@@ -609,19 +616,20 @@ predict(myttnc, newdata = nttnc, type = "node")
 predict(myttnc, newdata = nttnc, type = "response")
 predict(myttnc, newdata = nttnc, type = "prob")
 @
-The \fct{predict} method features a \code{FUN} argument that can be used to
+Furthermore, the \fct{predict} method features a \code{FUN} argument that can be used to
 compute customized predictions. If we are, say, interested in the
 rank of the probabilities for the two classes, we can simply specify a
 function that implements this feature:
 <<mytree-FUN, echo = TRUE>>=
 predict(myttnc, newdata = nttnc, FUN = function(y, w)
-    rank(prop.table(table(rep(y, w)))))
+  rank(table(rep(y, w))))
 @
 The user-supplied function \code{FUN} takes two arguments, \code{y} is the
-response and \code{w} is a vector of weights (case-weights in the case here). Of course,
+response and \code{w} is a vector of weights (case weights in this situation). Of course,
 it would have been easier to do these computations directly on the 
 conditional class probabilities (\code{type = "prob"}), but the approach taken here
-for illustration generalizes to situations where this is not possible as well.
+for illustration generalizes to situations where this is not possible, especially
+for numeric responses.
 
 \section{Conclusion} \label{sec:conclusion}
 
@@ -633,10 +641,10 @@ these classes, thus offering unified methods for handling constant-fit
 trees.  User-extensible methods for printing and plotting these trees are
 available.  Also, computing non-standard predictions, such as the median or
 empirical cumulative distribution functions, is easily possible within this
-framework.  It is rather straightforward to implement a new (or old) tree
-algorithm using the \pkg{partykit} infrastructure.  Thus, a prototype
-implementing a fancy idea on how to improve trees is only a couple lines of
-\textsf{R} code away.
+framework. With the infrastructure provided in \pkg{partykit} it
+is rather straightforward to implement a new (or old) tree algorithm and therefore
+a prototype implementation of fancy ideas for improving trees is only a couple lines of
+\proglang{R} code away.
 
 \bibliography{party}
     
