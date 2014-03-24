@@ -104,14 +104,14 @@
   E-mail: \email{Kurt.Hornik@R-project.org} \\
   URL: \url{http://statmath.wu.ac.at/~hornik/},\\
 
-  Achim Zeileis\\
-  Department of Statistics\\
-  Faculty of Economics and Statistics\\
-  Universit\"at Innsbruck\\
-  Universit\"atsstr.~15\\  
-  6020 Innsbruck, Austria\\
-  E-mail: \email{Achim.Zeileis@R-project.org}\\
-  URL: \url{http://eeecon.uibk.ac.at/~zeileis/}\\
+  Achim Zeileis \\
+  Department of Statistics \\
+  Faculty of Economics and Statistics \\
+  Universit\"at Innsbruck \\
+  Universit\"atsstr.~15 \\
+  6020 Innsbruck, Austria \\
+  E-mail: \email{Achim.Zeileis@R-project.org} \\
+  URL: \url{http://eeecon.uibk.ac.at/~zeileis/}
 }
 
 
