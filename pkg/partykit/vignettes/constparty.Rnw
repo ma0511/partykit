@@ -83,11 +83,12 @@ set.seed(290875)
 
 \section{Classes and methods} \label{sec:classes}
 
-\fixme{add more references}
-
 This vignette describes the handling of trees with constant fits in the
 terminal nodes.  This class of regression models includes most classical
-tree algorithms like AID, CHAID, CART, FACT, QUEST, C4.5, etc.  In this
+tree algorithms like AID \citep{Morgan+Sonquist:1963}, 
+CHAID \citep{Kass:1980}, CART \citep{Breiman+Friedman+Olshen:1984}, 
+FACT \citep{Loh+Vanichsetakul1:988}, QUEST \citep{Loh+Shih:1997}, 
+C4.5 \citep{Quinlan:1993}, CTree \citep{Hothorn+Hornik+Zeileis:2006} etc.  In this
 class of tree models, one can compute simple predictions for new observations,
 such as the conditional mean in a regression setup, from the responses of
 those learning sample observations in the same terminal node. Therefore,
@@ -579,7 +580,7 @@ returns a prediction of the same class as the original response and \code{"prob"
 returns some object that characterizes the entire empirical distribution. Hence,
 for different response classes, different types of predictions are produced, see
 Table~\ref{predict-type} for an overview. Additionally, for \class{numeric} responses
-\code{type = "quantile"} is available. \fixme{Is this correct?}
+\code{type = "quantile"} and \code{type = "density"} is available.
 
 \begin{table}[t!]
 \centering
@@ -608,21 +609,34 @@ predict(myttnc, newdata = nttnc, type = "node")
 predict(myttnc, newdata = nttnc, type = "response")
 predict(myttnc, newdata = nttnc, type = "prob")
 @
-
-\fixme{illustrate flexible FUN interface as well}
+The \fct{predict} method features a \code{FUN} argument that can be used to
+compute customized predictions. If we are, say, interested in the
+rank of the probabilities for the two classes, we can simply specify a
+function that implements this feature:
+<<mytree-FUN, echo = TRUE>>=
+predict(myttnc, newdata = nttnc, FUN = function(y, w)
+    rank(prop.table(table(rep(y, w)))))
+@
+The user-supplied function \code{FUN} takes two arguments, \code{y} is the
+response and \code{w} is a vector of weights (case-weights in the case here). Of course,
+it would have been easier to do these computations directly on the 
+conditional class probabilities (\code{type = "prob"}), but the approach taken here
+for illustration generalizes to situations where this is not possible as well.
 
 \section{Conclusion} \label{sec:conclusion}
 
-The classes \class{constparty} and \class{simpleparty} can be used to represent
-trees with constant fits in the terminal nodes, including most of the traditional tree variants. 
-For a number of implementations it is possible to convert the resulting
-trees to one of these classes,  thus offering unified
-methods for handling constant-fit trees. Also, computing non-standard predictions, such as the
-median or empirical cumulative distribution functions, is easily possible
-within this framework.  It is rather straightforward to implement a new tree
-algorithm using the \pkg{partykit} infrastructure.
-
-\fixme{maybe improve conclusions some more}
+The classes \class{constparty} and \class{simpleparty} introduced here can
+be used to represent trees with constant fits in the terminal nodes,
+including most of the traditional tree variants.  For a number of
+implementations it is possible to convert the resulting trees to one of
+these classes, thus offering unified methods for handling constant-fit
+trees.  User-extensible methods for printing and plotting these trees are
+available.  Also, computing non-standard predictions, such as the median or
+empirical cumulative distribution functions, is easily possible within this
+framework.  It is rather straightforward to implement a new (or old) tree
+algorithm using the \pkg{partykit} infrastructure.  Thus, a prototype
+implementing a fancy idea on how to improve trees is only a couple lines of
+\textsf{R} code away.
 
 \bibliography{party}
     
