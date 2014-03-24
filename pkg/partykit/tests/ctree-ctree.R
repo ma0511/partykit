@@ -156,3 +156,7 @@ stopifnot(max(abs(w1 - w2)) == 0)
 
 gr <- cbind(gr, err = err)
 subset(gr, !na & err > 0.01)
+
+### most of the differences come from the fact that in the absence of
+### a surrogate splits observations are randomly assigned to daugther nodes
+### slightly differently in the two implementations
