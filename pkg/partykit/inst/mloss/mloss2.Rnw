@@ -133,7 +133,7 @@ and \fct{mob} for model-based recursive partitioning \citep{Zeileis+Hothorn+Horn
 
 installation information
 
-R-Forge
+\proglang{R}-Forge \citep{Theussl+Zeileis:2009}
 
 The vignette (\code{"partykit"}) introduces the basic \class{party} class
 and associated infrastructure while three further vignettes discuss the tools
