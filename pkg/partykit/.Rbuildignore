@@ -1,6 +1,8 @@
 R/meanvartree.R
 R/cforest.R
 inst/pmml/auto.pmml
+inst/pmml/AuditTree.xml
+inst/pmml/IrisTree.xml
 inst/soc09
 inst/mloss
 inst/DSC-2009
