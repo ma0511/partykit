@@ -228,7 +228,7 @@
 ctree_control <- function(teststat = c("quad", "max"),
     testtype = c("Bonferroni", "Univariate", "Teststatistic"),
     mincriterion = 0.95, minsplit = 20L, minbucket = 7L, minprob = 0.01,
-    stump = FALSE, maxsurrogate = 0L, mtry = Inf, maxdepth = Inf, 
+    stump = FALSE, maxsurrogate = 2L, mtry = Inf, maxdepth = Inf, 
     multiway = FALSE, splittry = 2L) {
 
     teststat <- match.arg(teststat)

@@ -10,7 +10,7 @@
 ctree_control(teststat = c("quad", "max"),
     testtype = c("Bonferroni", "Univariate", "Teststatistic"),
     mincriterion = 0.95, minsplit = 20L, minbucket = 7L, 
-    minprob = 0.01, stump = FALSE, maxsurrogate = 0L, mtry = Inf, 
+    minprob = 0.01, stump = FALSE, maxsurrogate = 2L, mtry = Inf, 
     maxdepth = Inf, multiway = FALSE, splittry = 2L)
 }
 \arguments{
@@ -63,7 +63,9 @@ ctree_control(teststat = c("quad", "max"),
   performed in each node.
 
   In each inner node, \code{maxsurrogate} surrogate splits are computed 
-  (regardless of any missing values in the learning sample). Factors
+  (regardless of any missing values in the learning sample). Note that
+  \code{\link[party]{ctree}} did not fit surrogate splits by default, this function
+  by default specifies at most two surrogate splits. Factors
   in test samples whose levels were empty in the learning sample 
   are treated as missing when computing predictions (in contrast
   to \code{\link[party]{ctree}}.
