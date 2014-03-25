@@ -94,7 +94,7 @@ and CTree \citep{Hothorn+Hornik+Zeileis:2006} among many others
 \citep[see][for a recent overview]{Loh:2014}. Reflecting the heterogeneity
 of conceptual algorithms, a wide range of computational implementations
 in various software systems emerged: Typically the original authors of an
-algorithms also provide accompanying software but many software systems,
+algorithm also provide accompanying software but many software systems,
 e.g., including \pkg{Weka} \citep{Witten+Frank:2005} or \proglang{R} \citep{R},
 also provide collections of various types of trees.
 Within \proglang{R} the list of prominent packages includes
@@ -128,10 +128,10 @@ plotting, and computing predictions. The design principles are:
         fits (\class{constparty}) or with parametric models (\class{modelparty})
 	in each terminal node (or leaf).
   \item Nodes are recursive objects, i.e., a node can contain child nodes.
-  \item Keep (learning) data out of the recursive node and split structure.
+  \item Keep the (learning) data out of the recursive node and split structure.
   \item Basic printing, plotting, and predicting for raw node structure.
   \item Customization via suitable panel or panel-generating functions.
-  \item Coercion from existing objects (\code{rpart}, \code{J48}, etc.) to the new class.
+  \item Coercion from existing object classes in \proglang{R} (\code{rpart}, \code{J48}, etc.) to the new class.
   \item Usage of simple/fast \proglang{S}3 classes and methods.
 \end{itemize}
 In addition to all of this generic infrastructure, two specific tree
