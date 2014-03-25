@@ -30,7 +30,7 @@ set.seed(290875)
 \author{Torsten Hothorn \\ \addr{Universit\"at Z\"urich} \\ \addr{E-mail: Torsten.Hothorn@R-project.org} \AND
         Achim Zeileis \\ \addr{Universit\"at Innsbruck} \\ \addr{E-mail: Achim.Zeileis@R-project.org}}
 \title{\pkg{partykit}: A Modular Toolkit for Recursive Partytioning in \proglang{R}}
-\editor{(submission for MLOSS track)}
+\editor{(submission for MLOSS track, related to JMLR-07-240-1 that was handled by Cheng Soon Ong)}
 
 % hyperref setup
 \definecolor{Red}{rgb}{0.5,0,0}
@@ -168,6 +168,26 @@ package.
 two blocks: basic infrastructure (next section) and methods for learning trees,
 either directly or via coercion.
 
+\fct{rpart} from \pkg{rpart} \citep{rpart}
+CART \citep{Breiman+Friedman+Olshen:1984}
+
+C4.5 \citep{Quinlan:1993}
+\fct{J48} from \pkg{RWeka} \citep{RWeka} interfacing \pkg{Weka} \citep{Witten+Frank:2005}
+
+QUEST \citep{Loh+Shih:1997}
+
+CTree \citep{Hothorn+Hornik+Zeileis:2006}
+MOB \citep{Zeileis+Hothorn+Hornik:2008}
+
+ among many others
+\citep[see][for a recent overview]{Loh:2014}. Reflecting the heterogeneity
+of conceptual algorithms, a wide range of computational implementations
+in various software systems emerged: Typically the original authors of an
+algorithms also provide accompanying software but many software systems,
+e.g., including  or \proglang{R} \citep{R},
+also provide collections of various types of trees.
+Within \proglang{R} the list of prominent packages includes
+
 formula interface
 
 as.party
@@ -182,13 +202,13 @@ nodeapply, nodeprune
 \centering
 \begin{tabular}{llll}
 \hline
-Algorithm  & Software                                                 & Object class       & Original reference \\ \hline
+Algorithm  & Software                                                & Object class       & Original reference \\ \hline
 CART/RPart & \code{rpart::rpart} + \code{as.party}                   & \code{constparty}  & \cite{Breiman+Friedman+Olshen:1984} \\
 C4.5/J4.8  & \pkg{Weka}/\code{RWeka::J48} + \code{as.party}          & \code{constparty}  & \cite{Quinlan:1993} \\
 QUEST      & \proglang{SPSS}/\pkg{AnswerTree} + \code{pmmlTreeModel} & \code{simpleparty} & \cite{Loh+Shih:1997} \\
-CTree      & \code{ctree}                                             & \code{constparty}  & \cite{Hothorn+Hornik+Zeileis:2006} \\
-MOB        & \code{mob}, \code{lmtree}, \code{glmtree}, \dots         & \code{modelparty}  & \cite{Zeileis+Hothorn+Hornik:2008} \\
-EvTree     & \code{evtree::evtree}                                    & \code{constparty}  & \cite{evtree} \\ \hline
+CTree      & \code{ctree}                                            & \code{constparty}  & \cite{Hothorn+Hornik+Zeileis:2006} \\
+MOB        & \code{mob}, \code{lmtree}, \code{glmtree}, \dots        & \code{modelparty}  & \cite{Zeileis+Hothorn+Hornik:2008} \\
+EvTree     & \code{evtree::evtree}                                   & \code{constparty}  & \cite{evtree} \\ \hline
 \end{tabular}
 \caption{\label{tab:overview} Selected tree algorithms than can be interfaced through \pkg{partykit}. The
   software column lists external software, \proglang{R} functions from other packages (with \code{::} syntax)
@@ -238,7 +258,7 @@ logistic-regression-based tree fitted by \fct{glmtree} (right).}
 \end{figure}
 
 
-\section{Internal Structure}
+\section{Developer Infrastructure}
 
 especially for developers who either want to implement new tree algorithms
 or represent trees learning in other systems in \proglang{R} to facilitate
