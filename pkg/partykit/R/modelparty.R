@@ -667,9 +667,12 @@ mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdept
   verbose = FALSE, caseweights = TRUE, ytype = "vector", xtype = "matrix",
   terminal = "object", inner = terminal, model = TRUE,
   numsplit = "left", catsplit = "binary", vcov = "opg", ordinal = "chisq", nrep = 10000,
-  minsplit = minsize)
+  minsplit = minsize, minbucket = minsize)
 {
-  if(missing(minsize) & !missing(minsplit)) minsize <- minsplit
+  ## transform defaults
+  if(missing(minsize) & !missing(minsplit))  minsize <- minsplit
+  if(missing(minsize) & !missing(minbucket)) minsize <- minbucket
+  
   if(is.finite(mtry)) {
     mtry <- if(mtry < 1L) Inf else as.integer(mtry)
   }

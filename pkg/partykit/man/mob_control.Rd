@@ -14,7 +14,7 @@ mob_control(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
   restart = TRUE, verbose = FALSE, caseweights = TRUE, ytype = "vector", xtype = "matrix",
   terminal = "object", inner = terminal, model = TRUE, numsplit = "left",
   catsplit = "binary", vcov = "opg", ordinal = "chisq", nrep = 10000,
-  minsplit = minsize)
+  minsplit = minsize, minbucket = minsize)
 }
 
 \arguments{
@@ -23,12 +23,12 @@ mob_control(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
     stability test in that node falls below \code{alpha} (and the stopping
     criteria \code{minsize} and \code{maxdepth} are not fulfilled).}
   \item{bonferroni}{logical. Should \eqn{p} values be Bonferroni corrected?}
-  \item{minsize, minsplit}{integer. The minimum number of observations in a node.
+  \item{minsize, minsplit, minbucket}{integer. The minimum number of observations in a node.
     If \code{NULL}, the default is to use 10 times the number of parameters
     to be estimated (divided by the number of responses per observation
     if that is greater than 1). \code{minsize} is the recommended name and
-    \code{minsplit} is only included for backward compatibility with previous
-    versions of \code{mob}.}
+    \code{minsplit}/\code{minbucket} are only included for backward compatibility with previous
+    versions of \code{mob} and compatibility with \code{ctree}, respectively.}
   \item{maxdepth}{integer. The maximum depth of the tree.}
   \item{mtry}{integer. The number of partitioning variables randomly sampled
     as candidates in each node for forest-style algorithms. If \code{mtry}
