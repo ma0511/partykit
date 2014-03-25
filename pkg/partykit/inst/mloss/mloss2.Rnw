@@ -8,7 +8,7 @@
 \let\code=\texttt
 \newcommand{\squote}[1]{`{#1}'}
 \newcommand{\dquote}[1]{``{#1}''}
-\newcommand{\fct}[1]{\texttt{#1()}}
+\newcommand{\fct}[1]{\texttt{#1}}
 \newcommand{\class}[1]{\squote{\texttt{#1}}}
 
 %% \usepackage{Sweave} is essentially
@@ -53,13 +53,13 @@ set.seed(290875)
 \maketitle
 
 \begin{abstract}
-  The \pkg{partykit} package provides a flexible toolkit with infrastructure for
+  The \proglang{R} package \pkg{partykit} provides a flexible toolkit for
   learning, representing, summarizing, and visualizing a wide range of tree-structured
   regression and classification models. The functionality encompasses: (a)~Basic
   infrastructure for \emph{representing} trees (inferred by any algorithm) so that
   unified \code{print}/\code{plot}/\code{predict} methods are available.
   (b)~Dedicated methods for trees with \emph{constant fits} in the leaves (or terminal nodes)
-  along with suitable coercion functions to create such tree models (e.g., by
+  along with suitable coercion functions to create such trees (e.g., by
   \pkg{rpart}, \pkg{RWeka}, PMML). (c)~A reimplementation of \emph{conditional inference
   trees} (\code{ctree}, originally provided in the \pkg{party} package). (d)~An extended
   reimplementation of \emph{model-based recursive partitioning} (\code{mob}, also originally
@@ -85,11 +85,11 @@ and CTree \citep{Hothorn+Hornik+Zeileis:2006} among many others
 \citep[see][for a recent overview]{Loh:2014}. Reflecting the heterogeneity
 of conceptual algorithms, a wide range of computational implementations
 in various software systems emerged: Typically the original authors of an
-algorithms also provide accompanying software but many software systems,
-e.g., including \pkg{Weka} \citep{Witten+Frank:2005} or \proglang{R} \citep{R},
+algorithm also provide accompanying software but many software systems,
+including \pkg{Weka} \citep{Witten+Frank:2005} or \proglang{R} \citep{R},
 also provide collections of various types of trees.
 Within \proglang{R} the list of prominent packages includes
-\pkg{rpart} \citep[implementing the CART algorithm]{rpart},
+\pkg{rpart} \citep[implementing CART]{rpart},
 \pkg{RWeka} \citep[containing interfaces to J4.8, M5', LMT from \pkg{Weka}]{RWeka}, and
 \pkg{party} \citep[implementing CTree and MOB]{party} among
 many others. See the CRAN task view ``Machine Learning''
@@ -105,8 +105,8 @@ software implementations and different solutions are provided by
 different packages (even within \proglang{R}) with relatively little
 reuse of code.
 
-The \pkg{partykit} tries to address the latter point and improve the
-computational situation by providing a common unified infrastructure
+The \pkg{partykit} aims at mitigating the latter issue
+by providing a common unified infrastructure
 for recursive partytioning in the \proglang{R} system for statistical
 computing. In particular, \pkg{partykit}
 provides tools for representing fitted trees along with printing,
@@ -118,10 +118,10 @@ plotting, and computing predictions. The design principles are:
         fits (\class{constparty}) or with parametric models (\class{modelparty})
 	in each terminal node (or leaf).
   \item Nodes are recursive objects, i.e., a node can contain child nodes.
-  \item Keep (learning) data out of the recursive node and split structure.
+  \item Keep the (learning) data out of the recursive node and split structure.
   \item Basic printing, plotting, and predicting for raw node structure.
   \item Customization via suitable panel or panel-generating functions.
-  \item Coercion from existing objects (\code{rpart}, \code{J48}, etc.) to the new class.
+  \item Coercion from existing object classes in \proglang{R} (\code{rpart}, \code{J48}, etc.) to the new class.
   \item Usage of simple/fast \proglang{S}3 classes and methods.
 \end{itemize}
 In addition to all of this generic infrastructure, two specific tree
@@ -134,23 +134,23 @@ and \fct{mob} for model-based recursive partitioning \citep{Zeileis+Hothorn+Horn
 The \pkg{partykit} package is an add-on package for the \proglang{R} system
 for statistical computing. It is available from the Comprehensive \proglang{R}
 Archive Network (CRAN) at \url{http://CRAN.R-project.org/package=partykit} and
-can be easily installed in the usual ways from within \proglang{R} using
+can be easily installed in the usual ways from within \proglang{R}, e.g., using
 \fct{install.packages}. It depends on \proglang{R} (at least 2.15.0) as well
 as the base packages \pkg{graphics}, \pkg{grid}, \pkg{stats}, and the recommended
-\pkg{survival} package. Furthermore, various suggested packages are needed
+\pkg{survival}. Furthermore, various suggested packages are needed
 for certain special functionalities in the package. To install all of these
 required and suggested packages in one go, the command
 \code{install.packages("partykit", dependencies = TRUE)} can be used.
 
-In addition to the stable release version of the package on CRAN, the
+In addition to the stable release version on CRAN, the
 current development release can be installed from \proglang{R}-Forge
 \citep{Theussl+Zeileis:2009}. In addition to source and binary packages
-of \pkg{partykit} the entire version history is available through
+the entire version history is available through
 \proglang{R}-Forge's \pkg{Subversion} source code management system.
 
-Along with the package extensive documentation and examples are shipped.
+Along with the package extensive documentation with examples is shipped.
 The manual pages provide basic technical information on all functions while
-much more detailed descriptions along with worked examples are provided in
+much more detailed descriptions along with hands-on examples are provided in
 the four package vignettes. First, the vignette \code{"partykit"}
 introduces the basic \class{party} class
 and associated infrastructure while three further vignettes discuss the tools
@@ -165,11 +165,11 @@ package.
 
 \section{User Interface}
 
-The \pkg{partykit} package provides functionality as different levels. First,
+The \pkg{partykit} package provides functionality at different levels. First,
 there is basic infrastructure for representing, modifying, and displaying trees
-and recursive partitions and these tools are mostly intended for developers
+and recursive partitions -- these tools are mostly intended for developers
 and described in the next section. Second, there are tools for inferring trees
-from data or for porting trees inferred by other software into \pkg{partykit}.
+from data or for importing trees inferred by other software into \pkg{partykit}.
 
 \begin{table}
 \centering
@@ -190,10 +190,10 @@ EvTree     & \code{evtree::evtree}                                   & \code{con
 
 While originally an important goal for the development of \pkg{partykit} was to
 provide infrastructure for the authors' own tree induction algorithms
-CTree \citep{Hothorn+Hornik+Zeileis:2006} and MOB \citep{Zeileis+Hothorn+Hornik:2008},
+CTree and MOB,
 the design was very careful to separate as much functionality as possible into
 more general classes that are useful for a far broader class of tree algorithms.
-Specifically, to be able to print/plot/predict different trees in a unified way,
+In particular, to be able to print/plot/predict different trees in a unified way,
 there are so-called coercion functions for transforming trees learned in other
 software packages (inside and outside of \proglang{R}) into the classes provided
 by \pkg{partykit}. Specifically, tree objects learned by \fct{rpart} from the
@@ -204,10 +204,10 @@ to the same object class \class{constparty}. This is a general class that can
 in principle represent all the major classical tree algorithms with constant
 fits in the terminal nodes. Also, the same class is employed for conditional
 inference trees (CTree) that can be learned with the \fct{ctree} function
-directly within \pkg{partykit} or evolutionary learned trees from \pkg{evtree}
+directly within \pkg{partykit} or evolutionary trees from package \pkg{evtree}
 \citep{evtree}.
 
-But not only trees learned within \proglang{R} can be transformed to the
+Not only trees learned within \proglang{R} can be transformed to the
 proposed infrastructure but also trees from other software packages. Either
 a dedicated interface has to be created using the building blocks described
 in the next section (e.g., as done for the J4.8 tree in \pkg{RWeka}) or
@@ -218,7 +218,7 @@ support for constant-fit classification and regression trees. The function
 \fct{pmmlTreeModel} allows to read these files and represents them as
 \class{simpleparty} objects in \pkg{partykit}. The reason for not using the
 \class{constparty} class as above is that the PMML format only stores
-point predictions (e.g., a mean or proportion) and not all observations
+point predictions (e.g., a mean or proportion) rather than all observations
 from the learning sample. So far, the PMML interface has been tested with
 output from the \proglang{R} package \pkg{pmml} and \proglang{SPSS}'s
 \pkg{AnswerTree} model. The latter includes an implementation of the
@@ -239,8 +239,8 @@ can be used to create textual and graphical displays of the tree and for
 computing predictions on new data, respectively. As an example for the
 visualizations, Figure~\ref{fig:ttnc} shows two different trees fitted
 to the well-known data on survival of passengers on the ill-fated maiden
-voyage of the MS~Titanic: The left panel shows a CART tree with constant fits
-learned by \pkg{rpart} and converted to \pkg{partykit}. The left panel
+voyage of the RMS~Titanic: The left panel shows a CART tree with constant fits
+learned by \pkg{rpart} and converted to \pkg{partykit}. The right panel
 shows a MOB tree learned within \pkg{partykit} with a logistic regression
 model for treatment effects in the terminal nodes. Additionally, the
 are further utility functions, e.g.,
