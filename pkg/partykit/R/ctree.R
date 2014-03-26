@@ -86,9 +86,9 @@
     p <- sapply(lin[inp], function(x) do.call(".pX2", x[-1]))
     ### </FIXME>
     colnames(p) <- colnames(data)[inp]
-    rownames(p) <- c("teststat", "pval")
+    rownames(p) <- c("statistic", "p.value")
     ### <FIXME> break ties? </FIXME>
-    crit <- p["pval",,drop = TRUE]
+    crit <- p["p.value",,drop = TRUE]
 
     ret <- vector(mode = "list", length = min(sum(inp), ctrl$maxsurrogate))
 
@@ -147,7 +147,7 @@
     ties <- which(abs(crit - max(crit)) < .Machine$double.eps)
     if (length(ties) > 1) {
         ### add a small value (< 1/1000) to crit derived from order of teststats
-        crit[ties] <- crit[ties] + order(p["teststat", ties]) / (sum(ties) * 1000)
+        crit[ties] <- crit[ties] + order(p["statistic", ties]) / (sum(ties) * 1000)
     }
     p <- p[-1,,drop = FALSE]
     colnames(p) <- colnames(data)[inp]
@@ -158,8 +158,8 @@
 
     ### format p values
     fmP <- function(p) {
-        if (all(is.na(p["pval",]))) return(NA)
-        1 - exp(p["pval",])
+        if (all(is.na(p["p.value",]))) return(NA)
+        1 - exp(p["p.value",])
     }
 
     count <- 1
@@ -310,13 +310,13 @@ ctree <- function(formula, data, weights, subset, na.action = na.pass,
             p <- .pX2(..., pval = (control$testtype != "Teststatistic"))
         if (control$teststat == "max")
             p <- .pmaxT(..., pval = (control$testtype != "Teststatistic"))
-        names(p) <- c("teststat", "pval")
+        names(p) <- c("statistic", "p.value")
 
         if (control$testtype == "Bonferroni")
-            p["pval"] <- p["pval"] * min(nvar, control$mtry)
-        crit <-  p["teststat"]
+            p["p.value"] <- p["p.value"] * min(nvar, control$mtry)
+        crit <-  p["statistic"]
         if (control$testtype != "Teststatistic")
-        crit <- p["pval"]
+        crit <- p["p.value"]
         c(crit, p)
     }
 
@@ -412,8 +412,16 @@ ctree <- function(formula, data, weights, subset, na.action = na.pass,
 
 sctest.constparty <- function(object, node = NULL, ...)
 {
-  ids <- if(is.null(node)) nodeids(object, terminal = FALSE) else node
-  rval <- nodeapply(object, ids, function(n) info_node(n)$criterion)
+  ids <- if(is.null(node)) {
+      ### inner nodes only
+      n <- nodeids(object, terminal = FALSE) ### all nodes
+      n[!(n %in% nodeids(object, terminal = TRUE))] 
+  } else node
+  rval <- nodeapply(object, ids, function(n) {
+      ret <- exp(info_node(n)$criterion)
+      ret["p.value",] <- 1 - ret["p.value",]
+      ret
+  })
   names(rval) <- ids
   if(length(ids) == 1L) rval[[1L]] else rval  
 }
