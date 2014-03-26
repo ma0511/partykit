@@ -1,21 +1,27 @@
 Changes in Version 0.8-0
 
-  o Reimplementation of the model-based recursive partitioning algorithm
-    (MOB) using "partykit" infrastructure. The generic algorithm and the
-    corresponding convenience interfaces lmtree() and glmtree() are
-    described in detail in vignette("mob", package = "partykit").
-
-  o Improved implementation of conditional inference trees (CTree), see
-    vignette("ctree", package = "partykit") for details.
+  o Major improved version of "partykit". The previously existing functions
+    in the package were tested and enhanced, new functions and
+    extensive vignettes added.
 
   o Extended and improved introductory documentation. The basic classes
     and class constructors partynode/partysplit/party are introduced in 
-    vignette("partykit", package = "partykit"). The class constparty
-    (inheriting from party) for representing party objects with constant
-    fits in the nodes (along with coercion methods for rpart, J48, etc.)
-    is now described in more detail in vignette("constparty", package =
-    "partykit").
+    much more detail now in vignette("partykit", package = "partykit").
+    
+  o The class constparty (inheriting from party) for representing party
+    objects with constant fits in the nodes (along with coercion methods
+    for rpart, J48, etc.) is now described in more detail in the new
+    vignette("constparty", package = "partykit").
 
-  o New nodeprune() generic along with methods for "party" and "partynode"
-    objects.
+  o The package now includes a reimplementation of the model-based
+    recursive partitioning algorithm (MOB) using "partykit" infrastructure.
+    The generic algorithm, the corresponding convenience interfaces
+    lmtree() and glmtree() as well as various illustrations and possible
+    extensions are described in detail in the new
+    vignette("mob", package = "partykit").
 
+  o Improved implementation of conditional inference trees (CTree), see
+    the new vignette("ctree", package = "partykit") for details.
+
+  o New nodeprune() generic for pruning nodes in all "party" trees and
+    "partynode" objects.
