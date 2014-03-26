@@ -74,14 +74,13 @@
 \Plainauthor{Torsten Hothorn, Kurt Hornik, Achim Zeileis}
 
 \Abstract{
-  This vignette describes an implementation 
-  of conditional inference trees which
-  embed tree-structured regression models into a well defined theory of
-  conditional inference procedures. This non-parametric class of regression
-  trees is applicable to all kinds of regression problems, including
-  nominal, ordinal, numeric, censored as well as multivariate response
+  This vignette describes the new reimplementation of conditional inference trees (CTree)
+  in the \proglang{R} package \pkg{partykit}. CTree is a non-parametric class of regression
+  trees embedding tree-structured regression models into a well defined theory of
+  conditional inference procedures. It is applicable to all kinds of regression problems,
+  including nominal, ordinal, numeric, censored as well as multivariate response
   variables and arbitrary measurement scales of the covariates.
-  This vignette comprises a practical guide to exploiting the flexible
+  The vignette comprises a practical guide to exploiting the flexible
   and extensible computational tools in \pkg{partykit} for fitting and
   visualizing conditional inference trees.
 }
@@ -102,7 +101,7 @@
   Welthandelsplatz 1 \\
   1020 Wien, Austria\\
   E-mail: \email{Kurt.Hornik@R-project.org} \\
-  URL: \url{http://statmath.wu.ac.at/~hornik/},\\
+  URL: \url{http://statmath.wu.ac.at/~hornik/}\\
 
   Achim Zeileis \\
   Department of Statistics \\
@@ -130,31 +129,40 @@ set.seed(290875)
 \section{Overview}
 
 This vignette describes 
-conditional inference trees \citep{Hothorn+Hornik+Zeileis:2006}.  The original
-implementation of this method is \code{party::ctree} and the 
-reference implementation is \code{partykit::ctree}.  Both
-functions produce essentially the same output, with the following exceptions: 
+conditional inference trees \citep{Hothorn+Hornik+Zeileis:2006} along with its
+new and improved reimplementation in package \pkg{partykit}. Originally, the
+method was implemented in the package \pkg{party} almost entirely in \proglang{C}
+while the new implementation is now almost entirely in \proglang{R} with only
+the more computationally intensive parts in \proglang{C}. In particular, this
+has the advantage that all the generic infrastructure from \pkg{partykit} can
+be reused, making many computations more modular and easily extensible. Hence,
+\code{partykit::ctree} is the new reference implementation that will be improved
+and developed further in the future.
+
+Both, \code{party::ctree} and \code{partykit::ctree} essentially produce the
+same output, with the following two limitations:
 \begin{itemize}
-\item transformations of the explanatory variables,
-\item resampling distributions of the test statistics, and
-\item extraction of split-statistics are not yet implemented in \code{partykit::ctree}.
+  \item User-specified transformations of the explanatory variables are not yet
+    supported. This is only possible for the response.
+  \item Resampling distributions of the test statistics as an alternative to
+    the asymptotic distributions are not yet available.
+  %% \item extraction of split-statistics are not yet implemented in \code{partykit::ctree}.
 \end{itemize}
-There is a new argument \code{majority = FALSE} in \code{partykit::ctree\_control}
+Furthermore, \code{partykit::ctree_control} has a new additional argument \code{majority = FALSE}
 that enables random assignment of non-splitable observations to daugther nodes preserving
 the node distribution. With \code{majority = TRUE}, these observations go with the majority
-(as also implemented in \code{partykit::ctree}). Both implementations do not
-fit surrogate splits by default, so users need to make sure to set the \code{maxsurrogate}
-argument if missing values are a problem in their learning or testing data.
-\code{party::ctree} did an exhaustive search for finding surrogate splits in
+(the only available behaviour of in \code{party::ctree}). Both implementations do not
+fit surrogate splits by default (\code{maxsurrogate = 0}), so users need to make sure to set
+it to a positive value if missing values are a problem in their learning or testing data.
+\code{party::ctree} did an exhaustive search for finding such surrogate splits in
 ordered variables, the implementation in \code{partykit::ctree} now implements the
 same unbiased variable selection used for finding the primary splits also
 for the surrogate splits and also allows surrogate splits in nominal variables. Therefore,
 in the presence of missing values the results of the two procedures will differ slightly.
-The breaking of ties between variables with almost identical selection criterion (for example,
-a $p$-value being almost zero) is done with respect to the test-statistics in \code{partykit::ctree},
-so in very rare cases there might be different split variables in some nodes. The implementation of 
-\code{ctree} in package \pkg{partykit} is almost entirely written in \proglang{R}, whereas 
-the original implementation in \pkg{party} is almost entirely written in \proglang{C}.
+
+Finally, the breaking of ties between variables with almost identical selection criterion (for example,
+a $p$-value being almost zero) is done with respect to the test statistics in \code{partykit::ctree},
+so in very rare cases there might be different split variables in some nodes.
 
 \section{Introduction}
 
@@ -979,17 +987,15 @@ sptree <- ctree(arct.lute + pard.lugu + zora.spin + pard.nigr + pard.pull +
     control = ctree_control(teststat = "max", minsplit = 5), data = spider)
 @
 
-\setkeys{Gin}{height=.8\textheight, keepaspectratio=TRUE}
-\begin{figure}[t]
+\setkeys{Gin}{height=.93\textheight, keepaspectratio=TRUE}
+\begin{figure}[p!]
 \begin{center}
-<<spider-plot, echo = TRUE, fig = TRUE, width = 10, height = 20>>=
+<<spider-plot, echo = TRUE, fig = TRUE, width = 10, height = 22>>=
 plot(sptree)
 @
 \caption{Regression tree for hunting spider abundance. \label{spider}}
 \end{center}
 \end{figure}
-
-\clearpage
 
 \bibliography{party}
 
