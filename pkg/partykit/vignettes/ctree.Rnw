@@ -1,7 +1,7 @@
 \documentclass[nojss]{jss}
 
 %\VignetteIndexEntry{ctree: Conditional Inference Trees}
-%\VignetteDepends{coin, TH.data, survival, mvpart}
+%\VignetteDepends{coin, TH.data, survival, mvpart, strucchange}
 %\VignetteKeywords{conditional inference, non-parametric models, recursive partitioning}
 %\VignettePackage{partykit}
 
@@ -121,6 +121,7 @@ options(width = 70, SweaveHooks = list(leftpar =
     function() par(mai = par("mai") * c(1, 1.1, 1, 1))))
 require("partykit")
 require("coin")
+require("strucchange")
 set.seed(290875)
 @
 
@@ -560,6 +561,20 @@ into by
 <<party-where, echo = TRUE>>=
 predict(ct, newdata = ls[c(1,51,101),], type = "node")
 @
+Finally, the \code{sctest} method can be used to extract the test statistics
+and $p$-values computed in each node. The function \code{sctest} is used
+because for the \code{mob} algorithm such a method (for \underline{s}tructural
+\underline{c}hange \underline{test}s) is also provided. To make the generic
+available, the \pkg{strucchange} package needs to be loaded (otherwise
+\code{sctest.constparty} would have to be called directly).
+<<party-sctest, echo = TRUE>>=
+library("strucchange")
+sctest(ct)
+@
+Here, we see that \code{x1} leads to a significant test result in the root
+node and is hence used for splitting. In the kid nodes, no more significant
+results are found and hence splitting stops.
+
 
 \section{Examples} \label{examples}
 

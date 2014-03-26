@@ -1,5 +1,7 @@
 \name{ctree}
 \alias{ctree}
+\alias{sctest.constparty}
+
 \title{ Conditional Inference Trees }
 \description{
   Recursive partitioning for continuous, censored, ordered, nominal and
@@ -36,9 +38,8 @@ ctree(formula, data, weights, subset, na.action = na.pass,
   of the \pkg{partykit} infrastructure. Although the new code was already 
   extensively tested, it is not yet as mature as the old code. If you notice
   differences in the structure/predictions of the resulting trees, please
-  contact the package maintainers. See also below for some remarks about
-  the internals of the different implementations and how they should be
-  merged in future releases.
+  contact the package maintainers. See also \code{vignette("ctree", package = "partykit")}
+  for some remarks about the internals of the different implementations.
   
   Conditional inference trees estimate a regression relationship by binary recursive
   partitioning in a conditional inference framework. Roughly, the algorithm
@@ -64,7 +65,12 @@ ctree(formula, data, weights, subset, na.action = na.pass,
   the right sized tree is grown and no form of pruning or cross-validation
   or whatsoever is needed. The selection of the input variable to split in
   is based on the univariate p-values avoiding a variable selection bias
-  towards input variables with many possible cutpoints.
+  towards input variables with many possible cutpoints. The test statistics
+  in each of the nodes can be extracted with the \code{sctest} method.
+  (Note that the generic is in the \pkg{strucchange} package so this either
+  needs to be loaded or \code{sctest.constparty} has to be called directly.)
+  In cases where splitting stops due to the sample size (e.g., \code{minsplit}
+  or \code{minbucket} etc.), the test results may be empty.
 
   Predictions can be computed using \code{\link{predict}}, which returns predicted means,
   predicted classes or median predicted survival times and 
@@ -76,22 +82,10 @@ ctree(formula, data, weights, subset, na.action = na.pass,
 
   By default, the scores for each ordinal factor \code{x} are
   \code{1:length(x)}, this may be changed for variables in the formula 
-  using \code{scores = list(x = c(1,5,6))}, for example.
+  using \code{scores = list(x = c(1, 5, 6))}, for example.
 
   For a general description of the methodology see Hothorn, Hornik and
   Zeileis (2006) and Hothorn, Hornik, van de Wiel and Zeileis (2006).
-
-  Implementation details and roadmap: As pointed above, the function \code{ctree}
-  is a reimplementation of \code{\link[party]{ctree}}. Not only
-  the R code changed but also the underlying C code which at the moment
-  does not support the \code{xtrafo} and \code{ytrafo} arguments due to
-  efficiency considerations. The roadmap for future releases is the following:
-  (1) Make \pkg{party} depend on \pkg{partykit}. (2) Merge the R code into
-  a single \code{ctree} function but keeping the two underlying C functions
-  separate. (3) The new interface will always return an object of class
-  \code{\link{party}} but call the new and more efficient C code only if
-  \code{xtrafo} was not used (while \code{ytrafo} should be integrated into
-  the new C code).
 
 }
 \value{
