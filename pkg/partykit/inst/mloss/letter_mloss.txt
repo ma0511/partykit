@@ -18,12 +18,18 @@ inference trees (CTree) and model-based recursive partitioning (MOB).
 This manuscript is related to JMLR-07-240-1 ``Let's Have a party! An
 Open-Source Toolbox for Recursive Partytioning'' describing the party add-on
 package.  This manuscript was rejected with encouragment for resubmission by
-JMLR-MLOSS editor Cheng Soon Ong in November 2007.  The development of the
-new package partykit was partially motivated by the reviews we received for
-JMLR-07-240-1.  The partykit package in its current form goes well beyond
-what was suggested at that time.  We therefore think it is appropriate to
-treat this manuscript as a new submission rather than a resubmission of
-JMLR-07-240-1.
+JMLR-MLOSS editor Cheng Soon Ong in November 2007.  The main concerns of the
+reviewers were that it was not easy to extend the old party package by adding
+new tree learners or representing existing trees in our package.  This was
+a very important suggestion and part of the motivation for starting from
+scratch and develop a new R package (partykit) that easily allows to
+accomodate our own tree algorithms but makes the underlying infrastructure
+easily accessible to others.  Actually, the partykit package in its current
+form goes well beyond what was suggested in the reviews of JMLR-07-240-1
+and both manuscript and software are entirely rewritten. Hence, we felt it
+to be more appropriate to submit this as a new manuscript rather than a
+revision of JMLR-07-240-1.  However, if you would like to see a formal
+point-to-point reply to the old submission, please let us know.
 
 Sincerely yours,
 
