@@ -145,7 +145,14 @@ the node distribution. With \code{majority = TRUE}, these observations go with t
 (as also implemented in \code{partykit::ctree}). Both implementations do not
 fit surrogate splits by default, so users need to make sure to set the \code{maxsurrogate}
 argument if missing values are a problem in their learning or testing data.
-The implementation of 
+\code{party::ctree} did an exhaustive search for finding surrogate splits in
+ordered variables, the implementation in \code{partykit::ctree} now implements the
+same unbiased variable selection used for finding the primary splits also
+for the surrogate splits and also allows surrogate splits in nominal variables. Therefore,
+in the presence of missing values the results of the two procedures will differ slightly.
+The breaking of ties between variables with almost identical selection criterion (for example,
+a $p$-value being almost zero) is done with respect to the test-statistics in \code{partykit::ctree},
+so in very rare cases there might be different split variables in some nodes. The implementation of 
 \code{ctree} in package \pkg{partykit} is almost entirely written in \proglang{R}, whereas 
 the original implementation in \pkg{party} is almost entirely written in \proglang{C}.
 
