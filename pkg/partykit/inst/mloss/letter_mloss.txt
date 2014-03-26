@@ -26,7 +26,7 @@ scratch and develop a new R package (partykit) that easily allows to
 accomodate our own tree algorithms but makes the underlying infrastructure
 easily accessible to others.  Actually, the partykit package in its current
 form goes well beyond what was suggested in the reviews of JMLR-07-240-1
-and both manuscript and software are entirely rewritten. Hence, we felt it
+and both manuscript and software were entirely rewritten. Hence, we felt it
 to be more appropriate to submit this as a new manuscript rather than a
 revision of JMLR-07-240-1.  However, if you would like to see a formal
 point-to-point reply to the old submission, please let us know.
