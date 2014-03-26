@@ -409,3 +409,11 @@ ctree <- function(formula, data, weights, subset, na.action = na.pass,
     storage.mode(infl) <- "double"
     return(infl)
 }
+
+sctest.constparty <- function(object, node = NULL, ...)
+{
+  ids <- if(is.null(node)) nodeids(object, terminal = FALSE) else node
+  rval <- nodeapply(object, ids, function(n) info_node(n)$criterion)
+  names(rval) <- ids
+  if(length(ids) == 1L) rval[[1L]] else rval  
+}

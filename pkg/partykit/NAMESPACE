@@ -13,6 +13,7 @@ export(
   ## new ctree implementation
   "ctree",
   "ctree_control",
+  "sctest.constparty",
 
   ## new mob implementation
   "mob",
