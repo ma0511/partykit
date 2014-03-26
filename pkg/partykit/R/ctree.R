@@ -82,10 +82,13 @@
     storage.mode(response) <- "double"
 
     lin <- .Call("R_LinstatExpCov", data, inp, response, weights)
+    ### <FIXME> this is slow, chisq or even teststatistics might be better
     p <- sapply(lin[inp], function(x) do.call(".pX2", x[-1]))
+    ### </FIXME>
     colnames(p) <- colnames(data)[inp]
     rownames(p) <- c("teststat", "pval")
-    crit <- p["pval",]
+    ### <FIXME> break ties? </FIXME>
+    crit <- p["pval",,drop = TRUE]
 
     ret <- vector(mode = "list", length = min(sum(inp), ctrl$maxsurrogate))
 
@@ -139,7 +142,13 @@
     } 
     lin <- .Call("R_LinstatExpCov", data, inp, response, weights)
     p <- sapply(lin[inp], function(x) do.call(ctrl$cfun, x[-1]))
-    crit <- p[1,,drop = FALSE]
+    crit <- p[1,,drop = TRUE]
+    ### crit is maximised, but there might be ties
+    ties <- which(abs(crit - max(crit)) < .Machine$double.eps)
+    if (length(ties) > 1) {
+        ### add a small value (< 1/1000) to crit derived from order of teststats
+        crit[ties] <- crit[ties] + order(p["teststat", ties]) / (sum(ties) * 1000)
+    }
     p <- p[-1,,drop = FALSE]
     colnames(p) <- colnames(data)[inp]
 
