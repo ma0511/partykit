@@ -1,0 +1,67 @@
+\documentclass[ngerman,uzh]{scrlttr2}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+%% ANPASSUNGSMÖGLICHKEITEN
+\KOMAoptions{%
+%backaddress=false%  Keine Rücksendeadresse im Adressfeld
+%,foldmarks=false%  Faltmarken ausschalten
+}
+
+\usepackage{babel}
+
+
+\begin{document}
+
+%% VARIABLEN
+% Falls Unterschrift vom definierten Namen abweicht:
+\setkomavar{signature}{Torsten Hothorn}
+\setkomavar{subject}{Betreff}
+%\setkomavar{specialmail}{Interne Post}
+
+\begin{letter}{
+Drs.~Murphy and Schölkopf \\
+Editors-in-chief \\
+Journal of Machine Learning Research}
+
+\subject{JMLR-MLOSS submission}
+
+\opening{Dear Drs.~Murphy and Schölkopf,}
+
+my co-author Achim Zeileis and I would like to submit the manuscript
+``\textbf{partykit}: An Open-Source Toolkit for Recursive Partytioning in R'' to the
+Machine Learning Open-Source Software track of the Journal of Machine
+Learning Research.
+
+The \textsf{R} add-on package \textbf{partykit} described in this submission implements a
+flexible toolkit for learning, representing, summarizing, and visualizing a
+wide range of tree-structured models.  The package offers a basic class
+infrastructure for representing fitted trees, a unified set of methods for
+printing and plotting of trees as well as for computing predictions for new
+observations, tailored functionality for trees with constant fits and with
+parametric models in each terminal node, and reimplementations of conditional
+inference trees (CTree) and model-based recursive partitioning (MOB).
+
+This manuscript is related to JMLR-07-240-1 ``Let's Have a party! An
+Open-Source Toolbox for Recursive Partytioning'' describing the
+\textbf{party} add-on
+package.  This manuscript was rejected with encouragement for resubmission by
+JMLR-MLOSS editor Cheng Soon Ong in November 2007.  The main concerns of the
+reviewers were that it was not easy to extend the old \textbf{party} package by adding
+new tree learners or representing existing trees in our package.  This was
+a very important suggestion and part of the motivation for starting from
+scratch and develop a new R package (\textbf{partykit}) that easily allows to
+accommodate our own tree algorithms but makes the underlying infrastructure
+easily accessible to others. Actually, the \textbf{partykit} package in its current
+form goes well beyond what was suggested in the reviews of JMLR-07-240-1
+and both manuscript and software were entirely rewritten. Hence, we felt it
+to be more appropriate to submit this as a new manuscript rather than a
+revision of JMLR-07-240-1.  However, if you would like to see a formal
+point-to-point reply to the old submission, please let us know.
+
+Sincerely yours, \\
+\includegraphics[width = .3\textwidth]{TH_Unterschrift}
+
+\end{letter}
+
+\end{document}
