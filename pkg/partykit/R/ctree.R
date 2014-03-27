@@ -412,16 +412,22 @@ ctree <- function(formula, data, weights, subset, na.action = na.pass,
 
 sctest.constparty <- function(object, node = NULL, ...)
 {
-  ids <- if(is.null(node)) {
-      ### inner nodes only
-      n <- nodeids(object, terminal = FALSE) ### all nodes
-      n[!(n %in% nodeids(object, terminal = TRUE))] 
-  } else node
-  rval <- nodeapply(object, ids, function(n) {
-      ret <- exp(info_node(n)$criterion)
-      ret["p.value",] <- 1 - ret["p.value",]
-      ret
-  })
-  names(rval) <- ids
-  if(length(ids) == 1L) rval[[1L]] else rval  
+
+    if(is.null(node)) {
+        ids <- nodeids(object, terminal = FALSE) ### all nodes
+    } else {
+        ids <- node
+    }
+
+    rval <- nodeapply(object, ids, function(n) {
+        crit <- info_node(n)$criterion
+        if (is.null(crit)) return(NULL)
+        ret <- exp(crit)
+        ret["p.value",] <- 1 - ret["p.value",]
+        ret
+    })
+    names(rval) <- ids
+    if(length(ids) == 1L)
+        return(rval[[1L]])
+    return(rval)
 }
