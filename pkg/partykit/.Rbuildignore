@@ -1,4 +1,5 @@
 R/meanvartree.R
+R/mtree.R
 R/cforest.R
 inst/pmml/auto.pmml
 inst/pmml/AuditTree.xml
