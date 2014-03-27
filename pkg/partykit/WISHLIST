@@ -29,9 +29,9 @@ x  - add party regression tests
 
 x - partykit manual (TH)
 x - partykit vignette (TH, Z)
-- revised/new MLOSS paper (TH, Z, KH)
-x- node_surv, node_hist, node_density, node_bivplot (Z)
-x- terminal_panel more sophisticated
+x - revised/new MLOSS paper (TH, Z, KH)
+x - node_surv, node_hist, node_density, node_bivplot (Z)
+x - terminal_panel more sophisticated
 - prettify list.rules
 
 FROM: Daniel Lüdecke <d.luedecke@uke.de>
