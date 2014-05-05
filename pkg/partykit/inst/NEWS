@@ -1,3 +1,13 @@
+Changes in Version 0.8-1
+
+  o partykit now depends on R version >= 3.1.0 in order to import the
+    depth() generic from the "grid" package.
+
+  o The print methods for party/partynode objects with only a root node
+    was modified. Now, the terminal panel function is also applied
+    if there is only a root node (while previously it was not).
+
+
 Changes in Version 0.8-0
 
   o Major improved version of "partykit". The previously existing functions
