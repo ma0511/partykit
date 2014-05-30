@@ -140,6 +140,11 @@
         inp <- logical(length(inp))
         inp[s] <- TRUE
     } 
+
+    response_arg <- response
+    if (is.function(response))
+        response <- response(data, weights)
+
     lin <- .Call("R_LinstatExpCov", data, inp, response, weights)
     p <- sapply(lin[inp], function(x) do.call(ctrl$cfun, x[-1]))
     crit <- p[1,,drop = TRUE]
@@ -230,7 +235,7 @@
         w <- weights
         w[kidids != k] <- 0
         assign("depth", depth + 1, envir = cenv)
-        kids[[k]] <- .cnode(nextid, data, response, inputs, w, ctrl, cenv)
+        kids[[k]] <- .cnode(nextid, data, response_arg, inputs, w, ctrl, cenv)
         nextid <- max(nodeids(kids[[k]])) + 1
     }
     ret$kids <- kids
@@ -349,7 +354,14 @@ ctree <- function(formula, data, weights, subset, na.action = na.pass,
         weights <- rep(1, nrow(data))
     storage.mode(weights) <- "integer"
 
-    infl <- .y2infl(data, response, ytrafo = ytrafo) ### weights???
+    ### <FIXME> this interface has to change; we need to be
+    ### closer to mob() with y ~ x | z formulae and probably a `fit'
+    ### argument </FIXME>
+    if (!is.function(ytrafo)) {
+        infl <- .y2infl(data, response, ytrafo = ytrafo)
+    } else {
+        infl <- ytrafo ### will be updated with weights in every node
+    }
 
     tree <- .cnode(1L, data, infl, inputs, weights, ctrl)
 
