@@ -1,0 +1,206 @@
+
+\documentclass{article}
+\usepackage{natbib}
+
+\title{Rebuttal JMLR 14-133}
+\author{Torsten Hothorn and Achim Zeileis}
+
+\begin{document}
+
+\maketitle
+
+\section*{AE}
+
+\textit{
+I regret to inform you that your submission ``partykit: A modular toolkit
+for recursive partytioning in R'' has been rejected from publication at JMLR
+Track for Machine Learning Open Source Software.  Two of the reviewers of
+the previous version were enlisted for this version, and one new reviewer
+was added.  While the reviewers voted for ``accept'', the actual reviews
+were less positive and raised several serious concerns about the project. 
+If the authors choose to resubmit the project, please include a description
+addressing the reviewers' concerns.}
+
+\section*{Referee 1}
+
+\textit{
+This is a clean and concise description of an interesting set of tools for
+data analysis with recursive partitioning.  It is mainly a description or
+announcement, and has minimal polemic or pedagogical value.  It will be a
+useful reference for those a basic outline of the software's capabilities,
+and provides a useful bibliography.}
+
+Tja.
+
+\section*{Referee 2}
+
+\textit{
+This paper describes work that, in my understanding, does two things:
+\begin{enumerate}
+\item It provides infrastructure that can in principle be used with any
+      recursive partitioning implementation, and that at this point 
+      interfaces to several different widely used implementations, 
+      additional to those directly available in R's partykit package.
+\item It provides implementations of two specialized tree-based methods.
+\end{enumerate}
+}
+
+\textit{
+The software has a useful role in providing commonality across diverse
+recursive partitioning methods and implementations: for structuring printed
+output, for generating predictions, and for plotting results.  Very
+extensive documentation, some distributed with the package, is available
+from references given in the paper.}
+
+\textit{Quibbles and queries are:}
+\begin{enumerate}
+\item 
+\textit{
+The legend for Table 1 begins: ``Selected tree algorithms than can be
+interfaced through partykit...''  Surely it is the output from selected
+implementations that can be interfaced, not the algorithm used.  The word
+‘algorithm’ seems to me anyway inappropriate in this context.  The same (or
+very similar) algorithm may have different implementations.  Different
+methods with their inevitably different algorithms (including, in partykit:
+classical `constant’ trees, model-based trees, and conditional inference
+trees) further wide widen the range of implementations.}
+
+rephrase: interfaces data structures used by different implementations of different
+tree growing methods / algorithms.
+
+\item 
+\textit{
+The distinction between implementation (what the authors call `algorithm’)
+and output is crucial also because as far as I am able to judge, partykit’s
+abilities are limited to taking over and processing some part only of the
+output from, e.g., R’s rpart package.  As I understand, there is no ability
+to use or process, e.g., results from rpart’s on the fly cross-validation. 
+Would it be straightforward to incorporate structure that is able to
+accommodate such information?  See also point 3 that now follows.}
+
+Hm, maybe store such information in \texttt{info} slots?
+
+\item 
+\textit{
+I note the comment on the help page for the partykit function ctree() that
+the inference process is based on permutation tests, with one or other type
+of adjustment for multiple testing.  Then follows the strong claim that:
+This statistical approach ensures that the right sized tree is grown and no
+form of pruning or cross-validation or whatsoever is needed.  I think it
+pertinent to ask what has been done to judge the effectiveness of this
+approach, assessed using separate test data, against the approach used in,
+e.g., rpart or CART?  This is an issue for the help page, rather than
+perhaps for the paper.}
+
+See \citep{Hothorn+Hornik+Zeileis:2006}.
+
+\item 
+\textit{
+How well-adapted are the tools in partykit for implementing random forest
+or other ensemble type approaches? I note that partykit does not (yet?) have
+an equivalent of the cforest() function that is in the older party package.
+}
+
+Work in progress.
+
+\end{enumerate}
+
+\textit{
+At the very least, I would like to see brief comments on where splitting and
+accuracy assessment strategies, short of use of separate test data, fit in
+or around the toolkit.}  
+
+infrastructure independent of such things.
+
+\textit{To what extent are toolkit functions independent of
+the methodology used for the partykit functions ctree() and mob()?}
+
+completely.
+
+\textit{If
+necessary, some of the historical detail in the overview might be replaced
+by references to discussion that appears elsewhere, in order to make way for
+comment on these points.}
+
+pfff
+
+\section*{Referee 3}
+
+\textit{
+The paper describes an R library,}
+
+an R package, actually.
+
+\textit{ `partykit', that appears to be a unified
+way of representing decision tree structures (or recursive partitioning
+structures) in R and manipulating or visualizing them.  The authors note
+that their library contains support for representing the output of trees
+created with other packages, and the paper appears to function as a very
+basic tutorial with links to very detailed R vignettes.  The package also
+implements a few of the authors' own recursive partitioning algorithms.}
+
+\textit{
+The project seems to have fairly minor activity, and appears to have had a
+Google Summer of Code project in previous years.  The subversion repository
+seems to indicate that the code is still being (somewhat) actively developed
+despite a relative lack of commits between 2009 and 2013.}
+
+und?
+
+\textit{There appears to
+be no bug tracker or open mailing list.}
+
+added
+
+\textit{There is knowledge of the package
+in the R ecosystem, but partykit does not seem to be as popular as other R
+packages (admittedly, partykit is a niche product).}
+
+Hard to judge, but reverse depends: NHEMOtree, quint. Number of citations of party paper.
+
+\textit{
+Support for trees produced by other libraries is provided, but I am not
+certain how appealing the infrastructure will be to developers who want to
+represent trees from other systems.  It seems like for non-PMML formatted
+trees, implementing a conversion layer to partykit objects wouldn't be any
+easier or harder than other packages.}
+
+depends, eh?
+
+\textit{
+Clearly, for developing new tree algorithms, though, partykit would be a good choice.}
+
+We actually have proof!
+
+\textit{
+Section 5 is very qualitative and vague.  The authors should definitely
+improve this in future revisions.  It is written, "lean data structures are
+employed", "the `party' structures are very lean", and also "The recursive
+node structure itself is extremely lightweight" but without any sort of
+quantitative details, it's difficult to believe those statements without
+diving into the code.}
+
+schwierig.
+
+\textit{
+In my opinion the authors could do one of these things to validate their
+claims: provide proof that the data structures are minimal (with respect to
+other implementations), show that very large tree structures can be easily
+represented and handled by partykit, or simply leave out or significantly
+shorten the discussion of speed and memory usage entirely.}
+
+schwierig.
+
+\textit{
+Overall, partykit is a well-designed and extensively documented package, but
+I have some reservations about the project's activity level and popularity
+going into the future.  The developers should consider setting up a mailing
+list or bug tracker to make the project more open to new contributors.}
+
+done.
+
+\bibliographystyle{plainnat}
+\bibliography{../../../vignettes/party.bib}
+
+
+\end{document}
