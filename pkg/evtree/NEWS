@@ -1,3 +1,9 @@
+Changes in Version 1.0-0
+
+  o New release accompanying the paper about evtree in the Journal of
+    Statistical Software, see citation("evtree").
+
+
 Changes in Version 0.1-5
 
   o Updated contact data.
