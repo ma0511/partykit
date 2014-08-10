@@ -1480,7 +1480,7 @@ robustness of the default parameter choices.
 As in Section~\ref{comp}, \code{evtree} models are constrained to a minimum number of 
 7~observations per terminal node, 20~observations per internal node, and a maximum tree
 depth of~9. The analysis is based on 4 datasets (\textit{Statlog heart}, \textit{Statlog german credit}, 
-\textit{Spam}, and the \textit{4x4 Chessboard problem} with 5\%noise). Again, the analysis of each 
+\textit{Spam}, and the \textit{4x4 Chessboard problem} with 5\% noise). Again, the analysis of each 
 of the 4 datasets is based on 250~bootstrap samples. In Section~\ref{param_op}, \code{evtree}
 is simulated with a diverse set of variation operator probability choices. Section~\ref{param_ps}
 provides results for the choice of different population sizes. 
