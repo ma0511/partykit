@@ -18,4 +18,4 @@ Description: Commonly used classification and regression tree methods like the C
 Depends: R (>= 2.11.0), partykit
 Suggests: Formula, kernlab, lattice, mlbench, multcomp, party, rpart, xtable
 LazyData: yes
-License: GPL-2
+License: GPL-2 | GPL-3
