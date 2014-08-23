@@ -63,23 +63,14 @@ cforest <- function(formula, data, weights, subset, na.action = na.pass,
     
     ### only necessary for extended model formulae 
     ### e.g. multivariate responses
-    if (require("Formula")) {
-        formula <- Formula(formula)
-    } else {
-        if (length(formula[[2]]) > 1)
-            stop("Package ", sQuote("Formula"),
-                 " not available for handling extended model formula ",
-                 sQuote("formula"))
-    }
+    formula <- Formula::Formula(formula)
     mf$formula <- formula
     mf$drop.unused.levels <- FALSE
     mf$na.action <- na.action
     mf[[1]] <- as.name("model.frame")
     mf <- eval(mf, parent.frame())
 
-    response <- names(mf)[1]
-    if (inherits(formula, "Formula"))
-        response <- names(model.part(formula, mf, lhs = 1))
+    response <- names(Formula::model.part(formula, mf, lhs = 1))
     weights <- model.weights(mf)
     dat <- mf[, colnames(mf) != "(weights)"]
     if (!is.null(scores)) {

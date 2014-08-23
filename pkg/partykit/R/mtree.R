@@ -191,8 +191,7 @@ mtree <- function(formula, data, na.action, weights, subset, type = NULL, minspl
 
   ## call mob
   m <- match.call(expand.dots = FALSE)
-  stopifnot(require("Formula"))
-  m$formula <- formula(as.Formula(formula, ~ 1), rhs = 2:1)
+  m$formula <- formula(Formula::as.Formula(formula, ~ 1), rhs = 2:1)
   m$fit <- type$fit
   m$control <- control
   m$minsplit <- NULL
