@@ -55,7 +55,7 @@ probabilities (for classification trees), and nodes.
 \references{
 Grubinger T, Zeileis A, Pfeiffer KP (2014).
   evtree: Evolutionary Learning of Globally Optimal Classification and Regression Trees in R.
-  \emph{Journal of Statistical Software}, \bold{61}(1), 1-29.",
+  \emph{Journal of Statistical Software}, \bold{61}(1), 1-29.
   \url{http://www.jstatsoft.org/v61/i01/}
 }
 
