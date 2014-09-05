@@ -66,8 +66,10 @@ ctree(formula, data, weights, subset, na.action = na.pass,
   specified in \code{\link{ctree_control}}. For example, when 
   \code{mincriterion = 0.95}, the p-value must be smaller than
   $0.05$ in order to split this node. This statistical approach ensures that
-  the right sized tree is grown and no form of pruning or cross-validation
-  or whatsoever is needed. The selection of the input variable to split in
+  the right-sized tree is grown and no form of pruning or cross-validation
+  or whatsoever is needed when the nominal level matches the size of the data set 
+  (see Section~3.4 in Hothorn, Hornik and Zeileis, 2006).
+  The selection of the input variable to split in
   is based on the univariate p-values avoiding a variable selection bias
   towards input variables with many possible cutpoints. The test statistics
   in each of the nodes can be extracted with the \code{sctest} method.
