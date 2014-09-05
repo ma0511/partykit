@@ -32,6 +32,9 @@ and provides a useful bibliography.}
 
 Tja.
 
+mention: previous round of reviews asked for this format of the paper
+
+
 \section*{Referee 2}
 
 \textit{
@@ -45,12 +48,19 @@ This paper describes work that, in my understanding, does two things:
 \end{enumerate}
 }
 
+yes
+
+maybe worth mentioning: due to the flexible infrastructure, the two
+specialized methods (ctree, mob) have become more flexible compared to
+earlier implementations (especially the mob framework)
+
 \textit{
 The software has a useful role in providing commonality across diverse
 recursive partitioning methods and implementations: for structuring printed
 output, for generating predictions, and for plotting results.  Very
 extensive documentation, some distributed with the package, is available
 from references given in the paper.}
+
 
 \textit{Quibbles and queries are:}
 \begin{enumerate}
@@ -59,10 +69,10 @@ from references given in the paper.}
 The legend for Table 1 begins: ``Selected tree algorithms than can be
 interfaced through partykit...''  Surely it is the output from selected
 implementations that can be interfaced, not the algorithm used.  The word
-‘algorithm’ seems to me anyway inappropriate in this context.  The same (or
+`algorithm' seems to me anyway inappropriate in this context.  The same (or
 very similar) algorithm may have different implementations.  Different
 methods with their inevitably different algorithms (including, in partykit:
-classical `constant’ trees, model-based trees, and conditional inference
+classical `constant' trees, model-based trees, and conditional inference
 trees) further wide widen the range of implementations.}
 
 rephrase: interfaces data structures used by different implementations of different
@@ -70,11 +80,11 @@ tree growing methods / algorithms.
 
 \item 
 \textit{
-The distinction between implementation (what the authors call `algorithm’)
-and output is crucial also because as far as I am able to judge, partykit’s
+The distinction between implementation (what the authors call `algorithm')
+and output is crucial also because as far as I am able to judge, partykit's
 abilities are limited to taking over and processing some part only of the
-output from, e.g., R’s rpart package.  As I understand, there is no ability
-to use or process, e.g., results from rpart’s on the fly cross-validation. 
+output from, e.g., R's rpart package.  As I understand, there is no ability
+to use or process, e.g., results from rpart's on the fly cross-validation. 
 Would it be straightforward to incorporate structure that is able to
 accommodate such information?  See also point 3 that now follows.}
 
@@ -93,6 +103,8 @@ e.g., rpart or CART?  This is an issue for the help page, rather than
 perhaps for the paper.}
 
 See \citep{Hothorn+Hornik+Zeileis:2006}.
+
+But probably also rephrase...
 
 \item 
 \textit{
@@ -127,11 +139,7 @@ pfff
 \section*{Referee 3}
 
 \textit{
-The paper describes an R library,}
-
-an R package, actually.
-
-\textit{ `partykit', that appears to be a unified
+The paper describes an R library, `partykit', that appears to be a unified
 way of representing decision tree structures (or recursive partitioning
 structures) in R and manipulating or visualizing them.  The authors note
 that their library contains support for representing the output of trees
@@ -139,18 +147,23 @@ created with other packages, and the paper appears to function as a very
 basic tutorial with links to very detailed R vignettes.  The package also
 implements a few of the authors' own recursive partitioning algorithms.}
 
+mention: previous round of reviews asked for this format
+
 \textit{
 The project seems to have fairly minor activity, and appears to have had a
 Google Summer of Code project in previous years.  The subversion repository
 seems to indicate that the code is still being (somewhat) actively developed
 despite a relative lack of commits between 2009 and 2013.}
 
-und?
+not a big software project, just two main developers, hence sometimes longer breaks
+
+we feel that this is not an indicator of the quality of the code, though
 
 \textit{There appears to
 be no bug tracker or open mailing list.}
 
-added
+E-mails to the maintainer address were always possible and used fairly regularly
+by both end-users and other package developers. A mailing list was added now.
 
 \textit{There is knowledge of the package
 in the R ecosystem, but partykit does not seem to be as popular as other R
@@ -166,6 +179,8 @@ trees, implementing a conversion layer to partykit objects wouldn't be any
 easier or harder than other packages.}
 
 depends, eh?
+
+examples: CTree and display of p-values, J4.8 and multiway splits
 
 \textit{
 Clearly, for developing new tree algorithms, though, partykit would be a good choice.}
