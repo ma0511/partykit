@@ -26,14 +26,25 @@ addressing the reviewers' concerns.}
 \textit{
 This is a clean and concise description of an interesting set of tools for
 data analysis with recursive partitioning.  It is mainly a description or
-announcement, and has minimal polemic or pedagogical value.  It will be a
+announcement, and has minimal polemic or pedagogical value.}
+
+When preparing this revision of our earlier version JMLR-07-240, we closely
+followed the suggestions given in the corresponding reviews. Our
+understanding of this remark of Referee 3 on JMLR-07-240
+\begin{quote} 
+Surely it is possible to give broadbrush information. There should be direct
+reference to web-based
+materials that give more detailed information and examples.
+\end{quote}
+was that the four page description should really focus on 
+broadbrush informtion, with all the interesting details being explained and
+discussed in the packages's documentation.
+
+\textit{It will be a
 useful reference for those a basic outline of the software's capabilities,
 and provides a useful bibliography.}
 
-Tja.
-
-mention: previous round of reviews asked for this format of the paper
-
+Thank you.
 
 \section*{Referee 2}
 
@@ -48,11 +59,14 @@ This paper describes work that, in my understanding, does two things:
 \end{enumerate}
 }
 
-yes
+Thank you for this nice and concise summary of the four page description.
 
-maybe worth mentioning: due to the flexible infrastructure, the two
-specialized methods (ctree, mob) have become more flexible compared to
-earlier implementations (especially the mob framework)
+When we started working on partykit, we redesigned all classes from the
+earlier party package from scretch and also reimplemented ctree and mob
+without much overlap between the party and partykit code bases. As a
+consequence of the much cleaner partykit design, the code base for both
+ctree and mob could be reduced considerably while at the same time making
+both implementations more powerful due to more flexible options.
 
 \textit{
 The software has a useful role in providing commonality across diverse
@@ -61,6 +75,7 @@ output, for generating predictions, and for plotting results.  Very
 extensive documentation, some distributed with the package, is available
 from references given in the paper.}
 
+Thank you.
 
 \textit{Quibbles and queries are:}
 \begin{enumerate}
@@ -68,15 +83,20 @@ from references given in the paper.}
 \textit{
 The legend for Table 1 begins: ``Selected tree algorithms than can be
 interfaced through partykit...''  Surely it is the output from selected
-implementations that can be interfaced, not the algorithm used.  The word
+implementations that can be interfaced, not the algorithm used.}
+
+Yes, thank you. We completely agree with you on the distinction between
+`algorithm' and it's `implementation' and changed the caption accordingly.
+
+\textit{The word
 `algorithm' seems to me anyway inappropriate in this context.  The same (or
 very similar) algorithm may have different implementations.  Different
 methods with their inevitably different algorithms (including, in partykit:
 classical `constant' trees, model-based trees, and conditional inference
-trees) further wide widen the range of implementations.}
+trees) further widen the range of implementations.}
 
-rephrase: interfaces data structures used by different implementations of different
-tree growing methods / algorithms.
+We completely agree and consistently use "algorithm" for the concept
+and "implementation" for the software throughout the paper now.
 
 \item 
 \textit{
@@ -84,11 +104,23 @@ The distinction between implementation (what the authors call `algorithm')
 and output is crucial also because as far as I am able to judge, partykit's
 abilities are limited to taking over and processing some part only of the
 output from, e.g., R's rpart package.  As I understand, there is no ability
-to use or process, e.g., results from rpart's on the fly cross-validation. 
-Would it be straightforward to incorporate structure that is able to
+to use or process, e.g., results from rpart's on the fly cross-validation.}
+
+Yes, this is right. It is not possible to directly work on the rpart
+results.  The reason is that we coerce rpart objects to constparty objects
+and this class does not capture cost-complexity pruning since not all
+algorithms have a notion of a risk function and thus perform cost-complexity
+pruning.  The tools provided by partykit require that pruning is performed
+by rpart or J4.8 or by user-implemented add-ons.
+
+\textit{Would it be straightforward to incorporate structure that is able to
 accommodate such information?  See also point 3 that now follows.}
 
-Hm, maybe store such information in \texttt{info} slots?
+Yes, one `just' needs to define a new class that inherits from constparty,
+possibly containing a cost-complexity table in the info slot with
+appropriate methods for pruning (the nodeprune function can be used).  An
+example on the use of nodeprune is given in the constparty vignette,
+Section~3, and mob has a novel internal pruning functionality.
 
 \item 
 \textit{
@@ -102,9 +134,14 @@ approach, assessed using separate test data, against the approach used in,
 e.g., rpart or CART?  This is an issue for the help page, rather than
 perhaps for the paper.}
 
-See \citep{Hothorn+Hornik+Zeileis:2006}.
-
-But probably also rephrase...
+This is a somewhat philosphical issue, discussed in more detail in
+Section~3.4 of \cite{Hothorn+Hornik+Zeileis:2006}. If one grows a tree
+on a very large data set with nominal level of 5\%, many statistically
+significant but practically irrelevant splits will be found. For small and
+medium sized problems, conditional inference trees with nominal level of 5\% 
+and appropriate adjustment for multiplicity were shown to produce trees
+of the correct size \citep[simulation results
+in][]{Hothorn+Hornik+Zeileis:2006}.
 
 \item 
 \textit{
@@ -113,7 +150,13 @@ or other ensemble type approaches? I note that partykit does not (yet?) have
 an equivalent of the cforest() function that is in the older party package.
 }
 
-Work in progress.
+In principle it is straightforward to set-up a class for forests as a list
+of partynode objects. The advantage is that only the tree
+structures vary across the ensemble but not the data. However, we found such
+a class of rather limited use because we didn't see a unified way to produce
+meaningful plots (variable importances, partial dependencies etc) for
+ensembles obtained by different forest algorithms yet. Implementing a new
+class for forests (maybe called parties or orgie) is on our to do list.
 
 \end{enumerate}
 
@@ -122,19 +165,33 @@ At the very least, I would like to see brief comments on where splitting and
 accuracy assessment strategies, short of use of separate test data, fit in
 or around the toolkit.}  
 
-infrastructure independent of such things.
+The general infrastructure provided by partykit covers the representation of
+trees but not tree induction itself. This makes sense because the details of
+how splits are searched for and selected differ considerably between
+algorithms. The same is true with respect to finding the right-sized tree.
+
+The implementing of tree algorithms is very much simplified by partykit
+because the programmer can concentrate on the technical details of learning
+the tree while using the partykit infrastructure for representing and
+further processing the resulting tree. The constparty vignette contains a
+very dense example of such an implementation (Section 3). Note that a
+non-trivial tree algorithm can be implemented by three small R functions
+only.
+
+We also added an example showing how the partykit infrastructure can be used
+to quickly implement model assessment strategies.
 
 \textit{To what extent are toolkit functions independent of
 the methodology used for the partykit functions ctree() and mob()?}
 
-completely.
+Completely. <Z FIXME> mob.
 
-\textit{If
-necessary, some of the historical detail in the overview might be replaced
+\textit{If necessary, some of the historical detail in the overview might be replaced
 by references to discussion that appears elsewhere, in order to make way for
 comment on these points.}
 
-pfff
+see additions to constparty vignette
+<Z FIXME>
 
 \section*{Referee 3}
 
@@ -147,7 +204,8 @@ created with other packages, and the paper appears to function as a very
 basic tutorial with links to very detailed R vignettes.  The package also
 implements a few of the authors' own recursive partitioning algorithms.}
 
-mention: previous round of reviews asked for this format
+Our understanding of the reviews on an earlier version of this paper was
+that the referees asked for this format, please see our answer to Referee 1.
 
 \textit{
 The project seems to have fairly minor activity, and appears to have had a
@@ -155,37 +213,64 @@ Google Summer of Code project in previous years.  The subversion repository
 seems to indicate that the code is still being (somewhat) actively developed
 despite a relative lack of commits between 2009 and 2013.}
 
-not a big software project, just two main developers, hence sometimes longer breaks
-
-we feel that this is not an indicator of the quality of the code, though
+The package was written by only two developers, hence sometimes longer
+breaks to the new jobs or family businesses could not be avoided.
+It is true that there was not much development in partykit between 2009 and
+2013. During this time, two offspring packages (evtree and psychotree) where
+developed instead and partykit was actively maintained. Please note that the
+development of these two new packages did only bring some minor design or
+implementation deficits in partykit to light. This raised our confidence in
+partykit. For these reasons we feel that pure activity this is not an indicator of 
+the quality of the code.
 
 \textit{There appears to
 be no bug tracker or open mailing list.}
 
-E-mails to the maintainer address were always possible and used fairly regularly
-by both end-users and other package developers. A mailing list was added now.
+E-mails to the maintainer address were always possible and are in fact the standard
+way of communicating with CRAN package maintainers (and developers) and were 
+used fairly regularly by both end-users and other package developers. 
+Nevertheless, a mailing list was added now.
 
 \textit{There is knowledge of the package
 in the R ecosystem, but partykit does not seem to be as popular as other R
 packages (admittedly, partykit is a niche product).}
 
-Hard to judge, but reverse depends: NHEMOtree, quint. Number of citations of party paper.
+One can argue about this statement being close to reality. As of now, the
+package website lists seven reverse dependencies on CRAN, we are not
+involved in three of them. Only 6\% of all CRAN packages have more 
+reverse dependencies than partykit. And we hope that some of the 24 
+reverse dependencies of party will switch to partykit
+(only 2\% have more reverse dependencies than party) now that the reference
+implementation of conditional inference trees is the one from partykit.
+The ctree-publication was cited 643 times and the mob-paper 103 times 
+(Google scholar), so we are confident that people will increasingly use
+either ctree or mob and also hopefully learn about the partykit
+infrastructure this way.
 
 \textit{
 Support for trees produced by other libraries is provided, but I am not
 certain how appealing the infrastructure will be to developers who want to
 represent trees from other systems.  It seems like for non-PMML formatted
 trees, implementing a conversion layer to partykit objects wouldn't be any
-easier or harder than other packages.}
+easier or harder than other packages. Clearly, for developing new tree
+algorithms, though, partykit would be a good choice.}
 
-depends, eh?
+Our experience while implementing the original code for ctree 10 years ago
+was that the infrastructure existing then had way too many
+algorithm-specific things hardwired than to be of any use. While rpart
+always allowed to change risk functions, doing something outside of the
+CART-way of finding splits was not possible. Also printing and plotting
+facilities were not able to, for example, put p-values onto inner nodes.
 
-examples: CTree and display of p-values, J4.8 and multiway splits
+Our party implementation of ctree suffered the same problems, we had to work
+extremely hard to somehow use the party plot methods to plot J4.8 multiway 
+trees fitted by the RWeka package.
 
-\textit{
-Clearly, for developing new tree algorithms, though, partykit would be a good choice.}
-
-We actually have proof!
+These experiences led to the partykit package. The reimplementation of
+ctree, mob and the new implementations of trees in evtree and psychotree
+turned out to be rather straightforward and we personally did benefit a lot
+from the partykit infrastructure already. We suppose this is also true for
+the developers of the NHEMOtree and quint packages.
 
 \textit{
 Section 5 is very qualitative and vague.  The authors should definitely
@@ -195,7 +280,7 @@ node structure itself is extremely lightweight" but without any sort of
 quantitative details, it's difficult to believe those statements without
 diving into the code.}
 
-schwierig.
+Z
 
 \textit{
 In my opinion the authors could do one of these things to validate their
@@ -204,7 +289,11 @@ other implementations), show that very large tree structures can be easily
 represented and handled by partykit, or simply leave out or significantly
 shorten the discussion of speed and memory usage entirely.}
 
-schwierig.
+Z
+
+Total cost of ownership
+
+demo mit mlbench:Satellite und rpart und J4.8
 
 \textit{
 Overall, partykit is a well-designed and extensively documented package, but
@@ -212,7 +301,11 @@ I have some reservations about the project's activity level and popularity
 going into the future.  The developers should consider setting up a mailing
 list or bug tracker to make the project more open to new contributors.}
 
-done.
+Based on our experience with the party package for 10 years now, the fact
+that other developers started packages using partykit, and the feedback via
+email and on conferences, most important the ``Workshop on Classification
+and Regression Trees'' that took place in March 2014, we are more optimistic
+about the popularity of partykit.
 
 \bibliographystyle{plainnat}
 \bibliography{../../../vignettes/party.bib}
