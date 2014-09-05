@@ -343,6 +343,6 @@ sponsored by the Institute for Mathematical Sciences of the
 National University of Singapore, for helpful feedback and
 stimulating discussions.
 
-\bibliography{../../vignettes/party.bib}
+\bibliography{ref.bib}
 
 \end{document}
