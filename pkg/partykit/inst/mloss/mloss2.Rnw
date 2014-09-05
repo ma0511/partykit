@@ -30,7 +30,7 @@ set.seed(290875)
 \author{Torsten Hothorn \\ \addr{Universit\"at Z\"urich} \\ \addr{E-mail: Torsten.Hothorn@R-project.org} \AND
         Achim Zeileis \\ \addr{Universit\"at Innsbruck} \\ \addr{E-mail: Achim.Zeileis@R-project.org}}
 \title{\pkg{partykit}: A Modular Toolkit for Recursive Partytioning in \proglang{R}}
-\editor{(submission for MLOSS track, related to JMLR-07-240-1 that was handled by Cheng Soon Ong)}
+\editor{Cheng Soon Ong (MLOSS track, JMLR-14-133)}
 
 % hyperref setup
 \definecolor{Red}{rgb}{0.5,0,0}
@@ -176,7 +176,7 @@ from data or for importing trees inferred by other software into \pkg{partykit}.
 \centering
 \begin{tabular}{llll}
 \hline
-Algorithm  & Software                                                & Object class       & Original reference \\ \hline
+Algorithm  & Software implementation                                 & Object class       & Original reference \\ \hline
 CART/RPart & \code{rpart::rpart} + \code{as.party}                   & \code{constparty}  & \cite{Breiman+Friedman+Olshen:1984} \\
 C4.5/J4.8  & \pkg{Weka}/\code{RWeka::J48} + \code{as.party}          & \code{constparty}  & \cite{Quinlan:1993} \\
 QUEST      & \proglang{SPSS}/\pkg{AnswerTree} + \code{pmmlTreeModel} & \code{simpleparty} & \cite{Loh+Shih:1997} \\
@@ -184,8 +184,8 @@ CTree      & \code{ctree}                                            & \code{con
 MOB        & \code{mob}, \code{lmtree}, \code{glmtree}, \dots        & \code{modelparty}  & \cite{Zeileis+Hothorn+Hornik:2008} \\
 EvTree     & \code{evtree::evtree}                                   & \code{constparty}  & \cite{evtree} \\ \hline
 \end{tabular}
-\caption{\label{tab:overview} Selected tree algorithms than can be interfaced through \pkg{partykit}. The
-  software column lists external software, \proglang{R} functions from other packages (with \code{::} syntax)
+\caption{\label{tab:overview} Selected implementations of tree algorithms that can be interfaced through \pkg{partykit}. The
+  second column lists external software, \proglang{R} functions from other packages (with \code{::} syntax)
   and from \pkg{partykit}.}
 \end{table}
 
@@ -202,7 +202,7 @@ by \pkg{partykit}. Specifically, tree objects learned by \fct{rpart}
 and by \fct{J48} from \pkg{RWeka} (\citealp{RWeka}, interfacing \pkg{Weka}'s J4.8
 algorithm for C4.5, \citealp{Quinlan:1993}) can be coerced by \fct{as.party}
 to the same object class \class{constparty}. This is a general class that can
-in principle represent all the major classical tree algorithms with constant
+in principle represent all the major classical tree types with constant
 fits in the terminal nodes. Also, the same class is employed for conditional
 inference trees (CTree) that can be learned with the \fct{ctree} function
 directly within \pkg{partykit} or evolutionary trees from package \pkg{evtree}
@@ -321,17 +321,19 @@ and fitted parametrics models, respectively.
 
 Package \pkg{partykit} provides a toolkit for trees in \proglang{R} that gives
 emphasis to flexibility and extensibility. The infrastructure is easily
-accessible and written in plain \proglang{R}. Nevertheless speed is not a critical
-concern because (a)~lean data structures are employed and (b)~the time-intensive
-part in tree computations is typically inferring the tree rather than
-representing/printing/plotting it. Hence, the two functions for inferring trees
-either have computationally intensive parts in \proglang{C} (\fct{ctree})
-or build on \proglang{R}'s fitting functions (\fct{mob}). For benchmarks of
-their predictive performance, see their original references.
-Regarding memory requirements, the \class{party} trees are very lean but can
-optionally be used to store any information. The recursive node structure
-itself is extremely lightweight and optionally zero rows from the learning data
-are sufficient, which future versions will exploit for storing forests.
+accessible and accompanied by detailed manual pages and package vignettes.
+The package facilitates the implementation of new algorithms or interfacing
+other software by providing common building blocks for computing on trees
+(representation, printing, plotting, predictions, etc.). Using these building
+blocks developers of tree software can focus on implementing the learning
+algorithm (selection of variables and split points, stopping criteria, pruning, etc.).
+The package also provides functions for inferring trees where the computationally
+intensive parts are either in \proglang{C} (\fct{ctree}) or employ \proglang{R}'s
+fitting functions (\fct{mob}). The simple and lean base classes that separate
+data and tree structure are also appealing for storing forests which are planned
+for future versions of the package. Users and developers that have questions or
+comments about the package can either contact the maintainers or use the forum
+on \proglang{R}-Forge at \url{https://R-Forge.R-project.org/forum/forum.php?forum_id=852}.
 
 \section*{Acknowledgments}
 
