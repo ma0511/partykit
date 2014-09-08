@@ -1,0 +1,52 @@
+\documentclass[ngerman,uzh]{scrlttr2}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+%% ANPASSUNGSMÖGLICHKEITEN
+\KOMAoptions{%
+%backaddress=false%  Keine Rücksendeadresse im Adressfeld
+%,foldmarks=false%  Faltmarken ausschalten
+}
+
+\usepackage{babel}
+
+
+\begin{document}
+
+%% VARIABLEN
+% Falls Unterschrift vom definierten Namen abweicht:
+\setkomavar{signature}{Torsten Hothorn}
+\setkomavar{subject}{Betreff}
+%\setkomavar{specialmail}{Interne Post}
+
+\begin{letter}{
+Drs.~Murphy and Schölkopf \\
+Editors-in-chief \\
+Journal of Machine Learning Research}
+
+\subject{JMLR-14-133 resubmission}
+
+\opening{Dear Drs.~Murphy and Schölkopf,}
+
+my co-author Achim Zeileis and I would like to resubmit the manuscript
+``\textbf{partykit}: An Open-Source Toolkit for Recursive Partytioning in R'' to the
+Machine Learning Open-Source Software track of the Journal of Machine
+Learning Research.
+
+We would like to thank the referees for their constructive reviews and
+action editor Cheng Soon Ong for overseeing the review process. While
+preparing this resubmission, we took all issues discussed by the referees
+into account and revised both the \emph{partykit} package and the four-page
+description. A detailed description of our revision can be found in the
+point to point reply.
+
+The package web page is \texttt{http://CRAN.R-project.org/package=partykit}
+and points to the revised version 0.8-1 distributed under the GPL (2 or 3).
+This version is also uploaded for review. 
+
+Sincerely yours, \\
+\includegraphics[width = .25\textwidth]{TH_Unterschrift}
+
+\end{letter}
+
+\end{document}
