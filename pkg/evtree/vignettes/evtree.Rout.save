@@ -8,13 +8,6 @@
 Loading required package: partykit
 Loading required package: grid
 
-Attaching package: 'partykit'
-
-The following object is masked from 'package:grid':
-
-    depth
-
-
 > library("lattice")
 
 > data("BBBClub", package = "evtree")
@@ -43,12 +36,12 @@ Y ~ X1 + X2
 
 Fitted party:
 [1] root
-|   [2] X1 < 1.25
-|   |   [3] X2 < 1.25: X (n = 4, err = 0.0%)
-|   |   [4] X2 >= 1.25: O (n = 4, err = 0.0%)
-|   [5] X1 >= 1.25
-|   |   [6] X2 < 1.25: O (n = 4, err = 0.0%)
-|   |   [7] X2 >= 1.25: X (n = 4, err = 0.0%)
+|   [2] X2 < 1.25
+|   |   [3] X1 < 1.25: X (n = 4, err = 0.0%)
+|   |   [4] X1 >= 1.25: O (n = 4, err = 0.0%)
+|   [5] X2 >= 1.25
+|   |   [6] X1 < 1.25: O (n = 4, err = 0.0%)
+|   |   [7] X1 >= 1.25: X (n = 4, err = 0.0%)
 
 Number of inner nodes:    3
 Number of terminal nodes: 4
@@ -184,23 +177,15 @@ Loading required package: splines
 
 > ciplot(acc_rpart, xlim = xlim1, main = "rpart", ylab = TRUE, 
 +     xlab = "")
-Warning in if (dim(x) >= 17) abline(h = 5.5) :
-  the condition has length > 1 and only the first element will be used
 
 > ciplot(com_rpart, xlim = xlim2, main = "", ylab = FALSE, 
 +     xlab = "")
-Warning in if (dim(x) >= 17) abline(h = 5.5) :
-  the condition has length > 1 and only the first element will be used
 
 > ciplot(acc_ctree, xlim = xlim1, main = "ctree", ylab = TRUE, 
 +     xlab = "relative difference in predictive accuracy (%)")
-Warning in if (dim(x) >= 17) abline(h = 5.5) :
-  the condition has length > 1 and only the first element will be used
 
 > ciplot(com_ctree, xlim = xlim2, main = "", ylab = FALSE, 
 +     xlab = "relative difference in complexity (%)")
-Warning in if (dim(x) >= 17) abline(h = 5.5) :
-  the condition has length > 1 and only the first element will be used
 
 > par(mfrow = c(1, 2), oma = c(5, 10, 2, 0), mar = c(1, 
 +     1, 2, 1))
@@ -211,13 +196,9 @@ Warning in if (dim(x) >= 17) abline(h = 5.5) :
 
 > ciplot(acc_J48, xlim = xlim1, main = "J48", ylab = TRUE, 
 +     xlab = "relative difference in predictive accuracy (%)")
-Warning in if (dim(x) >= 17) abline(h = 5.5) :
-  the condition has length > 1 and only the first element will be used
 
 > ciplot(com_J48, xlim = xlim2, main = "", ylab = FALSE, 
 +     xlab = "relative difference in complexity (%)")
-Warning in if (dim(x) >= 17) abline(h = 5.5) :
-  the condition has length > 1 and only the first element will be used
 
 > par(mfrow = c(2, 2), oma = c(5, 10, 2, 0), mar = c(1, 
 +     1, 2, 1))
@@ -228,23 +209,15 @@ Warning in if (dim(x) >= 17) abline(h = 5.5) :
 
 > ciplot(acc_rpart, xlim = xlim1, main = "rpart", ylab = TRUE, 
 +     xlab = "")
-Warning in if (dim(x) >= 17) abline(h = 5.5) :
-  the condition has length > 1 and only the first element will be used
 
 > ciplot(com_rpart, xlim = xlim2, main = "", ylab = FALSE, 
 +     xlab = "")
-Warning in if (dim(x) >= 17) abline(h = 5.5) :
-  the condition has length > 1 and only the first element will be used
 
 > ciplot(acc_ctree, xlim = xlim1, main = "ctree", ylab = TRUE, 
 +     xlab = "relative difference in predictive accuracy (%)")
-Warning in if (dim(x) >= 17) abline(h = 5.5) :
-  the condition has length > 1 and only the first element will be used
 
 > ciplot(com_ctree, xlim = xlim2, main = "", ylab = FALSE, 
 +     xlab = "relative difference in complexity (%)")
-Warning in if (dim(x) >= 17) abline(h = 5.5) :
-  the condition has length > 1 and only the first element will be used
 
 > par(mfrow = c(1, 2), oma = c(5, 10, 2, 0), mar = c(1, 
 +     1, 2, 1))
@@ -255,13 +228,9 @@ Warning in if (dim(x) >= 17) abline(h = 5.5) :
 
 > ciplot(acc_J48, xlim = xlim1, main = "J48", ylab = TRUE, 
 +     xlab = "relative difference in predictive accuracy (%)")
-Warning in if (dim(x) >= 17) abline(h = 5.5) :
-  the condition has length > 1 and only the first element will be used
 
 > ciplot(com_J48, xlim = xlim2, main = "", ylab = FALSE, 
 +     xlab = "relative difference in complexity (%)")
-Warning in if (dim(x) >= 17) abline(h = 5.5) :
-  the condition has length > 1 and only the first element will be used
 
 > chessboard44 <- function(n = 4000, noisevariables = 6, 
 +     noise = 0) {
@@ -354,16 +323,18 @@ Warning in if (dim(x) >= 17) abline(h = 5.5) :
 > chesstable <- cbind(rbind("0\\%", "5\\%", "10\\%"), 
 +     chesstable)
 
-> colnames(chesstable)[1] = ""
+> colnames(chesstable)[1] <- ""
+
+> colnames(chesstable)[6:9] <- colnames(chesstable)[2:5]
 
 > print(xtable(chesstable, caption = "Mean (and standard deviation) of accuracy and complexity for simulated $4 \\times 4$ chessboard examples.", 
 +   .... [TRUNCATED] 
-% latex table generated in R 3.1.0 by xtable 1.7-1 package
-% Mon Nov 25 10:37:09 2013
+% latex table generated in R 3.2.0 by xtable 1.7-4 package
+% Thu Sep 25 01:38:04 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{lllllllll}
-  \toprule \multicolumn{1}{l}{Noise} & \multicolumn{4}{l}{Accuracy}  & \multicolumn{4}{l}{Complexity}\\ & \code{evtree} & \code{rpart} & \code{ctree} & \code{J48} & \code{evtree}.1 & \code{rpart}.1 & \code{ctree}.1 & \code{J48}.1 \\ 
+  \toprule \multicolumn{1}{l}{Noise} & \multicolumn{4}{l}{Accuracy}  & \multicolumn{4}{l}{Complexity}\\ & \code{evtree} & \code{rpart} & \code{ctree} & \code{J48} & \code{evtree} & \code{rpart} & \code{ctree} & \code{J48} \\ 
   \midrule0\% & 93.2(7.4) & 69.1(18.3) & 49.9(1.1) & 50.0(1.1) & 14.4(2.2) & 16.6(8.2) & 1.1(0.3) & 1.2(1.1) \\ 
   5\% & 89.0(6.8) & 65.7(17.4) & 50.1(1.6) & 50.1(1.1) & 14.4(2.2) & 14.6(8.0) & 1.1(0.7) & 1.2(1.1) \\ 
   10\% & 84.5(5.6) & 62.8(14.1) & 50.1(1.3) & 50.2(3.6) & 14.6(2.0) & 14.3(7.3) & 1.1(0.4) & 1.5(4.8) \\ 

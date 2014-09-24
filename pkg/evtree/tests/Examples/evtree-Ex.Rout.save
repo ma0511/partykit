@@ -21,13 +21,6 @@ Type 'q()' to quit R.
 > library('evtree')
 Loading required package: partykit
 Loading required package: grid
-
-Attaching package: 'partykit'
-
-The following object is masked from 'package:grid':
-
-    depth
-
 > 
 > base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
 > cleanEx()
@@ -98,7 +91,7 @@ rel  72.581  70.833  66.387
 > 
 > cleanEx()
 
-detaching 'package:Formula', 'package:rpart'
+detaching 'package:rpart'
 
 > nameEx("ContraceptiveChoice")
 > ### * ContraceptiveChoice
