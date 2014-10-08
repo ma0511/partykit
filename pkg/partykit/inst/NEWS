@@ -1,6 +1,13 @@
 Changes in Version 0.8-2
 
-  o fix an uninitialised memory issue reported by valgrind
+  o Bug fix in mob() that occurred when regressor variables and
+    partitioning variables overlapped and were not sorted in the
+    underlying model frame.
+
+
+Changes in Version 0.8-2
+
+  o Fix an uninitialized memory issue reported by valgrind.
 
 
 Changes in Version 0.8-1

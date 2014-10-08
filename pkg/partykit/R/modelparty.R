@@ -76,6 +76,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
   Z <- Formula::model.part(formula, mf, rhs = 2L)
   n <- nrow(Z)
   nyx <- length(mf) - length(Z) - as.numeric("(weights)" %in% names(mf)) - as.numeric("(offset)" %in% names(mf))
+  varindex <- match(names(Z), names(mf))
 
   ## weights and offset
   weights <- model.weights(mf)
@@ -106,7 +107,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
 
   ## grow the actual tree
   nodes <- mob_partynode(Y = Y, X = X, Z = Z, weights = weights, offset = offset,
-    fit = afit, control = control, nyx = nyx, ...)
+    fit = afit, control = control, varindex = varindex, ...)
 
   ## compute terminal node number for each observation
   fitted <- fitted_node(nodes, data = mf)
@@ -139,7 +140,7 @@ mob <- function(formula, data, subset, na.action, weights, offset,
 
 ## set up partynode object
 mob_partynode <- function(Y, X, Z, weights = NULL, offset = NULL,
-  fit, control = mob_control(), nyx = 0L, ...)
+  fit, control = mob_control(), varindex = 1L:NCOL(Z), ...)
 {
   ## are there regressors?
   if(missing(X)) X <- NULL
@@ -549,7 +550,7 @@ mob_partynode <- function(Y, X, Z, weights = NULL, offset = NULL,
     depth <<- depth - 1L
 
     ## shift split varid from z to mf
-    sp$varid <- as.integer(sp$varid + nyx)
+    sp$varid <- as.integer(varindex[sp$varid])
     
     ## return nodes
     return(partynode(id = id, split = sp, kids = kids, info = mod))
