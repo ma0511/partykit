@@ -340,28 +340,26 @@ heart_disease ~ age + sex + chest_pain_type + resting_blood_pressure +
 
 Fitted party:
 [1] root
-|   [2] thal in reversible defect: presence (n = 420, err = 6.0%)
-|   [3] thal in normal, fixed defect
-|   |   [4] age < 64
-|   |   |   [5] oldpeak < 1.8
-|   |   |   |   [6] age < 59
-|   |   |   |   |   [7] major_vessels < 1: absence (n = 80, err = 6.2%)
-|   |   |   |   |   [8] major_vessels >= 1: presence (n = 62, err = 19.4%)
-|   |   |   |   [9] age >= 59
-|   |   |   |   |   [10] serum_colestoral < 244: absence (n = 8, err = 0.0%)
-|   |   |   |   |   [11] serum_colestoral >= 244: presence (n = 29, err = 13.8%)
-|   |   |   [12] oldpeak >= 1.8: presence (n = 71, err = 8.5%)
-|   |   [13] age >= 64
-|   |   |   [14] sex in female: absence (n = 15, err = 0.0%)
-|   |   |   [15] sex in male: presence (n = 65, err = 7.7%)
+|   [2] oldpeak < 1.8
+|   |   [3] thal in reversible defect: presence (n = 232, err = 9.5%)
+|   |   [4] thal in normal, fixed defect
+|   |   |   [5] major_vessels < 1
+|   |   |   |   [6] age < 59: absence (n = 80, err = 6.2%)
+|   |   |   |   [7] age >= 59
+|   |   |   |   |   [8] serum_colestoral < 231: absence (n = 8, err = 0.0%)
+|   |   |   |   |   [9] serum_colestoral >= 231: presence (n = 45, err = 22.2%)
+|   |   |   [10] major_vessels >= 1
+|   |   |   |   [11] sex in female: absence (n = 19, err = 26.3%)
+|   |   |   |   [12] sex in male: presence (n = 87, err = 8.0%)
+|   [13] oldpeak >= 1.8: presence (n = 279, err = 5.0%)
 
 Number of inner nodes:    7
 Number of terminal nodes: 8
 > table(predict(sht), StatlogHeart$heart_disease)
           
            absence presence
-  absence       98        1
-  presence      52      119
+  absence       97        2
+  presence      53      118
 > plot(sht)
 > 
 > 
