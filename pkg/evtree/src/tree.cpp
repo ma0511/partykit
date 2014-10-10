@@ -77,7 +77,7 @@ Tree::Tree(int* nInstances, int* nVariables, double** data, int* weights, int* m
 	         this->splitV[0] = getUnifRandNumber(*this->nVariables-1);
              	 if(variables[this->splitV[0]]->isCat == false){
                 	 if((this->variables[this->splitV[0]]->nCats-1) > 1 )
-                      		 this->splitP[0] = variables[this->splitV[0]]->sortedValues[(getUnifRandNumber(this->variables[this->splitV[0]]->nCats-1))+1];
+                      		 this->splitP[0] = variables[this->splitV[0]]->sortedValues[getUnifRandNumber(this->variables[this->splitV[0]]->nCats-1)+1];
                		 else
                       		 this->splitP[0] = variables[this->splitV[0]]->sortedValues[0];
             	 }else{
@@ -100,23 +100,26 @@ Tree::~Tree(){
 	delete [] splitP;
         splitP = NULL;
 	delete [] splitV;
-        splitV = NULL;
-        for (int i = 0; i < *this->maxCat; i++)
-            delete [] csplit[i];
-        delete [] csplit;
-        csplit = NULL;
-        variables = NULL;
-        data = NULL;
+    splitV = NULL;
+    for (int i = 0; i < *this->maxCat; i++)
+		delete [] csplit[i];
+    delete [] csplit;
+    csplit = NULL;
+    variables = NULL;
+    data = NULL;
 	maxNode = NULL;
-        maxCat = NULL;
-        nInstances = NULL;
-        nVariables = NULL;
-        weights = NULL;
+    maxCat = NULL;
+    nInstances = NULL;
+    nVariables = NULL;
+    weights = NULL;
 } // end ~Tree
 
 
 int Tree::getUnifRandNumber(int numberDistinctValues, int startValue){
-	return ((int)floorf(unif_rand()*(numberDistinctValues))+startValue)%(numberDistinctValues+startValue); // % for the case unif_rand gives exactly 1 
+	int returnvalue = startValue;	
+	if(numberDistinctValues > 0)
+		returnvalue = (((int)floorf(unif_rand()*((double)numberDistinctValues)))%numberDistinctValues)+startValue; // % for the case unif_rand gives exactly 1 
+	return returnvalue;
 }
 
 void Tree::initNode(int nodeNumber){
