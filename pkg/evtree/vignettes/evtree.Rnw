@@ -1320,6 +1320,7 @@ caption = "Mean (and standard deviation) of accuracy and complexity for simulate
 caption.placement= "bottom",
 table.placement="b!",
 label= "tab:resultsChessboard"), 
+comment = FALSE,
 include.rownames = FALSE, allign= "rllllll", hline.after=NULL,
 sanitize.text.function = identity,
 add.to.row=list(pos=list(-1,-1, 0, 3), command=c(

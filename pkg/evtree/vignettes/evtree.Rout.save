@@ -329,8 +329,6 @@ Loading required package: splines
 
 > print(xtable(chesstable, caption = "Mean (and standard deviation) of accuracy and complexity for simulated $4 \\times 4$ chessboard examples.", 
 +   .... [TRUNCATED] 
-% latex table generated in R 3.2.0 by xtable 1.7-4 package
-% Thu Sep 25 01:38:04 2014
 \begin{table}[ht]
 \centering
 \begin{tabular}{lllllllll}
