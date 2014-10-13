@@ -340,21 +340,21 @@ heart_disease ~ age + sex + chest_pain_type + resting_blood_pressure +
 
 Fitted party:
 [1] root
-|   [2] oldpeak < 1.8
-|   |   [3] thal in reversible defect: presence (n = 232, err = 9.5%)
-|   |   [4] thal in normal, fixed defect
-|   |   |   [5] major_vessels < 1
-|   |   |   |   [6] age < 59: absence (n = 80, err = 6.2%)
-|   |   |   |   [7] age >= 59
-|   |   |   |   |   [8] serum_colestoral < 231: absence (n = 8, err = 0.0%)
-|   |   |   |   |   [9] serum_colestoral >= 231: presence (n = 45, err = 22.2%)
-|   |   |   [10] major_vessels >= 1
+|   [2] thal in normal, fixed defect
+|   |   [3] oldpeak < 1.8
+|   |   |   [4] major_vessels < 1
+|   |   |   |   [5] age < 59: absence (n = 80, err = 6.2%)
+|   |   |   |   [6] age >= 59
+|   |   |   |   |   [7] serum_colestoral < 224: absence (n = 8, err = 0.0%)
+|   |   |   |   |   [8] serum_colestoral >= 224: presence (n = 45, err = 22.2%)
+|   |   |   [9] major_vessels >= 1
+|   |   |   |   [10] sex in male: presence (n = 87, err = 8.0%)
 |   |   |   |   [11] sex in female: absence (n = 19, err = 26.3%)
-|   |   |   |   [12] sex in male: presence (n = 87, err = 8.0%)
-|   [13] oldpeak >= 1.8: presence (n = 279, err = 5.0%)
+|   |   [12] oldpeak >= 1.8: presence (n = 91, err = 12.1%)
+|   [13] thal in reversible defect: presence (n = 420, err = 6.0%)
 
-Number of inner nodes:    7
-Number of terminal nodes: 8
+Number of inner nodes:    6
+Number of terminal nodes: 7
 > table(predict(sht), StatlogHeart$heart_disease)
           
            absence presence
@@ -409,8 +409,8 @@ Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width
 Fitted party:
 [1] root
 |   [2] Petal.Length < 5
-|   |   [3] Petal.Length < 3: setosa (n = 50, err = 0.0%)
-|   |   [4] Petal.Length >= 3
+|   |   [3] Petal.Width < 1: setosa (n = 50, err = 0.0%)
+|   |   [4] Petal.Width >= 1
 |   |   |   [5] Petal.Width < 1.7: versicolor (n = 47, err = 0.0%)
 |   |   |   [6] Petal.Width >= 1.7: virginica (n = 7, err = 14.3%)
 |   [7] Petal.Length >= 5: virginica (n = 46, err = 4.3%)

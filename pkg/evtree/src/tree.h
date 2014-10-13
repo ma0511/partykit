@@ -32,5 +32,5 @@ class Tree{
 		bool reverseClassification(int startNode, int nodeNumber);
 		void randomizeCategories(int nodeNumber);
 		int getRandomNumberIntBetween(int min_value, int max_value);
-		static int getUnifRandNumber(int numberDistinctValues, int startValue=0);		
+		static int getUnifRandNumber(int numberDistinctValues);		
 };
