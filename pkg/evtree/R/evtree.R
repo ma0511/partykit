@@ -4,7 +4,7 @@ evtree <- function(formula, data, subset, na.action, weights, control = evtree.c
     ocall <- match.call()
 
 	## set random seed
-	set.seed(control$seed)
+    if(!is.null(control$seed)) set.seed(control$seed)
 
     ## build model.frame
     if(missing(data)) data <- environment(formula)
