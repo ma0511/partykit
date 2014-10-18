@@ -184,7 +184,7 @@ mtree <- function(formula, data, na.action, weights, subset, type = NULL, minspl
 
   ## model type
   stopifnot(!is.null(type))
-  if(is.character(type)) getAnywhere(paste("mtree", type), sep = "_")
+  if(is.character(type)) getAnywhere(paste("mtree", type, sep = "_"))
   if(!is.list(type) || !all(c("fit", "ddist", "pdist", "qdist") %in% names(type))) {
     stop("invalid specification of 'type'")
   }
