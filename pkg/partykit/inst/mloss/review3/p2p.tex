@@ -1,0 +1,91 @@
+\documentclass{article}
+\usepackage{a4wide}
+\usepackage[authoryear,round]{natbib}
+
+\setlength{\parskip}{0.5ex plus0.1ex minus0.1ex}
+\setlength{\parindent}{0em}
+
+\title{JMLR-14-133-3: Point-to-Point Reply}
+\author{Torsten Hothorn and Achim Zeileis}
+
+\begin{document}
+
+\maketitle
+
+\section*{AE}
+
+\textbf{\textit{%
+I am glad to inform you that your paper ``partykit: A Modular Toolkit for
+Recursive Partytioning in R'' has been accepted for publication at JMLR Track for Machine Learning
+Open Source Software. There are still some minor issues that should be fixed in the final version, which will
+be sent out to Reviewer 3 for a quick confirmation.
+As pointed out by Reviewer 3, partykit only provides a subset of the functionality of its
+earlier cousin party. Porting the old functionality of party to the new
+interface of partykit would improve its usefulness.}}
+
+\textbf{\textit{%
+After these changes have been completed, I would like to ask you to prepare
+your paper for final submission following the instructions given at
+http://www.jmlr.org/format/authors-guide.html.
+Please fill out both the permission to publish form and the source code
+release form.}}
+
+\smallskip
+
+\section*{Reviewer 3}
+
+\textbf{\textit{%
+The revised version of the paper is reasonable, especially the rewritten
+Section 5.  I have no further complaints about the writing of the paper
+itself.}}
+
+\textbf{\textit{%
+However, I still have issues with the project itself.  My primary concerns
+from the previous review are listed below:
+\begin{itemize}
+ \item The project has little activity.
+ \item There appears to be no bug tracker or open mailing list.
+ \item The project itself lives in a small niche.
+\end{itemize}
+The point-by-point rebuttal addresses each of these issues.  The authors
+point out that partykit is a mature package and at this point realistically
+only requires maintenance.  The authors have also set up a forum (though no
+questions have yet been asked).  To address the popularity of partykit, the
+authors point out several reverse dependencies of partykit in CRAN, although
+they feel that ``such popularity measures [do] not necessarily capture the
+quality and scientific value of a software project'' (and this is a statement
+I very much agree with).  The authors have pointed out that the algorithms
+implemented by partykit are useful.}}
+
+\textbf{\textit{%
+I am satisfied with these rebuttals, but the underlying theme of those three
+comments can be summarized as ``the project has limited scope''.  My concern
+is motivated by criterion 2 of the "Review Criteria: 2. The novelty, breadth, and significance of the contribution (including
+evidence of an active user community)''.}}
+
+\textbf{\textit{%
+Given that the package is primarily a reimplementation of the authors' own
+algorithms "ctree" and "mob" plus a nice, unified API and wrappers for other
+recursive partitioning algorithms, I am not convinced that the breadth of
+this contribution is sufficient, given the much larger breadth of
+contributions to JMLR-MLOSS such as Shogun, scikit-learn, Shark, mlpack,
+dlib-ml, and other large-scale toolkits.}}
+
+
+\textbf{\textit{%
+Reviewer 2 from the last review cycle comments that the cforest()
+functionality from party is not available in partykit, and today this is
+still the case.  I would encourage the others to consider expanding the
+breadth of partykit to at least entirely encompass the older party package,
+and also to use their own clean and nice API for some implementations of
+other recursive partitioning algorithms.  This should not be a problem,
+given that the clean API allows easy implementation of other algorithms.
+Increasing the breadth of the package should also increase its visibility,
+usage, and popularity.
+Overall, I do not want to give the authors the idea that I think their
+package is not a good example of well-thought-out software engineering. 
+partykit is well-designed and extensively documented.  But my primary
+concern is a lack of breadth.
+}}
+
+\end{document}
