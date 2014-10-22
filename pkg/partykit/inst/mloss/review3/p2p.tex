@@ -23,12 +23,11 @@ As pointed out by Reviewer 3, partykit only provides a subset of the functionali
 earlier cousin party. Porting the old functionality of party to the new
 interface of partykit would improve its usefulness.}}
 
-\textbf{\textit{%
-After these changes have been completed, I would like to ask you to prepare
-your paper for final submission following the instructions given at
-http://www.jmlr.org/format/authors-guide.html.
-Please fill out both the permission to publish form and the source code
-release form.}}
+We don't see how moving functionality from one R package to another one
+increases the usefulness of the latter for the data analyst. As explained in our response
+to referee 2 and also below in our response to the new comments by referee
+3, a much improved implementation of \texttt{cforest} and its tools is on our
+research agenda but many of the details require further thinking.
 
 \smallskip
 
@@ -50,7 +49,22 @@ from the previous review are listed below:
 The point-by-point rebuttal addresses each of these issues.  The authors
 point out that partykit is a mature package and at this point realistically
 only requires maintenance.  The authors have also set up a forum (though no
-questions have yet been asked).  To address the popularity of partykit, the
+questions have yet been asked).}}
+
+\smallskip
+
+As we already mentioned in our reply to this earlier comment, the use of forums
+is not very popular in the R community. In the time after we submitted our
+revised version, we received a number of comments and reports by different
+users that gave rise to changes in the \emph{partykit} package (svn
+revisions 612, 616 and 624). Our experience as maintainers of 15 (TH) and 20
+(AZ) CRAN packages shows that this corresponds to ``normal'' activity for
+comparable CRAN packages.
+
+\smallskip
+
+\textbf{\textit{%
+To address the popularity of partykit, the
 authors point out several reverse dependencies of partykit in CRAN, although
 they feel that ``such popularity measures [do] not necessarily capture the
 quality and scientific value of a software project'' (and this is a statement
@@ -66,11 +80,39 @@ evidence of an active user community)''.}}
 \textbf{\textit{%
 Given that the package is primarily a reimplementation of the authors' own
 algorithms "ctree" and "mob" plus a nice, unified API and wrappers for other
-recursive partitioning algorithms, I am not convinced that the breadth of
+recursive partitioning algorithms,}}
+
+\smallskip
+
+In our opinion \emph{partykit} is not a reimplementation of \emph{party}.
+A submission describing package \emph{party} was evaluated by the MLOSS
+track of the JMLR (as JMLR-07-240) and rejected mainly because the referees
+thought (correctly, as we are convinced now) that the design and
+implementation of \texttt{ctree}, \texttt{mob} and \texttt{cforest} was not general
+enough. Package \emph{partykit} in fact generalises \emph{party} with only one exception
+(\texttt{cforest}) for very good reasons as explained below.
+
+\smallskip
+
+\textbf{\textit{%
+I am not convinced that the breadth of
 this contribution is sufficient, given the much larger breadth of
 contributions to JMLR-MLOSS such as Shogun, scikit-learn, Shark, mlpack,
 dlib-ml, and other large-scale toolkits.}}
 
+\smallskip
+
+It depends on how one measures ``breadth''. The mentioned toolkits provide a
+large set of methods for binary and multiclass classification, regression
+and clustering with a focus on SVMs.  \emph{Shark} and \texttt{mlpack} also
+contain implementations of tree algorithms for these situations.  Unlike
+\emph{partykit}, none of the toolkits provides methods for censored data (survival
+analysis) or ordered categorical regression.  With \texttt{mob},
+\emph{partykit} allows partitioning of a huge set of models, such as transformation models (Cox,
+Weibull), proportional odds models or IRT (item response theory) models
+(implemented in package \emph{psychotree} based on \emph{partykit} infrastructure).  
+
+\smallskip
 
 \textbf{\textit{%
 Reviewer 2 from the last review cycle comments that the cforest()
@@ -79,7 +121,29 @@ still the case.  I would encourage the others to consider expanding the
 breadth of partykit to at least entirely encompass the older party package,
 and also to use their own clean and nice API for some implementations of
 other recursive partitioning algorithms.  This should not be a problem,
-given that the clean API allows easy implementation of other algorithms.
+given that the clean API allows easy implementation of other algorithms.}}
+
+\smallskip
+
+In our response to Referee 2, we pointed out that a general implementation
+of forest-like procedures requires further research into its design. For
+example, there are multiple aggregation schemes that need to be taken into
+account as a simple majority vote or mean (the original proposal by Breiman)
+might be less attractive compared to the understanding of forests as
+estimators of conditional distribution functions \citep{Meinshausen_2006}. In
+addition, a pure forest is almost useless. Variable selection procedures
+(for example based on variable importances and stability selection) and visualisation techniques are
+the more interesting (and technically more challenging) things. Simply
+transforming currently available \texttt{cforest} functionality from \emph{party} to
+\emph{partykit}
+will not fix the currently present shortcomings in the design and
+implementation of these procedures. In addition, it will not increase the
+number of available procedures because the \emph{party} package is still maintained
+on CRAN and will be available for the forseeable future.
+
+\smallskip
+
+\textbf{\textit{%
 Increasing the breadth of the package should also increase its visibility,
 usage, and popularity.
 Overall, I do not want to give the authors the idea that I think their
@@ -87,5 +151,25 @@ package is not a good example of well-thought-out software engineering.
 partykit is well-designed and extensively documented.  But my primary
 concern is a lack of breadth.
 }}
+
+\smallskip
+
+We are confident that the current \emph{partykit} infrastructure and API
+will motivate other researcher to implement novel tree-based procedures that
+in turn will increase the breath of recursive partitioning methods available
+to R users.  For example, package \emph{vcrpart}
+(\texttt{http://CRAN.R-project.org/package=vcrpart}) is a newly released
+package that implements varying coefficient models based on \emph{partykit}
+infrastructure.  The package was developled completely independent of the
+\emph{partykit} authors and, btw, the authors of \emph{vcrpart} never posted
+a question by email or in the forum which we tend to attribute to the
+extensive package documentation of \emph{partykit}.  Novel procedures such
+as the one implemented in \emph{vcrpart} is exactly the notion of ``breath''
+we had in mind when designing \emph{partykit}.  We expect other research
+groups to reuse \emph{partykit infrastructure} in the future, especially
+after the package and corresponding description was made popular by MLOSS.
+
+\bibliographystyle{plainnat}
+\bibliography{../ref.bib}
 
 \end{document}
