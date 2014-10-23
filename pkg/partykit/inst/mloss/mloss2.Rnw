@@ -208,46 +208,6 @@ inference trees (CTree) that can be learned with the \fct{ctree} function
 directly within \pkg{partykit} or evolutionary trees from package \pkg{evtree}
 \citep{evtree}.
 
-Not only trees learned within \proglang{R} can be transformed to the
-proposed infrastructure but also trees from other software packages.  Either
-a dedicated interface has to be created using the building blocks described
-in the next section (e.g., as done for the J4.8 tree in \pkg{RWeka}) or PMML
-(Predictive Model Markup Language) can be used as an intermediate exchange
-format.  This is an XML standard created by an international consortium
-\citep{DMG:2014} that includes a \code{<TreeModel>} tag with support for
-constant-fit classification and regression trees.  The function
-\fct{pmmlTreeModel} allows to read these files and represents them as
-\class{simpleparty} objects in \pkg{partykit}.  The reason for not using the
-\class{constparty} class as above is that the PMML format only stores point
-predictions (e.g., a mean or proportion) rather than all observations
-from the learning sample.  So far, the PMML interface has
-been tested with output from the \proglang{R} package \pkg{pmml} and
-\proglang{SPSS}'s \pkg{AnswerTree} model.  The latter includes an
-implementation of the QUEST algorithm \citep{Loh+Shih:1997}.
-
-Finally, the \pkg{partykit} function \fct{mob} implements model-based
-recursive partitioning (MOB) along with ``mobster'' interfaces for certain
-models (e.g., \fct{lmtree}, \fct{glmtree}). These return objects of class
-\class{modelparty} where nodes are associated with statistical models (as
-opposed to simple constant fits). In principle, this may also be adapted
-to other model trees (such as GUIDE, LMT, or M5') but no such interface
-is currently available.
-
-All of these different trees (see Table~\ref{tab:overview} for an overview)
-use the same infrastructure at the core but possibly with different options
-enabled. In all cases, the functions \fct{print}, \fct{plot}, and \fct{predict}
-can be used to create textual and graphical displays of the tree and for
-computing predictions on new data, respectively. As an example for the
-visualizations, Figure~\ref{fig:ttnc} shows two different trees fitted
-to the well-known data on survival of passengers on the ill-fated maiden
-voyage of the RMS~Titanic: The left panel shows a CART tree with constant fits
-learned by \pkg{rpart} and converted to \pkg{partykit}. The right panel
-shows a MOB tree learned with \pkg{partykit} with a logistic regression
-for treatment effects in the terminal nodes. Additionally, the
-are further utility functions, e.g.,
-\fct{nodeapply} can be employed to access further information
-stored in the nodes of a tree and \fct{nodeprune} can prune selected nodes.
-
 <<Titanic>>=
 data("Titanic", package = "datasets")
 ttnc <- as.data.frame(Titanic)
@@ -291,6 +251,46 @@ popViewport(2)
 \fct{glmtree} (right).}
 \end{figure}
 
+Not only trees learned within \proglang{R} can be transformed to the
+proposed infrastructure but also trees from other software packages.  Either
+a dedicated interface has to be created using the building blocks described
+in the next section (e.g., as done for the J4.8 tree in \pkg{RWeka}) or PMML
+(Predictive Model Markup Language) can be used as an intermediate exchange
+format.  This is an XML standard created by an international consortium
+\citep{DMG:2014} that includes a \code{<TreeModel>} tag with support for
+constant-fit classification and regression trees.  The function
+\fct{pmmlTreeModel} allows to read these files and represents them as
+\class{simpleparty} objects in \pkg{partykit}.  The reason for not using the
+\class{constparty} class as above is that the PMML format only stores point
+predictions (e.g., a mean or proportion) rather than all observations
+from the learning sample.  So far, the PMML interface has
+been tested with output from the \proglang{R} package \pkg{pmml} and
+\proglang{SPSS}'s \pkg{AnswerTree} model.  The latter includes an
+implementation of the QUEST algorithm \citep{Loh+Shih:1997}.
+
+Finally, the \pkg{partykit} function \fct{mob} implements model-based
+recursive partitioning (MOB) along with ``mobster'' interfaces for certain
+models (e.g., \fct{lmtree}, \fct{glmtree}). These return objects of class
+\class{modelparty} where nodes are associated with statistical models (as
+opposed to simple constant fits). In principle, this may also be adapted
+to other model trees (such as GUIDE, LMT, or M5') but no such interface
+is currently available.
+
+All of these different trees (see Table~\ref{tab:overview} for an overview)
+use the same infrastructure at the core but possibly with different options
+enabled. In all cases, the functions \fct{print}, \fct{plot}, and \fct{predict}
+can be used to create textual and graphical displays of the tree and for
+computing predictions on new data, respectively. As an example for the
+visualizations, Figure~\ref{fig:ttnc} shows two different trees fitted
+to the well-known data on survival of passengers on the ill-fated maiden
+voyage of the RMS~Titanic: The left panel shows a CART tree with constant fits
+learned by \pkg{rpart} and converted to \pkg{partykit}. The right panel
+shows a MOB tree learned with \pkg{partykit} with a logistic regression
+for treatment effects in the terminal nodes. Additionally, the
+are further utility functions, e.g.,
+\fct{nodeapply} can be employed to access further information
+stored in the nodes of a tree and \fct{nodeprune} can prune selected nodes.
+
 \section{Developer Infrastructure}
 
 The unified infrastructure at the core of \pkg{partykit} is especially
@@ -300,15 +300,15 @@ or represent trees learned in other systems.
 Here, we briefly outline
 the most important classes and refer to the vignettes for more details:
 \begin{description}
-  \item[\class{partysplit}:] Split specification with an integer ID for the
-    splitting variable, breakpoint(s), and indexes for the kids.
-  \item[\class{partynode}:] Node specification with an integer ID, a
+  \item[\class{partysplit}:] Split with integer ID for the
+    splitting variable, breakpoint(s), indexes for the kids.
+  \item[\class{partynode}:] Node specification with integer ID, a
     \class{partysplit}, and a list of kids (if any) that are \class{partynode}
     objects again.
-  \item[\class{party}:] Tree specification with a \class{partynode} tree
-    along with a \class{data.frame} (which optionally may be empty),
-    potentially plus further information about fitted values and so-called
-    \class{terms} that allow to preprocess new data for predictions.
+  \item[\class{party}:] Tree with a recursive \class{partynode}
+    and a \class{data.frame} (optionally empty),
+    potentially plus information about fitted values and
+    \class{terms} allowing to preprocess new data for predictions.
 \end{description}
 All classes have an additional slot for storing arbitrary information at
 any level of the tree. This is exploited by \class{constparty}, \class{simpleparty},
