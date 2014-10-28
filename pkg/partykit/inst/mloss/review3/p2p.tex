@@ -28,8 +28,8 @@ Thank you for the good news, this is much appreciated.
 
 \textbf{\textit{%
 There are still some minor issues that should be fixed in the final version, which will
-be sent out to Reviewer 3 for a quick confirmation.
-As pointed out by Reviewer 3, partykit only provides a subset of the functionality of its
+be sent out to Reviewer~3 for a quick confirmation.
+As pointed out by Reviewer~3, partykit only provides a subset of the functionality of its
 earlier cousin party. Porting the old functionality of party to the new
 interface of partykit would improve its usefulness.}}
 
@@ -42,10 +42,14 @@ details in the implementation are not obvious at all and deserve much more atten
 See also our full response included below.
 
 Of course, we can easily copy the code of the old \texttt{party::cforest} into the
-new \emph{partykit} package. However, we fail to see how this would increase usefulness
-for practitioners given that \emph{party} is easily available. More importantly, this
-would conflict with the view of Reviewer~2 who apparently agreed that more future
-work should be devoted to this important topic.
+new \emph{partykit} package. However, the usefulness for the practitioner would not
+really be increased by this (given that \emph{party} is easily available). More
+importantly, if we take the recommendations of Reviewer~2 seriously (which we do),
+then we should not just copy existing code but build new extensible infrastructure
+for forests as well. If we only copy the old code now, future developments are likely
+to change at least parts of the interface and thus potentially breaking full
+backward compatibility. Therefore, we would much rather follow Reviewer~2 and devote
+more future work to this important topic.
 
 The full question and response from the previous round of reviews was:
 %
@@ -147,8 +151,8 @@ essentially from scratch, which was then resubmitted as JMLR-14-133.
 
 Therefore, the entire package along with its extensive documentation should be
 seen as an original contribution. It supersedes the \emph{party} implementation
-in all aspects with only one notable exception (\texttt{cforest}, for very good
-reasons as explained below).
+in all aspects with only one notable exception (the \texttt{cforest} function,
+for very good reasons as explained below).
 
 \smallskip
 
@@ -161,15 +165,15 @@ contributions to JMLR-MLOSS such as Shogun, scikit-learn, Shark, mlpack, dlib-ml
 
 This depends on the dimensions in which ``breadth'' is assessed. The above-mentioned
 toolkits provide a large set of methods for binary and multiclass classification, regression
-and clustering with a focus on SVMs.  \emph{Shark} and \emph{mlpack} also
+and clustering with a focus on SVMs. Some of the packages above, e.g., \emph{Shark} and \emph{mlpack}, also
 contain implementations of tree algorithms for these situations.  Unlike
 \emph{partykit}, none of the toolkits provides dedicated methods for targets
-with other structures, e.g., censored data (including survival analysis), ordered
+with structures other than binary/multiclass/numeric. For example: censored data (including survival analysis), ordered
 categorical regression (e.g., proportional odds models), item response theory (IRT),
 paired comparisons, multivariate data with mixed types (e.g., several endpoints in a clinical study
 with mixed numeric/categorical/censored measurement scales). Through the use
 of nonparametric transformations (\texttt{ctree}) or parametric statistical models (\texttt{mob})
-such cases can be addressed in \emph{partykit}.
+all of the cases above can be addressed in \emph{partykit}.
 
 For example, this has enabled ourselves to successfully develop dedicated psychometric
 tree models in package \emph{psychotree} for IRT and paired comparison data -- but it also
@@ -233,7 +237,8 @@ in turn will increase the breadth of recursive partitioning methods available
 in \textsf{R}. 
 
 One example for such a ``success story'' that emerged while our revised manuscript was under review
-is the \emph{vcrpart} package (\texttt{http://CRAN.R-project.org/package=vcrpart}).
+is the \emph{vcrpart} package (published on \texttt{http://CRAN.R-project.org/package=vcrpart}
+in September).
 This is a completely new package implementing varying coefficient trees for
 ordinal 2-stage linear mixed models based on \emph{partykit} infrastructure.
 By the way, apart from a few small questions about implementation
