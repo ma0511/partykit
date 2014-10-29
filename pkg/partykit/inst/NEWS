@@ -1,13 +1,22 @@
-Changes in Version 0.8-2
+Changes in Version 0.8-3
 
   o Bug fix in mob() that occurred when regressor variables and
     partitioning variables overlapped and were not sorted in the
     underlying model frame.
 
+  o Extended mob() interface by a 'cluster' argument. This can be
+    a vector (numeric, integer, factor) with cluster IDs that are
+    then passed on to the 'fit' function (if supported) and used
+    for clustering the covariance matrix in the parameter stability
+    tests. lmtree() and glmtree() hence both gained a 'cluster'
+    argument which is used only for cluster covariances but not
+    for the model estimation (i.e., corresponding to a working
+    independence model).
+
 
 Changes in Version 0.8-2
 
-  o Fix an uninitialized memory issue reported by valgrind.
+  o Fixed an uninitialized memory issue reported by valgrind.
 
 
 Changes in Version 0.8-1

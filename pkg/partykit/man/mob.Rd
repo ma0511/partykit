@@ -28,7 +28,7 @@
 }
 
 \usage{
-mob(formula, data, subset, na.action, weights, offset,
+mob(formula, data, subset, na.action, weights, offset, cluster,
   fit, control = mob_control(), \dots)
 }
 
@@ -44,6 +44,9 @@ mob(formula, data, subset, na.action, weights, offset,
   \item{offset}{optional numeric vector with an a priori known component to be
     included in the model \code{y ~ x1 + \dots + xk} (i.e., only when
     \code{x} variables are specified).}
+  \item{cluster}{optional vector (typically numeric or factor) with a
+    cluster ID to be passed on to the \code{fit} function and employed
+    for clustered covariances in the parameter stability tests.}
   \item{fit}{function. A function for fitting the model within each node.
     For details see below.}
   \item{control}{A list with control parameters as returned by
