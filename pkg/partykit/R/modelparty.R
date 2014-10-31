@@ -229,7 +229,7 @@ mob_partynode <- function(Y, X, Z, weights = NULL, offset = NULL, cluster = NULL
         root.matrix(crossprod(process))
       } else {
         nclus <- length(unique(cluster))
-        root.matrix(m / (m - 1L) * crossprod(as.matrix(aggregate(process, by = list(cluster), FUN = sum))[, -1L, drop = FALSE]))
+        root.matrix(nclus / (nclus - 1L) * crossprod(as.matrix(aggregate(process, by = list(cluster), FUN = sum))[, -1L, drop = FALSE]))
       }
     } else {
       root.matrix(solve(vcov(obj) * n))
