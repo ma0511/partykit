@@ -4,7 +4,7 @@ Changes in Version 1.0-0
     Statistical Software, see citation("evtree").
 
   o Replaced C level random number generator rand() with R random number
-    handing and the unif_rand() function.
+    handling and the unif_rand() function.
 
 
 Changes in Version 0.1-5
