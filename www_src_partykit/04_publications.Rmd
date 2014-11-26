@@ -1,0 +1,25 @@
+---
+layout: page
+title: Publications
+permalink: /publications/
+---
+
+Scholary papers describing the methodology
+========================================================
+
+```{r setup, include = FALSE, cache = FALSE}
+library("RefManageR")
+bib <- ReadBib("TH.bib", check = FALSE)
+BibOptions(check.entries = FALSE, style = "html", cite.style = "authoryear",
+           bib.style = "numeric")
+```
+The partykit package implements conditional inference trees
+`r AutoCite(bib, "Hothorn:2006:JCGS", before = "function ctree(), ")`,
+and model-based recursive partitioning 
+`r AutoCite(bib, "Zeileis+Hothorn+Hornik:2008", before = "function mob(), ")`.
+
+**References**
+
+```{r results = "asis", echo = FALSE}
+PrintBibliography(bib, .opts = list(check.entries = FALSE, sorting = "ynt"))
+```

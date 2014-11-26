@@ -1,0 +1,53 @@
+---
+layout: page
+title: Getting Started
+permalink: /getting_started/
+---
+
+Your first regression tree
+========================================================
+
+First, install and fire-up R on your computer. Within R, one needs to
+install the party package by typing
+
+```{r eval=FALSE}
+install.packages("partykit")
+```
+
+and hitting the ENTER key. Once the package is installed, you can
+load it using
+
+```{r results: hide}
+library("partykit")
+```
+
+Now all party functions are ready to be used, for example the ctree()
+function for fitting a regression tree to the Ozone data (after removing observations
+with missing response):
+
+```{r}
+### regression
+airq <- subset(airquality, !is.na(Ozone))
+airct <- ctree(Ozone ~ ., data = airq,   
+               control = ctree_control(maxsurrogate = 3))
+airct
+```
+
+The tree is represented by an object called airct which can be plotted
+
+```{r fig.width=9, fig.height=6}
+plot(airct)
+```
+
+or used for computing predictions
+
+```{r}
+summary(predict(airct))
+```
+
+which can be compared to the actual response values:
+
+```{r fig.width=6, fig.height=6}
+plot(airq$Ozone, predict(airct))
+abline(a = 0, b = 1)
+```

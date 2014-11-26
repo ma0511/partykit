@@ -1,0 +1,17 @@
+- name: Torsten Hothorn
+  given: Torsten
+  family: Hothorn
+  role:
+  - aut
+  - cre
+  email: Torsten.Hothorn_@_R-project.org
+  image: /img/torsten_hothorn.jpg
+  comment: ~
+- name: Achim Zeileis
+  given: Achim
+  family: Zeileis
+  role: aut
+  email: Achim.Zeileis_@_R-project.org
+  image: /img/achim_zeileis.jpg
+  comment: ~
+
