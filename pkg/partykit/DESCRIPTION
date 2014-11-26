@@ -19,3 +19,4 @@ Suggests: XML, pmml, rJava, rpart, mvtnorm, Formula, sandwich, strucchange, vcd,
   psychotools, psychotree
 LazyData: yes
 License: GPL-2 | GPL-3
+URL: http://partykit.R-forge.R-project.org/partykit
