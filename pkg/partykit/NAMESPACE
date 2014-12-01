@@ -23,6 +23,12 @@ export(
   "lmtree",
   "glmtree",
 
+  ## new cforest implementation
+  "cforest",
+  "boot",
+  "sampsplit",
+  "predict.cforest",
+
   ## as/is class generics
   "as.party",  
   "as.partynode",

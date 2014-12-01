@@ -2,7 +2,7 @@
 \name{NEWS}
 \title{NEWS file for the partykit package}
 
-\section{Changes in Version 0.8-3 (2012-11-XX}{
+\section{Changes in Version 0.8-3 (2014-12-XX}{
   \itemize{
     \item{Bug fix in \code{mob()} that occurred when regressor variables and
     partitioning variables overlapped and were not sorted in the
@@ -16,6 +16,10 @@
     argument which is used only for cluster covariances but not
     for the model estimation (i.e., corresponding to a working
     independence model).}
+
+    \item{Reimplementation of \code{cforest()} available with extended 
+    prediction facilities. Its internal representation is experimental and
+    also the user interface likely to change.}
   }
 }
 

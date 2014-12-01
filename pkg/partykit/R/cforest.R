@@ -1,9 +1,10 @@
 
 ### constructor for forest objects
-forest <- function(parties, data, fitted = NULL, terms = NULL, info = NULL) {
+constparties <- function(nodes, data, weights, fitted = NULL, terms = NULL, info = NULL) {
 
-    stopifnot(all(sapply(parties, function(party) inherits(party, "party"))))
+    stopifnot(all(sapply(nodes, function(x) inherits(x, "partynode"))))
     stopifnot(inherits(data, "data.frame"))
+    stopifnot(inherits(weights, "list"))
 
     if(!is.null(fitted)) {
         stopifnot(inherits(fitted, "data.frame"))
@@ -17,21 +18,21 @@ forest <- function(parties, data, fitted = NULL, terms = NULL, info = NULL) {
                              check.names = FALSE)
     }
 
-    forest <- list(parties = parties, data = data, fitted = fitted)
-    class(forest) <- "forest"
+    ret <- list(nodes = nodes, data = data, weights = weights, fitted = fitted)
+    class(ret) <- c("constparties", "parties")
 
     if(!is.null(terms)) {
         stopifnot(inherits(terms, "terms"))
-        forest$terms <- terms
+        ret$terms <- terms
     }
 
     if (!is.null(info))
-        forest$info <- info
+        ret$info <- info
 
-    forest
+    ret
 }
 
-perturbe <- function(replace = TRUE, fraction = .632) {
+.perturbe <- function(replace = TRUE, fraction = .632) {
     ret <- function(prob) {
         if (replace) {
             rw <- rmultinom(1, size = length(prob), prob = prob)
@@ -40,19 +41,19 @@ perturbe <- function(replace = TRUE, fraction = .632) {
             i <- sample(1:length(prob), floor(fraction * length(prob)), prob = prob)
             rw[i] <- 1L
         }
-        rw
+        as.integer(rw)
     }
     ret
 }
 
-boot <- function() perturbe(replace = TRUE)
+boot <- function() .perturbe(replace = TRUE)
 sampsplit <- function(fraction = 0.632) 
-    perturbe(replace = FALSE, fraction = fraction)
+    .perturbe(replace = FALSE, fraction = fraction)
 
 cforest <- function(formula, data, weights, subset, na.action = na.pass, 
-                    control = ctree_control(...), ytrafo = NULL, 
+                    control = ctree_control(...), ytrafo = NULL, scores = NULL,
                     ntree = 500L, perturbe = sampsplit(fraction = 0.632),
-                    scores = NULL, ...) {
+                    mtry = ceiling(sqrt(nvar)), myapply = lapply, ...) {
 
     if (missing(data))
         data <- environment(formula)
@@ -87,46 +88,42 @@ cforest <- function(formula, data, weights, subset, na.action = na.pass,
 
     if (is.null(weights))
         weights <- rep(1, nrow(mf))
-    storage.mode(weights) <- "integer"
 
-    nvar <- sum(!(colnames(dat) %in% response))
+    nvar <- sum(!(colnames(dat) %in% response)) 
+    control$mtry <- mtry
 
     control$cfun <- function(...) {
         if (control$teststat == "quad")
-            p <- partykit:::.pX2(..., pval = (control$testtype != "Teststatistic"))
-        if (control$teststat == "max")
-            p <- partykit:::.pmaxT(..., pval = (control$testtype != "Teststatistic"))
-        names(p) <- c("teststat", "pval")
+            p <- .pX2(..., pval = (control$testtype != "Teststatistic"))
+        if (control$teststat == "max") 
+            p <- .pmaxT(..., pval = (control$testtype != "Teststatistic"))
+        names(p) <- c("statistic", "p.value")
 
         if (control$testtype == "Bonferroni")
-            p["pval"] <- p["pval"] * min(nvar, control$mtry)
-        crit <-  p["teststat"]
+            p["p.value"] <- p["p.value"] * min(nvar, control$mtry)
+        crit <-  p["statistic"]
         if (control$testtype != "Teststatistic")
-        crit <- p["pval"]
+        crit <- p["p.value"]
         c(crit, p)
     }
 
-    probw <- weights / sum(weights)
-    emptydat <- dat[-(1:nrow(dat)),,drop = TRUE]
+    if (!is.matrix(weights)) {
+        probw <- weights / sum(weights)
+        rw <- replicate(ntree, perturbe(probw), simplify = FALSE)
+    } else {
+        rw <- as.data.frame(weights)
+    }
+
     
-    forest <- lapply(1:ntree, function(b) {
-
-        rw <- perturbe(probw)
-
-        tree <- partykit:::.ctree_fit(dat, response, weights = rw, ctrl = control, 
-                                      ytrafo = ytrafo)
-        fitted <- data.frame("(fitted)" = fitted_node(tree, dat),
-                             "(weights)" = rw,
-                             check.names = FALSE)
-        ret <- party(tree, data = emptydat, fitted = fitted)   
-        class(ret) <- c("constparty", class(ret))
-        ret
+    forest <- myapply(1:ntree, function(b) {
+        .ctree_fit(dat, response, weights = rw[[b]], 
+                   ctrl = control, ytrafo = ytrafo)
     })
 
-    ret <- forest(parties = forest, data = dat[-(1:nrow(dat)),,drop = FALSE],
-        fitted = data.frame("(response)" = dat[,response, drop = length(response) == 1], check.names = FALSE),
-        terms = terms(mf)
-    )
+    ret <- constparties(nodes = forest, data = dat, weights = rw,
+        fitted = data.frame("(response)" = dat[,response, drop = length(response) == 1], 
+                            check.names = FALSE),
+        terms = terms(mf))
     class(ret) <- c("cforest", class(ret))
 
     return(ret)
@@ -134,38 +131,36 @@ cforest <- function(formula, data, weights, subset, na.action = na.pass,
 
 
 predict.cforest <- function(object, newdata = NULL, type = c("weights", "response", "prob"), 
-                            OOB = FALSE, FUN = NULL, simplify = TRUE) {
+                            OOB = FALSE, FUN = NULL, simplify = TRUE, ...) {
 
     responses <- object$fitted[["(response)"]]
-    if (is.null(newdata)) {
-        nam <- rownames(object$parties[[1]]$fitted)
-    } else {
-        nam <- rownames(newdata)
+    nd <- object$data
+    if (!is.null(newdata)) {
+        nd <- model.frame(object$terms, newdata)
+        OOB <- FALSE
     }
+    nam <- rownames(nd)
 
-    w <- matrix(0L, nrow = NROW(object$fitted[["(response)"]]), ncol = length(nam))
-    forest <- object$parties
+    ### regenerate weights
+    rw <- object$weights
+
+    w <- matrix(0L, nrow = NROW(responses), ncol = length(nam))
+    forest <- object$nodes
+
     for (b in 1:length(forest)) {
-
         ids <- nodeids(forest[[b]], terminal = TRUE)
-        fitted <- forest[[b]]$fitted
-        f <- fitted[["(fitted)"]]
-        rw <- fitted[["(weights)"]]
-        if (OOB) rw <- as.integer(rw == 0)
-        pw <- sapply(ids, function(i) rw * (f == i))
-
-        if (is.null(newdata)) {
-            nd <- f
-        } else {
-            nd <- predict(forest[[b]], newdata = newdata, type = "node")
-        }
-        w <- w + pw[, match(nd, ids)]
+        f <- fitted_node(forest[[b]], nd)
+        tw <- rw[[b]]
+        if (OOB) tw <- as.integer(tw == 0)
+        pw <- sapply(ids, function(i) tw * (f == i))
+        w <- w + pw[, match(f, ids)]
     }
 
     type <- match.arg(type)
     if (type == "weights") {
         ret <- w
-        rownames(ret) <- nam
+        colnames(ret) <- nam
+        rownames(ret) <- rownames(responses)
         return(ret)
     }
     
@@ -178,9 +173,9 @@ predict.cforest <- function(object, newdata = NULL, type = c("weights", "respons
             if (rtype == "integer") rtype <- "numeric"
 
             FUN <- switch(rtype,
-                "Surv" = if (type == "response") partykit:::.pred_Surv_response else partykit:::.pred_Surv,
-                "factor" = if (type == "response") partykit:::.pred_factor_response else partykit:::.pred_factor,
-                "numeric" = if (type == "response") partykit:::.pred_numeric_response else partykit:::.pred_ecdf)
+                "Surv" = if (type == "response") .pred_Surv_response else .pred_Surv,
+                "factor" = if (type == "response") .pred_factor_response else .pred_factor,
+                "numeric" = if (type == "response") .pred_numeric_response else .pred_ecdf)
         }
 
         ret <- vector(mode = "list", length = ncol(w))
@@ -191,44 +186,16 @@ predict.cforest <- function(object, newdata = NULL, type = c("weights", "respons
         names(ret) <- nam
          
         if (simplify)
-            ret <- partykit:::.simplify_pred(ret, names(ret), names(ret))
+            ret <- .simplify_pred(ret, names(ret), names(ret))
         ret
     }
-    if (NCOL(responses) == 1) {
+    if (!is.data.frame(responses)) {
         ret <- pfun(responses)
     } else {
         ret <- lapply(responses, pfun)
         if (all(sapply(ret, is.atomic)))
             ret <- as.data.frame(ret)
-        names(ret) <- colnames(response)
+        names(ret) <- colnames(responses)
     }
     ret
-}
-
-if (FALSE) {
-
-library("partykit")
-cf <- cforest(dist ~ speed, data = cars, ytrafo = list(dist = function(x) cbind(x, x^2)))
-
-p <- predict(cf, newdata = cars, type = "response")
-
-plot(dist ~ speed, data = cars)
-lines(cars$speed, unlist(p))
-
-myquantile <- function(y, w) quantile(rep(y, w), probs = c(0.1, 0.5, 0.9))
-
-p <- predict(cf, newdata = cars, type = "response", FUN = myquantile)
-
-plot(dist ~ speed, data = cars)
-lines(cars$speed, p[,1])
-lines(cars$speed, p[,2])
-lines(cars$speed, p[,3])
-
-mydensity <- partykit:::.pred_density
-
-p <- predict(cf, newdata = cars, type = "response", FUN = mydensity)
-
-for (i in 1:length(p)) 
-    plot(p[[i]], xlim = c(-10, 150), ylim = c(0, .025))
-
 }
