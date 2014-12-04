@@ -8,11 +8,11 @@
     partitioning variables overlapped and were not sorted in the
     underlying model frame.}
 
-    \item{Extended \code{mob()} interface by a 'cluster' argument. This can be
+    \item{Extended \code{mob()} interface by a \code{cluster} argument. This can be
     a vector (numeric, integer, factor) with cluster IDs that are
     then passed on to the 'fit' function (if supported) and used
     for clustering the covariance matrix in the parameter stability
-    tests. \code{lmtree()} and \code{glmtree()} hence both gained a 'cluster'
+    tests. \code{lmtree()} and \code{glmtree()} hence both gained a \code{cluster}
     argument which is used only for cluster covariances but not
     for the model estimation (i.e., corresponding to a working
     independence model).}
@@ -20,6 +20,11 @@
     \item{Reimplementation of \code{cforest()} available with extended 
     prediction facilities. Its internal representation is experimental and
     also the user interface likely to change.}
+    
+    \item{Added multicore support to \code{mob()}. If control argument \code{cores}
+    is specified (e.g., \code{cores = 4}) then the search for the best split point (often
+    involving numerous model fits) is carried out using \code{parallel::mclapply()}
+    rathern than sequential \code{for()} or \code{sapply()}.}
   }
 }
 

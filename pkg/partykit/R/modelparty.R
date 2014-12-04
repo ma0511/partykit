@@ -365,30 +365,50 @@ mob_partynode <- function(Y, X, Z, weights = NULL, offset = NULL, cluster = NULL
     ## for numerical variables
       uz <- sort(unique(zselect))
       if (length(uz) == 0L) stop("Cannot find admissible split point in partitioning variable")
-      dev <- vector(mode = "numeric", length = length(uz))
+      
+      ## compute model fits in parallel if a number of cores is specified
+      ## starting values cannot be used in this case
+      if(!is.null(control$cores)) {
+        dev <- unlist(parallel::mclapply(1L:length(uz), function(i) {
+          zs <- zselect <= uz[i]
+          if(w2n(weights[zs]) < minsize || w2n(weights[!zs]) < minsize) {
+            return(Inf)
+          } else {
+            fit_left <- fit(y = suby(y, zs), x = subx(x, zs), start = NULL,
+	      weights = weights[zs], offset = offset[zs], cluster = cluster[zs], ...)
+            fit_right <- fit(y = suby(y, !zs), x = subx(x, !zs), start = NULL,
+	      weights = weights[!zs], offset = offset[!zs], cluster = cluster[!zs], ...)
+	    return(fit_left$objfun + fit_right$objfun)
+          }
+	}, mc.cores = control$cores))
+      } else {
+      ## alternatively use for() loop to go through all splits sequentially
+      ## and potentially re-use previous parameters as starting values
+        dev <- vector(mode = "numeric", length = length(uz))
 
-      start_left <- NULL
-      start_right <- NULL
+        start_left <- NULL
+        start_right <- NULL
 
-      for(i in 1L:length(uz)) {
-        zs <- zselect <= uz[i]
-	if(control$restart ||
-	   !identical(names(start_left), names(start_right)) ||
-	   !identical(length(start_left), length(start_right)))
-	{
-	  start_left <- NULL
-	  start_right <- NULL
-	}
-        if(w2n(weights[zs]) < minsize || w2n(weights[!zs]) < minsize) {
-          dev[i] <- Inf
-        } else {
-          fit_left <- fit(y = suby(y, zs), x = subx(x, zs), start = start_left,
-	    weights = weights[zs], offset = offset[zs], cluster = cluster[zs], ...)
-          fit_right <- fit(y = suby(y, !zs), x = subx(x, !zs), start = start_right,
-	    weights = weights[!zs], offset = offset[!zs], cluster = cluster[!zs], ...)
-  	  start_left <- fit_left$coefficients
-	  start_right <- fit_right$coefficients
-	  dev[i] <- fit_left$objfun + fit_right$objfun
+        for(i in 1L:length(uz)) {
+          zs <- zselect <= uz[i]
+  	  if(control$restart ||
+	     !identical(names(start_left), names(start_right)) ||
+	     !identical(length(start_left), length(start_right)))
+	  {
+	    start_left <- NULL
+	    start_right <- NULL
+ 	  }
+          if(w2n(weights[zs]) < minsize || w2n(weights[!zs]) < minsize) {
+            dev[i] <- Inf
+          } else {
+            fit_left <- fit(y = suby(y, zs), x = subx(x, zs), start = start_left,
+	      weights = weights[zs], offset = offset[zs], cluster = cluster[zs], ...)
+            fit_right <- fit(y = suby(y, !zs), x = subx(x, !zs), start = start_right,
+	      weights = weights[!zs], offset = offset[!zs], cluster = cluster[!zs], ...)
+  	    start_left <- fit_left$coefficients
+	    start_right <- fit_right$coefficients
+	    dev[i] <- fit_left$objfun + fit_right$objfun
+          }
         }
       }
 
@@ -419,7 +439,9 @@ mob_partynode <- function(Y, X, Z, weights = NULL, offset = NULL, cluster = NULL
       olevels <- levels(zselect) ## full set of original levels
       zselect <- factor(zselect) ## omit levels that do not occur in the data
       al <- mob_grow_getlevels(zselect)
-      dev <- apply(al, 1L, function(w) {
+
+      get_dev <- function(i) {
+        w <- al[i,]
         zs <- zselect %in% levels(zselect)[w]
         if(w2n(weights[zs]) < minsize || w2n(weights[!zs]) < minsize) {
           return(Inf)
@@ -432,7 +454,12 @@ mob_partynode <- function(Y, X, Z, weights = NULL, offset = NULL, cluster = NULL
     	    fit_left$objfun + fit_right$objfun
 	  }
         }
-      })
+      }
+      dev <- if(!is.null(control$cores)) {
+        unlist(parallel::mclapply(1L:nrow(al), get_dev, mc.cores = control$cores))
+      } else {
+        sapply(1L:nrow(al), get_dev)
+      }
 
       if(all(!is.finite(dev))) {
         split <- list(
@@ -679,7 +706,8 @@ mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdept
   verbose = FALSE, caseweights = TRUE, ytype = "vector", xtype = "matrix",
   terminal = "object", inner = terminal, model = TRUE,
   numsplit = "left", catsplit = "binary", vcov = "opg", ordinal = "chisq", nrep = 10000,
-  minsplit = minsize, minbucket = minsize)
+  minsplit = minsize, minbucket = minsize,
+  cores = NULL)
 {
   ## transform defaults
   if(missing(minsize) & !missing(minsplit))  minsize <- minsplit
@@ -707,7 +735,7 @@ mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdept
     verbose = verbose, caseweights = caseweights, ytype = ytype, xtype = xtype,
     terminal = terminal, inner = inner, model = model,
     numsplit = numsplit, catsplit = catsplit, vcov = vcov,
-    ordinal = ordinal, nrep = nrep)
+    ordinal = ordinal, nrep = nrep, cores = cores)
   return(rval)
 }
 

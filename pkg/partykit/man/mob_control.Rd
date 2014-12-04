@@ -14,7 +14,7 @@ mob_control(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
   restart = TRUE, verbose = FALSE, caseweights = TRUE, ytype = "vector", xtype = "matrix",
   terminal = "object", inner = terminal, model = TRUE, numsplit = "left",
   catsplit = "binary", vcov = "opg", ordinal = "chisq", nrep = 10000,
-  minsplit = minsize, minbucket = minsize)
+  minsplit = minsize, minbucket = minsize, cores = NULL)
 }
 
 \arguments{
@@ -104,6 +104,9 @@ mob_control(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
     \code{\link[mvtnorm]{pmvnorm}}.}
   \item{nrep}{numeric. Number of replications in the simulation of
     p-values for the ordinal \code{"L2"} statistic (if used).}
+  \item{cores}{numeric. If set to an integer \code{\link[parallel]{mclapply}} is
+    called internally using the desired number of \code{cores} to determine
+    the best split.}
 }
 
 \details{
