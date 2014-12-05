@@ -366,10 +366,9 @@ mob_partynode <- function(Y, X, Z, weights = NULL, offset = NULL, cluster = NULL
       uz <- sort(unique(zselect))
       if (length(uz) == 0L) stop("Cannot find admissible split point in partitioning variable")
       
-      ## compute model fits in parallel if a number of cores is specified
-      ## starting values cannot be used in this case
-      if(!is.null(control$cores)) {
-        dev <- unlist(parallel::mclapply(1L:length(uz), function(i) {
+      ## if starting values are not reused then the applyfun() is used for determining the split
+      if(control$restart) {
+        get_dev <- function(i) {
           zs <- zselect <= uz[i]
           if(w2n(weights[zs]) < minsize || w2n(weights[!zs]) < minsize) {
             return(Inf)
@@ -380,10 +379,11 @@ mob_partynode <- function(Y, X, Z, weights = NULL, offset = NULL, cluster = NULL
 	      weights = weights[!zs], offset = offset[!zs], cluster = cluster[!zs], ...)
 	    return(fit_left$objfun + fit_right$objfun)
           }
-	}, mc.cores = control$cores))
+	}
+        dev <- unlist(control$applyfun(1L:length(uz), get_dev))
       } else {
       ## alternatively use for() loop to go through all splits sequentially
-      ## and potentially re-use previous parameters as starting values
+      ## and reuse previous parameters as starting values
         dev <- vector(mode = "numeric", length = length(uz))
 
         start_left <- NULL
@@ -455,11 +455,7 @@ mob_partynode <- function(Y, X, Z, weights = NULL, offset = NULL, cluster = NULL
 	  }
         }
       }
-      dev <- if(!is.null(control$cores)) {
-        unlist(parallel::mclapply(1L:nrow(al), get_dev, mc.cores = control$cores))
-      } else {
-        sapply(1L:nrow(al), get_dev)
-      }
+      dev <- unlist(control$applyfun(1L:nrow(al), get_dev))
 
       if(all(!is.finite(dev))) {
         split <- list(
@@ -707,35 +703,49 @@ mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdept
   terminal = "object", inner = terminal, model = TRUE,
   numsplit = "left", catsplit = "binary", vcov = "opg", ordinal = "chisq", nrep = 10000,
   minsplit = minsize, minbucket = minsize,
-  cores = NULL)
+  applyfun = NULL, cores = NULL)
 {
   ## transform defaults
   if(missing(minsize) & !missing(minsplit))  minsize <- minsplit
   if(missing(minsize) & !missing(minbucket)) minsize <- minbucket
   
+  ## no mtry if infinite or non-positive
   if(is.finite(mtry)) {
     mtry <- if(mtry < 1L) Inf else as.integer(mtry)
   }
   
+  ## data types for formula processing
   ytype <- match.arg(ytype, c("vector", "data.frame", "matrix"))
   xtype <- match.arg(xtype, c("data.frame", "matrix"))
 
+  ## what to store in inner/terminal nodes
   if(!is.null(terminal)) terminal <- as.vector(sapply(terminal, match.arg, c("estfun", "object")))
   if(!is.null(inner))    inner    <- as.vector(sapply(inner,    match.arg, c("estfun", "object")))
 
+  ## how to split and how to select splitting variables
   numsplit <- match.arg(tolower(numsplit), c("left", "center", "centre"))
   if(numsplit == "centre") numsplit <- "center"
   catsplit <- match.arg(tolower(catsplit), c("binary", "multiway"))
   vcov <- match.arg(tolower(vcov), c("opg", "info"))
   ordinal <- match.arg(tolower(ordinal), c("l2", "max", "chisq"))
 
+  ## apply infrastructure for determining split points
+  if(is.null(applyfun)) {
+    applyfun <- if(is.null(cores)) {
+      lapply
+    } else {
+      function(X, FUN, ...) parallel::mclapply(X, FUN, ..., mc.cores = cores)
+    }
+  }
+
+  ## return list with all options
   rval <- list(alpha = alpha, bonferroni = bonferroni, minsize = minsize, maxdepth = maxdepth,
     mtry = mtry, trim = ifelse(is.null(trim), minsize, trim),
     breakties = breakties, parm = parm, dfsplit = dfsplit, prune = prune, restart = restart,
     verbose = verbose, caseweights = caseweights, ytype = ytype, xtype = xtype,
     terminal = terminal, inner = inner, model = model,
     numsplit = numsplit, catsplit = catsplit, vcov = vcov,
-    ordinal = ordinal, nrep = nrep, cores = cores)
+    ordinal = ordinal, nrep = nrep, applyfun = applyfun)
   return(rval)
 }
 

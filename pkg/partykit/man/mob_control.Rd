@@ -14,7 +14,7 @@ mob_control(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
   restart = TRUE, verbose = FALSE, caseweights = TRUE, ytype = "vector", xtype = "matrix",
   terminal = "object", inner = terminal, model = TRUE, numsplit = "left",
   catsplit = "binary", vcov = "opg", ordinal = "chisq", nrep = 10000,
-  minsplit = minsize, minbucket = minsize, cores = NULL)
+  minsplit = minsize, minbucket = minsize, applyfun = NULL, cores = NULL)
 }
 
 \arguments{
@@ -56,7 +56,8 @@ mob_control(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
     values for each split? The default is \code{TRUE}. If \code{FALSE}, then
     the parameter estimates from the previous split point are used as starting
     values for the next split point (because in practice the difference are
-    often not huge).}
+    often not huge). (Note that in that case a \code{for} loop is used
+    instead of the \code{applyfun} for fitting models across sample splits.)}
   \item{verbose}{logical. Should information about the fitting process
     of \code{\link{mob}} (such as test statistics, \eqn{p} values, selected
     splitting variables and split points) be printed to the screen?}
@@ -104,9 +105,12 @@ mob_control(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
     \code{\link[mvtnorm]{pmvnorm}}.}
   \item{nrep}{numeric. Number of replications in the simulation of
     p-values for the ordinal \code{"L2"} statistic (if used).}
-  \item{cores}{numeric. If set to an integer \code{\link[parallel]{mclapply}} is
-    called internally using the desired number of \code{cores} to determine
-    the best split.}
+  \item{applyfun}{an optional \code{\link[base]{lapply}}-style function with arguments
+    \code{function(X, FUN, \dots)}. It is used for refitting the model across
+    potential sample splits. The default is to use the basic \code{lapply}
+    function unless the \code{cores} argument is specified (see below).}
+  \item{cores}{numeric. If set to an integer the \code{applyfun} is set to
+    \code{\link[parallel]{mclapply}} with the desired number of \code{cores}.}
 }
 
 \details{
