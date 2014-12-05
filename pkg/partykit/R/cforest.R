@@ -149,7 +149,7 @@ predict.cforest <- function(object, newdata = NULL, type = c("weights", "respons
 
     for (b in 1:length(forest)) {
         ids <- nodeids(forest[[b]], terminal = TRUE)
-        f <- fitted_node(forest[[b]], nd)
+        f <- fitted_node(forest[[b]], nd, ...)
         tw <- rw[[b]]
         if (OOB) tw <- as.integer(tw == 0)
         pw <- sapply(ids, function(i) tw * (f == i))
