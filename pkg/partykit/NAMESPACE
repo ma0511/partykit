@@ -161,5 +161,8 @@ S3method("plot", "glmtree")
 S3method("predict", "glmtree")
 S3method("print", "glmtree")
 
+## methods for class cforest
+S3method("predict", "cforest")
+
 ## misc methods
 S3method("as.partynode", "list")
