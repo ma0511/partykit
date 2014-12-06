@@ -32,7 +32,7 @@ constparties <- function(nodes, data, weights, fitted = NULL, terms = NULL, info
     ret
 }
 
-.perturbe <- function(replace = TRUE, fraction = .632) {
+.perturb <- function(replace = TRUE, fraction = .632) {
     ret <- function(prob) {
         if (replace) {
             rw <- rmultinom(1, size = length(prob), prob = prob)
@@ -46,13 +46,9 @@ constparties <- function(nodes, data, weights, fitted = NULL, terms = NULL, info
     ret
 }
 
-boot <- function() .perturbe(replace = TRUE)
-sampsplit <- function(fraction = 0.632) 
-    .perturbe(replace = FALSE, fraction = fraction)
-
 cforest <- function(formula, data, weights, subset, na.action = na.pass, 
                     control = ctree_control(...), ytrafo = NULL, scores = NULL,
-                    ntree = 500L, perturbe = sampsplit(fraction = 0.632),
+                    ntree = 500L, perturb = list(replace = TRUE, fraction = 0.632),
                     mtry = ceiling(sqrt(nvar)), applyfun = NULL, cores = NULL, ...) {
 
     if (missing(data))
@@ -107,11 +103,15 @@ cforest <- function(formula, data, weights, subset, na.action = na.pass,
         c(crit, p)
     }
 
+    perturb <- do.call(".perturb", perturb)
+
     if (!is.matrix(weights)) {
         probw <- weights / sum(weights)
-        rw <- replicate(ntree, perturbe(probw), simplify = FALSE)
+        rw <- replicate(ntree, perturb(probw), simplify = FALSE)
     } else {
+        stopifnot(nrow(weights) == nrow(dat) && ncol(weights) == ntree)
         rw <- as.data.frame(weights)
+        class(rw) <- "list"
     }
 
     ## apply infrastructure for determining split points

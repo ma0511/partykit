@@ -1,7 +1,5 @@
 \name{cforest}
 \alias{cforest}
-\alias{boot}
-\alias{sampsplit}
 \alias{predict.cforest}
 \title{
   Conditional Random Forests
@@ -12,10 +10,8 @@
 }
 \usage{
 cforest(formula, data, weights, subset, na.action = na.pass, control = ctree_control(...), 
-        ytrafo = NULL, scores = NULL, ntree = 500L, perturbe = sampsplit(fraction = 0.632), 
+        ytrafo = NULL, scores = NULL, ntree = 500L, perturb = list(replace = TRUE, fraction = 0.632), 
         mtry = ceiling(sqrt(nvar)), applyfun = NULL, cores = NULL, ...)
-boot()
-sampsplit(fraction = 0.632)
 \method{predict}{cforest}(object, newdata = NULL, type = c("weights", "response", "prob"),
         OOB = FALSE, FUN = NULL, simplify = TRUE, ...)
 }
@@ -52,17 +48,17 @@ sampsplit(fraction = 0.632)
                 factors.}
   \item{ntree}{
     Number of trees to grow for the forest.}
-  \item{perturbe}{
-    a function (with argument \code{weights}) for computing resampling weights.}
+  \item{perturb}{
+    a list with arguments \code{replace} and \code{fraction} determining which type of
+    resampling with \code{replace = TRUE} referring to the n-out-of-n bootstrap and
+    \code{replace = FALSE} to sample splitting. \code{fraction} is the number of observations to draw without
+    replacement. }
   \item{mtry}{
     number of input variables randomly sampled as candidates
     at each node for random forest like algorithms. Bagging, as special case
     of a random forest without random input variable sampling, can
     be performed by setting \code{mtry} either equal to \code{Inf} or
     manually equal to the number of input variables.}
-  \item{fraction}{
-    fraction of number of observations to draw without
-    replacement.}
   \item{applyfun}{an optional \code{\link[base]{lapply}}-style function with arguments
                   \code{function(X, FUN, \dots)}. It is used for computing the variable selection criterion.
                   The default is to use the basic \code{lapply}
