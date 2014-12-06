@@ -21,9 +21,9 @@
     prediction facilities. Its internal representation is experimental and
     also the user interface likely to change.}
     
-    \item{Added multicore support to \code{mob()}. If control argument \code{cores}
-    is specified (e.g., \code{cores = 4}) then the search for the best split point (often
-    involving numerous model fits) is carried out using \code{parallel::mclapply()}
+    \item{Added multicore support to \code{mob()}, \code{ctree()}, and \code{cforest()}. If control argument \code{cores}
+    is specified (e.g., \code{cores = 4}) then the search for the best variable / split point (often
+    involving numerous model fits in \code{mob()} or resampling in \code{ctree()}) is carried out using \code{parallel::mclapply()}
     rathern than sequential \code{for()} or \code{sapply()}.}
   }
 }

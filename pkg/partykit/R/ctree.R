@@ -146,7 +146,9 @@
         response <- response(data, weights)
 
     lin <- .Call("R_LinstatExpCov", data, inp, response, weights)
-    p <- sapply(lin[inp], function(x) do.call(ctrl$cfun, x[-1]))
+    ### (potentially) parallel computation of criterion
+    p <- simplify2array(ctrl$applyfun(lin[inp], function(x) 
+        do.call(ctrl$cfun, x[-1])))
     crit <- p[1,,drop = TRUE]
     ### crit is maximised, but there might be ties
     ties <- which(abs(crit - max(crit)) < .Machine$double.eps)
@@ -247,16 +249,30 @@ ctree_control <- function(teststat = c("quad", "max"),
     testtype = c("Bonferroni", "Univariate", "Teststatistic"),
     mincriterion = 0.95, minsplit = 20L, minbucket = 7L, minprob = 0.01,
     stump = FALSE, maxsurrogate = 0L, mtry = Inf, maxdepth = Inf, 
-    multiway = FALSE, splittry = 2L, majority = FALSE) {
+    multiway = FALSE, splittry = 2L, majority = FALSE,
+    applyfun = NULL, cores = NULL) {
 
     teststat <- match.arg(teststat)
     testtype <- match.arg(testtype)
+
+    ## apply infrastructure for determining split points
+    if (is.null(applyfun)) {
+        applyfun <- if(is.null(cores)) {
+            lapply
+        } else {
+            function(X, FUN, ...) 
+                parallel::mclapply(X, FUN, ..., mc.cores = cores)
+        }
+    }
+
+
     list(teststat = teststat,
          testtype = testtype, mincriterion = log(mincriterion),
          minsplit = minsplit, minbucket = minbucket, 
          minprob = minprob, stump = stump, mtry = mtry, 
          maxdepth = maxdepth, multiway = multiway, splittry = splittry,
-         maxsurrogate = maxsurrogate, majority = majority)
+         maxsurrogate = maxsurrogate, majority = majority, 
+         applyfun = applyfun)
 }
 
 ctree <- function(formula, data, weights, subset, na.action = na.pass, 

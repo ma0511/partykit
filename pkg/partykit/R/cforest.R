@@ -53,7 +53,7 @@ sampsplit <- function(fraction = 0.632)
 cforest <- function(formula, data, weights, subset, na.action = na.pass, 
                     control = ctree_control(...), ytrafo = NULL, scores = NULL,
                     ntree = 500L, perturbe = sampsplit(fraction = 0.632),
-                    mtry = ceiling(sqrt(nvar)), myapply = lapply, ...) {
+                    mtry = ceiling(sqrt(nvar)), applyfun = NULL, cores = NULL, ...) {
 
     if (missing(data))
         data <- environment(formula)
@@ -114,8 +114,19 @@ cforest <- function(formula, data, weights, subset, na.action = na.pass,
         rw <- as.data.frame(weights)
     }
 
-    
-    forest <- myapply(1:ntree, function(b) {
+    ## apply infrastructure for determining split points
+    if (is.null(applyfun)) {
+        applyfun <- if(is.null(cores)) {
+            lapply
+        } else {
+            function(X, FUN, ...) 
+                parallel::mclapply(X, FUN, ..., mc.cores = cores)
+        }
+    }
+    ### no parallelization in ctree, only in cforest
+    control$applyfun <- lapply
+
+    forest <- applyfun(1:ntree, function(b) {
         .ctree_fit(dat, response, weights = rw[[b]], 
                    ctrl = control, ytrafo = ytrafo)
     })

@@ -13,7 +13,7 @@
 \usage{
 cforest(formula, data, weights, subset, na.action = na.pass, control = ctree_control(...), 
         ytrafo = NULL, scores = NULL, ntree = 500L, perturbe = sampsplit(fraction = 0.632), 
-        mtry = ceiling(sqrt(nvar)), myapply = lapply, ...)
+        mtry = ceiling(sqrt(nvar)), applyfun = NULL, cores = NULL, ...)
 boot()
 sampsplit(fraction = 0.632)
 \method{predict}{cforest}(object, newdata = NULL, type = c("weights", "response", "prob"),
@@ -60,11 +60,16 @@ sampsplit(fraction = 0.632)
     of a random forest without random input variable sampling, can
     be performed by setting \code{mtry} either equal to \code{Inf} or
     manually equal to the number of input variables.}
-  \item{myapply}{
-    a possibly parallelizsed version of \code{\link{lapply}}.}
   \item{fraction}{
     fraction of number of observations to draw without
     replacement.}
+  \item{applyfun}{an optional \code{\link[base]{lapply}}-style function with arguments
+                  \code{function(X, FUN, \dots)}. It is used for computing the variable selection criterion.
+                  The default is to use the basic \code{lapply}
+                  function unless the \code{cores} argument is specified (see below).}
+  \item{cores}{numeric. If set to an integer the \code{applyfun} is set to
+               \code{\link[parallel]{mclapply}} with the desired number of \code{cores}.}
+
   \item{object}{
     An object as returned by \code{cforest}}
   \item{newdata}{
