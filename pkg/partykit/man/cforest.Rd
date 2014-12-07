@@ -193,7 +193,7 @@ cf <- cforest(dist ~ speed, data = cars)
 
 ### predict and plot mean (in-sample)
 p <- predict(cf, newdata = cars, type = "response")
-plot(dist ~ speed, data = cars)
+	plot(dist ~ speed, data = cars)
 lines(cars$speed, unlist(p))
 
 ### predict quantiles (aka quantile regression forest) and plot them
@@ -206,9 +206,22 @@ lines(cars$speed, p[,3])
 
 ### we may also use predicted conditional densities
 mydensity <- partykit:::.pred_density
-p <- predict(cf, newdata = cars, type = "response", FUN = mydensity)
-for (i in 1:length(p)) 
-    plot(p[[i]], xlim = c(-10, 150), ylim = c(0, .025))
+nd <- data.frame(speed = 4:25)
+pd <- predict(cf, newdata = nd, type = "response", FUN = mydensity)
+dist <- -10:150
+pd <- do.call("rbind", lapply(1:length(pd), 
+    function(j) cbind(p = pd[[j]](dist), dist = dist, 
+                      speed = rep(nd[j,"speed"], length(dist)))))
+### plot densities as levelplot with observations and median,
+### .1 and .9 quantile superimposed
+if (require("lattice"))
+plot(levelplot(p ~ speed*dist, data = as.data.frame(pd), panel = function(...) {
+    panel.levelplot(...)
+    panel.xyplot(cars$speed, cars$dist)
+    panel.lines(cars$speed, p[,1])
+    panel.lines(cars$speed, p[,2])
+    panel.lines(cars$speed, p[,3])
+}))
 
 ### honest (i.e., out-of-bag) cross-classification of
 ### true vs. predicted classes
