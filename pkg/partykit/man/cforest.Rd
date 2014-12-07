@@ -9,10 +9,14 @@
   utilizing conditional inference trees as base learners.
 }
 \usage{
-cforest(formula, data, weights, subset, na.action = na.pass, control = ctree_control(...), 
-        ytrafo = NULL, scores = NULL, ntree = 500L, perturb = list(replace = TRUE, fraction = 0.632), 
+cforest(formula, data, weights, subset, na.action = na.pass, 
+        control = ctree_control(teststat = "quad",
+                                testtype = "Univ", mincriterion = 0, ...), 
+        ytrafo = NULL, scores = NULL, ntree = 500L, 
+        perturb = list(replace = TRUE, fraction = 0.632), 
         mtry = ceiling(sqrt(nvar)), applyfun = NULL, cores = NULL, ...)
-\method{predict}{cforest}(object, newdata = NULL, type = c("weights", "response", "prob"),
+\method{predict}{cforest}(object, newdata = NULL, 
+        type = c("weights", "response", "prob"),
         OOB = FALSE, FUN = NULL, simplify = TRUE, ...)
 }
 \arguments{
@@ -35,7 +39,9 @@ cforest(formula, data, weights, subset, na.action = na.pass, control = ctree_con
   \item{na.action}{a function which indicates what should happen when the data
                    contain missing value.}
   \item{control}{a list with control parameters, see
-                 \code{\link{ctree_control}}.}
+                 \code{\link{ctree_control}}. The default values correspond to those
+                 of the default values used by \code{\link[party]{cforest}} from the
+                 \code{party} package.}
   \item{ytrafo}{an optional named list of functions to be applied to the response
                 variable(s) before testing their association with the explanatory
                 variables. Note that this transformation is only
