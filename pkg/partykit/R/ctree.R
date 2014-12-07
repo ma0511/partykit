@@ -136,7 +136,9 @@
     inp <- inputs
     if (ctrl$mtry < Inf) {
         mtry <- min(sum(inp), ctrl$mtry)
-        s <- sample(which(inp), mtry)
+        ### sum(inp) == 1 will lead to sample.int instead of sample; see example(sample)
+        resample <- function(x, ...) x[sample.int(length(x), ...)]
+        s <- resample(which(inp), mtry)
         inp <- logical(length(inp))
         inp[s] <- TRUE
     } 
