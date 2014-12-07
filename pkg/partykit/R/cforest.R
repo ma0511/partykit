@@ -148,9 +148,11 @@ predict.cforest <- function(object, newdata = NULL, type = c("weights", "respons
 
     responses <- object$fitted[["(response)"]]
     nd <- object$data
+    vmatch <- 1:ncol(nd)
     if (!is.null(newdata)) {
-        nd <- model.frame(object$terms, newdata)
+        nd <- model.frame(delete.response(object$terms), newdata)
         OOB <- FALSE
+        vmatch <- match(names(object$data), names(nd))
     }
     nam <- rownames(nd)
 
@@ -162,11 +164,12 @@ predict.cforest <- function(object, newdata = NULL, type = c("weights", "respons
 
     for (b in 1:length(forest)) {
         ids <- nodeids(forest[[b]], terminal = TRUE)
-        f <- fitted_node(forest[[b]], nd, ...)
+        fnewdata <- fitted_node(forest[[b]], nd, vmatch = vmatch, ...)
+        fdata <- fitted_node(forest[[b]], object$data, ...)
         tw <- rw[[b]]
         if (OOB) tw <- as.integer(tw == 0)
-        pw <- sapply(ids, function(i) tw * (f == i))
-        w <- w + pw[, match(f, ids)]
+        pw <- sapply(ids, function(i) tw * (fdata == i))
+        w <- w + pw[, match(fnewdata, ids)]
     }
 
     type <- match.arg(type)
