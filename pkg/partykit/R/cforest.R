@@ -133,10 +133,13 @@ cforest <- function(formula, data, weights, subset, na.action = na.pass,
                    ctrl = control, ytrafo = ytrafo)
     })
 
+    fitted <- data.frame(idx = 1:nrow(dat))
+    fitted[[2]] <- dat[,response, drop = length(response) == 1]
+    names(fitted)[2] <- "(response)"
+    fitted <- fitted[2]
+
     ret <- constparties(nodes = forest, data = dat, weights = rw,
-        fitted = data.frame("(response)" = dat[,response, drop = length(response) == 1], 
-                            check.names = FALSE),
-        terms = terms(mf))
+                        fitted = fitted, terms = terms(mf))
     class(ret) <- c("cforest", class(ret))
 
     return(ret)
