@@ -188,40 +188,45 @@ cforest(formula, data, weights, subset, na.action = na.pass,
 
 \examples{
 
-### fit conditional inference forest to cars data
+## basic example: conditional inference forest for cars data
 cf <- cforest(dist ~ speed, data = cars)
 
-### predict and plot mean (in-sample)
-p <- predict(cf, newdata = cars, type = "response")
-	plot(dist ~ speed, data = cars)
-lines(cars$speed, unlist(p))
-
-### predict quantiles (aka quantile regression forest) and plot them
-myquantile <- function(y, w) quantile(rep(y, w), probs = c(0.1, 0.5, 0.9))
-p <- predict(cf, newdata = cars, type = "response", FUN = myquantile)
+## prediction of fitted mean and visualization
+nd <- data.frame(speed = 4:25)
+nd$mean  <- predict(cf, newdata = nd, type = "response")
 plot(dist ~ speed, data = cars)
-lines(cars$speed, p[,1])
-lines(cars$speed, p[,2])
-lines(cars$speed, p[,3])
+lines(mean ~ speed, data = nd)
+
+## predict quantiles (aka quantile regression forest)
+myquantile <- function(y, w) quantile(rep(y, w), probs = c(0.1, 0.5, 0.9))
+p <- predict(cf, newdata = nd, type = "response", FUN = myquantile)
+colnames(p) <- c("lower", "median", "upper")
+nd <- cbind(nd, p)
+
+## visualization with confidence bands
+plot(dist ~ speed, data = cars, type = "n")
+with(nd, polygon(c(speed, rev(speed)), c(lower, rev(upper)),
+  col = "lightgray", border = "transparent"))
+points(dist ~ speed, data = cars)
+lines(mean ~ speed, data = nd, lwd = 1.5)
+lines(median ~ speed, data = nd, lty = 2, lwd = 1.5)
+legend("topleft", c("mean", "median", "10% - 90% quantile"),
+  lwd = c(1.5, 1.5, 10), lty = c(1, 2, 1),
+  col = c("black", "black", "lightgray"), bty = "n")
 
 ### we may also use predicted conditional densities
-mydensity <- partykit:::.pred_density
-nd <- data.frame(speed = 4:25)
+mydensity <- function (y, w) approxfun(density(y, weights = w/sum(w))[1:2], rule = 2)
 pd <- predict(cf, newdata = nd, type = "response", FUN = mydensity)
+
+## visualization in heatmap (instead of scatterplot)
+## with fitted curves as above
 dist <- -10:150
-pd <- do.call("rbind", lapply(1:length(pd), 
-    function(j) cbind(p = pd[[j]](dist), dist = dist, 
-                      speed = rep(nd[j,"speed"], length(dist)))))
-### plot densities as levelplot with observations and median,
-### .1 and .9 quantile superimposed
-if (require("lattice"))
-plot(levelplot(p ~ speed*dist, data = as.data.frame(pd), panel = function(...) {
-    panel.levelplot(...)
-    panel.xyplot(cars$speed, cars$dist)
-    panel.lines(cars$speed, p[,1])
-    panel.lines(cars$speed, p[,2])
-    panel.lines(cars$speed, p[,3])
-}))
+dens <- t(sapply(seq_along(pd), function(i) pd[[i]](dist)))
+image(nd$speed, dist, dens, xlab = "speed", col = rev(gray.colors(9)))
+lines(mean ~ speed, data = nd, lwd = 1.5)
+lines(median ~ speed, data = nd, lty = 2, lwd = 1.5)
+lines(lower ~ speed, data = nd, lty = 2)
+lines(upper ~ speed, data = nd, lty = 2)
 
 ### honest (i.e., out-of-bag) cross-classification of
 ### true vs. predicted classes
