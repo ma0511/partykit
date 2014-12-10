@@ -203,18 +203,18 @@ p <- predict(cf, newdata = nd, type = "response", FUN = myquantile)
 colnames(p) <- c("lower", "median", "upper")
 nd <- cbind(nd, p)
 
-## visualization with confidence bands
+## visualization with conditional (on speed) prediction intervals
 plot(dist ~ speed, data = cars, type = "n")
 with(nd, polygon(c(speed, rev(speed)), c(lower, rev(upper)),
   col = "lightgray", border = "transparent"))
 points(dist ~ speed, data = cars)
 lines(mean ~ speed, data = nd, lwd = 1.5)
 lines(median ~ speed, data = nd, lty = 2, lwd = 1.5)
-legend("topleft", c("mean", "median", "10% - 90% quantile"),
+legend("topleft", c("mean", "median", "10\% - 90\% quantile"),
   lwd = c(1.5, 1.5, 10), lty = c(1, 2, 1),
   col = c("black", "black", "lightgray"), bty = "n")
 
-### we may also use predicted conditional densities
+### we may also use predicted conditional (on speed) densities
 mydensity <- function (y, w) approxfun(density(y, weights = w/sum(w))[1:2], rule = 2)
 pd <- predict(cf, newdata = nd, type = "response", FUN = mydensity)
 
