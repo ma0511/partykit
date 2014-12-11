@@ -16,7 +16,7 @@ cforest(formula, data, weights, subset, na.action = na.pass,
         perturb = list(replace = TRUE, fraction = 0.632), 
         mtry = ceiling(sqrt(nvar)), applyfun = NULL, cores = NULL, ...)
 \method{predict}{cforest}(object, newdata = NULL, 
-        type = c("weights", "response", "prob"),
+        type = c("weights", "response", "prob", "where"),
         OOB = FALSE, FUN = NULL, simplify = TRUE, ...)
 }
 \arguments{
@@ -88,7 +88,9 @@ cforest(formula, data, weights, subset, na.action = na.pass,
           For numeric and censored responses, a list with the empirical
           cumulative distribution functions and empirical survivor functions
           (Kaplan-Meier estimate) is returned when \code{type = "prob"}.
-          \code{"weights"} returns an integer vector of prediction weights.}
+          \code{"weights"} returns an integer vector of prediction weights.
+          For \code{type = "where"}, a list of terminal node ids for each of the
+          trees in the forest ist returned.}
   \item{OOB}{
     a logical defining out-of-bag predictions (only if \code{newdata = NULL}).}
   \item{FUN}{

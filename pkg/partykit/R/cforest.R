@@ -146,10 +146,11 @@ cforest <- function(formula, data, weights, subset, na.action = na.pass,
 }
 
 
-predict.cforest <- function(object, newdata = NULL, type = c("weights", "response", "prob"), 
+predict.cforest <- function(object, newdata = NULL, type = c("weights", "response", "prob", "where"), 
                             OOB = FALSE, FUN = NULL, simplify = TRUE, ...) {
 
     responses <- object$fitted[["(response)"]]
+    forest <- object$nodes
     nd <- object$data
     vmatch <- 1:ncol(nd)
     if (!is.null(newdata)) {
@@ -159,11 +160,16 @@ predict.cforest <- function(object, newdata = NULL, type = c("weights", "respons
     }
     nam <- rownames(nd)
 
-    ### regenerate weights
+    type <- match.arg(type)
+
+    ### return terminal node ids for data or newdata
+    if (type == "where")
+        return(lapply(forest, fitted_node, data = nd, vmatch = vmatch, ...))
+
+    ### extract weights
     rw <- object$weights
 
     w <- matrix(0L, nrow = NROW(responses), ncol = length(nam))
-    forest <- object$nodes
 
     for (b in 1:length(forest)) {
         ids <- nodeids(forest[[b]], terminal = TRUE)
@@ -175,7 +181,6 @@ predict.cforest <- function(object, newdata = NULL, type = c("weights", "respons
         w <- w + pw[, match(fnewdata, ids)]
     }
 
-    type <- match.arg(type)
     if (type == "weights") {
         ret <- w
         colnames(ret) <- nam
