@@ -16,7 +16,7 @@ Depends: R (>= 3.1.0), graphics, grid
 Imports: stats, survival
 Suggests: XML, pmml, rJava, rpart, mvtnorm, Formula, sandwich, strucchange, vcd,
   AER, mlbench, TH.data (>= 1.0-3), coin, RWeka (>= 0.4-19), mvpart, datasets,
-  parallel, psychotools, psychotree, lattice
+  parallel, psychotools, psychotree
 LazyData: yes
 License: GPL-2 | GPL-3
 URL: http://partykit.R-forge.R-project.org/partykit
