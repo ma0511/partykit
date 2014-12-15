@@ -123,7 +123,7 @@ require("partykit")
 require("coin")
 require("strucchange")
 set.seed(290875)
-### mvpart was archives 2014-12-15; so grab spider dataset from the archive
+### mvpart was archived 2014-12-15; so grab spider dataset from the archive
 tmpdir <- tempdir()
 wd <- setwd(tmpdir) 
 download.file("http://cran.r-project.org/src/contrib/Archive/mvpart/mvpart_1.6-2.tar.gz", 
@@ -1003,8 +1003,6 @@ The data are available in package
 \pkg{mvpart} \citep{mvpart}.
 
 <<spider-ctree, echo = TRUE>>=
-### mvpart was archived 2014-12-15
-# data("spider", package = "mvpart")
 sptree <- ctree(arct.lute + pard.lugu + zora.spin + pard.nigr + pard.pull +
     aulo.albi + troc.terr + alop.cune + pard.mont + alop.acce +
     alop.fabr + arct.peri ~ herbs + reft + moss + sand + twigs+water,
