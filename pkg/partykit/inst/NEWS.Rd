@@ -2,7 +2,7 @@
 \name{NEWS}
 \title{NEWS file for the partykit package}
 
-\section{Changes in Version 0.8-3 (2014-12-XX}{
+\section{Changes in Version 0.8-4 (2014-12-XX}{
   \itemize{
     \item{Bug fix in \code{mob()} that occurred when regressor variables and
     partitioning variables overlapped and were not sorted in the
@@ -25,6 +25,12 @@
     is specified (e.g., \code{cores = 4}) then the search for the best variable / split point (often
     involving numerous model fits in \code{mob()} or resampling in \code{ctree()}) is carried out using \code{parallel::mclapply()}
     rathern than sequential \code{for()} or \code{sapply()}.}
+  }
+}
+
+\section{Changes in Version 0.8-3 (2014-12-15}{
+  \itemize{
+    \item{\pkg{mvpart} was archived 2014-12-15.}
   }
 }
 
