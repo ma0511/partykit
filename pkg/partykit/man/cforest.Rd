@@ -103,9 +103,8 @@ cforest(formula, data, weights, subset, na.action = na.pass,
                    vector or matrix (if possible).}
   \item{\dots}{ additional arguments. }
 }
+
 \details{
-
-
   This implementation of the random forest (and bagging) algorithm differs
   from the reference implementation in \code{\link[randomForest]{randomForest}}
   with respect to the base learners used and the aggregation scheme applied.
@@ -153,11 +152,12 @@ cforest(formula, data, weights, subset, na.action = na.pass,
   as well as Strobl et al. (2009).
 
 }
+
 \value{
   An object of class \code{cforest}.
 }
-\references{
 
+\references{
     Leo Breiman (2001). Random Forests. \emph{Machine Learning}, 45(1), 5--32.
 
     Torsten Hothorn, Berthold Lausen, Axel Benner and Martin Radespiel-Troeger
@@ -167,7 +167,7 @@ cforest(formula, data, weights, subset, na.action = na.pass,
     and Mark J. van der Laan (2006a). Survival Ensembles. \emph{Biostatistics},
     \bold{7}(3), 355--373.
 
-    Torsten Hothorn, Kurt Hornik and Achim Zeileis (2006b). Unbiased
+    Torsten Hothorn, Kurt Hornik, Achim Zeileis (2006b). Unbiased
     Recursive Partitioning: A Conditional Inference Framework.
     \emph{Journal of Computational and Graphical Statistics}, \bold{15}(3),
     651--674.  Preprint available from 
@@ -176,16 +176,15 @@ cforest(formula, data, weights, subset, na.action = na.pass,
     Nicolai Meinshausen (2006). Quantile Regression Forests. 
     Journal of Machine Learning Research, \bold{7}, 983--999.
 
-    Carolin Strobl, Anne-Laure Boulesteix, Achim Zeileis and Torsten Hothorn (2007).
+    Carolin Strobl, Anne-Laure Boulesteix, Achim Zeileis, Torsten Hothorn (2007).
     Bias in Random Forest Variable Importance Measures: Illustrations, Sources and
     a Solution. \emph{BMC Bioinformatics}, \bold{8}, 25.
     \url{http://www.biomedcentral.com/1471-2105/8/25}
 
-    Carolin Strobl, James Malley and Gerhard Tutz (2009).
+    Carolin Strobl, James Malley, Gerhard Tutz (2009).
     An Introduction to Recursive Partitioning: Rationale, Application, and Characteristics of
     Classification and Regression Trees, Bagging, and Random forests.
     \emph{Psychological Methods}, \bold{14}(4), 323--348.
- 
 }
 
 \examples{
