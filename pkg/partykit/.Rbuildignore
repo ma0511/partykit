@@ -1,5 +1,6 @@
 R/meanvartree.R
 R/mtree.R
+src/party*
 inst/pmml/auto.pmml
 inst/pmml/AuditTree.xml
 inst/pmml/IrisTree.xml
