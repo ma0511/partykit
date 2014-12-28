@@ -16,7 +16,7 @@ cforest(formula, data, weights, subset, na.action = na.pass,
         perturb = list(replace = TRUE, fraction = 0.632), 
         mtry = ceiling(sqrt(nvar)), applyfun = NULL, cores = NULL, ...)
 \method{predict}{cforest}(object, newdata = NULL, 
-        type = c("weights", "response", "prob", "where"),
+        type = c("response", "prob", "weights", "node"),
         OOB = FALSE, FUN = NULL, simplify = TRUE, ...)
 }
 \arguments{

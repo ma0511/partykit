@@ -146,7 +146,7 @@ cforest <- function(formula, data, weights, subset, na.action = na.pass,
 }
 
 
-predict.cforest <- function(object, newdata = NULL, type = c("weights", "response", "prob", "where"), 
+predict.cforest <- function(object, newdata = NULL, type = c("response", "prob", "weights", "node"), 
                             OOB = FALSE, FUN = NULL, simplify = TRUE, ...) {
 
     responses <- object$fitted[["(response)"]]
@@ -163,7 +163,7 @@ predict.cforest <- function(object, newdata = NULL, type = c("weights", "respons
     type <- match.arg(type)
 
     ### return terminal node ids for data or newdata
-    if (type == "where")
+    if (type == "node")
         return(lapply(forest, fitted_node, data = nd, vmatch = vmatch, ...))
 
     ### extract weights
