@@ -341,7 +341,8 @@ ctree <- function(formula, data, weights, subset, na.action = na.pass,
                          check.names = FALSE)
     fitted[[3]] <- dat[, response, drop = length(response) == 1]
     names(fitted)[3] <- "(response)"
-    ret <- party(tree, data = dat, fitted = fitted)
+    ret <- party(tree, data = dat, fitted = fitted, 
+                 info = list(call = match.call(), control = control))
     class(ret) <- c("constparty", class(ret))
 
     ### doesn't work for Surv objects
