@@ -139,7 +139,8 @@ cforest <- function(formula, data, weights, subset, na.action = na.pass,
     fitted <- fitted[2]
 
     ret <- constparties(nodes = forest, data = dat, weights = rw,
-                        fitted = fitted, terms = terms(mf))
+                        fitted = fitted, terms = terms(mf), 
+                        info = list(call = match.call(), control = control))
     class(ret) <- c("cforest", class(ret))
 
     return(ret)
@@ -171,10 +172,21 @@ predict.cforest <- function(object, newdata = NULL, type = c("response", "prob",
 
     w <- matrix(0L, nrow = NROW(responses), ncol = length(nam))
 
-    for (b in 1:length(forest)) {
+    applyfun <- lapply
+    if (!is.null(object$info))
+        applyfun <- object$info$control$applyfun
+
+    bids <- applyfun(1:length(forest), function(b) {
         ids <- nodeids(forest[[b]], terminal = TRUE)
         fnewdata <- fitted_node(forest[[b]], nd, vmatch = vmatch, ...)
         fdata <- fitted_node(forest[[b]], object$data, ...)
+        list(ids = ids, fnewdata = fnewdata, fdata = fdata)
+    })
+
+    for (b in 1:length(forest)) {
+        ids <- bids[[b]]$ids
+        fnewdata <- bids[[b]]$fnewdata
+        fdata <- bids[[b]]$fdata
         tw <- rw[[b]]
         if (OOB) tw <- as.integer(tw == 0)
         pw <- sapply(ids, function(i) tw * (fdata == i))
