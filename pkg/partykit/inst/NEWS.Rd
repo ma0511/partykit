@@ -8,6 +8,10 @@
     partitioning variables overlapped and were not sorted in the
     underlying model frame.}
 
+    \item{Optionally, the parameters' variance-covariance matrix in \code{mob()}
+    can now be estimated by the sandwich matrix instead of the default
+    outer-product-of-gradients (OPG) matrix or the information matrix.}
+
     \item{Extended \code{mob()} interface by a \code{cluster} argument. This can be
     a vector (numeric, integer, factor) with cluster IDs that are
     then passed on to the 'fit' function (if supported) and used
@@ -21,10 +25,12 @@
     prediction facilities. Its internal representation is experimental and
     also the user interface likely to change.}
     
-    \item{Added multicore support to \code{mob()}, \code{ctree()}, and \code{cforest()}. If control argument \code{cores}
-    is specified (e.g., \code{cores = 4}) then the search for the best variable / split point (often
-    involving numerous model fits in \code{mob()} or resampling in \code{ctree()}) is carried out using \code{parallel::mclapply()}
-    rathern than sequential \code{for()} or \code{sapply()}.}
+    \item{Added multicore support to \code{mob()}, \code{ctree()}, and \code{cforest()}.
+    If control argument \code{cores} is specified (e.g., \code{cores = 4}) then the
+    search for the best variable or split point (often involving numerous model fits in
+    \code{mob()} or resampling in \code{ctree()}) is carried out using \code{parallel::mclapply()}
+    rathern than sequential \code{for()} or \code{sapply()}. Additionally, other
+    \code{applyfun}s can be provided, e.g., using networks of workstations etc.}
   }
 }
 

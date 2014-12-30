@@ -92,7 +92,8 @@ mob_control(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdepth = Inf,
     estimator should be employed in the parameter instability tests.
     The default is the outer product of gradients (\code{"opg"}).
     Alternatively, \code{vcov = "info"} employs the information matrix
-    (which is sensible only for maximum likelihood estimation).}
+    and \code{vcov = "sandwich"} the sandwich matrix (both of which are
+    only sensible for maximum likelihood estimation).}
   \item{ordinal}{character indicating which type of parameter instability
     test should be employed for ordinal partitioning variables (i.e.,
     ordered factors). This can be \code{"chisq"}, \code{"max"}, or \code{"L2"}.

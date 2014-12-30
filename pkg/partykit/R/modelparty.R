@@ -224,17 +224,25 @@ mob_partynode <- function(Y, X, Z, weights = NULL, offset = NULL, cluster = NULL
 
     ## scale process
     process <- process/sqrt(n)
-    J12 <- if(control$vcov == "opg" | is.null(obj)) {
-      if(is.null(cluster)) {
-        root.matrix(crossprod(process))
+    vcov <- control$vcov
+    if(is.null(obj)) vcov <- "opg"
+    if(vcov != "opg") {
+      bread <- vcov(obj) * n
+    }
+    if(vcov != "info") {
+      meat <- if(is.null(cluster)) {
+        crossprod(process)
       } else {
         ## nclus <- length(unique(cluster)) ## nclus / (nclus - 1L) * 
-        root.matrix(crossprod(as.matrix(aggregate(process, by = list(cluster), FUN = sum)[, -1L, drop = FALSE])))
+        crossprod(as.matrix(aggregate(process, by = list(cluster), FUN = sum)[, -1L, drop = FALSE]))
       }
-    } else {
-      root.matrix(solve(vcov(obj) * n))
     }
-    process <- t(chol2inv(chol(J12)) %*% t(process))  
+    J12 <- root.matrix(switch(vcov,
+      "opg" = chol2inv(chol(meat)),
+      "info" = bread,
+      "sandwich" = bread %*% meat %*% bread
+    ))
+    process <- t(J12 %*% t(process))  
 
     ## select parameters to test
     if(!is.null(control$parm)) process <- process[, control$parm, drop = FALSE]
@@ -726,7 +734,7 @@ mob_control <- function(alpha = 0.05, bonferroni = TRUE, minsize = NULL, maxdept
   numsplit <- match.arg(tolower(numsplit), c("left", "center", "centre"))
   if(numsplit == "centre") numsplit <- "center"
   catsplit <- match.arg(tolower(catsplit), c("binary", "multiway"))
-  vcov <- match.arg(tolower(vcov), c("opg", "info"))
+  vcov <- match.arg(tolower(vcov), c("opg", "info", "sandwich"))
   ordinal <- match.arg(tolower(ordinal), c("l2", "max", "chisq"))
 
   ## apply infrastructure for determining split points
