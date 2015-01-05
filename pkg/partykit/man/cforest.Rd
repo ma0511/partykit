@@ -123,7 +123,6 @@ cforest(formula, data, weights, subset, na.action = na.pass,
   3. The depth of the trees, regulated by \code{mincriterion}. Usually unstopped and unpruned
      trees are used in random forests. To grow large trees, set \code{mincriterion} to a small value.
 
-  Note that the default values are different from those used in package \code{party}.
 
   The aggregation scheme works by averaging observation weights extracted
   from each of the \code{ntree} trees and NOT by averaging predictions directly
@@ -144,6 +143,14 @@ cforest(formula, data, weights, subset, na.action = na.pass,
   forecasting (for example via quantile regression forests). Also plotting of single trees from
   a forest is much easier now.
 
+  Unlike \code{\link[party]{cforest}}, \code{cforest} is entirely written in R which
+  makes customisation much easier at the price of longer computing times. However, trees
+  can be grown in parallel with this R only implemention which renders speed less of an issue. 
+  Note that the default values are different from those used in package \code{party}, most
+  importantly the default for mtry is now data-dependent. \code{predict(, type = "node")} replaces
+  the \code{\link[party]{where}} function and \code{predict(, type = "prob")} the 
+  \code{\link[party]{treeresponse}} function.
+  
   Moreover, when predictors vary in their scale of measurement of number 
   of categories, variable selection and computation of variable importance is biased 
   in favor of variables with many potential cutpoints in \code{\link[randomForest]{randomForest}},
