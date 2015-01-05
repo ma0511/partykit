@@ -1,21 +1,99 @@
-The paper itself is fine.  Last review I had no further comments on the paper itself.  My review here then is restricted to the point-by-point reply.  This "discussion" is going downhill quickly and I will thus keep my comments short.
 
-The authors have pointed out some measures of project activity, which are fine.  Of my concerns, the activity level and lack of open mailing list are less of a big deal, and my review stated as much.
+\documentclass{article}
+\usepackage{a4wide}
+\usepackage[authoryear,round]{natbib}
 
+\setlength{\parskip}{0.5ex plus0.1ex minus0.1ex}
+\setlength{\parindent}{0em}
+
+\title{JMLR-14-133-4: Point-to-Point Reply}
+\author{Torsten Hothorn and Achim Zeileis}
+
+\begin{document}
+
+\maketitle
+
+\section*{AE}
+
+\textbf{\textit{%
+I am concerned that your new revision is essentially a rebuttal of the
+request of the reviewer about adding random forest functionality (which
+existed in the previous version) into the current version.  As I said in my
+previous decision, porting functionality of party to partykit is important,
+and in my opinion a reasonable request.
+}}
+
+\smallskip
+
+We now provide a reimplementation of \texttt{party::cforest} in the new
+\textbf{partykit} framework.  From the reviews we were not entirely sure
+what your desired solution for the reimplementation was: We decided to write
+a new high-level implementation in R, demonstrating the breadth and
+usefulness of the \textbf{partykit} infrastructure also for ensemble
+learning.
+
+
+\section*{Referee 3}
+
+\textbf{\textit{%
+The paper itself is fine.  Last review I had no further comments on the
+paper itself.  My review here then is restricted to the point-by-point
+reply.  This "discussion" is going downhill quickly and I will thus keep my
+comments short.
+The authors have pointed out some measures of project activity, which are
+fine.  Of my concerns, the activity level and lack of open mailing list are
+less of a big deal, and my review stated as much.
 The remaining sticking point is this:
-
 "I am not convinced that the breadth of this contribution is sufficient." (from the previous review)
+The author's replies have not convinced me otherwise despite their extensive
+length.  My suggestion was that support for forests be added, or some other
+support be added to increase the utility or breadth of partykit.  The
+responses given to this idea by the authors are concluded with remarks like
+the following:
+\begin{itemize}
+\item "These [ideas] deserve further thought and work, both conceptually and computationally."
+\item "Therefore, we would much rather follow Reviewer 2 and devote more future work to this important topic."
+\item "This is on our to-do list, though."
+\end{itemize}
+If these things are on the authors' to-do lists, then they should do them
+and resubmit when they are done.}}
 
-The author's replies have not convinced me otherwise despite their extensive length.  My suggestion was that support for forests be added, or some other support be added to increase the utility or breadth of partykit.  The responses given to this idea by the authors are concluded with remarks like the following:
+\smallskip
 
-"These [ideas] deserve further thought and work, both conceptually and computationally."
+The new \texttt{partykit::cforest} shares the benefits of
+\texttt{party::cforest} over \texttt{randomForest::randomForest} (such as surrogate
+splits for dealing with missing values in the predictor variables or the
+ability of handling right-censored data) and even has a couple of
+advantages over the old \texttt{party::cforest}: First, it is very flexible
+and can exploit some features readily available in R, e.g., parallelization
+on multicore machines or clusters of workstations.  Second, it can be used
+as a blueprint for users/developers who wish to create custom forests with
+their desired tree learners.  However, as \texttt{partykit::cforest} is
+written entirely in R, it is slower than the old \texttt{party::cforest}
+when running on a single core only. Third, quantile regression forests
+(Meinshausen, JMLR 2006) are now part of the framework and even extensions
+to density estimation are available (see \texttt{?cforest} for an example).
 
-"Therefore, we would much rather follow Reviewer 2 and devote more future work to this important topic."
+\textbf{\textit{%
+Personally I am not willing to consider acceptance as-is with the assumption
+that these features will be added later because the authors have stated
+elsewhere that partykit is mature and now only requires maintenance.
+The package would be stronger and relevant to a wider audience, even if the
+added support was only preliminary.  And according to the authors
+themselves, this would be a significant contribution because flexible
+support for forests is a "real challenge".
+}}
 
-"This is on our to-do list, though."
+\smallskip
 
-If these things are on the authors' to-do lists, then they should do them and resubmit when they are done.
+The new \texttt{partykit::cforest} basically implements old functionality
+using the new framework. The code-base is much denser now and the two
+implementations were tested to return identical results (in situations where
+is can be expected). It also allows a little more flexibility with respect
+to probabilistic forecasts (via quantile regression forests) but is still
+limited to trees with constant fits in the nodes. Therefore, the challenge
+of adding flexible support for forests of model-based is still open and
+definitively a research project in its own right because also the underlying
+theory has to be developed.
 
-Personally I am not willing to consider acceptance as-is with the assumption that these features will be added later because the authors have stated elsewhere that partykit is mature and now only requires maintenance.
-
-The package would be stronger and relevant to a wider audience, even if the added support was only preliminary.  And according to the authors themselves, this would be a significant contribution because flexible support for forests is a "real challenge".
+\end{document}
