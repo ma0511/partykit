@@ -170,28 +170,23 @@ predict.cforest <- function(object, newdata = NULL, type = c("response", "prob",
     ### extract weights
     rw <- object$weights
 
-    w <- matrix(0L, nrow = NROW(responses), ncol = length(nam))
+    # w <- matrix(0L, nrow = NROW(responses), ncol = length(nam))
 
     applyfun <- lapply
     if (!is.null(object$info))
         applyfun <- object$info$control$applyfun
 
-    bids <- applyfun(1:length(forest), function(b) {
+    bw <- applyfun(1:length(forest), function(b) {
         ids <- nodeids(forest[[b]], terminal = TRUE)
         fnewdata <- fitted_node(forest[[b]], nd, vmatch = vmatch, ...)
         fdata <- fitted_node(forest[[b]], object$data, ...)
-        list(ids = ids, fnewdata = fnewdata, fdata = fdata)
-    })
-
-    for (b in 1:length(forest)) {
-        ids <- bids[[b]]$ids
-        fnewdata <- bids[[b]]$fnewdata
-        fdata <- bids[[b]]$fdata
         tw <- rw[[b]]
         if (OOB) tw <- as.integer(tw == 0)
         pw <- sapply(ids, function(i) tw * (fdata == i))
-        w <- w + pw[, match(fnewdata, ids)]
-    }
+        return(pw[, match(fnewdata, ids)])
+    })
+
+    w <- Reduce("+", bw)
 
     if (type == "weights") {
         ret <- w
