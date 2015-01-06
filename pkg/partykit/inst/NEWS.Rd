@@ -2,16 +2,8 @@
 \name{NEWS}
 \title{NEWS file for the partykit package}
 
-\section{Changes in Version 0.8-4 (2014-12-XX}{
+\section{Changes in Version 0.8-4 (2015-01-06}{
   \itemize{
-    \item{Bug fix in \code{mob()} that occurred when regressor variables and
-    partitioning variables overlapped and were not sorted in the
-    underlying model frame.}
-
-    \item{Optionally, the parameters' variance-covariance matrix in \code{mob()}
-    can now be estimated by the sandwich matrix instead of the default
-    outer-product-of-gradients (OPG) matrix or the information matrix.}
-
     \item{Extended \code{mob()} interface by a \code{cluster} argument. This can be
     a vector (numeric, integer, factor) with cluster IDs that are
     then passed on to the 'fit' function (if supported) and used
@@ -21,9 +13,13 @@
     for the model estimation (i.e., corresponding to a working
     independence model).}
 
+    \item{Optionally, the parameters' variance-covariance matrix in \code{mob()}
+    can now be estimated by the sandwich matrix instead of the default
+    outer-product-of-gradients (OPG) matrix or the information matrix.}
+
     \item{Reimplementation of \code{cforest()} available with extended 
-    prediction facilities. Its internal representation is experimental and
-    also the user interface likely to change.}
+    prediction facilities. Both the internal representation and the user interface
+    are still under development are likely to change in future versions.}
     
     \item{Added multicore support to \code{mob()}, \code{ctree()}, and \code{cforest()}.
     If control argument \code{cores} is specified (e.g., \code{cores = 4}) then the
@@ -31,6 +27,10 @@
     \code{mob()} or resampling in \code{ctree()}) is carried out using \code{parallel::mclapply()}
     rathern than sequential \code{for()} or \code{sapply()}. Additionally, other
     \code{applyfun}s can be provided, e.g., using networks of workstations etc.}
+
+    \item{Bug fix in \code{mob()} that occurred when regressor variables and
+    partitioning variables overlapped and were not sorted in the
+    underlying model frame.}
   }
 }
 
