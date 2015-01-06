@@ -222,6 +222,8 @@ legend("topleft", c("mean", "median", "10\% - 90\% quantile"),
   lwd = c(1.5, 1.5, 10), lty = c(1, 2, 1),
   col = c("black", "black", "lightgray"), bty = "n")
 
+\donttest{
+
 ### we may also use predicted conditional (on speed) densities
 mydensity <- function (y, w) approxfun(density(y, weights = w/sum(w))[1:2], rule = 2)
 pd <- predict(cf, newdata = nd, type = "response", FUN = mydensity)
@@ -252,6 +254,7 @@ if (require("TH.data") && require("survival")) {
     print(predict(bst, newdata = GBSG2[1:2,], OOB = TRUE, type = "prob"))
 
     print(bst$nodes[[1]])
+}
 }
 }
 \keyword{tree}
