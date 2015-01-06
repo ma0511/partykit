@@ -1,0 +1,45 @@
+\documentclass[ngerman,uzh]{scrlttr2}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+%% ANPASSUNGSMÖGLICHKEITEN
+\KOMAoptions{%
+%backaddress=false%  Keine Rücksendeadresse im Adressfeld
+%,foldmarks=false%  Faltmarken ausschalten
+}
+
+\usepackage{babel}
+
+
+\begin{document}
+
+%% VARIABLEN
+% Falls Unterschrift vom definierten Namen abweicht:
+\setkomavar{signature}{Torsten Hothorn}
+\setkomavar{subject}{Betreff}
+%\setkomavar{specialmail}{Interne Post}
+
+\begin{letter}{
+Dr.~Cheng Soon Ong \\
+MLOSS Editor \\
+Journal of Machine Learning Research}
+
+\subject{JMLR-14-133-4 revision}
+
+\opening{Dear Cheng Soon,}
+
+I uploaded a revised version of the \textbf{partykit} package (version
+0.8-4, also the current CRAN version). Following the request by referee 3,
+we implemented \textbf{cforest()} in this version. The benefits and
+shortcomings of this implementation of random forests, compared to the
+implementations in the \textbf{randomForest} and \textbf{party} packages, are
+discussed in the rebuttal.
+
+The manuscript was not changed and thus I did not upload a new version.
+
+Best regards, \\
+\includegraphics[width = .25\textwidth]{TH_Unterschrift}
+
+\end{letter}
+
+\end{document}
