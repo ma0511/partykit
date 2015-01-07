@@ -2,6 +2,13 @@
 \name{NEWS}
 \title{NEWS file for the partykit package}
 
+\section{Changes in Version 0.8-5 (2015-01-xx}{
+  \itemize{
+    \item{The unbiased version of \code{cforest} (with \code{replace = FALSE}) is 
+          now the default (as in \pkg{party}).}
+  }
+}
+
 \section{Changes in Version 0.8-4 (2015-01-06}{
   \itemize{
     \item{Extended \code{mob()} interface by a \code{cluster} argument. This can be
