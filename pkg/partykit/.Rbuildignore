@@ -1,7 +1,7 @@
 R/meanvartree.R
 R/mtree.R
 src/party*
-inst/vignettes/mob.Rout.save
+vignettes/mob.Rout.save
 inst/pmml/auto.pmml
 inst/pmml/AuditTree.xml
 inst/pmml/IrisTree.xml

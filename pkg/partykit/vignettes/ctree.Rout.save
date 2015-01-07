@@ -30,15 +30,9 @@ Loading required package: sandwich
 > wd <- setwd(tmpdir)
 
 > download.file("http://cran.r-project.org/src/contrib/Archive/mvpart/mvpart_1.6-2.tar.gz", 
-+     destfile = "mvpart_1.6-2.tar.gz")
-trying URL 'http://cran.r-project.org/src/contrib/Archive/mvpart/mvpart_1.6-2.tar.gz'
-Content type 'application/x-gzip' length 108673 bytes (106 Kb)
-opened URL
-==================================================
-downloaded 106 Kb
++     destfile = "mvpart_1.6-2.tar.gz", quiet = TRUE)
 
-
-> untar("mvpart_1.6-2.tar.gz", compressed = "gzip")
+> untar("mvpart_1.6-2.tar.gz", compressed = "gzip") 
 
 > s <- gzfile("mvpart/data/spider.tab.gz")
 
