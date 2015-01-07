@@ -555,7 +555,7 @@ Objective function: 809.9
 > system.time(bt1 <- mob(preference ~ 1 | gender + age + 
 +     q1 + q2 + q3, data = Topmodel2007, fit = btfit1))
    user  system elapsed 
-  3.492   0.000   3.496 
+  1.353   0.000   1.354 
 
 > btfit2 <- function(y, x = NULL, start = NULL, weights = NULL, 
 +     offset = NULL, ..., estfun = FALSE, object = FALSE) {
@@ -564,7 +564,7 @@ Objective function: 809.9
 > system.time(bt2 <- mob(preference ~ 1 | gender + age + 
 +     q1 + q2 + q3, data = Topmodel2007, fit = btfit2))
    user  system elapsed 
-  3.540   0.000   3.547 
+  1.315   0.000   1.315 
 
 > bt2
 Model-based recursive partitioning (btfit2)
@@ -669,4 +669,4 @@ $`7`
  *** Run successfully completed ***
 > proc.time()
    user  system elapsed 
- 25.056   0.112  25.203 
+  9.462   0.060   9.525 

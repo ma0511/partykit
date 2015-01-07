@@ -358,4 +358,4 @@ Levels: No Yes
  *** Run successfully completed ***
 > proc.time()
    user  system elapsed 
- 13.364   0.100  13.291 
+  4.800   0.073   4.760 
