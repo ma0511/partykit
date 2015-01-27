@@ -6,6 +6,7 @@
   \itemize{
     \item{The unbiased version of \code{cforest} (with \code{replace = FALSE}) is 
           now the default (as in \pkg{party}).}
+    \item{Register all S3 methods in \code{NAMESPACE}.}
   }
 }
 
