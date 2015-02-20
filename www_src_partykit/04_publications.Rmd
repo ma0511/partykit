@@ -13,7 +13,10 @@ bib <- ReadBib("TH.bib", check = FALSE)
 BibOptions(check.entries = FALSE, style = "html", cite.style = "authoryear",
            bib.style = "numeric")
 ```
-The partykit package implements conditional inference trees
+The partykit package provides a flexible toolkit for learning, representing,
+summarizing, and visualizing a wide range of tree-structured regression
+and classification models `r AutoCite(bib, "Hothorn_Zeileis_2015")`.
+In addition, it implements conditional inference trees
 `r AutoCite(bib, "Hothorn:2006:JCGS", before = "function ctree(), ")`,
 and model-based recursive partitioning 
 `r AutoCite(bib, "Zeileis+Hothorn+Hornik:2008", before = "function mob(), ")`.
