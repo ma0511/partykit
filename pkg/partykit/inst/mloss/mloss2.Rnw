@@ -27,8 +27,8 @@ set.seed(290875)
 @
 
 %% header declarations
-\author{Torsten Hothorn \\ \addr{Universit\"at Z\"urich} \\ \addr{E-mail: Torsten.Hothorn@R-project.org} \AND
-        Achim Zeileis \\ \addr{Universit\"at Innsbruck} \\ \addr{E-mail: Achim.Zeileis@R-project.org}}
+\author{Torsten Hothorn \\ \addr{Institut f\"ur Epidemiologie, Biostatistik und Pr\"avention, Universit\"at Z\"urich} \\ \email{E-mail: Torsten.Hothorn@R-project.org} \AND
+        Achim Zeileis \\ \addr{Department f\"ur Statistik, Universit\"at Innsbruck} \\ \email{E-mail: Achim.Zeileis@R-project.org}}
 \title{\pkg{partykit}: A Modular Toolkit for Recursive Partytioning in \proglang{R}}
 \editor{Cheng Soon Ong}
 
