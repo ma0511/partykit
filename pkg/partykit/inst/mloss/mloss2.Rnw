@@ -30,7 +30,7 @@ set.seed(290875)
 \author{Torsten Hothorn \\ \addr{Universit\"at Z\"urich} \\ \addr{E-mail: Torsten.Hothorn@R-project.org} \AND
         Achim Zeileis \\ \addr{Universit\"at Innsbruck} \\ \addr{E-mail: Achim.Zeileis@R-project.org}}
 \title{\pkg{partykit}: A Modular Toolkit for Recursive Partytioning in \proglang{R}}
-\editor{Cheng Soon Ong (MLOSS track, JMLR-14-133)}
+\editor{Cheng Soon Ong}
 
 % hyperref setup
 \definecolor{Red}{rgb}{0.5,0,0}
@@ -330,9 +330,10 @@ algorithm (selection of variables and split points, stopping criteria, pruning, 
 The package also provides functions for inferring trees where the computationally
 intensive parts are either in \proglang{C} (\fct{ctree}) or employ \proglang{R}'s
 fitting functions (\fct{mob}). The simple and lean base classes that separate
-data and tree structure are also appealing for storing forests which are planned
-for future versions of the package. Users and developers that have questions or
-comments about the package can either contact the maintainers or use the forum
+data and tree structure are also appealing for storing forests -- a first proof-of-concept
+reimplementation of \fct{cforest} is in the package with further extension planned.
+Users and developers that have questions or comments about the package can either
+contact the maintainers or use the forum
 on \proglang{R}-Forge at \url{https://R-Forge.R-project.org/forum/forum.php?forum_id=852}.
 
 \section*{Acknowledgments}
