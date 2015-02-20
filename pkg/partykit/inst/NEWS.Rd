@@ -2,8 +2,10 @@
 \name{NEWS}
 \title{NEWS file for the partykit package}
 
-\section{Changes in Version 0.8-5 (2015-01-xx}{
+\section{Changes in Version 1.0-0 (2015-02-20}{
   \itemize{
+    \item{Version 1.0-0 published. This version is described in the MLOSS paper 
+          accepted for publication by the Journal of Machine Learning Research today.}
     \item{The unbiased version of \code{cforest} (with \code{replace = FALSE}) is 
           now the default (as in \pkg{party}).}
     \item{Register all S3 methods in \code{NAMESPACE}.}
