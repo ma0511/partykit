@@ -112,6 +112,8 @@ S3method("nodeprune", "party")
 S3method("nodeprune", "partynode")
 S3method("print", "party")
 S3method("plot", "party")
+S3method("data_party", "default")
+S3method("predict_party", "default")
 
 ## methods for class partynode
 S3method("[", "partynode")
