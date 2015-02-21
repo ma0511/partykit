@@ -15,7 +15,7 @@ BibOptions(check.entries = FALSE, style = "html", cite.style = "authoryear",
 ```
 The partykit package provides a flexible toolkit for learning, representing,
 summarizing, and visualizing a wide range of tree-structured regression
-and classification models `r AutoCite(bib, "Hothorn_Zeileis_2015")`.
+and classification models `r Citep(bib, "Hothorn_Zeileis_2015")`.
 In addition, it implements conditional inference trees
 `r AutoCite(bib, "Hothorn:2006:JCGS", before = "function ctree(), ")`,
 and model-based recursive partitioning 
