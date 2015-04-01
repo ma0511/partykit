@@ -2,6 +2,15 @@
 \name{NEWS}
 \title{NEWS file for the partykit package}
 
+\section{Changes in Version 1.0-1 (2015-mm-dd}{
+  \itemize{
+    \item{The \code{as.party()} method for \code{"rpart"} objects did not
+      work if one of the partitioning variables was a \code{"character"}
+      variable rather than a \code{"factor"}. A suitable work-around has
+      been added. }
+  }
+}
+
 \section{Changes in Version 1.0-0 (2015-02-20}{
   \itemize{
     \item{Version 1.0-0 published. This version is described in the MLOSS paper 
