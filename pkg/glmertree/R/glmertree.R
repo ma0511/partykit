@@ -1,7 +1,7 @@
 lmertree <- function(lmtreeformula, randomformula, data, #subset = NULL, 
   initialRandomEffects = NULL, 
   ErrorTolerance = 0.001, MaxIterations = 1000, 
-  verbose = TRUE, plotting = TRUE,
+  verbose = TRUE, plotting = FALSE,
   lmer.control = lmerControl(), ...)
 {
   iteration <- 0L
@@ -54,7 +54,7 @@ glmertree <- function(glmtreeformula, randomformula, data, #subset = NULL,
   family = "binomial",
   initialRandomEffects = NULL, 
   ErrorTolerance = 0.001, MaxIterations = 1000, 
-  verbose = TRUE, plotting = TRUE,
+  verbose = TRUE, plotting = FALSE,
   glmer.control = glmerControl(), ...)
 {
   iteration <- 0L
