@@ -12,7 +12,7 @@ lmertree <- function(lmtreeformula, randomformula, data, #subset = NULL,
   while (continuecondition) {
     iteration <- iteration + 1L
     tree <- lmtree(lmtreeformula, data, offset = offset, ...)
-    if(verbose){plot(tree)}
+    if(plotting){plot(tree)}
     if(length(tree) > 1L) {
       data$treeresponse <- treeresponse <- predict(tree, newdata = data)
     }
@@ -65,7 +65,7 @@ glmertree <- function(glmtreeformula, randomformula, data, #subset = NULL,
   while (continuecondition) {
     iteration <- iteration + 1L
     tree <- glmtree(glmtreeformula, data, family = family, offset = offset, ...)
-    if(verbose){plot(tree)}
+    if(plotting){plot(tree)}
     if(length(tree) > 1L) {
       data$treeresponse <- treeresponse <- predict(tree, newdata = data, type = "link")
     }

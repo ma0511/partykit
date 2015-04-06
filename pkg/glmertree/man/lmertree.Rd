@@ -11,7 +11,7 @@
 lmertree(lmtreeformula, randomformula, data,
   initialRandomEffects = NULL, 
   ErrorTolerance = 0.001, MaxIterations = 1000, 
-  verbose = TRUE, plotting = TRUE,
+  verbose = TRUE, plotting = FALSE,
   lmer.control = lmerControl(), \dots)
 }
 
@@ -50,7 +50,7 @@ The function returns a list with the following objects:
   \item{TreeFormula}{The formula as specified with the \code{lmtreeformula} argument.}
   \item{RandomFormula}{The formula as specified with the \code{randomformula} argument.}
   \item{ErrorTolerance}{The prespecified value for the change in log likelihood to evaluate convergence, as specified with the \code{ErrorTolerance} argument.} 
-  \item{tree.control}{A list containing control parameters passed to \code{\lmtree()}, as specified with \dots.}
+  \item{tree.control}{A list containing control parameters passed to \code{lmtree()}, as specified with \dots.}
   \item{lmer.control}{A list containing control parameters passed to \code{lmer()}, as specified in the \code{lmer.control} argument.}
 }
 
@@ -61,7 +61,7 @@ The function returns a list with the following objects:
 ## lmertree example
 data(dataset.lmer)
 lmer_ex <- lmertree(Y ~ treatment | U1 + U2 + U3 + U4 + U5, Y ~ 1|cluster, 
-  data=dataset.lmer, plotting=F)
+  data=dataset.lmer, plotting=FALSE)
 plot(lmer_ex$Tree)
 coef(lmer_ex$Tree)
 lmer_ex$RandomEffectModel
