@@ -93,7 +93,7 @@ function (X, FUN, ...)
         X <- as.list(X)
     .Internal(lapply(X, FUN))
 }
-<bytecode: 0x1048b20>
+<bytecode: 0x254bb20>
 <environment: namespace:base>
 
 
@@ -145,7 +145,7 @@ function (X, FUN, ...)
         X <- as.list(X)
     .Internal(lapply(X, FUN))
 }
-<bytecode: 0x1048b20>
+<bytecode: 0x254bb20>
 <environment: namespace:base>
 
 
@@ -197,7 +197,7 @@ function (X, FUN, ...)
         X <- as.list(X)
     .Internal(lapply(X, FUN))
 }
-<bytecode: 0x1048b20>
+<bytecode: 0x254bb20>
 <environment: namespace:base>
 
 
@@ -249,7 +249,7 @@ function (X, FUN, ...)
         X <- as.list(X)
     .Internal(lapply(X, FUN))
 }
-<bytecode: 0x1048b20>
+<bytecode: 0x254bb20>
 <environment: namespace:base>
 
 
@@ -301,7 +301,7 @@ function (X, FUN, ...)
         X <- as.list(X)
     .Internal(lapply(X, FUN))
 }
-<bytecode: 0x1048b20>
+<bytecode: 0x254bb20>
 <environment: namespace:base>
 
 
@@ -452,8 +452,7 @@ p.value   0.5735483 0.4272879
 
 > library("survival")
 
-> (stree <- ctree(Surv(time, cens) ~ horTh + age + menostat + 
-+     tsize + tgrade + pnodes + progrec + estrec, data = GBSG2))
+> (stree <- ctree(Surv(time, cens) ~ ., data = GBSG2))
 
 Model formula:
 Surv(time, cens) ~ horTh + age + menostat + tsize + tgrade + 
@@ -508,4 +507,4 @@ records   n.max n.start  events  median 0.95LCL 0.95UCL
  *** Run successfully completed ***
 > proc.time()
    user  system elapsed 
-  4.002   0.085   4.417 
+  3.978   0.079  11.441 

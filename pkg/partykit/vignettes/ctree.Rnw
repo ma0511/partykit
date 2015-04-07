@@ -927,8 +927,7 @@ fitted using the following code:
 <<GBSGS-ctree, echo = TRUE>>=
 data("GBSG2", package = "TH.data")  
 library("survival")
-(stree <- ctree(Surv(time, cens) ~ horTh + age + menostat + tsize + 
-                tgrade + pnodes + progrec + estrec, data = GBSG2))
+(stree <- ctree(Surv(time, cens) ~ ., data = GBSG2))
 @
 
 \setkeys{Gin}{width=\textwidth}
