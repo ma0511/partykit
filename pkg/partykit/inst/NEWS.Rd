@@ -17,6 +17,9 @@
     \item{The \code{node_barplot()} panel function can now also be used
       for multivariate responses, e.g., when all responses are numeric and
       on the same scale.}
+
+    \item{The survival tree example for the GBSG2 data was broken due to
+          the response being (incorrectly) also part of the explanatory variables.}
   }
 }
 
