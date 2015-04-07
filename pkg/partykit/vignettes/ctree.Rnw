@@ -904,22 +904,6 @@ legend(0.15, 0.7, pch = 1:2, legend = levels(GlaucomaM$Class), bty = "n")
 
 \subsection{Node positive breast cancer}
 
-<<GBSGS-ctree, echo = TRUE>>=
-data("GBSG2", package = "TH.data")  
-library("survival")
-stree <- ctree(Surv(time, cens) ~ ., data = GBSG2)
-@
-
-\setkeys{Gin}{width=\textwidth}
-\begin{figure}[t!]
-\centering
-<<GBSG2-plot, echo = TRUE, fig = TRUE, height = 6, width = 10>>=
-plot(stree)
-@
-\caption{Tree-structured survival model for the GBSG2 data and the distribution of 
-survival times in the terminal nodes. The median survival time is displayed in
-each terminal node of the tree. \label{gbsg2}}
-\end{figure}  
 
 
 Recursive partitioning for censored responses has attracted a lot of interest
@@ -938,7 +922,26 @@ The number of positive lymph nodes
 been identified as prognostic factors in the survival tree analysis
 by \cite{Schumacher+Hollaender+Schwarzer:2001a}.  Here, the binary variable coding whether a
 hormonal therapy was applied or not (\code{horTh}) additionally is
-part of the model depicted in Figure~\ref{gbsg2}.
+part of the model depicted in Figure~\ref{gbsg2}, which was 
+fitted using the following code:
+<<GBSGS-ctree, echo = TRUE>>=
+data("GBSG2", package = "TH.data")  
+library("survival")
+(stree <- ctree(Surv(time, cens) ~ horTh + age + menostat + tsize + 
+                tgrade + pnodes + progrec + estrec, data = GBSG2))
+@
+
+\setkeys{Gin}{width=\textwidth}
+\begin{figure}[t!]
+\centering
+<<GBSG2-plot, echo = TRUE, fig = TRUE, height = 6, width = 10>>=
+plot(stree)
+@
+\caption{Tree-structured survival model for the GBSG2 data and the distribution of 
+survival times in the terminal nodes. The median survival time is displayed in
+each terminal node of the tree. \label{gbsg2}}
+\end{figure}  
+
 
 The estimated median survival time for new patients is less informative
 compared to the whole Kaplan-Meier curve estimated from the patients in the

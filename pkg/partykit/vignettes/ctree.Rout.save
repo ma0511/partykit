@@ -9,7 +9,6 @@ Loading required package: grid
 > require("coin")
 Loading required package: coin
 Loading required package: survival
-Loading required package: splines
 
 > require("strucchange")
 Loading required package: strucchange
@@ -94,7 +93,7 @@ function (X, FUN, ...)
         X <- as.list(X)
     .Internal(lapply(X, FUN))
 }
-<bytecode: 0x2102930>
+<bytecode: 0x1048b20>
 <environment: namespace:base>
 
 
@@ -146,7 +145,7 @@ function (X, FUN, ...)
         X <- as.list(X)
     .Internal(lapply(X, FUN))
 }
-<bytecode: 0x2102930>
+<bytecode: 0x1048b20>
 <environment: namespace:base>
 
 
@@ -198,7 +197,7 @@ function (X, FUN, ...)
         X <- as.list(X)
     .Internal(lapply(X, FUN))
 }
-<bytecode: 0x2102930>
+<bytecode: 0x1048b20>
 <environment: namespace:base>
 
 
@@ -250,7 +249,7 @@ function (X, FUN, ...)
         X <- as.list(X)
     .Internal(lapply(X, FUN))
 }
-<bytecode: 0x2102930>
+<bytecode: 0x1048b20>
 <environment: namespace:base>
 
 
@@ -302,7 +301,7 @@ function (X, FUN, ...)
         X <- as.list(X)
     .Internal(lapply(X, FUN))
 }
-<bytecode: 0x2102930>
+<bytecode: 0x1048b20>
 <environment: namespace:base>
 
 
@@ -453,7 +452,24 @@ p.value   0.5735483 0.4272879
 
 > library("survival")
 
-> stree <- ctree(Surv(time, cens) ~ ., data = GBSG2)
+> (stree <- ctree(Surv(time, cens) ~ horTh + age + menostat + 
++     tsize + tgrade + pnodes + progrec + estrec, data = GBSG2))
+
+Model formula:
+Surv(time, cens) ~ horTh + age + menostat + tsize + tgrade + 
+    pnodes + progrec + estrec
+
+Fitted party:
+[1] root
+|   [2] pnodes <= 3
+|   |   [3] horTh in no: 2093.000 (n = 248)
+|   |   [4] horTh in yes: Inf (n = 128)
+|   [5] pnodes > 3
+|   |   [6] progrec <= 20: 624.000 (n = 144)
+|   |   [7] progrec > 20: 1701.000 (n = 166)
+
+Number of inner nodes:    3
+Number of terminal nodes: 4
 
 > plot(stree)
 
@@ -467,7 +483,7 @@ Call: survfit(formula = Surv(time, cens) ~ 1, data = GBSG2, subset = (n ==
     pn[1]))
 
 records   n.max n.start  events  median 0.95LCL 0.95UCL 
-     10      10      10      10    1814    1806      NA 
+    248     248     248      88    2093    1814      NA 
 
 > survfit(Surv(time, cens) ~ 1, data = GBSG2, subset = (n == 
 +     pn[2]))
@@ -475,7 +491,7 @@ Call: survfit(formula = Surv(time, cens) ~ 1, data = GBSG2, subset = (n ==
     pn[2]))
 
 records   n.max n.start  events  median 0.95LCL 0.95UCL 
-     10      10      10      10    2036    2018      NA 
+    166     166     166      77    1701    1174    2018 
 
 > data("mammoexp", package = "TH.data")
 
@@ -492,4 +508,4 @@ records   n.max n.start  events  median 0.95LCL 0.95UCL
  *** Run successfully completed ***
 > proc.time()
    user  system elapsed 
-  5.518   0.095   7.718 
+  4.002   0.085   4.417 
