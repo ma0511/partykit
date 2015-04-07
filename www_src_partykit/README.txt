@@ -4,6 +4,7 @@ Update the web page:
 (1) install pkg2html from R-forge
 
 (2) install jekyll from http://jekyllrb.com/
+    (needs ruby-dev)
 
 (3) run setup.R in www_src
 
