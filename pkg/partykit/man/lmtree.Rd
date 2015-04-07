@@ -43,8 +43,9 @@ or \code{\link[stats]{lm.wfit}} (depending on whether weights are used or not).
 Then \code{mob} is called using the residual sum of squares as the objective
 function.
 
-The implementation makes tries to be avoid making unnecessary computations
-while growing the tree. Also, it provides a more elaborate plotting function.
+Compared to calling \code{mob} by hand, the implementation tries to avoid
+unnecessary computations while growing the tree. Also, it provides a more
+elaborate plotting function.
 }
 
 \value{

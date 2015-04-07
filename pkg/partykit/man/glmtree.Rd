@@ -45,8 +45,9 @@ the \code{\link{mob}} function. \code{glmtree} internally sets up a model
 Then \code{mob} is called using the negative log-likelihood as the objective
 function.
 
-The implementation makes tries to be avoid making unnecessary computations
-while growing the tree. Also, it provides a more elaborate plotting function.
+Compared to calling \code{mob} by hand, the implementation tries to avoid
+unnecessary computations while growing the tree. Also, it provides a more
+elaborate plotting function.
 }
 
 \value{

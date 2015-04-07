@@ -4,10 +4,19 @@
 
 \section{Changes in Version 1.0-1 (2015-mm-dd}{
   \itemize{
+    \item{The support for (generalized) linear model trees with just
+      a constant regressor has been improved. Now \code{lmtree(y ~ x1 + x2)}
+      is short for \code{lmtree(y ~ 1 | x1 + x2)}, analogously for \code{glmtree()}.
+      Plotting now also works properly in this case.}
+
     \item{The \code{as.party()} method for \code{"rpart"} objects did not
       work if one of the partitioning variables was a \code{"character"}
       variable rather than a \code{"factor"}. A suitable work-around has
-      been added. }
+      been added.}
+      
+    \item{The \code{node_barplot()} panel function can now also be used
+      for multivariate responses, e.g., when all responses are numeric and
+      on the same scale.}
   }
 }
 
