@@ -36,15 +36,13 @@ A data frame containing 28 observations on 18 variables
 }
 
 \details{
-   Original analysis by Van der Aart and Smeenk-Enserink (1975).
-
-   These data were analysed using multivariate trees in De'ath (2002).
+  The data were originally analyzed by Van der Aart and Smeenk-Enserink (1975).
+  De'ath (2002) transformed all variables to the 0--9 scale and employed
+  multivariate regression trees.
 }
 
 \source{
-  Table 4 in Van der Aart and Smeenk-Enserink (1975).
-  
-  Rescaled in \pkg{mvpart} (currently archived, see
+  Package \pkg{mvpart} (currently archived, see
   \url{http://CRAN.R-project.org/package=mvpart}).
 }
 
@@ -68,7 +66,7 @@ sptree <- ctree(arct.lute + pard.lugu + zora.spin + pard.nigr + pard.pull +
   aulo.albi + troc.terr + alop.cune + pard.mont + alop.acce + alop.fabr +
   arct.peri ~ herbs + reft + moss + sand + twigs + water, data = HuntingSpiders,
   teststat = "max", minsplit = 5)
-print(sptree)
+plot(sptree, terminal_panel = node_barplot)
 }
 
 \keyword{datasets}

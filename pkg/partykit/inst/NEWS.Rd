@@ -18,8 +18,15 @@
       for multivariate responses, e.g., when all responses are numeric and
       on the same scale.}
 
+    \item{The package now also includes a new data set \code{HuntingSpiders}
+      which is essentially a copy of the \code{spider} data from the package
+      \pkg{mvpart} that is currently archived on CRAN. The documentation has
+      been improved somewhat and is likely to change further to explain how
+      the data has been transformed in De'ath (2002).}
+
     \item{The survival tree example for the GBSG2 data was broken due to
-          the response being (incorrectly) also part of the explanatory variables.}
+      the response being (incorrectly) also part of the explanatory variables.
+      Fixed by using the latest \pkg{Formula} package (at least version 1.2-1).}
   }
 }
 
