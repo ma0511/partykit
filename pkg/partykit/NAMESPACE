@@ -2,7 +2,7 @@ useDynLib("partykit")
 import("stats")
 import("graphics")
 import("grid")
-importFrom("survival", "survfit", "Surv")
+importFrom("survival", "survfit")
 
 export(
   ## core infrastructure
