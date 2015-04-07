@@ -4,10 +4,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Version 0.8-0</title>
+    <title>Version 1.0-1</title>
     <meta name="viewport" content="width=device-width">
     <meta name="description" content="">
-    <link rel="canonical" href="http://partykit.r-forge.r-project.org/partykit/2014/03/27/0.8-0/">
+    <link rel="canonical" href="http://partykit.r-forge.r-project.org/partykit/2015/04/07/1.0-1/">
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="http://partykit.r-forge.r-project.org/partykit/css/main.css">
@@ -64,39 +64,31 @@ hljs.initHighlightingOnLoad();
       <div class="post">
 
   <header class="post-header">
-    <h1>Version 0.8-0</h1>
-    <p class="meta">Mar 27, 2014</p>
+    <h1>Version 1.0-1</h1>
+    <p class="meta">Apr 7, 2015</p>
   </header>
 
   <article class="post-content">
   <ul>
-<li> Major improved version of partykit. The previously existing
-functions in the package were tested and enhanced, new functions
-and extensive vignettes added. </li>
-<li> Extended and improved introductory documentation. The basic classes
-and class constructors partynode/partysplit/party are introduced in
-much more detail now in vignette("partykit", package = "partykit"). </li>
-<li> The class constparty (inheriting from party) for representing party
-objects with constant fits in the nodes (along with coercion
-methods for rpart, J48, etc.) is now described in more detail in
-the new vignette("constparty", package = "partykit"). </li>
-<li> The package now includes a reimplementation of the model-based
-recursive partitioning algorithm (MOB) using partykit
-infrastructure.  The generic algorithm, the corresponding
-convenience interfaces lmtree() and glmtree() as well as various
-illustrations and possible extensions are described in detail in
-the new vignette("mob", package = "partykit"). </li>
-<li> Improved implementation of conditional inference trees (CTree), see
-the new vignette("ctree", package = "partykit") for details. </li>
-<li> New nodeprune() generic for pruning nodes in all party trees and
-partynode objects. </li>
-<li> Deal with empty levels in ctree() for teststat = "quad" (bug
-reported by Wei-Yin Loh <loh_at_stat.wisc.edu>). </li>
-<li> In predict() method for constparty objects, type = "prob" now
-returns ECDF for numeric responses and type = "response" the
-(weighted) mean. </li>
-<li> New panel function node_ecdf() for plotting empirical cumulative
-distribution functions in the terminal leaves of constparty trees. </li>
+<li> The support for (generalized) linear model trees with just a
+constant regressor has been improved. Now lmtree(y ~ x1 + x2) is
+short for lmtree(y ~ 1 | x1 + x2), analogously for glmtree().
+Plotting now also works properly in this case. </li>
+<li> The as.party() method for "rpart" objects did not work if one of
+the partitioning variables was a "character" variable rather than a
+"factor". A suitable work-around has been added. </li>
+<li> The node_barplot() panel function can now also be used for
+multivariate responses, e.g., when all responses are numeric and on
+the same scale. </li>
+<li> The package now also includes a new data set HuntingSpiders which
+is essentially a copy of the spider data from the package mvpart
+that is currently archived on CRAN. The documentation has been
+improved somewhat and is likely to change further to explain how
+the data has been transformed in De'ath (2002). </li>
+<li> The survival tree example for the GBSG2 data was broken due to the
+response being (incorrectly) also part of the explanatory
+variables.  Fixed by using the latest Formula package (at least
+version 1.2-1). </li>
 </ul>
 
   </article>
