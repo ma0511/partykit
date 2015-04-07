@@ -48,7 +48,7 @@ A data frame containing 28 observations on 18 variables
   \url{http://CRAN.R-project.org/package=mvpart}).
 }
 
-\source{
+\references{
 Van der Aart PJ, Smeenk-Enserink N (1975).
   Correlations between Distributions of Hunting Spiders (Lycosidae, Ctenidae)
   and Environmental Characteristics in a Dune Area.
