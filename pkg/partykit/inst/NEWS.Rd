@@ -2,7 +2,14 @@
 \name{NEWS}
 \title{NEWS file for the partykit package}
 
-\section{Changes in Version 1.0-1 (2015-mm-dd}{
+\section{Changes in Version 1.0-2 (2015-xx-yy}{
+  \itemize{
+    \item{\code{predict.cforest} used \code{na.omit} instead of \code{na.pass}.}
+  }
+}
+
+
+\section{Changes in Version 1.0-1 (2015-04-07}{
   \itemize{
     \item{The support for (generalized) linear model trees with just
       a constant regressor has been improved. Now \code{lmtree(y ~ x1 + x2)}
