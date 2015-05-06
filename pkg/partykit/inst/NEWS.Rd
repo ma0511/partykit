@@ -5,6 +5,9 @@
 \section{Changes in Version 1.0-2 (2015-xx-yy}{
   \itemize{
     \item{\code{predict.cforest} used \code{na.omit} instead of \code{na.pass}.}
+    \item{\code{predict.party} now features new \code{perm} argument for
+          permuting splits in specific variables (useful for computing
+          permutation variable importances).}
   }
 }
 

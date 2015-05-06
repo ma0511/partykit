@@ -239,7 +239,7 @@ nodeapply.partynode <- function(obj, ids = 1, FUN = NULL, ...) {
     return(rval)
 }
 
-predict.party <- function(object, newdata = NULL, ...)
+predict.party <- function(object, newdata = NULL, perm = NULL, ...)
 {
     ### compute fitted node ids first
     fitted <- if(is.null(newdata)) object$fitted[["(fitted)"]] else {
@@ -256,6 +256,13 @@ predict.party <- function(object, newdata = NULL, ...)
             if(is.null(surr)) return(NULL) else return(sapply(surr, varid_split))
         })
         vnames <- names(object$data)
+
+        ### the splits of nodes with a primary split in perm
+        ### will be permuted
+        if (!is.null(perm)) {
+            stopifnot(all(perm %in% vnames))
+            perm <- match(perm, vnames)
+        }
 
         ## ## FIXME: the is.na() call takes loooong on large data sets
         ## unames <- if(any(sapply(newdata, is.na))) 
@@ -275,11 +282,13 @@ predict.party <- function(object, newdata = NULL, ...)
         ## FIXME: inform about wrong classes / factor levels?
         if(all(unames %in% ndnames) && checkclass && checkfactors) {
             vmatch <- match(vnames, ndnames)
-            fitted_node(node_party(object), newdata, vmatch)
+            fitted_node(node_party(object), data = newdata, 
+                        vmatch = vmatch, perm = perm)
         } else {
             if (!is.null(object$terms)) {
                 mf <- model.frame(delete.response(object$terms), newdata)
-                fitted_node(node_party(object), mf, match(vnames, names(mf)))
+                fitted_node(node_party(object), data = mf, 
+                            vmatch = match(vnames, names(mf)), perm = perm)
             } else
                 stop("") ## FIXME: write error message
         }
