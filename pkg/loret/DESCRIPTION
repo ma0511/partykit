@@ -1,0 +1,10 @@
+Package: loret
+Title: Logistic Regression Trees for Multinomial and Ordinal Responses
+Version: 0.0-1
+Date: 2015-06-18
+Authors@R: c(person("Thomas", "Rusch", role = c("aut", "cre"), email = "thomas.rusch@wu.ac.at"),
+             person("Achim", "Zeileis", role = "aut"))
+Description: A collection of functions to extend the functionality of mob. In particular, they can be used to extend the node model functionality for mob() in package partykit. Convenience functions for mob objects. Some data files.   
+License: GPL-2 | GPL-3
+Depends: R (>= 2.15.0), party, nnet, MASS, modeltools (>= 0.2-19), sandwich (>= 0.2-10), ordinal (>= 2012.09-11) 
+
