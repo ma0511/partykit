@@ -593,16 +593,18 @@ nodeprune.partynode <- function(x, ids, ...) {
     x <- unclass(x)
 
     for (i in 1:length(idxs)) {
-    
+        ## path to be pruned
         idx <- idxs[[i]]
-        ### check if we already pruned-off this node
-        tmp <- try(x[[idx]], silent = TRUE)
-        if (inherits(tmp, "try-error"))
-            next()
-
-        ### prune node by introducing a "new" terminal node
-        x[[idx]] <- partynode(id = id_node(x[[idx]]),
-                              info = info_node(x[[idx]]))
+	if(!is.null(idx)) {
+          ### check if we already pruned-off this node
+          tmp <- try(x[[idx]], silent = TRUE)
+          if(inherits(tmp, "try-error")) next()
+          ### prune node by introducing a "new" terminal node
+          x[[idx]] <- partynode(id = id_node(tmp), info = info_node(tmp))
+	} else {
+	  ## if idx path is NULL prune everything
+	  x[2L:4L] <- NULL
+	}
     }
 
     class(x) <- cls
