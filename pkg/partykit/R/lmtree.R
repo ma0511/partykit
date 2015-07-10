@@ -59,6 +59,9 @@ lmtree <- function(formula, data, subset, na.action, weights, offset, cluster, .
 lmfit <- function(y, x, start = NULL, weights = NULL, offset = NULL, cluster = NULL, ...,
   estfun = FALSE, object = FALSE)
 {
+  ## FIXME: add intercept-only regressor matrix (if missing)
+  if(is.null(x)) x <- matrix(1, nrow = NROW(y), ncol = 1L)
+  
   ## call lm fitting function
   if(is.null(weights) || identical(as.numeric(weights), rep.int(1, length(weights)))) {
     z <- lm.fit(x, y, offset = offset, ...)
