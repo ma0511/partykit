@@ -60,8 +60,10 @@ glmfit <- function(y, x, start = NULL, weights = NULL, offset = NULL, cluster = 
   }
   args$control <- do.call("glm.control", ctrl)
   
-  ## FIXME: add intercept-only regressor matrix (if missing)
-  if(is.null(x)) x <- matrix(1, nrow = NROW(y), ncol = 1L)
+  ## add intercept-only regressor matrix (if missing)
+  ## NOTE: does not have terms/formula
+  if(is.null(x)) x <- matrix(1, nrow = NROW(y), ncol = 1L,
+    dimnames = list(NULL, "(Intercept)"))
   
   ## call glm fitting function
   args <- c(list(x = x, y = y, start = start, weights = weights, offset = offset), args)
