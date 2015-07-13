@@ -26,9 +26,16 @@ library("partykit")
 set.seed(290875)
 @
 
+\jmlrheading{17}{2015}{1-5}{4/14}{7/15}{Torsten Hothorn and Achim Zeileis}
+
+\ShortHeadings{A Modular Toolkit for Recursive Partytioning}{Hothorn and Zeileis}
+
 %% header declarations
-\author{Torsten Hothorn \\ \addr{Institut f\"ur Epidemiologie, Biostatistik und Pr\"avention, Universit\"at Z\"urich} \\ \email{E-mail: Torsten.Hothorn@R-project.org} \AND
-        Achim Zeileis \\ \addr{Institut f\"ur Statistik, Universit\"at Innsbruck} \\ \email{E-mail: Achim.Zeileis@R-project.org}}
+\author{\name Torsten Hothorn \email Torsten.Hothorn@R-project.org \\
+        \addr Institut f\"ur Epidemiologie, Biostatistik und Pr\"avention, Universit\"at Z\"urich, Switzerland \\
+        \AND
+        \name Achim Zeileis \email Achim.Zeileis@R-project.org \\
+        \addr Institut f\"ur Statistik, Universit\"at Innsbruck, Austria} 
 \title{\pkg{partykit}: A Modular Toolkit for Recursive Partytioning in \proglang{R}}
 \editor{Cheng Soon Ong}
 
@@ -52,7 +59,7 @@ set.seed(290875)
 
 \maketitle
 
-\begin{abstract}
+\begin{abstract}%
   The \proglang{R} package \pkg{partykit} provides a flexible toolkit for
   learning, representing, summarizing, and visualizing a wide range of tree-structured
   regression and classification models. The functionality encompasses: (a)~basic
@@ -69,7 +76,7 @@ set.seed(290875)
 \end{abstract}
 
 \begin{keywords}
-recursive partitioning, regression trees, classification trees, statistical learning, \proglang{R}.
+recursive partitioning, regression trees, classification trees, statistical learning, \proglang{R}
 \end{keywords}
 
 \section{Overview}
