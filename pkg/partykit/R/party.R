@@ -242,10 +242,16 @@ nodeapply.partynode <- function(obj, ids = 1, FUN = NULL, ...) {
 predict.party <- function(object, newdata = NULL, perm = NULL, ...)
 {
     ### compute fitted node ids first
-    fitted <- if(is.null(newdata)) object$fitted[["(fitted)"]] else {
-
-        terminal <- nodeids(object, terminal = TRUE)
-        inner <- 1:max(terminal)
+    fitted <- if(is.null(newdata)) {    
+        object$fitted[["(fitted)"]]	
+    } else {
+      terminal <- nodeids(object, terminal = TRUE)
+	
+      if(max(terminal) == 1L) {
+        rep.int(1L, NROW(newdata))
+      } else {
+	
+        inner <- 1L:max(terminal)
         inner <- inner[-terminal]
 
         primary_vars <- nodeapply(object, ids = inner, by_node = TRUE, FUN = function(node) {
@@ -292,6 +298,7 @@ predict.party <- function(object, newdata = NULL, perm = NULL, ...)
             } else
                 stop("") ## FIXME: write error message
         }
+      }
     }
     ### compute predictions
     predict_party(object, fitted, newdata, ...)
