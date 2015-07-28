@@ -2,7 +2,7 @@
 \name{NEWS}
 \title{NEWS file for the partykit package}
 
-\section{Changes in Version 1.0-2 (2015-xx-yy}{
+\section{Changes in Version 1.0-2 (2015-07-28}{
   \itemize{
     \item{\code{nodeprune(..., ids = 1)} did not prune the tree to the root
       node. Fixed now.}
@@ -10,6 +10,7 @@
     \item{\code{predict.party} now features new \code{perm} argument for
           permuting splits in specific variables (useful for computing
           permutation variable importances).}
+   \item{\code{NAMESPACE} updates.}
   }
 }
 
