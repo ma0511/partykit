@@ -1,0 +1,1201 @@
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2014.2.15)  30 JUL 2015 11:33
+entering extended mode
+**treatment_interactions*paper.tex
+("C:\Users\User\Desktop\paper\treatment_interactions paper.tex"
+LaTeX2e <2011/06/27>
+Babel <v3.8m> and hyphenation patterns for english, afrikaans, ancientgreek, ar
+abic, armenian, assamese, basque, bengali, bokmal, bulgarian, catalan, coptic, 
+croatian, czech, danish, dutch, esperanto, estonian, farsi, finnish, french, ga
+lician, german, german-x-2013-05-26, greek, gujarati, hindi, hungarian, iceland
+ic, indonesian, interlingua, irish, italian, kannada, kurmanji, latin, latvian,
+ lithuanian, malayalam, marathi, mongolian, mongolianlmc, monogreek, ngerman, n
+german-x-2013-05-26, nynorsk, oriya, panjabi, pinyin, polish, portuguese, roman
+ian, russian, sanskrit, serbian, slovak, slovenian, spanish, swedish, swissgerm
+an, tamil, telugu, turkish, turkmen, ukenglish, ukrainian, uppersorbian, usengl
+ishmax, welsh, loaded.
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\apa\apa.cls"
+Document Class: apa 2008/12/09 American Psychological Association format v1.3.4
+
+
+Class apa Warning: Using BibTeX with apacite for citations and references.
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\base\article.cls"
+Document Class: article 2007/10/19 v1.4h Standard LaTeX document class
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\base\size11.clo"
+File: size11.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\apacite\apacite.sty"
+Package: apacite 2013/07/21 v6.03 APA citation
+\c@BibCnt=\count87
+\bibleftmargin=\skip43
+\bibindent=\skip44
+\bibparsep=\skip45
+\bibitemsep=\skip46
+\biblabelsep=\skip47
+)
+\b@level@one@skip=\skip48
+\e@level@one@skip=\skip49
+\b@level@two@skip=\skip50
+\e@level@two@skip=\skip51
+\b@level@three@skip=\skip52
+\e@level@three@skip=\skip53
+\b@level@four@skip=\skip54
+\e@level@four@skip=\skip55
+\b@level@five@skip=\skip56
+\e@level@five@skip=\skip57
+\c@APAenum=\count88
+\@text@par@indent=\skip58
+\gr@box=\box26
+\gr@boxwidth=\skip59
+\gr@boxheight=\skip60
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\tools\bm.sty"
+Package: bm 2004/02/26 v1.1c Bold Symbol Support (DPC/FMi)
+\symboldoperators=\mathgroup4
+\symboldletters=\mathgroup5
+\symboldsymbols=\mathgroup6
+LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 138.
+LaTeX Info: Redefining \bm on input line 204.
+)
+\c@appendix=\count89
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsfonts\amssymb.sty"
+Package: amssymb 2013/01/14 v3.01 AMS font symbols
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsfonts\amsfonts.sty"
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\@emptytoks=\toks14
+\symAMSa=\mathgroup7
+\symAMSb=\mathgroup8
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsmath\amsmath.sty"
+Package: amsmath 2013/01/14 v2.14 AMS math features
+\@mathmargin=\skip61
+
+For additional information on amsmath, use the `?' option.
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsmath\amstext.sty"
+Package: amstext 2000/06/29 v2.01
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsmath\amsgen.sty"
+File: amsgen.sty 1999/11/30 v2.0
+\@emptytoks=\toks15
+\ex@=\dimen103
+))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsmath\amsbsy.sty"
+Package: amsbsy 1999/11/29 v1.2d
+LaTeX Info: Redefining \boldsymbol on input line 39.
+\pmbraise@=\dimen104
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsmath\amsopn.sty"
+Package: amsopn 1999/12/14 v2.01 operator names
+)
+\inf@bad=\count90
+LaTeX Info: Redefining \frac on input line 210.
+\uproot@=\count91
+\leftroot@=\count92
+LaTeX Info: Redefining \overline on input line 306.
+\classnum@=\count93
+\DOTSCASE@=\count94
+LaTeX Info: Redefining \ldots on input line 378.
+LaTeX Info: Redefining \dots on input line 381.
+LaTeX Info: Redefining \cdots on input line 466.
+\Mathstrutbox@=\box27
+\strutbox@=\box28
+\big@size=\dimen105
+LaTeX Font Info:    Redeclaring font encoding OML on input line 566.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 567.
+\macc@depth=\count95
+\c@MaxMatrixCols=\count96
+\dotsspace@=\muskip10
+\c@parentequation=\count97
+\dspbrk@lvl=\count98
+\tag@help=\toks16
+\row@=\count99
+\column@=\count100
+\maxfields@=\count101
+\andhelp@=\toks17
+\eqnshift@=\dimen106
+\alignsep@=\dimen107
+\tagshift@=\dimen108
+\tagwidth@=\dimen109
+\totwidth@=\dimen110
+\lineht@=\dimen111
+\@envbody=\toks18
+\multlinegap=\skip62
+\multlinetaggap=\skip63
+\mathdisplay@stack=\toks19
+LaTeX Info: Redefining \[ on input line 2665.
+LaTeX Info: Redefining \] on input line 2666.
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amscls\amsthm.sty"
+Package: amsthm 2004/08/06 v2.20
+\thm@style=\toks20
+\thm@bodyfont=\toks21
+\thm@headfont=\toks22
+\thm@notefont=\toks23
+\thm@headpunct=\toks24
+\thm@preskip=\skip64
+\thm@postskip=\skip65
+\thm@headsep=\skip66
+\dth@everypar=\toks25
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\tools\tabularx.sty"
+Package: tabularx 1999/01/07 v2.07 `tabularx' package (DPC)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\tools\array.sty"
+Package: array 2008/09/09 v2.4c Tabular extension package (FMi)
+\col@sep=\dimen112
+\extrarowheight=\dimen113
+\NC@list=\toks26
+\extratabsurround=\skip67
+\backup@length=\skip68
+)
+\TX@col@width=\dimen114
+\TX@old@table=\dimen115
+\TX@old@col=\dimen116
+\TX@target=\dimen117
+\TX@delta=\dimen118
+\TX@cols=\count102
+\TX@ftn=\toks27
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\curves\curves.sty"
+Package: curves 2009/08/31 1.53 Curves for LaTeX picture environment
+\;sc=\count103
+\;scp=\count104
+\;t=\count105
+\;cc=\count106
+\;cnd=\count107
+\;mcnd=\count108
+\;np=\count109
+\;overhang=\count110
+\;pbs=\count111
+\;pns=\count112
+\;psc=\count113
+\;rc=\count114
+\;rtc=\count115
+\;tc=\count116
+\csdiameter=\skip69
+\curvelength=\skip70
+\overhang=\skip71
+\;x=\skip72
+\;dx=\skip73
+\;ddx=\skip74
+\;y=\skip75
+\;dy=\skip76
+\;ddy=\skip77
+\;pl=\skip78
+\;ucd=\skip79
+\;csbox=\box29
+\;pt=\box30
+\;strline=\toks28
+\m;ssingcoord=\toks29
+\;negdash=\toks30
+\;oddcoord=\toks31
+\;wc=\count117
+\;X=\skip80
+\;Y=\skip81
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\texdraw\texdraw.sty"
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\graphics\graphics.sty"
+Package: graphics 2009/02/05 v1.0o Standard LaTeX Graphics (DPC,SPQR)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\graphics\trig.sty"
+Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\00miktex\graphics.cfg"
+File: graphics.cfg 2007/01/18 v1.5 graphics configuration of teTeX/TeXLive
+)
+Package graphics Info: Driver file: pdftex.def on input line 91.
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\pdftex-def\pdftex.def"
+File: pdftex.def 2011/05/27 v0.06d Graphics/color for pdfTeX
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\oberdiek\infwarerr.sty"
+Package: infwarerr 2010/04/08 v1.3 Providing info/warning/error messages (HO)
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\oberdiek\ltxcmds.sty"
+Package: ltxcmds 2011/11/09 v1.22 LaTeX kernel commands for general use (HO)
+)
+\Gread@gobject=\count118
+))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\texdraw\texdraw.tex"
+\t@counta=\count119
+\t@countb=\count120
+\t@countc=\count121
+\t@countd=\count122
+\t@counte=\count123
+\t@pixa=\count124
+\t@pixb=\count125
+\t@pixc=\count126
+\t@pixd=\count127
+\t@xpos=\dimen119
+\t@ypos=\dimen120
+\xminpix=\count128
+\xmaxpix=\count129
+\yminpix=\count130
+\ymaxpix=\count131
+\a@lenpix=\count132
+\a@widpix=\count133
+\x@pix=\count134
+\y@pix=\count135
+\x@segoffpix=\count136
+\y@segoffpix=\count137
+\x@savepix=\count138
+\y@savepix=\count139
+\s@ppix=\count140
+\d@bs=\count141
+\t@xdnum=\count142
+\t@xdbox=\box31
+\drawfile=\write3
+\everytexdraw=\toks32
+)
+Package: texdraw 1995/12/19 TeXdraw V2R0
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\psfrag\psfrag.sty"
+Package: psfrag 1998/04/11 v3.04 PSfrag (MCG)
+\pfg@pcount=\count143
+\pfg@scount=\count144
+\pfg@temp=\write4
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\babel\babel.sty"
+Package: babel 2008/07/08 v3.8m The Babel package
+
+*************************************
+* Local config file bblopts.cfg used
+*
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\00miktex\bblopts.cfg"
+File: bblopts.cfg 2006/07/31 v1.0 MiKTeX 'babel' configuration
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\babel\english.ldf"
+Language: english 2005/03/30 v3.3o English support from the babel system
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\babel\babel.def"
+File: babel.def 2008/07/08 v3.8m Babel common definitions
+\babel@savecnt=\count145
+\U@D=\dimen121
+)
+\l@canadian = a dialect from \language\l@american 
+\l@australian = a dialect from \language\l@british 
+\l@newzealand = a dialect from \language\l@british 
+))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\graphics\lscape.sty"
+Package: lscape 2000/10/22 v3.01 Landscape Pages (DPC)
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\tools\dcolumn.sty"
+Package: dcolumn 2001/05/28 v1.06 decimal alignment package (DPC)
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\tools\hhline.sty"
+Package: hhline 1994/05/23 v2.03 Table rule package (DPC)
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\graphics\graphicx.sty"
+Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\graphics\keyval.sty"
+Package: keyval 1999/03/16 v1.13 key=value parser (DPC)
+\KV@toks@=\toks33
+)
+\Gin@req@height=\dimen122
+\Gin@req@width=\dimen123
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\eepic\epic.sty"
+Enhancements to Picture Environment. Version 1.2 - Released June 1, 1986
+\@@multicnt=\count146
+\d@lta=\count147
+\@delta=\dimen124
+\@@delta=\dimen125
+\@gridcnt=\count148
+\@joinkind=\count149
+\@dotgap=\dimen126
+\@ddotgap=\dimen127
+\@x@diff=\count150
+\@y@diff=\count151
+\x@diff=\dimen128
+\y@diff=\dimen129
+\@dotbox=\box32
+\num@segments=\count152
+\num@segmentsi=\count153
+\@datafile=\read1
+) ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\eepic\eepic.sty"
+Extension to Epic and LaTeX. Version 1.1e - Released Dec 21, 1999
+\@gphlinewidth=\count154
+\@eepictcnt=\count155
+\@tempdimc=\dimen130
+\maxovaldiam=\dimen131
+\@filltype=\box33
+) ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\rotating\rotating.sty"
+Package: rotating 2009/03/28 v2.16a rotated objects in LaTeX
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\base\ifthen.sty"
+Package: ifthen 2001/05/26 v1.1c Standard LaTeX ifthen package (DPC)
+)
+\c@r@tfl@t=\count156
+\rotFPtop=\skip82
+\rotFPbot=\skip83
+\rot@float@box=\box34
+\rot@mess@toks=\toks34
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\ulem\ulem.sty"
+\UL@box=\box35
+\UL@hyphenbox=\box36
+\UL@skip=\skip84
+\UL@hook=\toks35
+\UL@height=\dimen132
+\UL@pe=\count157
+\UL@pixel=\dimen133
+\ULC@box=\box37
+Package: ulem 2012/05/18
+\ULdepth=\dimen134
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\fancyhdr\fancyhdr.sty"
+\fancy@headwidth=\skip85
+\f@ncyO@elh=\skip86
+\f@ncyO@erh=\skip87
+\f@ncyO@olh=\skip88
+\f@ncyO@orh=\skip89
+\f@ncyO@elf=\skip90
+\f@ncyO@erf=\skip91
+\f@ncyO@olf=\skip92
+\f@ncyO@orf=\skip93
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\eurosym\eurosym.sty"
+Package: eurosym 1998/08/06 v1.1 European currency symbol ``Euro''
+\@eurobox=\box38
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\bbding\bbding.sty"
+Package: bbding 1999/04/15 v1.01 Dingbats symbols
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\tools\verbatim.sty"
+Package: verbatim 2003/08/22 v1.5q LaTeX2e package for verbatim enhancements
+\every@verbatim=\toks36
+\verbatim@line=\toks37
+\verbatim@in@stream=\read2
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\ctable\ctable.sty"
+Package: ctable 2013/12/19 v1.27 ctable package for \ flexible typesetting of t
+able and figure floats using key/value directives
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\oberdiek\ifpdf.sty"
+Package: ifpdf 2011/01/30 v2.3 Provides the ifpdf switch (HO)
+Package ifpdf Info: pdfTeX in PDF mode is detected.
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\xcolor\xcolor.sty"
+Package: xcolor 2007/01/21 v2.11 LaTeX color extensions (UK)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\00miktex\color.cfg"
+File: color.cfg 2007/01/18 v1.5 color configuration of teTeX/TeXLive
+)
+Package xcolor Info: Driver file: pdftex.def on input line 225.
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1337.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1341.
+Package xcolor Info: Model `RGB' extended on input line 1353.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1355.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1356.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1357.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1358.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1359.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1360.
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\xkeyval\xkeyval.sty"
+Package: xkeyval 2012/10/14 v2.6b package option processing (HA)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\xkeyval\xkeyval.tex"
+\XKV@toks=\toks38
+\XKV@tempa@toks=\toks39
+\XKV@depth=\count158
+File: xkeyval.tex 2012/10/14 v2.6b key=value parser (HA)
+))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\booktabs\booktabs.sty"
+Package: booktabs 2005/04/14 v1.61803 publication quality tables
+\heavyrulewidth=\dimen135
+\lightrulewidth=\dimen136
+\cmidrulewidth=\dimen137
+\belowrulesep=\dimen138
+\belowbottomsep=\dimen139
+\aboverulesep=\dimen140
+\abovetopsep=\dimen141
+\cmidrulesep=\dimen142
+\cmidrulekern=\dimen143
+\defaultaddspace=\dimen144
+\@cmidla=\count159
+\@cmidlb=\count160
+\@aboverulesep=\dimen145
+\@belowrulesep=\dimen146
+\@thisruleclass=\count161
+\@lastruleclass=\count162
+\@thisrulewidth=\dimen147
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\oberdiek\transparent.sty"
+Package: transparent 2007/01/08 v1.0 Transparency via pdfTeX's color stack (HO)
+
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\oberdiek\auxhook.sty"
+Package: auxhook 2011/03/04 v1.3 Hooks for auxiliary files (HO)
+))
+\@ctblframesep=\dimen148
+\@defaultctblframesep=\dimen149
+\@ctblframerule=\dimen150
+\@defaultctblframerule=\dimen151
+\@ctblwidth=\dimen152
+\@defaultctblwidth=\dimen153
+\@ctblcaptionskip=\dimen154
+\@defaultctblcaptionskip=\dimen155
+\@ctblmaxwidth=\dimen156
+\@defaultctblmaxwidth=\dimen157
+\@ctblmincapwidth=\dimen158
+\@defaultctblmincapwidth=\dimen159
+\@ctblfooterwidth=\dimen160
+\@defaultctblfooterwidth=\dimen161
+\@ctblw=\dimen162
+\@ctblfloatwidth=\dimen163
+\@ctbloldsep=\dimen164
+\@ctbloldrule=\dimen165
+\ctbl@t=\box39
+\@ctblcurftwidth=\dimen166
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\multirow\multirow.sty"
+\bigstrutjot=\dimen167
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\lineno\lineno.sty"
+Package: lineno 2005/11/02 line numbers on paragraphs v4.41
+\linenopenalty=\count163
+\output=\toks40
+\linenoprevgraf=\count164
+\linenumbersep=\dimen168
+\linenumberwidth=\dimen169
+\c@linenumber=\count165
+\c@pagewiselinenumber=\count166
+\c@LN@truepage=\count167
+\c@internallinenumber=\count168
+\c@internallinenumbers=\count169
+\quotelinenumbersep=\dimen170
+\bframerule=\dimen171
+\bframesep=\dimen172
+\bframebox=\box40
+LaTeX Info: Redefining \\ on input line 3056.
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\pgf\frontendlayer\tikz.sty"
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\pgf\basiclayer\pgf.sty"
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\pgf\utilities\pgfrcs.sty"
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\utilities\pgfutil-common.te
+x"
+\pgfutil@everybye=\toks41
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\utilities\pgfutil-latex.def
+"
+\pgfutil@abb=\box41
+ ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\ms\everyshi.sty"
+Package: everyshi 2001/05/15 v3.00 EveryShipout Package (MS)
+))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\utilities\pgfrcs.code.tex"
+Package: pgfrcs 2010/10/25 v2.10 (rcs-revision 1.24)
+))
+Package: pgf 2008/01/15 v2.10 (rcs-revision 1.12)
+ ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\pgf\basiclayer\pgfcore.sty"
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\pgf\systemlayer\pgfsys.sty"
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\systemlayer\pgfsys.code.tex
+"
+Package: pgfsys 2010/06/30 v2.10 (rcs-revision 1.37)
+ ("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\utilities\pgfkeys.code.tex
+"
+\pgfkeys@pathtoks=\toks42
+\pgfkeys@temptoks=\toks43
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\utilities\pgfkeysfiltered.c
+ode.tex"
+\pgfkeys@tmptoks=\toks44
+))
+\pgf@x=\dimen173
+\pgf@y=\dimen174
+\pgf@xa=\dimen175
+\pgf@ya=\dimen176
+\pgf@xb=\dimen177
+\pgf@yb=\dimen178
+\pgf@xc=\dimen179
+\pgf@yc=\dimen180
+\w@pgf@writea=\write5
+\r@pgf@reada=\read3
+\c@pgf@counta=\count170
+\c@pgf@countb=\count171
+\c@pgf@countc=\count172
+\c@pgf@countd=\count173
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\systemlayer\pgf.cfg"
+File: pgf.cfg 2008/05/14  (rcs-revision 1.7)
+)
+Package pgfsys Info: Driver file for pgf: pgfsys-pdftex.def on input line 900.
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\systemlayer\pgfsys-pdftex.d
+ef"
+File: pgfsys-pdftex.def 2009/05/22  (rcs-revision 1.26)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\systemlayer\pgfsys-common-p
+df.def"
+File: pgfsys-common-pdf.def 2008/05/19  (rcs-revision 1.10)
+)))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\systemlayer\pgfsyssoftpath.
+code.tex"
+File: pgfsyssoftpath.code.tex 2008/07/18  (rcs-revision 1.7)
+\pgfsyssoftpath@smallbuffer@items=\count174
+\pgfsyssoftpath@bigbuffer@items=\count175
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\systemlayer\pgfsysprotocol.
+code.tex"
+File: pgfsysprotocol.code.tex 2006/10/16  (rcs-revision 1.4)
+))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcore.code.tex
+"
+Package: pgfcore 2010/04/11 v2.10 (rcs-revision 1.7)
+ ("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\math\pgfmath.code.tex"
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\math\pgfmathcalc.code.tex"
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\math\pgfmathutil.code.tex")
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\math\pgfmathparser.code.tex
+"
+\pgfmath@dimen=\dimen181
+\pgfmath@count=\count176
+\pgfmath@box=\box42
+\pgfmath@toks=\toks45
+\pgfmath@stack@operand=\toks46
+\pgfmath@stack@operation=\toks47
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\math\pgfmathfunctions.code.
+tex"
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\math\pgfmathfunctions.basic
+.code.tex")
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\math\pgfmathfunctions.trigo
+nometric.code.tex")
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\math\pgfmathfunctions.rando
+m.code.tex")
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\math\pgfmathfunctions.compa
+rison.code.tex")
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\math\pgfmathfunctions.base.
+code.tex")
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\math\pgfmathfunctions.round
+.code.tex")
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\math\pgfmathfunctions.misc.
+code.tex")))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\math\pgfmathfloat.code.tex"
+\c@pgfmathroundto@lastzeros=\count177
+))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcorepoints.co
+de.tex"
+File: pgfcorepoints.code.tex 2010/04/09  (rcs-revision 1.20)
+\pgf@picminx=\dimen182
+\pgf@picmaxx=\dimen183
+\pgf@picminy=\dimen184
+\pgf@picmaxy=\dimen185
+\pgf@pathminx=\dimen186
+\pgf@pathmaxx=\dimen187
+\pgf@pathminy=\dimen188
+\pgf@pathmaxy=\dimen189
+\pgf@xx=\dimen190
+\pgf@xy=\dimen191
+\pgf@yx=\dimen192
+\pgf@yy=\dimen193
+\pgf@zx=\dimen194
+\pgf@zy=\dimen195
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcorepathconst
+ruct.code.tex"
+File: pgfcorepathconstruct.code.tex 2010/08/03  (rcs-revision 1.24)
+\pgf@path@lastx=\dimen196
+\pgf@path@lasty=\dimen197
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcorepathusage
+.code.tex"
+File: pgfcorepathusage.code.tex 2008/04/22  (rcs-revision 1.12)
+\pgf@shorten@end@additional=\dimen198
+\pgf@shorten@start@additional=\dimen199
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcorescopes.co
+de.tex"
+File: pgfcorescopes.code.tex 2010/09/08  (rcs-revision 1.34)
+\pgfpic=\box43
+\pgf@hbox=\box44
+\pgf@layerbox@main=\box45
+\pgf@picture@serial@count=\count178
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcoregraphicst
+ate.code.tex"
+File: pgfcoregraphicstate.code.tex 2008/04/22  (rcs-revision 1.9)
+\pgflinewidth=\dimen200
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcoretransform
+ations.code.tex"
+File: pgfcoretransformations.code.tex 2009/06/10  (rcs-revision 1.11)
+\pgf@pt@x=\dimen201
+\pgf@pt@y=\dimen202
+\pgf@pt@temp=\dimen203
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcorequick.cod
+e.tex"
+File: pgfcorequick.code.tex 2008/10/09  (rcs-revision 1.3)
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcoreobjects.c
+ode.tex"
+File: pgfcoreobjects.code.tex 2006/10/11  (rcs-revision 1.2)
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcorepathproce
+ssing.code.tex"
+File: pgfcorepathprocessing.code.tex 2008/10/09  (rcs-revision 1.8)
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcorearrows.co
+de.tex"
+File: pgfcorearrows.code.tex 2008/04/23  (rcs-revision 1.11)
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcoreshade.cod
+e.tex"
+File: pgfcoreshade.code.tex 2008/11/23  (rcs-revision 1.13)
+\pgf@max=\dimen204
+\pgf@sys@shading@range@num=\count179
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcoreimage.cod
+e.tex"
+File: pgfcoreimage.code.tex 2010/03/25  (rcs-revision 1.16)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcoreexternal.
+code.tex"
+File: pgfcoreexternal.code.tex 2010/09/01  (rcs-revision 1.17)
+\pgfexternal@startupbox=\box46
+))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcorelayers.co
+de.tex"
+File: pgfcorelayers.code.tex 2010/08/27  (rcs-revision 1.2)
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcoretranspare
+ncy.code.tex"
+File: pgfcoretransparency.code.tex 2008/01/17  (rcs-revision 1.2)
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\basiclayer\pgfcorepatterns.
+code.tex"
+File: pgfcorepatterns.code.tex 2009/07/02  (rcs-revision 1.3)
+)))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\modules\pgfmoduleshapes.cod
+e.tex"
+File: pgfmoduleshapes.code.tex 2010/09/09  (rcs-revision 1.13)
+\pgfnodeparttextbox=\box47
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\modules\pgfmoduleplot.code.
+tex"
+File: pgfmoduleplot.code.tex 2010/10/22  (rcs-revision 1.8)
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\pgf\compatibility\pgfcomp-version
+-0-65.sty"
+Package: pgfcomp-version-0-65 2007/07/03 v2.10 (rcs-revision 1.7)
+\pgf@nodesepstart=\dimen205
+\pgf@nodesepend=\dimen206
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\pgf\compatibility\pgfcomp-version
+-1-18.sty"
+Package: pgfcomp-version-1-18 2007/07/23 v2.10 (rcs-revision 1.1)
+))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\pgf\utilities\pgffor.sty"
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\pgf\utilities\pgfkeys.sty"
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\utilities\pgfkeys.code.tex"
+)) ("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\utilities\pgffor.code.te
+x"
+Package: pgffor 2010/03/23 v2.10 (rcs-revision 1.18)
+\pgffor@iter=\dimen207
+\pgffor@skip=\dimen208
+\pgffor@stack=\toks48
+\pgffor@toks=\toks49
+))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\tikz.cod
+e.tex"
+Package: tikz 2010/10/13 v2.10 (rcs-revision 1.76)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\libraries\pgflibraryplothan
+dlers.code.tex"
+File: pgflibraryplothandlers.code.tex 2010/05/31 v2.10 (rcs-revision 1.15)
+\pgf@plot@mark@count=\count180
+\pgfplotmarksize=\dimen209
+)
+\tikz@lastx=\dimen210
+\tikz@lasty=\dimen211
+\tikz@lastxsaved=\dimen212
+\tikz@lastysaved=\dimen213
+\tikzleveldistance=\dimen214
+\tikzsiblingdistance=\dimen215
+\tikz@figbox=\box48
+\tikz@tempbox=\box49
+\tikztreelevel=\count181
+\tikznumberofchildren=\count182
+\tikznumberofcurrentchild=\count183
+\tikz@fig@count=\count184
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\modules\pgfmodulematrix.cod
+e.tex"
+File: pgfmodulematrix.code.tex 2010/08/24  (rcs-revision 1.4)
+\pgfmatrixcurrentrow=\count185
+\pgfmatrixcurrentcolumn=\count186
+\pgf@matrix@numberofcolumns=\count187
+)
+\tikz@expandcount=\count188
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\librarie
+s\tikzlibrarytopaths.code.tex"
+File: tikzlibrarytopaths.code.tex 2008/06/17 v2.10 (rcs-revision 1.2)
+)))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\librarie
+s\tikzlibraryshapes.code.tex"
+File: tikzlibraryshapes.code.tex 2008/01/09 v2.10 (rcs-revision 1.1)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\librarie
+s\tikzlibraryshapes.geometric.code.tex"
+File: tikzlibraryshapes.geometric.code.tex 2008/01/09 v2.10 (rcs-revision 1.1)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\libraries\shapes\pgflibrary
+shapes.geometric.code.tex"
+File: pgflibraryshapes.geometric.code.tex 2008/06/26 v2.10 (rcs-revision 1.1)
+))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\librarie
+s\tikzlibraryshapes.misc.code.tex"
+File: tikzlibraryshapes.misc.code.tex 2008/01/09 v2.10 (rcs-revision 1.1)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\libraries\shapes\pgflibrary
+shapes.misc.code.tex"
+File: pgflibraryshapes.misc.code.tex 2008/10/07 v2.10 (rcs-revision 1.3)
+))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\librarie
+s\tikzlibraryshapes.symbols.code.tex"
+File: tikzlibraryshapes.symbols.code.tex 2008/01/09 v2.10 (rcs-revision 1.1)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\libraries\shapes\pgflibrary
+shapes.symbols.code.tex"
+File: pgflibraryshapes.symbols.code.tex 2009/10/27 v2.10 (rcs-revision 1.3)
+))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\librarie
+s\tikzlibraryshapes.arrows.code.tex"
+File: tikzlibraryshapes.arrows.code.tex 2008/01/09 v2.10 (rcs-revision 1.1)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\libraries\shapes\pgflibrary
+shapes.arrows.code.tex"
+File: pgflibraryshapes.arrows.code.tex 2008/06/26 v2.10 (rcs-revision 1.1)
+))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\librarie
+s\tikzlibraryshapes.callouts.code.tex"
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\libraries\shapes\pgflibrary
+shapes.callouts.code.tex"))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\librarie
+s\tikzlibraryshapes.multipart.code.tex"
+File: tikzlibraryshapes.multipart.code.tex 2008/01/09 v2.10 (rcs-revision 1.1)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\libraries\shapes\pgflibrary
+shapes.multipart.code.tex"
+File: pgflibraryshapes.multipart.code.tex 2010/01/07 v2.10 (rcs-revision 1.2)
+\pgfnodepartlowerbox=\box50
+\pgfnodeparttwobox=\box51
+\pgfnodepartthreebox=\box52
+\pgfnodepartfourbox=\box53
+\pgfnodeparttwentybox=\box54
+\pgfnodepartnineteenbox=\box55
+\pgfnodeparteighteenbox=\box56
+\pgfnodepartseventeenbox=\box57
+\pgfnodepartsixteenbox=\box58
+\pgfnodepartfifteenbox=\box59
+\pgfnodepartfourteenbox=\box60
+\pgfnodepartthirteenbox=\box61
+\pgfnodeparttwelvebox=\box62
+\pgfnodepartelevenbox=\box63
+\pgfnodeparttenbox=\box64
+\pgfnodepartninebox=\box65
+\pgfnodeparteightbox=\box66
+\pgfnodepartsevenbox=\box67
+\pgfnodepartsixbox=\box68
+\pgfnodepartfivebox=\box69
+)))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\librarie
+s\tikzlibraryshadows.code.tex"
+File: tikzlibraryshadows.code.tex 2008/01/13 v2.10 (rcs-revision 1.3)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\librarie
+s\tikzlibraryfadings.code.tex"
+File: tikzlibraryfadings.code.tex 2009/11/15 v2.10 (rcs-revision 1.2)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\libraries\pgflibraryfadings
+.code.tex"
+File: pgflibraryfadings.code.tex 2008/02/07 v2.10 (rcs-revision 1.3)
+)))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\librarie
+s\tikzlibraryarrows.code.tex"
+File: tikzlibraryarrows.code.tex 2008/01/09 v2.10 (rcs-revision 1.1)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\libraries\pgflibraryarrows.
+code.tex"
+File: pgflibraryarrows.code.tex 2008/10/27 v2.10 (rcs-revision 1.9)
+\arrowsize=\dimen216
+))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\librarie
+s\tikzlibrarypositioning.code.tex"
+File: tikzlibrarypositioning.code.tex 2008/10/06 v2.10 (rcs-revision 1.7)
+)
+("C:\Users\User\Desktop\paper\treatment_interactions paper.aux")
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\apa\english.apa"
+File: english.apa 2006/01/01
+)
+\c@maskedRefs=\count189
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\apacite\english.apc"
+File: english.apc 2013/07/21 v6.03 apacite language file
+LaTeX Info: Redefining \BPBI on input line 129.
+LaTeX Info: Redefining \BHBI on input line 130.
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\context\base\supp-pdf.mkii"
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count190
+\scratchdimen=\dimen217
+\scratchbox=\box70
+\nofMPsegments=\count191
+\nofMParguments=\count192
+\everyMPshowfont=\toks50
+\MPscratchCnt=\count193
+\MPscratchDim=\dimen218
+\MPnumerator=\count194
+\makeMPintoPDFobject=\count195
+\everyMPtoPDFconversion=\toks51
+)
+
+Package ctable Warning:  Transparency disabled: incompatible with tikz package 
+ on input line 27.
+
+ABD: EveryShipout initializing macros
+
+Class apa Warning: Abstract not defined.
+
+Using title for running head
+LaTeX Font Info:    Try loading font information for U+msa on input line 29.
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsfonts\umsa.fd"
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Try loading font information for U+msb on input line 29.
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsfonts\umsb.fd"
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
+Underfull \vbox (badness 3713) has occurred while \output is active []
+
+ [1
+Non-PDF special ignored!
+
+{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}]
+Overfull \hbox (553.61551pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 2
+ []
+
+[2]
+Overfull \hbox (553.61551pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 3
+ []
+
+[3] <Interaction_ex;treedepth1.pdf, id=39, 471.56676pt x 409.22897pt>
+File: Interaction_ex;treedepth1.pdf Graphic file (type pdf)
+
+<use Interaction_ex;treedepth1.pdf>
+Package pdftex.def Info: Interaction_ex;treedepth1.pdf used on input line 64.
+(pdftex.def)             Requested size: 227.62204pt x 197.53291pt.
+
+Overfull \hbox (553.61551pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 4
+ []
+
+[4 <C:/Users/User/Desktop/paper/Interaction_ex;treedepth1.pdf>]
+Overfull \hbox (553.61551pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 5
+ []
+
+[5] <Interaction_ex;treedepth3.pdf, id=59, 708.24597pt x 463.0098pt>
+File: Interaction_ex;treedepth3.pdf Graphic file (type pdf)
+
+<use Interaction_ex;treedepth3.pdf>
+Package pdftex.def Info: Interaction_ex;treedepth3.pdf used on input line 91.
+(pdftex.def)             Requested size: 426.79134pt x 279.01611pt.
+
+Overfull \hbox (553.61551pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 6
+ []
+
+[6 <C:/Users/User/Desktop/paper/Interaction_ex;treedepth3.pdf>]
+Overfull \hbox (47.66046pt too wide) in paragraph at lines 123--136
+[] []
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 123--136
+
+ []
+
+
+Overfull \hbox (553.61551pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 7
+ []
+
+[7]
+Overfull \hbox (553.61551pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 8
+ []
+
+[8]
+Underfull \hbox (badness 1688) in paragraph at lines 164--165
+ \OT1/cmr/m/it/10.95 Datasets with treatment-subgroup in-ter-ac-tions\OT1/cmr/m
+/n/10.95 .  For gen-er-at-ing datasets with
+ []
+
+
+Overfull \hbox (553.61551pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 9
+ []
+
+[9]
+Overfull \hbox (559.09052pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 10
+ []
+
+[10]
+Overfull \hbox (559.09052pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 11
+ []
+
+[11]
+Overfull \hbox (559.09052pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 12
+ []
+
+[12] <treesize_mob_maxdepth=4_nointeract.pdf, id=101, 939.51pt x 505.89pt>
+File: treesize_mob_maxdepth=4_nointeract.pdf Graphic file (type pdf)
+
+<use treesize_mob_maxdepth=4_nointeract.pdf>
+Package pdftex.def Info: treesize_mob_maxdepth=4_nointeract.pdf used on input l
+ine 281.
+(pdftex.def)             Requested size: 569.05511pt x 306.4156pt.
+
+<treesize_mob_maxdepth=4.pdf, id=102, 1445.4pt x 505.89pt>
+File: treesize_mob_maxdepth=4.pdf Graphic file (type pdf)
+
+<use treesize_mob_maxdepth=4.pdf>
+Package pdftex.def Info: treesize_mob_maxdepth=4.pdf used on input line 320.
+(pdftex.def)             Requested size: 569.05511pt x 199.17207pt.
+
+Overfull \hbox (559.09052pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 13
+ []
+
+[13]
+Overfull \hbox (559.09052pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 14
+ []
+
+[14 <C:/Users/User/Desktop/paper/treesize_mob_maxdepth=4_nointeract.pdf>]
+Overfull \hbox (559.09052pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 15
+ []
+
+[15 <C:/Users/User/Desktop/paper/treesize_mob_maxdepth=4.pdf>]
+<truetree_mob_maxdepth=4.pdf, id=126, 1228.59pt x 505.89pt>
+File: truetree_mob_maxdepth=4.pdf Graphic file (type pdf)
+
+<use truetree_mob_maxdepth=4.pdf>
+Package pdftex.def Info: truetree_mob_maxdepth=4.pdf used on input line 345.
+(pdftex.def)             Requested size: 569.05511pt x 234.31781pt.
+
+Overfull \hbox (559.09052pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 16
+ []
+
+[16]
+Overfull \hbox (559.09052pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 17
+ []
+
+[17 <C:/Users/User/Desktop/paper/truetree_mob_maxdepth=4.pdf>]
+<correlation_mob_maxdepth=4.pdf, id=139, 1445.4pt x 505.89pt>
+File: correlation_mob_maxdepth=4.pdf Graphic file (type pdf)
+
+<use correlation_mob_maxdepth=4.pdf>
+Package pdftex.def Info: correlation_mob_maxdepth=4.pdf used on input line 363.
+
+(pdftex.def)             Requested size: 569.05511pt x 199.17207pt.
+
+Overfull \hbox (559.09052pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 18
+ []
+
+[18]
+Overfull \hbox (559.09052pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 19
+ []
+
+[19 <C:/Users/User/Desktop/paper/correlation_mob_maxdepth=4.pdf>]
+<app_lmtree.pdf, id=153, 650.43pt x 433.62pt>
+File: app_lmtree.pdf Graphic file (type pdf)
+ <use app_lmtree.pdf>
+Package pdftex.def Info: app_lmtree.pdf used on input line 389.
+(pdftex.def)             Requested size: 341.43306pt x 227.62744pt.
+
+Overfull \hbox (559.09052pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 20
+ []
+
+[20 <C:/Users/User/Desktop/paper/app_lmtree.pdf>]
+<app_lmertree.pdf, id=164, 433.62pt x 289.08pt>
+File: app_lmertree.pdf Graphic file (type pdf)
+ <use app_lmertree.pdf>
+Package pdftex.def Info: app_lmertree.pdf used on input line 398.
+(pdftex.def)             Requested size: 284.52756pt x 189.69504pt.
+
+Overfull \hbox (559.09052pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 21
+ []
+
+[21 <C:/Users/User/Desktop/paper/app_lmertree.pdf>]
+Overfull \hbox (559.09052pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 22
+ []
+
+[22]
+
+Package lineno Warning: Linenumber reference failed, 
+(lineno)                rerun to get it right.
+
+
+Class apa Warning: \bibliographystyle command ignored on input line 433.
+
+("C:\Users\User\Desktop\paper\treatment_interactions paper.bbl"
+Overfull \hbox (559.09052pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 23
+ []
+
+[23]
+Underfull \vbox (badness 1931) has occurred while \output is active []
+
+
+Overfull \hbox (559.09052pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 24
+ []
+
+[24])
+Overfull \hbox (11.16692pt too wide) in paragraph at lines 439--457
+[] []
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 439--457
+
+ []
+
+
+Overfull \hbox (559.09052pt too wide) has occurred while \output is active
+ \OT1/cmr/m/sl/10.95 DETECTION OF TREATMENT-SUBGROUP INTERACTIONS IN CLUSTERED 
+DATASETS: COMBINING MODEL-BASED RECURSIVE PARTITIONING AND RANDOM-EFFECTS ESTIM
+ATION  \OT1/cmr/m/n/10.95 25
+ []
+
+[25] ("C:\Users\User\Desktop\paper\treatment_interactions paper.aux")
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 15807 strings out of 493921
+ 298510 string characters out of 3144879
+ 391497 words of memory out of 3000000
+ 18698 multiletter control sequences out of 15000+200000
+ 20363 words of font info for 76 fonts, out of 3000000 for 9000
+ 841 hyphenation exceptions out of 8191
+ 56i,10n,69p,1841b,792s stack positions out of 5000i,500n,10000p,200000b,50000s
+<C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb>
+<C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C
+:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi5.pfb><C:/P
+rogram Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi6.pfb><C:/Prog
+ram Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Program
+ Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Program Fi
+les (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files
+ (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files (x
+86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Program Files (x86)
+/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Program Files (x86)/MiK
+TeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program Files (x86)/MiKTeX 
+2.9/fonts/type1/public/amsfonts/cm/cmsl10.pfb><C:/Program Files (x86)/MiKTeX 2.
+9/fonts/type1/public/amsfonts/cm/cmss8.pfb><C:/Program Files (x86)/MiKTeX 2.9/f
+onts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fon
+ts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/
+type1/public/amsfonts/cm/cmsy8.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/typ
+e1/public/amsfonts/cm/cmti10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1
+/public/amsfonts/cm/cmtt10.pfb>
+Output written on "treatment_interactions paper.pdf" (25 pages, 2343971 bytes).
+
+PDF statistics:
+ 243 PDF objects out of 1000 (max. 8388607)
+ 0 named destinations out of 1000 (max. 500000)
+ 149 words of extra memory for PDF output out of 10000 (max. 10000000)
+
