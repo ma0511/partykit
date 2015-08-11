@@ -377,18 +377,23 @@ ctree <- function(formula, data, weights, subset, na.action = na.pass,
     return(tree)
 }
 
-.logrank_trafo <- function(x, ties.method = c("logrank", "HL")) {
-    ties.method <- match.arg(ties.method)
-    time <- x[,1]
-    event <- x[,2]
-    n <- length(time)
-    ot <- order(time, event)
-    rt <- rank(time, ties.method = "max")
-    mt <- rank(time, ties.method = "min") - 1
-    fact <- switch(ties.method, "logrank" = event / (n - mt),
-                                "HL" = event/(n - rt + 1)
-                  )   
-    event - cumsum(fact[ot])[rt]
+#.logrank_trafo <- function(x, ties.method = c("logrank", "HL")) {
+#    ties.method <- match.arg(ties.method)
+#    time <- x[,1]
+#    event <- x[,2]
+#    n <- length(time)
+#    ot <- order(time, event)
+#    rt <- rank(time, ties.method = "max")
+#    mt <- rank(time, ties.method = "min") - 1
+#    fact <- switch(ties.method, "logrank" = event / (n - mt),
+#                                "HL" = event/(n - rt + 1)
+#                  )   
+#    event - cumsum(fact[ot])[rt]
+#}
+
+.logrank_trafo <- function(...) {
+    if (require("coin")) return(coin::logrank_trafo(...))
+    stop("cannot load coin package")
 }
 
 ### convert response y to influence function h(y)
