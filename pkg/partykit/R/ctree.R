@@ -391,10 +391,8 @@ ctree <- function(formula, data, weights, subset, na.action = na.pass,
 #    event - cumsum(fact[ot])[rt]
 #}
 
-.logrank_trafo <- function(...) {
-    if (require("coin")) return(coin::logrank_trafo(...))
-    stop("cannot load coin package")
-}
+.logrank_trafo <- function(...)
+    return(coin::logrank_trafo(...))
 
 ### convert response y to influence function h(y)
 .y2infl <- function(data, response, ytrafo = NULL) {

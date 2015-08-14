@@ -2,6 +2,12 @@
 \name{NEWS}
 \title{NEWS file for the partykit package}
 
+\section{Changes in Version 1.0-3 (2015-08-14)}{
+  \itemize{
+    \item{Import \code{logrank_trafo} from \pkg{coin}.}
+  }
+}
+
 \section{Changes in Version 1.0-2 (2015-07-28)}{
   \itemize{
     \item{\code{nodeprune(..., ids = 1)} did not prune the tree to the root
@@ -13,7 +19,6 @@
    \item{\code{NAMESPACE} updates.}
   }
 }
-
 
 \section{Changes in Version 1.0-1 (2015-04-07)}{
   \itemize{
