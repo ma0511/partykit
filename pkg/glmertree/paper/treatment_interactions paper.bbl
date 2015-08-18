@@ -107,6 +107,34 @@ Cohen, J.%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
+Cooper%
+\ \BBA {} Patall%
+}{%
+Cooper%
+\ \BBA {} Patall%
+}{%
+{\protect \APACyear {2009}}%
+}]{%
+CoopyPatt09}
+\APACinsertmetastar {%
+CoopyPatt09}%
+\begin{APACrefauthors}%
+Cooper, H.%
+\BCBT {}\ \BBA {} Patall, E.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2009}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {The relative benefits of meta-analysis conducted with
+  individual participant data versus aggregated data} {The relative benefits of
+  meta-analysis conducted with individual participant data versus aggregated
+  data}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Psychological Methods}{14}{2}{165}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
 Cuij{\-}pers%
 \ \protect \BOthers {.}}{%
 Cuij{\-}pers%
@@ -136,32 +164,6 @@ Cuij{\-}pers, P.%
   depression: an "individual-patients data" meta-analysis}.{\BBCQ}
 \newblock
 \APACjournalVolNumPages{Depression and Anxiety}{31}{11}{941--951}.
-\PrintBackRefs{\CurrentBib}
-
-\bibitem [\protect \citeauthoryear {%
-DerSimonian%
-\ \BBA {} Laird%
-}{%
-DerSimonian%
-\ \BBA {} Laird%
-}{%
-{\protect \APACyear {1986}}%
-}]{%
-DersyLair86}
-\APACinsertmetastar {%
-DersyLair86}%
-\begin{APACrefauthors}%
-DerSimonian, R.%
-\BCBT {}\ \BBA {} Laird, N.%
-\end{APACrefauthors}%
-\unskip\
-\newblock
-\APACrefYearMonthDay{1986}{}{}.
-\newblock
-{\BBOQ}\APACrefatitle {Meta-analysis in clinical trials} {Meta-analysis in
-  clinical trials}.{\BBCQ}
-\newblock
-\APACjournalVolNumPages{Controlled Clinical Trials}{7}{3}{177--188}.
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
@@ -310,29 +312,6 @@ Foster, J.%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
-Friedenreich%
-}{%
-Friedenreich%
-}{%
-{\protect \APACyear {1993}}%
-}]{%
-Frie93}
-\APACinsertmetastar {%
-Frie93}%
-\begin{APACrefauthors}%
-Friedenreich, C.%
-\end{APACrefauthors}%
-\unskip\
-\newblock
-\APACrefYearMonthDay{1993}{}{}.
-\newblock
-{\BBOQ}\APACrefatitle {Methods for pooled analyses of epidemiologic studies}
-  {Methods for pooled analyses of epidemiologic studies}.{\BBCQ}
-\newblock
-\APACjournalVolNumPages{Epidemiology}{4}{4}{295--302}.
-\PrintBackRefs{\CurrentBib}
-
-\bibitem [\protect \citeauthoryear {%
 Hajjem%
 , Bellavance%
 \BCBL {}\ \BBA {} Larocque%
@@ -471,32 +450,6 @@ Hothorn, T.%
 \newblock
 \begin{APACrefURL} \url{http://EconPapers.RePEc.org/RePEc:inn:wpaper:2014-10}
   \end{APACrefURL}
-\PrintBackRefs{\CurrentBib}
-
-\bibitem [\protect \citeauthoryear {%
-Hox%
-}{%
-Hox%
-}{%
-{\protect \APACyear {1998}}%
-}]{%
-Hox98}
-\APACinsertmetastar {%
-Hox98}%
-\begin{APACrefauthors}%
-Hox, J.%
-\end{APACrefauthors}%
-\unskip\
-\newblock
-\APACrefYearMonthDay{1998}{}{}.
-\newblock
-{\BBOQ}\APACrefatitle {Multilevel modeling: When and why} {Multilevel modeling:
-  When and why}.{\BBCQ}
-\newblock
-\BIn{} \APACrefbtitle {Classification, data analysis, and data highways}
-  {Classification, data analysis, and data highways}\ (\BPGS\ 147--154).
-\newblock
-\APACaddressPublisher{}{Springer}.
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
@@ -671,6 +624,36 @@ Sela, R.%
   and clustered data}}.{\BBCQ}
 \newblock
 \APACjournalVolNumPages{Machine Learning}{86}{2}{169--207}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Strobl%
+, Malley%
+\BCBL {}\ \BBA {} Tutz%
+}{%
+Strobl%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2009}}%
+}]{%
+StroyMall09}
+\APACinsertmetastar {%
+StroyMall09}%
+\begin{APACrefauthors}%
+Strobl, C.%
+, Malley, J.%
+\BCBL {}\ \BBA {} Tutz, G.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2009}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {An introduction to recursive partitioning: rationale,
+  application, and characteristics of classification and regression trees,
+  bagging, and random forests} {An introduction to recursive partitioning:
+  rationale, application, and characteristics of classification and regression
+  trees, bagging, and random forests}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Psychological Methods}{14}{4}{323}.
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
