@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2014.2.15)  18 AUG 2015 15:39
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2014.2.15)  18 AUG 2015 16:18
 entering extended mode
 **treatment_interactions*paper.tex
 
-("C:\Users\User\Desktop\clusterMOB\paper\Revision 12-08-2015\paper\paper\treatm
-ent_interactions paper.tex"
+("C:\Users\User\Desktop\clusterMOB\paper\Revision 12-08-2015\paper\treatment_in
+teractions paper.tex"
 LaTeX2e <2011/06/27>
 Babel <v3.8m> and hyphenation patterns for english, afrikaans, ancientgreek, ar
 abic, armenian, assamese, basque, bengali, bokmal, bulgarian, catalan, coptic, 
@@ -848,8 +848,8 @@ File: pgflibraryarrows.code.tex 2008/10/27 v2.10 (rcs-revision 1.9)
 s\tikzlibrarypositioning.code.tex"
 File: tikzlibrarypositioning.code.tex 2008/10/06 v2.10 (rcs-revision 1.7)
 )
-("C:\Users\User\Desktop\clusterMOB\paper\Revision 12-08-2015\paper\paper\treatm
-ent_interactions paper.aux")
+("C:\Users\User\Desktop\clusterMOB\paper\Revision 12-08-2015\paper\treatment_in
+teractions paper.aux")
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 31.
 LaTeX Font Info:    ... okay on input line 31.
 LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 31.
@@ -918,16 +918,16 @@ File: glm_example.pdf Graphic file (type pdf)
 <use glm_example.pdf>
 Package pdftex.def Info: glm_example.pdf used on input line 98.
 (pdftex.def)             Requested size: 170.71652pt x 149.09975pt.
- [5 <C:/Users/User/Desktop/clusterMOB/paper/Revision 12-08-2015/paper/paper/glm
-_example.pdf>] [6]
+ [5 <C:/Users/User/Desktop/clusterMOB/paper/Revision 12-08-2015/paper/glm_examp
+le.pdf>] [6]
 <glmtree_example.pdf, id=59, 867.24pt x 505.89pt>
 File: glmtree_example.pdf Graphic file (type pdf)
  <use glmtree_example.pdf>
 Package pdftex.def Info: glmtree_example.pdf used on input line 126.
 (pdftex.def)             Requested size: 426.79134pt x 248.96123pt.
 
-[7 <C:/Users/User/Desktop/clusterMOB/paper/Revision 12-08-2015/paper/paper/glmt
-ree_example.pdf>] [8] <glimmertree_example.pdf, id=74, 722.7pt x 505.89pt>
+[7 <C:/Users/User/Desktop/clusterMOB/paper/Revision 12-08-2015/paper/glmtree_ex
+ample.pdf>] [8] <glimmertree_example.pdf, id=74, 722.7pt x 505.89pt>
 File: glimmertree_example.pdf Graphic file (type pdf)
 
 <use glimmertree_example.pdf>
@@ -936,8 +936,8 @@ Package pdftex.def Info: glimmertree_example.pdf used on input line 178.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [9 <C:/Users/User/Desktop/clusterMOB/paper/Revision 12-08-2015/paper/paper/gli
-mmertree_example.pdf>]
+ [9 <C:/Users/User/Desktop/clusterMOB/paper/Revision 12-08-2015/paper/glimmertr
+ee_example.pdf>]
 Underfull \hbox (badness 1688) in paragraph at lines 195--196
  \OT1/cmr/m/it/10.95 Datasets with treatment-subgroup in-ter-ac-tions\OT1/cmr/m
 /n/10.95 .  For gen-er-at-ing datasets with
@@ -949,47 +949,47 @@ File: xy_treesizes_maineff.pdf Graphic file (type pdf)
 <use xy_treesizes_maineff.pdf>
 Package pdftex.def Info: xy_treesizes_maineff.pdf used on input line 328.
 (pdftex.def)             Requested size: 341.43306pt x 341.43785pt.
- [14] [15 <C:/Users/User/Desktop/clusterMOB/paper/Revision 12-08-2015/paper/pap
-er/xy_treesizes_maineff.pdf>]
+ [14] [15 <C:/Users/User/Desktop/clusterMOB/paper/Revision 12-08-2015/paper/xy_
+treesizes_maineff.pdf>]
 <xy_treesizes_treatsubs.pdf, id=116, 505.89pt x 505.89pt>
 File: xy_treesizes_treatsubs.pdf Graphic file (type pdf)
 
 <use xy_treesizes_treatsubs.pdf>
 Package pdftex.def Info: xy_treesizes_treatsubs.pdf used on input line 375.
 (pdftex.def)             Requested size: 341.43306pt x 341.43785pt.
- [16] [17 <C:/Users/User/Desktop/clusterMOB/paper/Revision 12-08-2015/paper/pap
-er/xy_treesizes_treatsubs.pdf>]
+ [16] [17 <C:/Users/User/Desktop/clusterMOB/paper/Revision 12-08-2015/paper/xy_
+treesizes_treatsubs.pdf>]
 <xy_accuracy.pdf, id=129, 505.89pt x 505.89pt>
 File: xy_accuracy.pdf Graphic file (type pdf)
  <use xy_accuracy.pdf>
 Package pdftex.def Info: xy_accuracy.pdf used on input line 394.
 (pdftex.def)             Requested size: 341.43306pt x 341.43785pt.
- [18 <C:/Users/User/Desktop/clusterMOB/paper/Revision 12-08-2015/paper/paper/xy
-_accuracy.pdf>] <xy_correlations.pdf, id=139, 505.89pt x 505.89pt>
+ [18 <C:/Users/User/Desktop/clusterMOB/paper/Revision 12-08-2015/paper/xy_accur
+acy.pdf>]
+<xy_correlations.pdf, id=139, 505.89pt x 505.89pt>
 File: xy_correlations.pdf Graphic file (type pdf)
-
-<use xy_correlations.pdf>
+ <use xy_correlations.pdf>
 Package pdftex.def Info: xy_correlations.pdf used on input line 410.
 (pdftex.def)             Requested size: 341.43306pt x 341.43785pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [19 <C:/Users/User/Desktop/clusterMOB/paper/Revision 12-08-2015/paper/paper/xy
-_correlations.pdf>] [20] <app_lmtree.pdf, id=153, 650.43pt x 433.62pt>
+ [19 <C:/Users/User/Desktop/clusterMOB/paper/Revision 12-08-2015/paper/xy_corre
+lations.pdf>] [20] <app_lmtree.pdf, id=153, 650.43pt x 433.62pt>
 File: app_lmtree.pdf Graphic file (type pdf)
-
-<use app_lmtree.pdf>
+ <use app_lmtree.pdf>
 Package pdftex.def Info: app_lmtree.pdf used on input line 435.
 (pdftex.def)             Requested size: 341.43306pt x 227.62744pt.
- <app_lmertree.pdf, id=154, 433.62pt x 289.08pt>
-File: app_lmertree.pdf Graphic file (type pdf)
 
-<use app_lmertree.pdf>
+<app_lmertree.pdf, id=154, 433.62pt x 289.08pt>
+File: app_lmertree.pdf Graphic file (type pdf)
+ <use app_lmertree.pdf>
 Package pdftex.def Info: app_lmertree.pdf used on input line 444.
 (pdftex.def)             Requested size: 284.52756pt x 189.69504pt.
- [21 <C:/Users/User/Desktop/clusterMOB/paper/Revision 12-08-2015/paper/paper/ap
-p_lmtree.pdf>] [22 <C:/Users/User/Desktop/clusterMOB/paper/Revision 12-08-2015/
-paper/paper/app_lmertree.pdf>]
+ [21 <C:/Users/User/Desktop/clusterMOB/paper/Revision 12-08-2015/paper/app_lmtr
+ee.pdf>]
+[22 <C:/Users/User/Desktop/clusterMOB/paper/Revision 12-08-2015/paper/app_lmert
+ree.pdf>]
 Underfull \vbox (badness 3138) has occurred while \output is active []
 
  [23]
@@ -997,42 +997,42 @@ Underfull \vbox (badness 3138) has occurred while \output is active []
 Class apa Warning: \bibliographystyle command ignored on input line 477.
 
 
-("C:\Users\User\Desktop\clusterMOB\paper\Revision 12-08-2015\paper\paper\treatm
-ent_interactions paper.bbl" [24]) [25]
+("C:\Users\User\Desktop\clusterMOB\paper\Revision 12-08-2015\paper\treatment_in
+teractions paper.bbl" [24]) [25]
 Underfull \hbox (badness 10000) in paragraph at lines 496--499
 
  []
 
 [26]
-("C:\Users\User\Desktop\clusterMOB\paper\Revision 12-08-2015\paper\paper\treatm
-ent_interactions paper.aux") ) 
+("C:\Users\User\Desktop\clusterMOB\paper\Revision 12-08-2015\paper\treatment_in
+teractions paper.aux") ) 
 Here is how much of TeX's memory you used:
  15850 strings out of 493921
- 299314 string characters out of 3144879
- 392324 words of memory out of 3000000
+ 299260 string characters out of 3144879
+ 392325 words of memory out of 3000000
  18729 multiletter control sequences out of 15000+200000
  23182 words of font info for 86 fonts, out of 3000000 for 9000
  841 hyphenation exceptions out of 8191
  56i,9n,69p,1869b,792s stack positions out of 5000i,500n,10000p,200000b,50000s
-<C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/pu
-blic/amsfonts/cm/cmmi10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/publ
-ic/amsfonts/cm/cmmi6.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/
-amsfonts/cm/cmmi7.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/ams
-fonts/cm/cmmi8.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfon
-ts/cm/cmr10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/
-cm/cmr12.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/
-cmr17.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr
-6.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr7.pf
-b><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C
-:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr9.pfb><C:/Pr
-ogram Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsl10.pfb><C:/Prog
-ram Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmss8.pfb><C:/Program
- Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program F
-iles (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Program File
-s (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Program Files (
-x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/Program Files (x8
-6)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on "treatment_interactions paper.pdf" (26 pages, 350581 bytes).
+<C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/a
+msfonts/cm/cmmi10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/ams
+fonts/cm/cmmi6.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfon
+ts/cm/cmmi7.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/
+cm/cmmi8.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/
+cmr10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr
+12.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr17.
+pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr6.pfb>
+<C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/
+Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Prog
+ram Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr9.pfb><C:/Program 
+Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsl10.pfb><C:/Program Fi
+les (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmss8.pfb><C:/Program Files
+ (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files (
+x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Program Files (x86
+)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Program Files (x86)/M
+iKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/Program Files (x86)/MiK
+TeX 2.9/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
+Output written on "treatment_interactions paper.pdf" (26 pages, 350526 bytes).
 PDF statistics:
  243 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
