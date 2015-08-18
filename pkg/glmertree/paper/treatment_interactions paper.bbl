@@ -1,624 +1,816 @@
 \begin{thebibliography}{}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Bates%
 , Maechler%
-, Bolker%
-\BCBL{}\ \BBA{} Walker%
+\BCBL {}\ \BBA {} Bolker%
 }{%
 Bates%
-\ \protect\BOthers{.}}{%
-{\protect\APACyear{2015}}%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2012}}%
 }]{%
+BateyMeac12}
+\APACinsertmetastar {%
 BateyMeac12}%
-\APACinsertmetastar{%
-BateyMeac12}%
+\begin{APACrefauthors}%
 Bates, D.%
 , Maechler, M.%
-, Bolker, B.%
-\BCBL{}\ \BBA{} Walker, S.%
-%
-\newblock{}\BBOP{}2015\BBCP{}.
-\newblock{}\Bem{{lme4}: Linear mixed-effects models using {S4} classes.}
-\newblock{}(R package version 1.1-8, retrieved from
-  \url{http://CRAN.R-project.org/package=lme4})
+\BCBL {}\ \BBA {} Bolker, B.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2012}{}{}.
+\newblock
+\APACrefbtitle {{lme4: Linear mixed-effects models using S4 classes}.} {{lme4:
+  Linear mixed-effects models using S4 classes}.}
+\newblock
+\begin{APACrefURL} \url{http://CRAN.R-project.org/package=lme4}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Breiman%
 , Friedman%
 , Olshen%
-\BCBL{}\ \BBA{} Stone%
+\BCBL {}\ \BBA {} Stone%
 }{%
 Breiman%
-\ \protect\BOthers{.}}{%
-{\protect\APACyear{1984}}%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {1984}}%
 }]{%
+BreiyFrie84}
+\APACinsertmetastar {%
 BreiyFrie84}%
-\APACinsertmetastar{%
-BreiyFrie84}%
+\begin{APACrefauthors}%
 Breiman, L.%
 , Friedman, J.%
 , Olshen, R.%
-\BCBL{}\ \BBA{} Stone, C.%
-%
-\newblock{}\BBOP{}1984\BBCP{}.
-\newblock{}\Bem{Classification and regression trees}.
-\newblock{}New York: Wadsworth.
+\BCBL {}\ \BBA {} Stone, C.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYear{1984}.
+\newblock
+\APACrefbtitle {Classification and Regression Trees} {Classification and
+  regression trees}.
+\newblock
+\APACaddressPublisher{New York}{Wadsworth}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Bryk%
-\ \BBA{} Raudenbush%
+\ \BBA {} Raudenbush%
 }{%
 Bryk%
-\ \BBA{} Raudenbush%
+\ \BBA {} Raudenbush%
 }{%
-{\protect\APACyear{1992}}%
+{\protect \APACyear {1992}}%
 }]{%
+BrykyRaud92}
+\APACinsertmetastar {%
 BrykyRaud92}%
-\APACinsertmetastar{%
-BrykyRaud92}%
-Bryk, A.~S.%
-\BCBT{}\ \BBA{} Raudenbush, S.~W.%
-%
-\newblock{}\BBOP{}1992\BBCP{}.
-\newblock{}\Bem{Hierarchical linear models: Applications and data analysis
-  methods}.
-\newblock{}Newbury Park, CA: Sage.
+\begin{APACrefauthors}%
+Bryk, A.%
+\BCBT {}\ \BBA {} Raudenbush, S.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYear{1992}.
+\newblock
+\APACrefbtitle {{Hierarchical linear models: Applications and data analysis
+  methods}} {{Hierarchical linear models: Applications and data analysis
+  methods}}.
+\newblock
+\APACaddressPublisher{Newbury Park, CA}{Sage, Newbury Park, CA}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Cohen%
 }{%
 Cohen%
 }{%
-{\protect\APACyear{1992}}%
+{\protect \APACyear {1992}}%
 }]{%
+Cohe92}
+\APACinsertmetastar {%
 Cohe92}%
-\APACinsertmetastar{%
-Cohe92}%
+\begin{APACrefauthors}%
 Cohen, J.%
-%
-\newblock{}\BBOP{}1992\BBCP{}.
-\newblock{}\BBOQ{}A power primer.\BBCQ{}
-\newblock{}\Bem{Psychological Bulletin}, \Bem{112}(1), 155--159.
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1992}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {A power primer} {A power primer}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Psychological Bulletin}{112}{1}{155--159}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Cuij{\-}pers%
-\ \protect\BOthers{.}}{%
+\ \protect \BOthers {.}}{%
 Cuij{\-}pers%
-\ \protect\BOthers{.}}{%
-{\protect\APACyear{2014}}%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2014}}%
 }]{%
+CuijyWeit14}
+\APACinsertmetastar {%
 CuijyWeit14}%
-\APACinsertmetastar{%
-CuijyWeit14}%
+\begin{APACrefauthors}%
 Cuij{\-}pers, P.%
 , Weitz, E.%
 , Twisk, J.%
 , Kuehner, C.%
 , Cristea, I.%
 , David, D.%
-\BCBL{}\ \BOthersPeriod{.}%
-\newblock{}\BBOP{}2014\BBCP{}.
-\newblock{}\BBOQ{}Gender as predictor and moderator of outcome in cognitive
-  behavior therapy and pharmacotherapy for adult depression: An
-  ``individual-patients data'' meta-analysis.\BBCQ{}
-\newblock{}\Bem{Depression and Anxiety}, \Bem{31}(11), 941--951.
+\BDBL {}Hollon, S.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2014}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Gender as predictor and moderator of outcome in
+  cognitive behavior therapy and pharmacotherapy for adult depression: an
+  "individual-patients data" meta-analysis} {Gender as predictor and moderator
+  of outcome in cognitive behavior therapy and pharmacotherapy for adult
+  depression: an "individual-patients data" meta-analysis}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Depression and Anxiety}{31}{11}{941--951}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 DerSimonian%
-\ \BBA{} Laird%
+\ \BBA {} Laird%
 }{%
 DerSimonian%
-\ \BBA{} Laird%
+\ \BBA {} Laird%
 }{%
-{\protect\APACyear{1986}}%
+{\protect \APACyear {1986}}%
 }]{%
+DersyLair86}
+\APACinsertmetastar {%
 DersyLair86}%
-\APACinsertmetastar{%
-DersyLair86}%
+\begin{APACrefauthors}%
 DerSimonian, R.%
-\BCBT{}\ \BBA{} Laird, N.%
-%
-\newblock{}\BBOP{}1986\BBCP{}.
-\newblock{}\BBOQ{}Meta-analysis in clinical trials.\BBCQ{}
-\newblock{}\Bem{Controlled Clinical Trials}, \Bem{7}(3), 177--188.
+\BCBT {}\ \BBA {} Laird, N.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1986}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Meta-analysis in clinical trials} {Meta-analysis in
+  clinical trials}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Controlled Clinical Trials}{7}{3}{177--188}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Doove%
 , Dusseldorp%
-, {Van Deun}%
-\BCBL{}\ \BBA{} {Van Mechelen}%
+, Van~Deun%
+\BCBL {}\ \BBA {} Van~Mechelen%
 }{%
 Doove%
-\ \protect\BOthers{.}}{%
-{\protect\APACyear{2014}}%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2014}}%
 }]{%
+DoovyDuss14}
+\APACinsertmetastar {%
 DoovyDuss14}%
-\APACinsertmetastar{%
-DoovyDuss14}%
-Doove, L.~L.%
+\begin{APACrefauthors}%
+Doove, L.%
 , Dusseldorp, E.%
-, {Van Deun}, K.%
-\BCBL{}\ \BBA{} {Van Mechelen}, I.%
-%
-\newblock{}\BBOP{}2014\BBCP{}.
-\newblock{}\BBOQ{}A comparison of five recursive partitioning methods to find
-  person subgroups involved in meaningful treatment-subgroup
-  interactions.\BBCQ{}
-\newblock{}\Bem{Advances in Data Analysis and Classification}, \Bem{8}(4),
-  403--425.
+, Van~Deun, K.%
+\BCBL {}\ \BBA {} Van~Mechelen, I.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2014}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {A comparison of five recursive partitioning methods to
+  find person subgroups involved in meaningful treatment--subgroup
+  interactions} {A comparison of five recursive partitioning methods to find
+  person subgroups involved in meaningful treatment--subgroup
+  interactions}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Advances in Data Analysis and
+  Classification}{}{}{1--23}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Driessen%
-\ \protect\BOthers{.}}{%
+\ \protect \BOthers {.}}{%
 Driessen%
-\ \protect\BOthers{.}}{%
-{\protect\APACyear{2014}}%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2014}}%
 }]{%
+DrieySmit14}
+\APACinsertmetastar {%
 DrieySmit14}%
-\APACinsertmetastar{%
-DrieySmit14}%
+\begin{APACrefauthors}%
 Driessen, E.%
 , Smits, N.%
 , Peen, J.%
-, Don, F.~J.%
+, Don, F.%
 , Kool, S.%
 , Westra, D.%
-\BCBL{}\ \BOthersPeriod{.}%
-\newblock{}\BBOP{}2014\BBCP{}.
-\newblock{}\Bem{Differential efficacy of cognitive behavioral therapy and
-  psychodynamic therapy for major depression: A study of prescriptive factors.}
-\newblock{}(Manuscript under review)
+\BDBL {}Van, H.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYear{2014}.
+\newblock
+\APACrefbtitle {Differential efficacy of cognitive behavioral therapy and
+  psychodynamic therapy for major depression: a study of prescriptive factors}
+  {Differential efficacy of cognitive behavioral therapy and psychodynamic
+  therapy for major depression: a study of prescriptive factors}.
+\newblock
+\APACaddressPublisher{}{Manuscript under review}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Dusseldorp%
-\ \BBA{} Meulman%
+\ \BBA {} Meulman%
 }{%
 Dusseldorp%
-\ \BBA{} Meulman%
+\ \BBA {} Meulman%
 }{%
-{\protect\APACyear{2004}}%
+{\protect \APACyear {2004}}%
 }]{%
+DussyMeul04}
+\APACinsertmetastar {%
 DussyMeul04}%
-\APACinsertmetastar{%
-DussyMeul04}%
+\begin{APACrefauthors}%
 Dusseldorp, E.%
-\BCBT{}\ \BBA{} Meulman, J.~J.%
-%
-\newblock{}\BBOP{}2004\BBCP{}.
-\newblock{}\BBOQ{}The regression trunk approach to discover treatment covariate
-  interaction.\BBCQ{}
-\newblock{}\Bem{Psychometrika}, \Bem{69}(3), 355--374.
+\BCBT {}\ \BBA {} Meulman, J.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2004}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {The regression trunk approach to discover treatment
+  covariate interaction} {The regression trunk approach to discover treatment
+  covariate interaction}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Psychometrika}{69}{3}{355--374}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Dus{\-}sel{\-}dorp%
-\ \BBA{} {Van Mech{\-}elen}%
+\ \BBA {} Van~Mech{\-}elen%
 }{%
 Dus{\-}sel{\-}dorp%
-\ \BBA{} {Van Mech{\-}elen}%
+\ \BBA {} Van~Mech{\-}elen%
 }{%
-{\protect\APACyear{2014}}%
+{\protect \APACyear {2014}}%
 }]{%
+DussyMech14}
+\APACinsertmetastar {%
 DussyMech14}%
-\APACinsertmetastar{%
-DussyMech14}%
+\begin{APACrefauthors}%
 Dus{\-}sel{\-}dorp, E.%
-\BCBT{}\ \BBA{} {Van Mech{\-}elen}, I.%
-%
-\newblock{}\BBOP{}2014\BBCP{}.
-\newblock{}\BBOQ{}Qualitative interaction trees: A tool to identify qualitative
-  treatment-subgroup interactions.\BBCQ{}
-\newblock{}\Bem{Statistics in Medicine}, \Bem{33}(2), 219--237.
+\BCBT {}\ \BBA {} Van~Mech{\-}elen, I.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2014}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Qualitative interaction trees: a tool to identify
+  qualitative treatment--subgroup interactions} {Qualitative interaction trees:
+  a tool to identify qualitative treatment--subgroup interactions}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Statistics in Medicine}{33}{2}{219--237}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Foster%
 , Taylor%
-\BCBL{}\ \BBA{} Ruberg%
+\BCBL {}\ \BBA {} Ruberg%
 }{%
 Foster%
-\ \protect\BOthers{.}}{%
-{\protect\APACyear{2011}}%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2011}}%
 }]{%
+FostyTayl11}
+\APACinsertmetastar {%
 FostyTayl11}%
-\APACinsertmetastar{%
-FostyTayl11}%
-Foster, J.~C.%
-, Taylor, J. M.~G.%
-\BCBL{}\ \BBA{} Ruberg, S.~J.%
-%
-\newblock{}\BBOP{}2011\BBCP{}.
-\newblock{}\BBOQ{}Subgroup identification from randomized clinical trial
-  data.\BBCQ{}
-\newblock{}\Bem{Statistics in Medicine}, \Bem{30}(24), 2867--2880.
+\begin{APACrefauthors}%
+Foster, J.%
+, Taylor, J.%
+\BCBL {}\ \BBA {} Ruberg, S.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2011}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Subgroup identification from randomized clinical trial
+  data} {Subgroup identification from randomized clinical trial data}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Statistics in Medicine}{30}{24}{2867--2880}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Friedenreich%
 }{%
 Friedenreich%
 }{%
-{\protect\APACyear{1993}}%
+{\protect \APACyear {1993}}%
 }]{%
+Frie93}
+\APACinsertmetastar {%
 Frie93}%
-\APACinsertmetastar{%
-Frie93}%
-Friedenreich, C.~M.%
-%
-\newblock{}\BBOP{}1993\BBCP{}.
-\newblock{}\BBOQ{}Methods for pooled analyses of epidemiologic studies.\BBCQ{}
-\newblock{}\Bem{Epidemiology}, \Bem{4}(4), 295--302.
+\begin{APACrefauthors}%
+Friedenreich, C.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1993}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Methods for pooled analyses of epidemiologic studies}
+  {Methods for pooled analyses of epidemiologic studies}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Epidemiology}{4}{4}{295--302}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Hajjem%
 , Bellavance%
-\BCBL{}\ \BBA{} Larocque%
+\BCBL {}\ \BBA {} Larocque%
 }{%
 Hajjem%
-\ \protect\BOthers{.}}{%
-{\protect\APACyear{2011}}%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2011}}%
 }]{%
+HajjyBell11}
+\APACinsertmetastar {%
 HajjyBell11}%
-\APACinsertmetastar{%
-HajjyBell11}%
+\begin{APACrefauthors}%
 Hajjem, A.%
 , Bellavance, F.%
-\BCBL{}\ \BBA{} Larocque, D.%
-%
-\newblock{}\BBOP{}2011\BBCP{}.
-\newblock{}\BBOQ{}Mixed effects regression trees for clustered data.\BBCQ{}
-\newblock{}\Bem{Statistics \& Probability Letters}, \Bem{81}(4), 451--459.
+\BCBL {}\ \BBA {} Larocque, D.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2011}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Mixed effects regression trees for clustered data}
+  {Mixed effects regression trees for clustered data}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Statistics \& Probability Letters}{81}{4}{451--459}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Hamilton%
 }{%
 Hamilton%
 }{%
-{\protect\APACyear{1960}}%
+{\protect \APACyear {1960}}%
 }]{%
+Hami60}
+\APACinsertmetastar {%
 Hami60}%
-\APACinsertmetastar{%
-Hami60}%
+\begin{APACrefauthors}%
 Hamilton, M.%
-%
-\newblock{}\BBOP{}1960\BBCP{}.
-\newblock{}\BBOQ{}A rating scale for depression.\BBCQ{}
-\newblock{}\Bem{Journal of Neurology, Neurosurgery and Psychiatry},
-  \Bem{23}(1), 56.
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1960}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {A rating scale for depression} {A rating scale for
+  depression}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Journal of Neurology, Neurosurgery and
+  Psychiatry}{23}{1}{56}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Hastie%
 , Tibshirani%
-\BCBL{}\ \BBA{} Friedman%
+\BCBL {}\ \BBA {} Friedman%
 }{%
 Hastie%
-\ \protect\BOthers{.}}{%
-{\protect\APACyear{2009}}%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2009}}%
 }]{%
+HastyTibs09}
+\APACinsertmetastar {%
 HastyTibs09}%
-\APACinsertmetastar{%
-HastyTibs09}%
+\begin{APACrefauthors}%
 Hastie, T.%
 , Tibshirani, R.%
-\BCBL{}\ \BBA{} Friedman, J.%
-%
-\newblock{}\BBOP{}2009\BBCP{}.
-\newblock{}\Bem{The elements of statistical learning}\ (2nd\ \BEd).
-\newblock{}New York: Springer-Verlag.
+\BCBL {}\ \BBA {} Friedman, J.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYear{2009}.
+\newblock
+\APACrefbtitle {The elements of statistical learning} {The elements of
+  statistical learning}\ (\PrintOrdinal{2}\ \BEd).
+\newblock
+\APACaddressPublisher{New York}{Springer}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Higgins%
 , Whitehead%
 , Turner%
 , Omar%
-\BCBL{}\ \BBA{} Thompson%
+\BCBL {}\ \BBA {} Thompson%
 }{%
 Higgins%
-\ \protect\BOthers{.}}{%
-{\protect\APACyear{2001}}%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2001}}%
 }]{%
+HiggyWhit01}
+\APACinsertmetastar {%
 HiggyWhit01}%
-\APACinsertmetastar{%
-HiggyWhit01}%
+\begin{APACrefauthors}%
 Higgins, J.%
 , Whitehead, A.%
-, Turner, R.~M.%
-, Omar, R.~Z.%
-\BCBL{}\ \BBA{} Thompson, S.~G.%
-%
-\newblock{}\BBOP{}2001\BBCP{}.
-\newblock{}\BBOQ{}Meta-analysis of continuous outcome data from individual
-  patients.\BBCQ{}
-\newblock{}\Bem{Statistics in Medicine}, \Bem{20}(15), 2219--2241.
+, Turner, R.%
+, Omar, R.%
+\BCBL {}\ \BBA {} Thompson, S.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2001}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Meta-analysis of continuous outcome data from individual
+  patients} {Meta-analysis of continuous outcome data from individual
+  patients}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Statistics in Medicine}{20}{15}{2219--2241}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Hothorn%
-\ \BBA{} Zeileis%
+\ \BBA {} Zeileis%
 }{%
 Hothorn%
-\ \BBA{} Zeileis%
+\ \BBA {} Zeileis%
 }{%
-{\protect\APACyear{2015}}%
+{\protect \APACyear {2014}}%
 }]{%
+HothyZeil14}
+\APACinsertmetastar {%
 HothyZeil14}%
-\APACinsertmetastar{%
-HothyZeil14}%
+\begin{APACrefauthors}%
 Hothorn, T.%
-\BCBT{}\ \BBA{} Zeileis, A.%
-%
-\newblock{}\BBOP{}2015\BBCP{}.
-\newblock{}\BBOQ{}{partykit}: A modular toolkit for recursive partytioning in
-  {R}.\BBCQ{}
-\newblock{}\Bem{Journal of Machine Learning Research}.
-\newblock{}(Accepted for publication)
+\BCBT {}\ \BBA {} Zeileis, A.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2014}{March}{}.
+\newblock
+\APACrefbtitle {{partykit}: A Modular Toolkit for Recursive Partytioning in
+  {R}} {{partykit}: A modular toolkit for recursive partytioning in {R}}\
+  \APACbVolEdTR {}{Working Paper\ \BNUM\ 2014-10}.
+\newblock
+\APACaddressInstitution{}{Working Papers in Economics and Statistics, Research
+  Platform Empirical and Experimental Economics, Universit\"at Innsbruck}.
+\newblock
+\begin{APACrefURL} \url{http://EconPapers.RePEc.org/RePEc:inn:wpaper:2014-10}
+  \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Hox%
 }{%
 Hox%
 }{%
-{\protect\APACyear{1998}}%
+{\protect \APACyear {1998}}%
 }]{%
+Hox98}
+\APACinsertmetastar {%
 Hox98}%
-\APACinsertmetastar{%
-Hox98}%
+\begin{APACrefauthors}%
 Hox, J.%
-%
-\newblock{}\BBOP{}1998\BBCP{}.
-\newblock{}\BBOQ{}Multilevel modeling: When and why.\BBCQ{}
-\newblock{}\BIn{} I.~Balderjahn, R.~Mathar\BCBL{}\ \BBA{} M.~Schader\ (\BEDS),
-  \Bem{Classification, data analysis, and data highways -- {P}roceedings of the
-  21st {A}nnual {C}onference of the {G}esellschaft f\"ur {K}lassifikation
-  {e.V.}, {U}niversity of {P}otsdam}\ (\BPGS\ 147--154).
-\newblock{}Berlin: Springer-Verlag.
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1998}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Multilevel modeling: When and why} {Multilevel modeling:
+  When and why}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Classification, data analysis, and data highways}
+  {Classification, data analysis, and data highways}\ (\BPGS\ 147--154).
+\newblock
+\APACaddressPublisher{}{Springer}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Koopman%
-, {Van der Heijden}%
+, Van~der Heijden%
 , Glasziou%
 , Grobbee%
-\BCBL{}\ \BBA{} Rovers%
+\BCBL {}\ \BBA {} Rovers%
 }{%
 Koopman%
-\ \protect\BOthers{.}}{%
-{\protect\APACyear{2007}}%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2007}}%
 }]{%
+KoopyHeij07}
+\APACinsertmetastar {%
 KoopyHeij07}%
-\APACinsertmetastar{%
-KoopyHeij07}%
+\begin{APACrefauthors}%
 Koopman, L.%
-, {Van der Heijden}, G. J. M.~G.%
-, Glasziou, P.~P.%
-, Grobbee, D.~E.%
-\BCBL{}\ \BBA{} Rovers, M.~M.%
-%
-\newblock{}\BBOP{}2007\BBCP{}.
-\newblock{}\BBOQ{}A systematic review of analytical methods used to study
-  subgroups in (individual patient data) meta-analyses.\BBCQ{}
-\newblock{}\Bem{Journal of Clinical Epidemiology}, \Bem{60}(10).
+, Van~der Heijden, G.%
+, Glasziou, P.%
+, Grobbee, D.%
+\BCBL {}\ \BBA {} Rovers, M.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2007}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {{A systematic review of analytical methods used to study
+  subgroups in (individual patient data) meta-analyses}} {{A systematic review
+  of analytical methods used to study subgroups in (individual patient data)
+  meta-analyses}}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Journal of Clinical Epidemiology}{60}{10}{}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Kraemer%
 , Frank%
-\BCBL{}\ \BBA{} Kupfer%
+\BCBL {}\ \BBA {} Kupfer%
 }{%
 Kraemer%
-\ \protect\BOthers{.}}{%
-{\protect\APACyear{2006}}%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2006}}%
 }]{%
+KreayFran06}
+\APACinsertmetastar {%
 KreayFran06}%
-\APACinsertmetastar{%
-KreayFran06}%
-Kraemer, H.~C.%
+\begin{APACrefauthors}%
+Kraemer, H.%
 , Frank, E.%
-\BCBL{}\ \BBA{} Kupfer, D.~J.%
-%
-\newblock{}\BBOP{}2006\BBCP{}.
-\newblock{}\BBOQ{}Moderators of treatment outcomes: Clinical, research, and
-  policy importance.\BBCQ{}
-\newblock{}\Bem{Journal of the American Medical Association}, \Bem{296}(10),
-  1286--1289.
+\BCBL {}\ \BBA {} Kupfer, D.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2006}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Moderators of treatment outcomes: clinical, research,
+  and policy importance} {Moderators of treatment outcomes: clinical, research,
+  and policy importance}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Journal of the American Medical
+  Association}{296}{10}{1286--1289}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Lipkovich%
 , Dmitrienko%
 , Denne%
-\BCBL{}\ \BBA{} Enas%
+\BCBL {}\ \BBA {} Enas%
 }{%
 Lipkovich%
-\ \protect\BOthers{.}}{%
-{\protect\APACyear{2011}}%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2011}}%
 }]{%
+LipkyDmit11}
+\APACinsertmetastar {%
 LipkyDmit11}%
-\APACinsertmetastar{%
-LipkyDmit11}%
+\begin{APACrefauthors}%
 Lipkovich, I.%
 , Dmitrienko, A.%
 , Denne, J.%
-\BCBL{}\ \BBA{} Enas, G.%
-%
-\newblock{}\BBOP{}2011\BBCP{}.
-\newblock{}\BBOQ{}Subgroup identification based on differential effect search
-  -- a recursive partitioning method for establishing response to treatment in
-  patient subpopulations.\BBCQ{}
-\newblock{}\Bem{Statistics in Medicine}, \Bem{30}(21), 2601--2621.
+\BCBL {}\ \BBA {} Enas, G.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2011}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {{Subgroup identification based on differential effect
+  search - A recursive partitioning method for establishing response to
+  treatment in patient subpopulations}} {{Subgroup identification based on
+  differential effect search - A recursive partitioning method for establishing
+  response to treatment in patient subpopulations}}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Statistics in Medicine}{30}{21}{2601--2621}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
-{R Core Team}%
+\bibitem [\protect \citeauthoryear {%
+Merkle%
+\ \BBA {} Zeileis%
 }{%
-{R Core Team}%
+Merkle%
+\ \BBA {} Zeileis%
 }{%
-{\protect\APACyear{2015}}%
+{\protect \APACyear {2013}}%
 }]{%
+MerkyZeil13}
+\APACinsertmetastar {%
+MerkyZeil13}%
+\begin{APACrefauthors}%
+Merkle, E.%
+\BCBT {}\ \BBA {} Zeileis, A.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2013}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Tests of measurement invariance without subgroups: a
+  generalization of classical methods} {Tests of measurement invariance without
+  subgroups: a generalization of classical methods}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Psychometrika}{78}{1}{59--82}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{R Core Team}%
+}{%
+{R Core Team}%
+}{%
+{\protect \APACyear {2014}}%
+}]{%
+R14}
+\APACinsertmetastar {%
 R14}%
-\APACinsertmetastar{%
-R14}%
+\begin{APACrefauthors}%
 {R Core Team}.%
-%
-\newblock{}\BBOP{}2015\BBCP{}.
-\newblock{}\Bem{{R}: A language and environment for statistical computing.}
-\newblock{}Vienna, Austria.
-\newblock{}
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2014}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {R: A Language and Environment for Statistical Computing}
+  {R: A language and environment for statistical computing}{\BBCQ}\
+  [\bibcomputersoftwaremanual].
+\newblock
+\APACaddressPublisher{Vienna, Austria}{}.
+\newblock
+\begin{APACrefURL} \url{http://www.R-project.org/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Sela%
-\ \BBA{} Simonoff%
+\ \BBA {} Simonoff%
 }{%
 Sela%
-\ \BBA{} Simonoff%
+\ \BBA {} Simonoff%
 }{%
-{\protect\APACyear{2012}}%
+{\protect \APACyear {2012}}%
 }]{%
+SelaySimo12}
+\APACinsertmetastar {%
 SelaySimo12}%
-\APACinsertmetastar{%
-SelaySimo12}%
-Sela, R.~J.%
-\BCBT{}\ \BBA{} Simonoff, J.~S.%
-%
-\newblock{}\BBOP{}2012\BBCP{}.
-\newblock{}\BBOQ{}{RE-EM} trees: A data mining approach for longitudinal and
-  clustered data.\BBCQ{}
-\newblock{}\Bem{Machine Learning}, \Bem{86}(2), 169--207.
+\begin{APACrefauthors}%
+Sela, R.%
+\BCBT {}\ \BBA {} Simonoff, J.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2012}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {{RE-EM trees: a data mining approach for longitudinal
+  and clustered data}} {{RE-EM trees: a data mining approach for longitudinal
+  and clustered data}}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Machine Learning}{86}{2}{169--207}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
-Simpson%
-}{%
-Simpson%
-}{%
-{\protect\APACyear{1951}}%
-}]{%
-Simp51}%
-\APACinsertmetastar{%
-Simp51}%
-Simpson, E.~H.%
-%
-\newblock{}\BBOP{}1951\BBCP{}.
-\newblock{}\BBOQ{}The interpretation of interaction in contingency
-  tables.\BBCQ{}
-\newblock{}\Bem{Journal of the Royal Statistical Society B}, \Bem{13},
-  238--241.
-
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Su%
 , Tsai%
 , Wang%
 , Nickerson%
-\BCBL{}\ \BBA{} Li%
+\BCBL {}\ \BBA {} Li%
 }{%
 Su%
-\ \protect\BOthers{.}}{%
-{\protect\APACyear{2009}}%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2009}}%
 }]{%
+SuyTsai09}
+\APACinsertmetastar {%
 SuyTsai09}%
-\APACinsertmetastar{%
-SuyTsai09}%
+\begin{APACrefauthors}%
 Su, X.%
-, Tsai, C.-L.%
+, Tsai, C\BHBI L.%
 , Wang, H.%
-, Nickerson, D.~M.%
-\BCBL{}\ \BBA{} Li, B.%
-%
-\newblock{}\BBOP{}2009\BBCP{}.
-\newblock{}\BBOQ{}Subgroup analysis via recursive partitioning.\BBCQ{}
-\newblock{}\Bem{The Journal of Machine Learning Research}, \Bem{10}, 141--158.
+, Nickerson, D.%
+\BCBL {}\ \BBA {} Li, B.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2009}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Subgroup analysis via recursive partitioning} {Subgroup
+  analysis via recursive partitioning}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{The Journal of Machine Learning
+  Research}{10}{}{141--158}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
-{Van den Noortgate}%
+\bibitem [\protect \citeauthoryear {%
+Van~den Noortgate%
 , Opdenakker%
-\BCBL{}\ \BBA{} Onghena%
+\BCBL {}\ \BBA {} Onghena%
 }{%
-{Van den Noortgate}%
-\ \protect\BOthers{.}}{%
-{\protect\APACyear{2005}}%
+Van~den Noortgate%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2005}}%
 }]{%
+NooryOpde05}
+\APACinsertmetastar {%
 NooryOpde05}%
-\APACinsertmetastar{%
-NooryOpde05}%
-{Van den Noortgate}, W.%
-, Opdenakker, M.~C.%
-\BCBL{}\ \BBA{} Onghena, P.%
-%
-\newblock{}\BBOP{}2005\BBCP{}.
-\newblock{}\BBOQ{}The effects of ignoring a level in multilevel
-  analysis.\BBCQ{}
-\newblock{}\Bem{School Effectiveness and School Improvement}, \Bem{16}(3),
-  281-203.
+\begin{APACrefauthors}%
+Van~den Noortgate, W.%
+, Opdenakker, M\BPBI C.%
+\BCBL {}\ \BBA {} Onghena, P.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2005}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {The effects of ignoring a level in multilevel analysis}
+  {The effects of ignoring a level in multilevel analysis}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{School Effectiveness and School
+  Improvement}{16}{3}{281-203}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
-Wood%
-, White%
-\BCBL{}\ \BBA{} Thompson%
-}{%
-Wood%
-\ \protect\BOthers{.}}{%
-{\protect\APACyear{2004}}%
-}]{%
-WoodyWhit04}%
-\APACinsertmetastar{%
-WoodyWhit04}%
-Wood, A.~M.%
-, White, I.~R.%
-\BCBL{}\ \BBA{} Thompson, S.~G.%
-%
-\newblock{}\BBOP{}2004\BBCP{}.
-\newblock{}\BBOQ{}Are missing outcome data adequately handled? {A} review of
-  published randomized controlled trials in major medical journals.\BBCQ{}
-\newblock{}\Bem{Clinical Trials}, \Bem{1}(4), 368--376.
-
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Zeileis%
 }{%
 Zeileis%
 }{%
-{\protect\APACyear{2005}}%
+{\protect \APACyear {2005}}%
 }]{%
+Zeil05}
+\APACinsertmetastar {%
 Zeil05}%
-\APACinsertmetastar{%
-Zeil05}%
+\begin{APACrefauthors}%
 Zeileis, A.%
-%
-\newblock{}\BBOP{}2005\BBCP{}.
-\newblock{}\BBOQ{}A unified approach to structural change tests based on {ML}
-  scores, {F} statistics, and {OLS} residuals.\BBCQ{}
-\newblock{}\Bem{Econometric Reviews}, \Bem{24}(4), 445--466.
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2005}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {{A unified approach to structural change tests based on
+  ML scores, F statistics, and OLS residuals}} {{A unified approach to
+  structural change tests based on ML scores, F statistics, and OLS
+  residuals}}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Econometric Reviews}{24}{4}{445--466}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Zeileis%
-\ \BBA{} Hornik%
+\ \BBA {} Hornik%
 }{%
 Zeileis%
-\ \BBA{} Hornik%
+\ \BBA {} Hornik%
 }{%
-{\protect\APACyear{2007}}%
+{\protect \APACyear {2007}}%
 }]{%
+ZeilyHorn07}
+\APACinsertmetastar {%
 ZeilyHorn07}%
-\APACinsertmetastar{%
-ZeilyHorn07}%
+\begin{APACrefauthors}%
 Zeileis, A.%
-\BCBT{}\ \BBA{} Hornik, K.%
-%
-\newblock{}\BBOP{}2007\BBCP{}.
-\newblock{}\BBOQ{}Generalized {M}-fluctuation tests for parameter
-  instability.\BBCQ{}
-\newblock{}\Bem{Statistica Neerlandica}, \Bem{61}(4), 488--508.
+\BCBT {}\ \BBA {} Hornik, K.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2007}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {{Generalized M-fluctuation tests for parameter
+  instability}} {{Generalized M-fluctuation tests for parameter
+  instability}}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Statistica Neerlandica}{61}{4}{488--508}.
+\PrintBackRefs{\CurrentBib}
 
-\bibitem[\protect\citeauthoryear{%
+\bibitem [\protect \citeauthoryear {%
 Zeileis%
 , Hothorn%
-\BCBL{}\ \BBA{} Hornik%
+\BCBL {}\ \BBA {} Hornik%
 }{%
 Zeileis%
-\ \protect\BOthers{.}}{%
-{\protect\APACyear{2008}}%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2008}}%
 }]{%
+ZeilyHoth08}
+\APACinsertmetastar {%
 ZeilyHoth08}%
-\APACinsertmetastar{%
-ZeilyHoth08}%
+\begin{APACrefauthors}%
 Zeileis, A.%
 , Hothorn, T.%
-\BCBL{}\ \BBA{} Hornik, K.%
-%
-\newblock{}\BBOP{}2008\BBCP{}.
-\newblock{}\BBOQ{}Model-based recursive partitioning.\BBCQ{}
-\newblock{}\Bem{Journal of Computational and Graphical Statistics},
-  \Bem{17}(2), 492--514.
+\BCBL {}\ \BBA {} Hornik, K.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2008}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Model-based recursive partitioning} {Model-based
+  recursive partitioning}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Journal of Computational and Graphical
+  Statistics}{17}{2}{492--514}.
+\PrintBackRefs{\CurrentBib}
 
 \end{thebibliography}
