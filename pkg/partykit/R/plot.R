@@ -96,7 +96,9 @@ node_terminal <- function(obj,
 			  top = 0.85,
 			  align = c("center", "left", "right"),
 			  gp = NULL,
-			  FUN = NULL)
+			  FUN = NULL,
+			  height = NULL,
+			  width = NULL)
 {
   nam <- names(obj)
 
@@ -110,7 +112,7 @@ node_terminal <- function(obj,
       return(lab[which.max(nchar(lab))])
   }
 
-  nstr <- maxstr(node_party(obj))
+  nstr <- if(is.null(width)) maxstr(node_party(obj)) else paste(rep("a", width), collapse = "")
 
   just <- match.arg(just[1L], c("center", "centre", "top"))
   if(just == "centre") just <- "center"
@@ -130,18 +132,19 @@ node_terminal <- function(obj,
       pushViewport(outer_vp)
     }
     
+    if(is.null(height)) height <- length(lab) + 1L
+    
     node_vp <- viewport(x = unit(0.5, "npc"),
       y = unit(if(just == "top") top else 0.5, "npc"),
       just = c("center", just),
       width = unit(1, "strwidth", nstr) * 1.1,
-      height = unit(length(lab) + 1, "lines"),
+      height = unit(height, "lines"),
       name = paste("node_terminal", id_node(node), sep = ""),
       gp = if(is.null(gp)) gpar() else gp
     )
     pushViewport(node_vp)
 
     grid.rect(gp = gpar(fill = fill[1]))
-      "center" = 
       
     for(i in seq_along(lab)) grid.text(
       x = switch(align,
