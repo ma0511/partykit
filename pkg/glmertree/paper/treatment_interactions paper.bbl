@@ -204,7 +204,7 @@ Driessen%
 \ \protect \BOthers {.}}{%
 Driessen%
 \ \protect \BOthers {.}}{%
-{\protect \APACyear {2014}}%
+{\protect \APACyear {{\protect \BIP {}}}}%
 }]{%
 DrieySmit14}
 \APACinsertmetastar {%
@@ -220,14 +220,15 @@ Driessen, E.%
 \end{APACrefauthors}%
 \unskip\
 \newblock
-\APACrefYear{2014}.
+\APACrefYearMonthDay{{\protect \BIP {}}}{}{}.
 \newblock
-\APACrefbtitle {Differential efficacy of cognitive behavioral therapy and
-  psychodynamic therapy for major depression: a study of prescriptive factors}
-  {Differential efficacy of cognitive behavioral therapy and psychodynamic
-  therapy for major depression: a study of prescriptive factors}.
+{\BBOQ}\APACrefatitle {Differential efficacy of cognitive behavioral therapy
+  and psychodynamic therapy for major depression: a study of prescriptive
+  factors} {Differential efficacy of cognitive behavioral therapy and
+  psychodynamic therapy for major depression: a study of prescriptive
+  factors}.{\BBCQ}
 \newblock
-\APACaddressPublisher{}{Manuscript under review}.
+
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
