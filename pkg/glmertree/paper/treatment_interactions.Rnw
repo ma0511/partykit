@@ -555,7 +555,7 @@ In our analyses, posttreatment HAM-D score was the outcome variable, and potenti
 
 In RCTs, treatment effects are often estimated after controlling posttreatment values on the outcome measure for the linear effect of pretreatment values on the same measure. Therefore, we included the predictions of a linear regression of HAM-D posttreatment on HAM-D pretreatment scores, as an offset variable in all models. An offset variable is a linear predictor with an a-priori determined coefficient of one. Including the linear regression predictions as an offset has the same effect as statistically controlling for the linear effects of pretreatment scores, as is often done in ANCOVA. 
 
-The \verb|lmtree| function deals with missing data by listwise deletion. Therefore, we build all trees using data of a subset of 694 patients from 7 studies, as complete observations (i.e., observations with non-missing values for potential partitioning variables, and pre- and posttreatment HAM-D score) for these patients were available. Results of our analysis may therefore not be representative of the complete dataset of the meta-analysis by \cite{CuijyWeit14}. 
+We build all trees using data of patients with complete observations; that is, observations with non-missing values for potential partitioning variables, and pre- and posttreatment HAM-D score. As a result, data from 694 patients from 7 studies were included for the analyses. Results of our analysis may therefore not be representative of the complete dataset of the meta-analysis by \cite{CuijyWeit14}. 
 
 The predictive accuracy of GLM and GLMM tree was assessed by calculating the average correlations between observed and predicted HAM-D scores, based on 50-fold cross validation.
 
