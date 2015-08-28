@@ -190,7 +190,7 @@ When a dataset contains observations from multiple clusters (e.g., trials, resea
 	g(\mu_{i}) = x_{i}^{\top}\beta + z_{i}^{\top}b
 \end{equation}
 
-Where $z_{i}$ is a unit vector of length $M$, of which the $m$th element takes a value of 1, and all other elements take a value of 0, with $m$ ($m=1,...,M$) denotes the cluster of which observation $i$ is part. $b$ is random vector of length $M$, each element being the random intercept for $m$. Within the GLMM, it is assumed that $b$ is normally distributed, with mean zero and variance $\sigma^{2}_{b}$. The parameters of the GLMM can be estimated with, for example, maximum likelihood (ML) and restricted ML (REML), as described in \citeA{BrykyRaud92}, for example.  
+Where $z_{i}$ is a unit vector of length $M$, of which the $m$th element takes a value of 1, and all other elements take a value of 0; $m$ ($m=1,...,M$) denotes the cluster of which observation $i$ is part. $b$ is random vector of length $M$, each element being the random intercept for $m$. Within the GLMM, it is assumed that $b$ is normally distributed, with mean zero and variance $\sigma^{2}_{b}$. The parameters of the GLMM can be estimated with, for example, maximum likelihood (ML) and restricted ML (REML), as described in \citeA{BrykyRaud92}, for example.  
 
 For simplicity, we assume that only cluster-specific intercepts are included in the models. However, random-effects covariates and coefficients can easily be included. Note that, alternatively, if the random-effects coefficients were known, values of $z_{i}^{\top}b$ could be included as an offset (i.e., a variable with a fixed coefficient of 1) in the GLM.
 
