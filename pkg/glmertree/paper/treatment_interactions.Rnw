@@ -213,10 +213,10 @@ For estimating GLMM trees, we take the MERT approach a step further: by using a 
 \noindent Step 0: Initialize by setting $r$ and all values $\hat{b}_{(r)}$ to 0.
 
 \vspace{5pt}
-\noindent \hangindent=4em Step 1: Set $r = r+1$. Estimate GLM tree ($x_{i}^{\top}\hat{\beta}_{j(r)}$) using $z_{i}^{\top}\hat{b}_{(r-1)}$ as an offset.
+\noindent \hangindent=4em Step 1: Set $r = r+1$. Estimate GLM tree ($x_{i}^{\top}\hat{\beta}_{j(r)}$), with $z_{i}^{\top}\hat{b}_{(r-1)}$ as an offset.
 
 \vspace{5pt}
-\noindent Step 2: Estimate random effects $z_{i}^{\top}\hat{b}_{(r)}$ using $x_{i}^{\top}\hat{\beta}_{j(r)}$ as an offset.
+\noindent Step 2: Estimate random effects $z_{i}^{\top}\hat{b}_{(r)}$, with $x_{i}^{\top}\hat{\beta}_{j(r)}$ as an offset.
 
 \vspace{5pt}
 \noindent Step 3: Repeat steps 1 and 2 until convergence.
