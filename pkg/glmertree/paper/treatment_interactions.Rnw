@@ -145,8 +145,8 @@ To illustrate, the GLM estimated for the artificial motivating dataset is graphi
 <<exampleglm, fig=TRUE, height=5, width=5>>=
 plot(exampleglm)
 @
-	\caption{Example of a linear fixed-effects model for treatment outcomes, based on the artificial motivating dataset (N=150). The dot for Treatment 1 represents the first, and the slope of the regression line represents the second element of $\beta$.}
-	\label{fig:fixedeffects}
+\caption{Example of a linear fixed-effects model for treatment outcomes, based on the artificial motivating dataset (N=150). The dot for Treatment 1 represents the first, and the slope of the regression line represents the second element of $\beta$.}
+\label{fig:fixedeffects}
 \end{figure}
 
 
@@ -163,7 +163,7 @@ If the null hypothesis of parameter stability in step (2) can be rejected, that 
 Due to the binary recursive nature of MOB, the resulting partition can be represented as a binary tree. If the partitioning is based on the GLM, the result is a GLM tree, which has a local fixed-effects regression model in every $j$th ($j = 1,...,J$) terminal node of the tree. As a result, in the GLM-tree model, the value for $\beta$ depends on terminal node $j$ in which observation $i$ `falls':
 
 \begin{equation}
-\label{eq:fixedeffects_MOB}
+	\label{eq:fixedeffects_MOB}
 	g(\mu_{ij}) = x_{i}^{\top}\beta_{j}
 \end{equation}
 
@@ -171,13 +171,14 @@ Alternatively, if the recursive subgroup structure (i.e., the partition) were kn
 
 Figure \ref{fig:example_mobtree} provides an example of the GLM-tree model in Equation \ref{eq:fixedeffects_MOB}, based on the artificial motivating dataset. By using the three additional covariates (anxiety, duration and age), MOB partitioned the observations into four subgroups, each with a different estimate for $\beta_j$. Age was correctly not detected as a partitioning variable, and the left- and rightmost subgroups are in accordance with the treatment-subgroup interactions as described above. However, the two subgroups in the middle result from a spurious split.
 
+
 \begin{figure}[!h]
 \setkeys{Gin}{width=\textwidth}
 <<exampleglmtree, fig=TRUE, width=12, height=9>>=
 plot(exampleglmtree)
 @
-    \caption{Example of a tree representation of model-based recursive partition, based on the artificial motivating dataset. Three additional covariates (anxiety questionnaire score, duration of depressive symptoms at baseline in months and age) were used as potential splitting variables.}
-    \label{fig:example_mobtree}
+\caption{Example of a tree representation of model-based recursive partition, based on the artificial motivating dataset. Three additional covariates (anxiety questionnaire score, duration of depressive symptoms at baseline in months and age) were used as potential splitting variables.}
+\label{fig:example_mobtree}
 \end{figure}
 
 
@@ -186,7 +187,7 @@ plot(exampleglmtree)
 When a dataset contains observations from multiple clusters (e.g., trials, research centers, or individuals in longitudinal datasets), the GLM in Equation \ref{eq:fixedeffects} may be extended to include cluster-specific, or random effects, and the model becomes a GLMM:
 
 \begin{equation}
-\label{eq:mixedeffects}
+	\label{eq:mixedeffects}
 	g(\mu_{i}) = x_{i}^{\top}\beta + z_{i}^{\top}b
 \end{equation}
 
@@ -228,8 +229,8 @@ The algorithm initializes by setting all $b$ values to $0$, since the random-eff
 <<exampleglmmtree, fig=TRUE, width=9, height=7>>=
 plot(exampleglmmtree$Tree)
 @
-    \caption{Generalized Linear Mixed Model tree of the motivating example dataset. Three covariates (anxiety questionnaire score, duration of depressive symptoms at baseline in months and age) were used as potential splitting variables, and the clustering structure was taken into account by estimating random intercepts.}
-    \label{fig:example_glimmertree}
+\caption{Generalized Linear Mixed Model tree of the motivating example dataset. Three covariates (anxiety questionnaire score, duration of depressive symptoms at baseline in months and age) were used as potential splitting variables, and the clustering structure was taken into account by estimating random intercepts.}
+\label{fig:example_glimmertree}
 \end{figure}
 
 In Figure \ref{fig:example_glimmertree}, the GLMM tree that was grown on the artificial motivating dataset is presented. As can be seen, by taking into account the clustering of observations by estimating random intercepts, the spurious split involving the anxiety variable no longer appears in the tree. 
@@ -255,50 +256,50 @@ For generating datasets with treatment-subgroup interactions, we used a treatmen
 \setkeys{Gin}{width=0.8\textwidth}
 <<dgp-tree, fig=TRUE, height=5, width=7>>=
 fig4 <- party(
-partynode(1L,
- split = partysplit(2L, breaks = 30),
- kids = list(
-   partynode(2L,
-     split = partysplit(1L, breaks = 17),
-     kids = list(
-       partynode(3L, info = c(
-  expression(''),
-  expression(beta[j0] == '17.5'),
-  expression(''),
-  expression(beta[j1] == -'5.0'),
-  expression(''),
-  expression(d[j] == -'1.0')
- )),
-       partynode(4L, info = c(
-  expression(''),
-  expression(beta[j0] == '30.0'),
-  expression(''),
-  expression(beta[j1] == '0.0'),
-  expression(''),
-  expression(d[j] == '0.0')
- )))),
-   partynode(5L,
-     split = partysplit(1L, breaks = 63),
-     kids = list(
-       partynode(6L, info = c(
-  expression(''),
-  expression(beta[j0] == '30.0'),
-  expression(''),
-  expression(beta[j1] == '0.0'),
-  expression(''),
-  expression(d[j] == '0.0')
- )),
-       partynode(7L, info = c(
-  expression(''),
-  expression(beta[j0] == '42.5'),
-  expression(''),
-  expression(beta[j1] == '5.0'),
-  expression(''),
-  expression(d[j] == '1.0')
- )))))),
-data.frame(U1 = numeric(0), U2 = numeric(0))
+  partynode(1L,
+    split = partysplit(2L, breaks = 30),
+    kids = list(
+      partynode(2L,
+        split = partysplit(1L, breaks = 17),
+        kids = list(
+          partynode(3L, info = c(
+	    expression(''),
+	    expression(beta[j0] == '17.5'),
+	    expression(''),
+	    expression(beta[j1] == -'5.0'),
+	    expression(''),
+	    expression(d[j] == -'1.0')
+	  )),
+          partynode(4L, info = c(
+	    expression(''),
+	    expression(beta[j0] == '30.0'),
+	    expression(''),
+	    expression(beta[j1] == '0.0'),
+	    expression(''),
+	    expression(d[j] == '0.0')
+	  )))),
+      partynode(5L,
+        split = partysplit(1L, breaks = 63),
+        kids = list(
+          partynode(6L, info = c(
+	    expression(''),
+	    expression(beta[j0] == '30.0'),
+	    expression(''),
+	    expression(beta[j1] == '0.0'),
+	    expression(''),
+	    expression(d[j] == '0.0')
+	  )),
+          partynode(7L, info = c(
+	    expression(''),
+	    expression(beta[j0] == '42.5'),
+	    expression(''),
+	    expression(beta[j1] == '5.0'),
+	    expression(''),
+	    expression(d[j] == '1.0')
+	  )))))),
+  data.frame(U1 = numeric(0), U2 = numeric(0))
 )
-plot(fig4, tnex=1.5)
+plot(fig4, tp_args = list(FUN = identity, width = 9), tnex = 1.5)
 @
 \caption{Data-generating model for treatment-subgroup interactions. Parameter $d$ denotes the standardized mean difference between the outcomes of Treatment 1 and 2 (i.e., $\beta_{j1} / \sigma_{\epsilon}$).}
 \label{fig:modelC}
@@ -404,24 +405,24 @@ levels(treespecs.long$corUb)[levels(treespecs.long$corUb)=="uncorrelated"] <- "b
 In Table \ref{tab:treesize_main}, tree sizes for GLM and GLMM trees for datasets without treatment-subgroup interactions are presented. Overall, smaller trees were created by GLMM tree: the average tree size was 1.09 (SD=0.44) for GLMM tree, and 2.02 (SD=1.68) for GLM tree. The estimated probability that a dataset was erroneously partitioned was very small for GLMM tree (.04; Table \ref{tab:treesize_main}), and much larger for GLM tree (.33; Table \ref{tab:treesize_main}). 
 
 \begin{table}[!htbp]
-\caption{Tree size distributions for GLM and GLMM tree for datasets without treatment-subgroup interactions.}
-\small
-\begin{tabular}{lrrrrrrr}
-	\thickline
-	&\multicolumn{7}{c}{tree size}\\
-	\cline{2-7}
-	&   1    &   3   &   5   &   7   &   9   &  11  &   total \\
-	\hline
-	GLMM tree	& 20625 & 932 & 43 &0&0&0& 21,600\\
-		  		& (.96) & (.04) & ($<.01$) &(.00)&(.00)&(.00)&(1.00) \\
-   	GLM tree		& 14501  & 4202 & 2013 & 802 & 79 & 3 & 21,600 \\ 
+	\caption{Tree size distributions for GLM and GLMM tree for datasets without treatment-subgroup interactions.}
+	\small
+	\begin{tabular}{lrrrrrrr}
+		\thickline
+		&\multicolumn{7}{c}{tree size}\\
+		\cline{2-7}
+		&   1    &   3   &   5   &   7   &   9   &  11  &   total \\
+		\hline
+		GLMM tree	& 20625 & 932 & 43 &0&0&0& 21,600\\
+			  		& (.96) & (.04) & ($<.01$) &(.00)&(.00)&(.00)&(1.00) \\
+   		GLM tree		& 14501  & 4202 & 2013 & 802 & 79 & 3 & 21,600 \\ 
     			& (.67)  & (.19) & (.09) & (.04) & ($<.01$) & ($<.01$) & (1.00)\\ 
-	\hline
-  	\multicolumn{8}{l}{\textit{Note. }Bracketed values are proportions. Tree sizes are expressed as the total}\\
-  	\multicolumn{8}{l}{number of nodes in a tree. A tree with a total of $J$ nodes has $(J+1)/2$ }\\
-  	\multicolumn{8}{l}{terminal nodes; the true tree size in datasets without treatment-subgroup}\\	  	\multicolumn{8}{l}{interactions was 1.}\\
-\end{tabular}
-\label{tab:treesize_main}
+		\hline
+  		\multicolumn{8}{l}{\textit{Note. }Bracketed values are proportions. Tree sizes are expressed as the total}\\
+  		\multicolumn{8}{l}{number of nodes in a tree. A tree with a total of $J$ nodes has $(J+1)/2$ }\\
+  		\multicolumn{8}{l}{terminal nodes; the true tree size in datasets without treatment-subgroup}\\	  	\multicolumn{8}{l}{interactions was 1.}\\
+	\end{tabular}
+	\label{tab:treesize_main}
 \end{table}
 
 
@@ -431,7 +432,10 @@ load("treesizes_long_nointeract.dat")
 treesizes.long$sigmabm <- factor(as.numeric(as.character(treesizes.long$sigmabm)), ordered=T)
 treesizes.long$N <- factor(as.numeric(as.character(treesizes.long$N)), ordered=T)
 aggdata <- aggregate(formula=treesize.values ~ treesize.ind + N + sigmabm + corUbm, FUN=mean, data=treesizes.long)
-print(xyplot(treesize.values ~ sigmabm | N + corUbm, data = aggdata, groups=treesize.ind, type="b", ylab="tree size", xlab="sigma_b", par.settings=standard.theme("pdf",color=F), abline=c(1,0), auto.key=list(space="top", columns=2, title="Algorithm type", cex.title=1,lines=T, points=T)))
+print(xyplot(treesize.values ~ sigmabm | N + corUbm, data = aggdata, groups=treesize.ind, 
+	type="b", ylab="tree size", xlab="sigma_b", par.settings=standard.theme("pdf",color=F), 
+	abline=c(1,0), auto.key=list(space="top", columns=2, title="Algorithm type", cex.title=1, 
+	lines=T, points=T)))
 @
 \caption{Average tree size of GLM and GLMM trees for datasets without treatment-subgroup interactions. Values $200$, $500$ and $1000$ refer to sample size. Reference line at $y=1$ represents the true tree size.}
 \label{fig:xyplot_treesize_nointeract}
@@ -454,23 +458,23 @@ In datasets with treatment-subgroup interactions, GLMM trees were also smaller t
 \begin{table}[!htbp]
 \caption{Tree size distributions for GLM and GLMM tree for datasets with treatment-subgroup interactions.}
 \small
-\begin{tabular}{lrrrrrrrr}
-	\thickline
-	&&\multicolumn{7}{c}{tree size}\\
-	\cline{2-8}
-	&     3   &   5   &   7   &   9   &  11  &   13   &   15  & total \\
-	\hline
-  	GLMM tree	& 2 & 281& 29358 & 2675 & 83 & 1 &0& 32,400 \\
-				&  ($<.01$)  & ($<.01$)& (.91) & ($.08$) & ($<.01$) & ($<.01$) &(.00)& (1.00) \\
+	\begin{tabular}{lrrrrrrrr}
+		\thickline
+		&&\multicolumn{7}{c}{tree size}\\
+		\cline{2-8}
+		&     3   &   5   &   7   &   9   &  11  &   13   &   15  & total \\
+		\hline
+	  	GLMM tree	& 2 & 281& 29358 & 2675 & 83 & 1 &0& 32,400 \\
+					&  ($<.01$)  & ($<.01$)& (.91) & ($.08$) & ($<.01$) & ($<.01$) &(.00)& (1.00) \\
 
-  	GLM tree		& 139 & 955 & 20530 & 4565 & 4164 & 1619 & 428 & 32,400\\ 
- 			 	& ($<.01$) & (.03) & (.63) & (.14) & (.13) & (.05) & (.01) & (1.00) \\ 
-	\hline
-  	\multicolumn{9}{l}{\textit{Note. } Bracketed values are proportions. Tree sizes are expressed as the total number of}\\
-  	\multicolumn{9}{l}{nodes in the tree. A tree with a total of $J$ nodes has $(J+1)/2$ terminal nodes; the true}\\	
-  	\multicolumn{8}{l}{tree size in datasets with treatment-subgroup interactions was 7.}\\
-\end{tabular}
-\label{tab:treesize_interactions}
+	  	GLM tree	& 139 & 955 & 20530 & 4565 & 4164 & 1619 & 428 & 32,400\\ 
+	 			 	& ($<.01$) & (.03) & (.63) & (.14) & (.13) & (.05) & (.01) & (1.00) \\ 
+		\hline
+  		\multicolumn{9}{l}{\textit{Note. } Bracketed values are proportions. Tree sizes are expressed as the total number of}\\
+  		\multicolumn{9}{l}{nodes in the tree. A tree with a total of $J$ nodes has $(J+1)/2$ terminal nodes; the true}\\	
+  		\multicolumn{8}{l}{tree size in datasets with treatment-subgroup interactions was 7.}\\
+	\end{tabular}
+	\label{tab:treesize_interactions}
 \end{table}
 
 A graphical display was used to assess the effects of sample size, $\sigma_b$ and the correlation between $b$ and one of the $U_k$ variables, on tree size (Figure \ref{fig:xyplot_treesize_interact}). When random effects were absent (i.e., $\sigma_{b}=0$), both GLM and GLMM tree created trees with a size of about 7, on average. 
@@ -479,7 +483,10 @@ A graphical display was used to assess the effects of sample size, $\sigma_b$ an
 \begin{figure}[!htbp]
 <<treesize-xyplot, fig=TRUE, width=9, height=9.5>>=
 aggdata.size <- aggregate(formula=treesize.values ~ treesize.ind + N + sigmab + corUb, FUN=mean, data=treespecs.long)	
-print(xyplot(treesize.values ~ sigmab | N + corUb, data = aggdata.size, groups=treesize.ind, type="b", ylab="tree size", xlab=expression(sigma[b]), par.settings=standard.theme("pdf",color=F), abline=c(7,0), auto.key=list(space="top", columns=2, title=" ", cex.title=1,lines=T, points=T)))
+print(xyplot(treesize.values ~ sigmab | N + corUb, data = aggdata.size, groups=treesize.ind, 
+	type="b", ylab="tree size", xlab=expression(sigma[b]), par.settings=standard.theme("pdf",color=F), 
+	abline=c(7,0), auto.key=list(space="top", columns=2, title=" ", cex.title=1,lines=T, points=T))
+)
 @
 \caption{Average tree size of GLM and GLMM trees for datasets with treatment-subgroup interactions. Values $200$, $500$ and $1000$ refer to sample size. Reference line at $y=7$ represents true tree size.}
 \label{fig:xyplot_treesize_interact}
@@ -502,7 +509,10 @@ A graphical display was used to assess the effects of sample size, $\sigma_b$ an
 \begin{figure}[!htbp]
 <<accuracy-xyplot, fig=TRUE, width=9, height=9.5>>=
 aggdata.acc <- aggregate(formula=truetree.values ~ truetree.ind + N + sigmab + corUb, FUN=mean, data=treespecs.long)
-print(xyplot(truetree.values ~ sigmab | N + corUb, data = aggdata.acc, groups=truetree.ind, type="b",   ylab="tree accuracy", xlab=expression(sigma[b]), par.settings=standard.theme("pdf",color=F), auto.key=list(space="top", columns=2, title=" ", cex.title=1,lines=T, points=T)))
+print(xyplot(truetree.values ~ sigmab | N + corUb, data = aggdata.acc, groups=truetree.ind, type="b", 
+	ylab="tree accuracy", xlab=expression(sigma[b]), par.settings=standard.theme("pdf",color=F), 
+	auto.key=list(space="top", columns=2, title=" ", cex.title=1,lines=T, points=T))
+)
 @
 \caption{Average accuracy of GLM and GLMM trees. Accuracy of trees is defined as the proportion of datasets in which the true tree was accurately recovered. Values are correlated to one of the $U_k$ variables; values $200$, $500$ and $1000$ refer to sample size.}
 \label{fig:xyplot_treeaccuracy}
@@ -521,7 +531,10 @@ A graphical display was used to assess the effects of sample size, $\sigma_b$ an
 \begin{figure}[!htbp]
 <<correlation-xyplot, fig=TRUE>>=
 aggdata.cor <- aggregate(formula=correlation.values ~ correlation.ind + N + sigmab + treatdiff, FUN=mean, data=treespecs.long)
-print(xyplot(correlation.values ~ sigmab | N + treatdiff, data = aggdata.cor, groups=correlation.ind, type="b", ylab="correlation", xlab=expression(sigma[b]), par.settings=standard.theme("pdf",color=F), auto.key=list(space="top", columns=2, title=" ", cex.title=1,lines=T, points=T)))
+print(xyplot(correlation.values ~ sigmab | N + treatdiff, data = aggdata.cor, groups=correlation.ind, 
+	type="b", ylab="correlation", xlab=expression(sigma[b]), par.settings=standard.theme("pdf",color=F), 
+	auto.key=list(space="top", columns=2, title=" ", cex.title=1,lines=T, points=T))
+)
 @
 \caption{Average predictive accuracy of GLM and GLMM trees. Predictive accuracy of trees is defined as the correlation between the true and predicted differences between Treatment 1 and 2. Values $5$ and $2.5$ refer to the absolute value of the unstandardized treatment-effect difference in subgroups with treatment-effect differences; values $200$, $500$ and $1000$ refer to sample size.}
 \label{fig:xyplot_correlations}
@@ -590,7 +603,7 @@ The GLM tree (Figure \ref{fig:lmtree_C&W}) selected level of education as the fi
 \begin{figure}[!ht]
 \setkeys{Gin}{width=0.75\textwidth}
 <<depression-glmmtree, fig=TRUE, height=4, width=6>>=
-	plot(lmertree_app$Tree)
+plot(lmertree_app$Tree)
 @
 \caption{GLMM tree for prediction of posttreatment total scores on the Hamilton Rating Scale for Depression (HAM-D). The y-axes of the boxplots represent posttreatment HAM-D scores, and the x-axes represent treatment levels: cognitive behavior therapy (CBT) vs. pharmacotherapy (PHA).}
 \label{fig:lmertree_C&W}
