@@ -140,12 +140,12 @@ To keep notation and examples simple, we assume $x_{i}$ and $\beta$ to have leng
 
 To illustrate, the GLM estimated for the artificial motivating dataset is graphically represented in Figure~\ref{fig:fixedeffects}. The boxplots in Figure~\ref{fig:fixedeffects} show the distribution of the posttreatment depression scores in both treatment groups. There seems to be little overall difference in effects of both treatments, as the slope of the regression line is nearly zero. We shall see that this does not necessarily mean that posttreatment depression score and treatment type are unrelated, as the effect of treatment may be moderated by variables not yet included in the model.
 
-\begin{figure}[!ht]
+\begin{figure}[!th]
 \setkeys{Gin}{width=0.5\textwidth}
 <<exampleglm, fig=TRUE, height=5, width=5>>=
-plot(exampleglm)
+plot(exampleglm, tp_args = list(mainlab = "Full sample (N = 150)"))
 @
-\caption{Example of a linear fixed-effects model for treatment outcomes, based on the artificial motivating dataset ($N=150$). The dot for Treatment~1 represents the first, and the slope of the regression line represents the second element of $\beta$.}
+\caption{Example of a normal GLM (with fixed effects only) for treatment outcomes, based on the artificial motivating dataset ($N=150$). The dot for Treatment~1 represents the first, and the slope of the regression line represents the second element of $\beta$.}
 \label{fig:fixedeffects}
 \end{figure}
 
@@ -368,7 +368,7 @@ For every dataset, correlation coefficients for each algorithm were calculated, 
 
 \subsection{Software}
 
-\verb|R| \cite{R14} was used for generation and analysis of all datasets. Two additional R packages were used: \verb|partykit| (version 1.0-2; \citeNP{HothyZeil14,ZeilyHoth08}) for the estimation of GLM trees, and \verb|lme4| (version 1.1-7; \citeNP{BateyMeac12}) for the estimation of random-effects coefficients. 
+\verb|R| \cite{R14} was used for generation and analysis of all datasets. Two additional R packages were used: \verb|partykit| (version 1.0-2; \citeNP{HothyZeil15}) for the estimation of GLM trees, and \verb|lme4| (version 1.1-7; \citeNP{BateyMeac12}) for the estimation of random-effects coefficients. 
 
 
 \subsubsection{Estimation of GLM trees}
@@ -404,7 +404,7 @@ levels(treespecs.long$corUb)[levels(treespecs.long$corUb)=="uncorrelated"] <- "b
 
 In Table~\ref{tab:treesize_main}, tree sizes for GLM and GLMM trees for datasets without treatment-subgroup interactions are presented. Overall, smaller trees were created by GLMM tree: the average tree size was 1.09 ($\mathrm{SD}=0.44$) for GLMM tree, and 2.02 ($\mathrm{SD}=1.68$) for GLM tree. The estimated probability that a dataset was erroneously partitioned was very small for GLMM tree (.04; Table~\ref{tab:treesize_main}), and much larger for GLM tree (.33; Table~\ref{tab:treesize_main}). 
 
-\begin{table}[!htbp]
+\begin{table}[!thbp]
 	\caption{Tree size distributions for GLM and GLMM tree for datasets without treatment-subgroup interactions.}
 	\small
 	\begin{tabular}{lrrrrrrr}
@@ -426,7 +426,7 @@ In Table~\ref{tab:treesize_main}, tree sizes for GLM and GLMM trees for datasets
 \end{table}
 
 
-\begin{figure}[!htbp]
+\begin{figure}[!thbp]
 <<treesize-nointeract-xyplot, fig=TRUE, width=9, height=7>>=
 load("treesizes_long_nointeract.dat")
 treesizes.long$sigmabm <- factor(as.numeric(as.character(treesizes.long$sigmabm)), ordered=T)
@@ -455,7 +455,7 @@ A graphical display was used to asses the effects of sample size, $\sigma_b$ and
 In datasets with treatment-subgroup interactions, GLMM trees were also smaller than GLM trees. For these datasets, the true tree size was 7 (4 terminal nodes and 3 inner nodes; Figure~\ref{fig:modelC}). Th distribution of tree sizes for GLM and GLMM tree in datasets with treatment-subgroup interactions are presented in Table~\ref{tab:treesize_interactions}. The average size of GLMM trees was 7.16 ($\mathrm{SD}=0.62$), and the average size of GLM trees was 8.12 ($\mathrm{SD}=2.05$). The estimated probability that a dataset was erroneously not partitioned was 0, for both GLM and GLMM tree. However, Table~\ref{tab:treesize_interactions} shows that a proportion of .91 of GLMM trees matched the true tree size, whereas a proportion of only .63 of GLM trees matched the true tree size (Table~\ref{tab:treesize_interactions}).
 
 
-\begin{table}[!htbp]
+\begin{table}[!thbp]
 \caption{Tree size distributions for GLM and GLMM tree for datasets with treatment-subgroup interactions.}
 \small
 	\begin{tabular}{lrrrrrrrr}
@@ -480,7 +480,7 @@ In datasets with treatment-subgroup interactions, GLMM trees were also smaller t
 A graphical display was used to assess the effects of sample size, $\sigma_b$ and the correlation between $b$ and one of the $U_k$ variables, on tree size (Figure~\ref{fig:xyplot_treesize_interact}). When random effects were absent (i.e., $\sigma_{b}=0$), both GLM and GLMM tree created trees with a size of about 7, on average. 
 
 
-\begin{figure}[!htbp]
+\begin{figure}[!thbp]
 <<treesize-xyplot, fig=TRUE, width=9, height=9>>=
 aggdata.size <- aggregate(formula=treesize.values ~ treesize.ind + N + sigmab + corUb, FUN=mean, data=treespecs.long)	
 print(xyplot(treesize.values ~ sigmab | N + corUb, data = aggdata.size, groups=treesize.ind, 
@@ -506,7 +506,7 @@ Overall, GLMM tree performed well in recovering treatment-subgroup interactions,
 A graphical display was used to assess the effects of sample size, $\sigma_b$ and the correlation between $b$ and one of the $U_k$ variables, on the probability of accurate tree recovery for both algorithms (Figure~\ref{fig:xyplot_treeaccuracy}). When random effects were absent from the datasets (i.e., $\sigma_b = 0$), the trees recovered by GLM and GLMM tree were equally accurate, on average. In the presence of random effects, GLM trees were much less accurate than GLMM trees. This was found for all sample sizes, when $b$ was correlated to one of the $U_k$ variables, and the effect was somewhat stronger when the correlated $U_k$ was not a true partitioning variable. When $b$ was not correlated to one of the $U_k$ variables, GLMM tree clearly outperformed GLM tree only when sample size was small (i.e., 200).
 
 
-\begin{figure}[!htbp]
+\begin{figure}[!thbp]
 <<accuracy-xyplot, fig=TRUE, width=9, height=9>>=
 aggdata.acc <- aggregate(formula=truetree.values ~ truetree.ind + N + sigmab + corUb, FUN=mean, data=treespecs.long)
 print(xyplot(truetree.values ~ sigmab | N + corUb, data = aggdata.acc, groups=truetree.ind, type="b", 
@@ -528,7 +528,7 @@ To assess predictive accuracy of both algorithms, correlation between the true a
 
 A graphical display was used to assess the effects of sample size, $\sigma_b$ and the correlation between $b$ and one of the $U_k$ variables, on the predictive accuracy of both algorithms (Figure~\ref{fig:xyplot_correlations}). Both algorithms showed higher predictive accuracy when sample size was larger, and when treatment-effect differences were larger. When random effects were absent from the datasets (i.e., $\sigma_b = 0$), predictions of GLM and GLMM tree were equally accurate. In the presence of random effects, GLM tree predictions were always much less accurate than those of GLMM tree. This effect was stronger when $\sigma_b$ was larger, sample size was larger, and/or treatment-effect differences were larger.
 
-\begin{figure}[!htbp]
+\begin{figure}[!thbp]
 <<correlation-xyplot, fig=TRUE, width=9, height=7>>=
 aggdata.cor <- aggregate(formula=correlation.values ~ correlation.ind + N + sigmab + treatdiff, FUN=mean, data=treespecs.long)
 print(xyplot(correlation.values ~ sigmab | N + treatdiff, data = aggdata.cor, groups=correlation.ind, 
@@ -588,7 +588,7 @@ lmertree_app <- lmertree(formula, HRSDt1 ~ (1 | studyid) + HRSDt0, data = metada
 
 The trees resulting from application of GLM and GLMM tree to the dataset are presented in Figure~\ref{fig:lmtree_C&W} and~\ref{fig:lmertree_C&W}, respectively. Note that the GLM tree in Figure~\ref{fig:lmtree_C&W} is also the tree that is created in the first iteration of the GLMM tree algorithm. 
 
-\begin{figure}[!ht]
+\begin{figure}[!th]
 \setkeys{Gin}{width=0.75\textwidth}
 <<depression-glmtree, fig=TRUE, height=6, width=8>>=
 plot(lmtree_app)
@@ -600,9 +600,9 @@ plot(lmtree_app)
 The GLM tree (Figure~\ref{fig:lmtree_C&W}) selected level of education as the first partitioning variable, and presence of a comorbid anxiety disorder as a second partitioning variable, for observations with a higher level of education. Node 2 of Figure~\ref{fig:lmtree_C&W} indicates that for patients with a low level of education, antidepressant medication provides the greatest reduction in HAM-D scores. Node 4 indicates that for patients with a higher level of education, and no comorbid anxiety disorder, the reduction in HAM-D scores is about the same for CBT and antidepressant mediation. Node 5 indicates, that for patients with a higher level of education and a comorbid anxiety disorder, the reduction in HAM-D scores is greatest for pharmacotherapy.
 
 
-\begin{figure}[!ht]
-\setkeys{Gin}{width=0.75\textwidth}
-<<depression-glmmtree, fig=TRUE, height=4, width=6>>=
+\begin{figure}[!th]
+\setkeys{Gin}{width=0.6\textwidth}
+<<depression-glmmtree, fig=TRUE, height=4, width=4.7>>=
 plot(lmertree_app$Tree)
 @
 \caption{GLMM tree for prediction of posttreatment total scores on the Hamilton Rating Scale for Depression (HAM-D). The y-axes of the boxplots represent posttreatment HAM-D scores, and the x-axes represent treatment levels: cognitive behavior therapy (CBT) vs. pharmacotherapy (PHA).}
@@ -611,7 +611,7 @@ plot(lmertree_app$Tree)
 
 By taking into account the study-specific intercepts, the final GLMM tree (Figure~\ref{fig:lmertree_C&W}) suggests that the first split made by GLM tree is a spurious split. The GLMM tree selected only presence of a comorbid anxiety disorder as a partitioning variable. The terminal nodes of Figure~\ref{fig:lmertree_C&W} show only a single treatment-subgroup interaction: for patients without a comorbid anxiety disorder, CBT and antidepressant medication provide more or less the same reduction in HAM-D scores, whereas for patients with a comorbid anxiety disorder, antidepressant medication provides a greater reduction in HAM-D scores. The estimated intraclass correlation coefficient for the random intercepts was .05. 
 
-Assessment of predictive accuracy by means of 50-fold cross validation showed that the GLMM tree had higher predictive accuracy than the GLM tree. The correlation between true and predicted posttreatment HAM-D total scores, averaged over the 50 folds, was .28 (var=.067) for GLMM tree, and .19 (var=.084) for GLM tree. This indicates that GLMM tree provided higher predictive accuracy, on average, and also somewhat lower variability of predictive accuracy than GLM tree. 
+Assessment of predictive accuracy by means of 50-fold cross validation showed that the GLMM tree had higher predictive accuracy than the GLM tree. The correlation between true and predicted posttreatment HAM-D total scores, averaged over the 50 folds, was .28 ($\mathrm{var}=.067$) for GLMM tree, and .19 ($\mathrm{var}=.084$) for GLM tree. This indicates that GLMM tree provided higher predictive accuracy, on average, and also somewhat lower variability of predictive accuracy than GLM tree. 
 
 
 
@@ -639,17 +639,17 @@ In conclusion, GLMM tree provided highly accurate recovery of treatment-subgroup
 
 \NumTabs{12}
 \noindent $1,\dots,i,\dots,N$ \tab{observation number}\\
-$1,\dots,j,\dots,J$ \tab{terminal node number in a tree}\\
-$1,\dots,k,\dots,K$ \tab{partitioning variable number}\\
+$1,\dots,j,\dots,J$	\tab{terminal node number in a tree}\\
+$1,\dots,k,\dots,K$	\tab{partitioning variable number}\\
 $1,\dots,m,\dots,M$	\tab{cluster number}\\
 $\beta_{j}$		\tab\tab{column vector of fixed-effects coefficients in terminal node $j$}\\
 $b_{m}$ 		\tab\tab{column vector of random-effects coefficients in cluster $m$}\\
 $d_{j}$			\tab\tab{$\beta_{j1} / \sigma_{\epsilon}$; effect size of treatment-effect differences between Treatment~1 and}\\
-\tab\tab\tab\tab{Treatment~2 in terminal node $j$}\\
+			\tab\tab\tab\tab{Treatment~2 in terminal node $j$}\\
 $\epsilon$		\tab\tab{deviation of observed treatment outcome $y$ from its expected value}\\
-$r$				\tab\tab{iteration number}\\
-$\sigma_{b}$	\tab\tab{square root of variance of $b$}\\
-$\sigma_{\epsilon}$\tab\tab{square root of the variance of $\epsilon$}\\
+$r$			\tab\tab{iteration number}\\
+$\sigma_{b}$		\tab\tab{standard deviation of $b$}\\
+$\sigma_{\epsilon}$	\tab\tab{standard deviation of $\epsilon$}\\
 $U_k$			\tab\tab{(potential) partitioning variable $k$}\\
 $x_i$ 			\tab\tab{column vector of fixed-effects predictor variable values for observation $i$}\\
 $y_i$ 			\tab\tab{treatment outcome for observation $i$}\\
