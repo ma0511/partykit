@@ -116,9 +116,9 @@ Observations were drawn from one of ten clusters, each with a different, cluster
 \section{General modeling framework}
 
 <<example-trees>>=
-exampleglm <- lmtree(outcome ~ treatment | age, data=example)
-exampleglmtree <- lmtree(outcome ~ treatment | age + duration + anxiety, data=example)
-exampleglmmtree <- lmertree(outcome ~ treatment | age + duration + anxiety, outcome ~ (1|cluster), data=example)
+exampleglm <- lmtree(outcome ~ treatment | age, data = example)
+exampleglmtree <- lmtree(outcome ~ treatment | age + duration + anxiety, data = example)
+exampleglmmtree <- lmertree(outcome ~ treatment | age + duration + anxiety, outcome ~ (1|cluster), data = example)
 @
 
 \subsection{GLM}
@@ -227,7 +227,7 @@ The algorithm initializes by setting all $b$ values to $0$, since the random-eff
 
 \begin{figure}[!h]
 <<exampleglmmtree, fig=TRUE, width=9, height=7>>=
-plot(exampleglmmtree$Tree)
+plot(exampleglmmtree)
 @
 \caption{GLMM tree of the motivating example dataset. Three covariates (anxiety questionnaire score, duration of depressive symptoms at baseline in months and age) were used as potential splitting variables, and the clustering structure was taken into account by estimating random intercepts.}
 \label{fig:example_glimmertree}
@@ -429,8 +429,8 @@ In Table~\ref{tab:treesize_main}, tree sizes for GLM and GLMM trees for datasets
 \begin{figure}[!thbp]
 <<treesize-nointeract-xyplot, fig=TRUE, width=9, height=7>>=
 load("treesizes_long_nointeract.dat")
-treesizes.long$sigmabm <- factor(as.numeric(as.character(treesizes.long$sigmabm)), ordered=T)
-treesizes.long$N <- factor(as.numeric(as.character(treesizes.long$N)), ordered=T)
+treesizes.long$sigmabm <- factor(as.numeric(as.character(treesizes.long$sigmabm)), ordered = TRUE)
+treesizes.long$N <- factor(as.numeric(as.character(treesizes.long$N)), ordered = TRUE)
 aggdata <- aggregate(formula=treesize.values ~ treesize.ind + N + sigmabm + corUbm, FUN=mean, data=treesizes.long)
 print(xyplot(treesize.values ~ sigmabm | N + corUbm, data = aggdata, groups=treesize.ind, 
 	type="b", ylab="tree size", xlab=expression(sigma[b]), par.settings=standard.theme("pdf",color=FALSE), 
@@ -577,11 +577,11 @@ formula <- HRSDt1 ~ Tx_group | Age + Gender + education + ComorbidAnxietyDisorde
 
 ## GLM tree
 lmtree_app <- lmtree(formula, data = metadata,
- 		offset = fitted(lm(HRSDt1 ~ HRSDt0), data = metadata))
+  offset = fitted(lm(HRSDt1 ~ HRSDt0), data = metadata))
 
 ## GLMM tree
 lmertree_app <- lmertree(formula, HRSDt1 ~ (1 | studyid) + HRSDt0, data = metadata,
- 		initialRandomEffects = fitted(lm(HRSDt1 ~ HRSDt0, data = metadata)))
+  ranefstart = fitted(lm(HRSDt1 ~ HRSDt0, data = metadata)))
 @
 
 \subsection{Results}
@@ -603,7 +603,7 @@ The GLM tree (Figure~\ref{fig:lmtree_C&W}) selected level of education as the fi
 \begin{figure}[!th]
 \setkeys{Gin}{width=0.6\textwidth}
 <<depression-glmmtree, fig=TRUE, height=4, width=4.7>>=
-plot(lmertree_app$Tree)
+plot(lmertree_app)
 @
 \caption{GLMM tree for prediction of posttreatment total scores on the Hamilton Rating Scale for Depression (HAM-D). The y-axes of the boxplots represent posttreatment HAM-D scores, and the x-axes represent treatment levels: cognitive behavior therapy (CBT) vs. pharmacotherapy (PHA).}
 \label{fig:lmertree_C&W}

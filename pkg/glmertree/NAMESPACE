@@ -6,3 +6,12 @@ export(
   "lmertree",
   "glmertree"
 )
+
+S3method("print", "lmertree")
+S3method("print", "glmertree")
+S3method("plot", "lmertree")
+S3method("plot", "glmertree")
+S3method("coef", "lmertree")
+S3method("coef", "glmertree")
+S3method("ranef", "lmertree")
+S3method("ranef", "glmertree")

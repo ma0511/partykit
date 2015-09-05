@@ -1,104 +1,137 @@
-lmertree <- function(lmtreeformula, randomformula, data, #subset = NULL, 
-  initialRandomEffects = NULL, 
-  ErrorTolerance = 0.001, MaxIterations = 1000, 
-  verbose = TRUE, plotting = FALSE,
-  lmer.control = lmerControl(), ...)
+lmertree <- function(formula, randomformula, data,
+  ranefstart = NULL, abstol = 0.001, maxit = 1000, 
+  verbose = FALSE, plot = FALSE, lmer.control = lmerControl(), ...)
 {
+  ## initialization
   iteration <- 0L
-  if (!is.null(initialRandomEffects)) { data$offset <- initialRandomEffects }
-  if (is.null(initialRandomEffects)) { data$offset <- rep(0, times=dim(data)[1L]) }
+  data$.ranef <- .ranefstart <- if (is.null(ranefstart)) {
+    rep(0, times = dim(data)[1L])
+  } else {
+    ranefstart  
+  }
   continuecondition <- TRUE
   oldloglik <- -Inf
+
+  ## iterate between lmer and lmtree estimation  
   while (continuecondition) {
     iteration <- iteration + 1L
-    tree <- lmtree(lmtreeformula, data, offset = offset, ...)
-    if(plotting){plot(tree)}
-    if(length(tree) > 1L) {
-      data$treeresponse <- treeresponse <- predict(tree, newdata = data)
-    }
-    if(length(tree) == 1L) { # if treedepth=1, predict.lmtree doesn't work, then use unpartitioned lm
-      lmformula <- formula(as.Formula(lmtreeformula), lhs = 1L, rhs = -2L)
-      data$treeresponse <- treeresponse <- predict(lm(lmformula, data = data), newdata = data)
-    }
-    lme <- lmer(randomformula, data = data, offset = treeresponse)
-    data$offset <- predict(lme, newdata = data)
+
+    ## lmtree
+    tree <- lmtree(formula, data, offset = .ranef, ...)
+    if(plot) plot(tree)
+    data$.treeresponse <- .treeresponse <- predict(tree, newdata = data)
+
+    ## lmer
+    lme <- lmer(randomformula, data = data, offset = .treeresponse)
+    data$.ranef <- .ranef <- predict(lme, newdata = data)
+
+    ## iteration information
     newloglik <- logLik(lme)    
-    continuecondition <- (newloglik - oldloglik > ErrorTolerance) & (iteration < MaxIterations) 
+    continuecondition <- (newloglik - oldloglik > abstol) & (iteration < maxit) 
     oldloglik <- newloglik
-    if(verbose) {
-      print(newloglik)
-    }
-  } 
+    if(verbose) print(newloglik)
+  }
+  
+  ## collect results
   result <- list(
-    Tree = tree,
-    RandomEffectModel = lme,
-    RandomEffects = ranef(lme), 
-    BetweenMatrix = VarCorr(lme),
-    ErrorVariance = attr(VarCorr(lme),"sc")^2, 
+    tree = tree,
+    lmer = lme,
+    ranef = ranef(lme), 
+    varcorr = VarCorr(lme),
+    variance = attr(VarCorr(lme),"sc")^2, 
     data = data,
     logLik = newloglik,
-    IterationsUsed = iteration, 
-    MaxIterations=MaxIterations,
-    initialRandomEffects = initialRandomEffects, 
-    TreeFormula = lmtreeformula,
-    RandomFormula = randomformula,
-    #Subset = subs, 
-    ErrorTolerance = ErrorTolerance,
-    #residuals = residuals, 
-    tree.control = list(...),
+    iterations = iteration, 
+    maxit = maxit,
+    ranefstart = ranefstart, 
+    formula = formula,
+    randomformula = randomformula,
+    abstol = abstol,
+    mob.control = list(...),
     lmer.control = lmer.control
   )
+  class(result) <- "lmertree"
+  return(result)
 }
 
-glmertree <- function(glmtreeformula, randomformula, data, #subset = NULL, 
-  family = "binomial",
-  initialRandomEffects = NULL, 
-  ErrorTolerance = 0.001, MaxIterations = 1000, 
-  verbose = TRUE, plotting = FALSE,
-  glmer.control = glmerControl(), ...)
+glmertree <- function(formula, randomformula, data,
+  family = "binomial", ranefstart = NULL, abstol = 0.001, maxit = 1000, 
+  verbose = FALSE, plot = FALSE, glmer.control = glmerControl(), ...)
 {
+  ## initialization
   iteration <- 0L
-  if (!is.null(initialRandomEffects)) { data$offset <- initialRandomEffects }
-  if (is.null(initialRandomEffects)) { data$offset <- rep(0, times = dim(data)[1L]) }
+  data$.ranef <- .ranef <- if (is.null(ranefstart)) {
+    rep(0, times = dim(data)[1L])
+  } else {
+    ranefstart
+  }
   continuecondition <- TRUE
   oldloglik <- -Inf
+  
+  ## iterate between glmer and glmtree estimation
   while (continuecondition) {
     iteration <- iteration + 1L
-    tree <- glmtree(glmtreeformula, data, family = family, offset = offset, ...)
-    if(plotting){plot(tree)}
-    if(length(tree) > 1L) {
-      data$treeresponse <- treeresponse <- predict(tree, newdata = data, type = "link")
-    }
-    if(length(tree) == 1L) { # if treedepth=1, predict.glmtree doesn't work, then use unpartitioned glm
-      glmformula <- formula(as.Formula(glmtreeformula), lhs = 1L, rhs = -2L)
-      data$treeresponse <- treeresponse <- predict(glm(glmformula, family = family, data = data), newdata = data, type = "link")
-    }
-    glme <- glmer(randomformula, family = family, data = data, offset = treeresponse)
-    data$offset <- predict(glme, newdata = data, type = "link")
+
+    ## glmtree
+    tree <- glmtree(formula, data, family = family, offset = .ranef, ...)
+    if(plot) plot(tree)
+    data$.treeresponse <- .treeresponse <- predict(tree, newdata = data, type = "link")
+
+    ## glmer
+    glme <- glmer(randomformula, family = family, data = data, offset = .treeresponse)
+    data$.ranef <- .ranef <- predict(glme, newdata = data, type = "link")
+
+    ## iteration information
     newloglik <- logLik(glme)    
-    continuecondition <- (newloglik - oldloglik > ErrorTolerance) & (iteration < MaxIterations) 
+    continuecondition <- (newloglik - oldloglik > abstol) & (iteration < maxit) 
     oldloglik <- newloglik
-    if(verbose) {
-      print(newloglik)
-    }
-  } 
+    if(verbose) print(newloglik)
+  }
+  
+  ## collect results
   result <- list(
-    Tree = tree,
-    RandomEffectModel = glme,
-    RandomEffects = ranef(glme), 
-    BetweenMatrix = VarCorr(glme),
-    ErrorVariance = attr(VarCorr(glme),"sc")^2, 
+    tree = tree,
+    glmer = glme,
+    ranef = ranef(glme), 
+    varcorr = VarCorr(glme),
+    variance = attr(VarCorr(glme), "sc")^2, 
     data = data,
     logLik = newloglik,
-    IterationsUsed = iteration, 
-    MaxIterations = MaxIterations,
-    initialRandomEffects = initialRandomEffects, 
-    TreeFormula = glmtreeformula,
-    RandomFormula = randomformula,
-    #Subset = subs, 
-    ErrorTolerance = ErrorTolerance,
-    #residuals = data$residuals, 
-    tree.control = list(...),
+    iterations = iteration, 
+    maxit = maxit,
+    ranefstart = ranefstart, 
+    formula = formula,
+    randomformula = randomformula,
+    abstol = abstol,
+    mob.control = list(...),
     glmer.control = glmer.control
   )
+  class(result) <- "glmertree"
+  return(result)
+}
+
+coef.lmertree <- coef.glmertree <- function(object, ...) {
+  coef(object$tree, ...)
+}
+
+plot.lmertree <- plot.glmertree <- function(x, ...) {
+  plot(x$tree, ...)
+}
+
+ranef.lmertree <- ranef.glmertree <- function(object, ...) {
+  object$ranef
+}
+
+print.lmertree <- function(x, title = "Linear mixed model tree", ...) {
+  print(x$tree, title = title, ...)
+  cat("\nRandom effects:\n")
+  print(x$ranef)
+  invisible(x)
+}
+
+print.glmertree <- function(x, title = "General linear mixed model tree", ...) {
+  print(x$tree, title = title, ...)
+  cat("\nRandom effects:\n")
+  print(x$ranef)
+  invisible(x)
 }
