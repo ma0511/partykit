@@ -2,6 +2,10 @@ import("lme4")
 import("partykit")
 import("Formula")
 
+importFrom("utils", "globalVariables")
+importFrom("graphics", "plot")
+importFrom("stats", "coef", "logLik", "predict", "update")
+
 export(
   "lmertree",
   "glmertree"
@@ -15,3 +19,5 @@ S3method("coef", "lmertree")
 S3method("coef", "glmertree")
 S3method("ranef", "lmertree")
 S3method("ranef", "glmertree")
+S3method("logLik", "lmertree")
+S3method("logLik", "glmertree")

@@ -33,10 +33,10 @@ a binary variable (\code{ybin}).
 There are two large subgroups where Treatment 1 is better than Treatment 2 and
 vice versa, respectively. Additionally, there are two smaller subgroups where
 both treatments lead to comparable outcomes. For the corresponding (G)LMM trees
-see \code{\link{lmertree}} and \code{\link{glmertree}}, respectively.
+see \code{\link{lmertree}}.
 }
 
-\seealso{\code{\link{lmertree}}, \code{\link{glmertree}}}
+\seealso{\code{\link{lmertree}}}
 
 \examples{
 data("TreatmentSubgroups", package = "glmertree")

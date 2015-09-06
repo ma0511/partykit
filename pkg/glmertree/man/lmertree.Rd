@@ -1,59 +1,104 @@
-\name{lmertree}
+\name{glmertree}
 \alias{lmertree}
+\alias{glmertree}
 \alias{print.lmertree}
 \alias{plot.lmertree}
 \alias{coef.lmertree}
 \alias{ranef.lmertree}
+\alias{logLik.lmertree}
+\alias{print.glmertree}
+\alias{plot.glmertree}
+\alias{coef.glmertree}
+\alias{ranef.glmertree}
+\alias{logLik.glmertree}
 
-\title{Linear Mixed Model Trees}
+\encoding{latin1}
+
+\title{(Generalized) Linear Mixed Model Trees}
 
 \description{
-  Model-based recursive partitioning based on linear mixed model.
+  Model-based recursive partitioning based on (generalized)
+  linear mixed models.
 }
 
 \usage{
-lmertree(formula, randomformula, data,
-  ranefstart = NULL, abstol = 0.001, maxit = 1000, 
-  verbose = FALSE, plot = FALSE, lmer.control = lmerControl(), \dots)
+lmertree(formula, data,
+  ranefstart = NULL, abstol = 0.001, maxit = 100, 
+  joint = TRUE, dfsplit = TRUE, verbose = FALSE, plot = FALSE,
+  lmer.control = lmerControl(), \dots)
+
+glmertree(formula, data, family = "binomial",
+  ranefstart = NULL, abstol = 0.001, maxit = 100, 
+  joint = TRUE, dfsplit = TRUE, verbose = FALSE, plot = FALSE,
+  glmer.control = glmerControl(), \dots)
 }
 
 \arguments{
-  \item{formula}{Model formula for building the \code{lmtree}.
-    See examples below, or \code{\link[partykit]{lmtree}} documentation.} 
-  \item{randomformula}{Formula for random-effects model.
-    See examples below, or \code{\link[lme4]{lmer}} and
-    \code{\link[lme4]{glmer}} documentation.}
-  \item{data}{Dataset to be used for estimating the lmertree.}
-  \item{ranefstart}{A vector of length \code{nrow(data)}, to be used as
-    an offset in estimation of the first lmtree. \code{NULL} by default,
+  \item{formula}{formula specifying the response variable and a three-part
+    right-hand-side describing the regressors, random effects, and
+    partitioning variables, respectively. For details see below.}
+  \item{data}{data.frame to be used for estimating the model tree.}
+  \item{family}{family specification for \code{glmtree} and \code{glmer}.
+    See \code{\link[stats]{glm}} documentation for families.}
+  \item{ranefstart}{numeric. A vector of length \code{nrow(data)}, to be used as
+    an offset in estimation of the first tree. \code{NULL} by default,
     which results in a zero offset initialization.}
-  \item{abstol}{The convergence criterion used for estimation of the \code{lmertree}.
-    When the difference in log likelihoods of the random-effects model of two
+  \item{abstol}{numeric. The convergence criterion used for estimation of the model.
+    When the difference in log-likelihoods of the random-effects model from two
     consecutive iterations is smaller than \code{abstol}, estimation of the
-    \code{lmertree} has converged.} 
-  \item{maxit}{The maximum number of iterations to be performed in executing
-    the \code{lmertree} function.}
-  \item{verbose}{Should the log likelihood value of the estimated
-    random-effects model be printed for every iteration during execution of
-    the \code{lmertree} function?} 
-  \item{plot}{Should the lmertree be plotted at every iteration during
-    execution of the lmertree function? Note that plotting of a tree at
-    every iteration slows down execution of the function.}
-  \item{lmer.control}{An optional list (of correct class, resulting from
-    \code{lmerControl()}), containing control parameters to be passed to
-    \code{lmer()}. See \code{\link[lme4]{lmerControl}} documentation for
-    details.} 
-  \item{\dots}{Additional arguments to be passed to \code{lmtree()}.
+    model tree has converged.} 
+  \item{maxit}{numeric. The maximum number of iterations to be performed in
+    estimation of the model tree.}
+  \item{joint}{logical. Should the fixed effects from the tree be (re-)estimated
+    jointly along with the random effects?}
+  \item{dfsplit}{logical or numeric. \code{as.integer(dfsplit)} is the
+    degrees of freedom per selected split employed when extracting
+    the log-likelihood.}
+  \item{verbose}{Should the log-likelihood value of the estimated
+    random-effects model be printed for every iteration of the estimation?} 
+  \item{plot}{Should the tree be plotted at every iteration of the estimation?
+    Note that selecting this option slows down execution of the function.}
+  \item{lmer.control, glmer.control}{list. An optional list with control
+    parameters to be passed to \code{lmer()} and \code{glmer()}, respectively.
+    See \code{\link[lme4]{lmerControl}} and \code{\link[lme4]{glmerControl}} for details.} 
+  \item{\dots}{Additional arguments to be passed to \code{lmtree()} or \code{glmtree()}.
     See \code{\link[partykit]{mob_control}} documentation for details.}
 }
   
 \details{
-  This code is the first implementation and might change in future versions.
+  (G)LMM trees learn a tree where each terminal node is associated with
+  different regression coefficients while adjusting for global random effects
+  (such as a random intercept). This allows for detection of subgroup-specific
+  fixed effects, keeping the random effects constant throughout the tree.
+  The estimation algorithm iterates between (1) estimation of the tree given
+  an offset of random effects, and (2) estimation of a random-effects model
+  given the tree structure. See Fokkema et al. (2015) for a detailed introduction.
+  
+  To specify all variables in the model a \code{formula} such as
+  \code{y ~ x1 + x2 | random | z1 + z2 + z3} is used, where \code{y} is the
+  response, \code{x1} and \code{x2} are the regressors in every node of the
+  tree, \code{random} is the random effect, and \code{z1} to \code{z3} are
+  the partitioning variables considered for growing the tree. If \code{random}
+  is only a single variable such as \code{id} a random intercept with respect
+  to \code{id} is used. Alternatively, it may be an explicit random-effects
+  formula such as \code{(1 | id)} or a more complicated formula. (Note that
+  in the latter case, the brackets are necessary to protect the pipes in the
+  random effects formulation.)
+
+  In the random-effects model from step (2), two strategies are available:
+  Either the fitted values from the tree can be supplied as an offset
+  (\code{joint = FALSE}) so that only the random effects are estimated.
+  Or the fixed effects are (re-)estimated along with the random effects
+  using a nesting factor with nodes from the tree (\code{joint = TRUE}).
+  In the former case, the estimation of each random-effects model is typically
+  faster but more iterations are required.
+
+  The code is still under development and might change in future versions.
 }
 
 \value{
 The function returns a list with the following objects:
-  \item{tree}{The final \code{lmtree}.}
+  \item{tree}{The final \code{lmtree}/code{glmtree}.}
   \item{lmer}{The final \code{lmer} random-effects model.}
   \item{ranef}{The corresponding random effects of \code{lmer}.} 
   \item{varcorr}{The corresponding \code{VarCorr(lmer)}.}
@@ -76,22 +121,39 @@ The function returns a list with the following objects:
     \code{lmer()}, as specified in the \code{lmer.control} argument.}
 }
 
+\references{
+Fokkema M, Smits N, Zeileis A, Hothorn T, Kelderman H (2015).
+  \dQuote{Detecting Treatment-Subgroup Interactions in Clustered Data
+  with Generalized Linear Mixed-Effects Model Trees}.
+  Working Paper 2015-10. Working Papers in Economics and Statistics,
+  Research Platform Empirical and Experimental Economics, Universität Innsbruck.
+  \url{http://EconPapers.RePEc.org/RePEc:inn:wpaper:2015-10}
+}
+
 \seealso{\code{\link[lme4]{lmer}}, \code{\link[lme4]{glmer}},
   \code{\link[partykit]{lmtree}}, \code{\link[partykit]{glmtree}}}
 
 \examples{
-## lmertree example
+## artificial example data
 data("TreatmentSubgroups", package = "glmertree")
 
-## fit normal linear regression LMM tree
-lt <- lmertree(ynum ~ treatment | u1 + u2 + u3 + u4 + u5,
-  ynum ~ 1 | cluster, data = TreatmentSubgroups)
-
-## results
-lt
+## fit normal linear regression LMM tree for continuous outcome
+lt <- lmertree(ynum ~ treatment | cluster | u1 + u2 + u3 + u4 + u5,
+  data = TreatmentSubgroups)
+print(lt)
 plot(lt)
 coef(lt)
 ranef(lt)
+
+\donttest{
+## fit logistic regression GLMM tree for binary outcome
+gt <- glmertree(ybin ~ treatment | cluster | u1 + u2 + u3 + u4 + u5,
+  data = TreatmentSubgroups)
+print(gt)
+plot(gt)
+coef(gt)
+ranef(gt)
+}
 }
 
 \keyword{tree}
