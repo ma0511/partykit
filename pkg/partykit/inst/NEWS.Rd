@@ -2,6 +2,17 @@
 \name{NEWS}
 \title{NEWS file for the partykit package}
 
+\section{Changes in Version 1.0-4 (2015-MM-DD)}{
+  \itemize{
+    \item{For \code{constparty} objects \code{plot(..., type = "simple")}
+          did not work correctly whereas \code{plot(as.simpleparty(...))}
+	  yielded the desired visualization. Now internally \code{as.simpleparty()}
+	  is called also in the former case.}
+    \item{The \code{as.simpleparty()} method now preserves p-values from
+          \code{constparty} objects (if any).}
+  }
+}
+
 \section{Changes in Version 1.0-3 (2015-08-14)}{
   \itemize{
     \item{Import \code{logrank_trafo} from \pkg{coin}.}

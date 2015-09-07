@@ -383,10 +383,13 @@ plot.constparty <- function(x, main = NULL,
     ### compute default settings
     type <- match.arg(type)
     if (type == "simple") {
+	x <- as.simpleparty(x)
         if (is.null(terminal_panel)) 
             terminal_panel <- node_terminal
         if (is.null(tnex)) tnex <- 1
         if (is.null(drop_terminal)) drop_terminal <- FALSE
+        if (is.null(tp_args) || length(tp_args) < 1L) tp_args <- list(
+	  FUN = .make_formatinfo_simpleparty(x, digits = getOption("digits") - 4L, sep = "\n"))
     } else {
         if (is.null(terminal_panel)) {
 	    cl <- class(x$fitted[["(response)"]])

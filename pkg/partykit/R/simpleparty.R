@@ -151,18 +151,18 @@ as.simpleparty.constparty <- function(obj, ...) {
       "numeric" = {
         yhat <- .pred_numeric_response(y, w)
         list(prediction = yhat, n = structure(sum(w), .Names = wnam),
-	  error = sum(w * (y - yhat)^2), distribution = NULL)
+	  error = sum(w * (y - yhat)^2), distribution = NULL, p.value = info_node(node)$p.value)
       },
       "factor" = {
         yhat <- .pred_factor_response(y, w)
         ytab <- round(.pred_factor(y, w) * sum(w))
         list(prediction = yhat, n = structure(sum(w), .Names = wnam),
 	  error = structure(sum(100 * prop.table(ytab)[names(ytab) != yhat]), .Names = "%"),
-	  distribution = ytab)
+	  distribution = ytab, p.value = info_node(node)$p.value)
       },
       "Surv" = {
         list(prediction = .pred_Surv(y, w), n = structure(sum(w), .Names = wnam),
-	  error = NULL, distribution = NULL) ## FIXME: change distribution format?
+	  error = NULL, distribution = NULL, p.value = info_node(node)$p.value) ## FIXME: change distribution format?
       })
   }
 
