@@ -50,10 +50,15 @@ lmertree <- function(formula, data,
 
     ## lmer
     if(joint) {
+      ## estimate full lmer model but force all coefficients from the
+      ## .tree (and the overall intercept) to zero for the prediction
       lme <- lmer(rf, data = data)
-      data$.ranef <- predict(lme, newdata = data, re.form = NULL) -
-        predict(lme, newdata = data, re.form = NA)
+      b <- lme@beta
+      b[which(substr(names(coef(lme)[[1L]]), 1L, 5L) %in% c("(Inte", ".tree"))] <- 0
+      data$.ranef <- suppressWarnings(suppressMessages(predict(lme, newdata = data, newparams = list(beta = b))))
     } else {
+      ## estimate only a partial lmer model using the .tree fitted
+      ## values as an offset
       lme <- lmer(rf, data = data, offset = .tree)
       data$.ranef <- predict(lme, newdata = data)    
     }
@@ -140,10 +145,15 @@ glmertree <- function(formula, data, family = "binomial",
 
     ## glmer
     if(joint) {
+      ## estimate full glmer model but force all coefficients from the
+      ## .tree (and the overall intercept) to zero for the prediction
       glme <- glmer(rf, data = data, family = family)
-      data$.ranef <- predict(glme, newdata = data, type = "link", re.form = NULL) -
-        predict(glme, newdata = data, type = "link", re.form = NA)
+      b <- glme@beta
+      b[which(substr(names(coef(glme)[[1L]]), 1L, 5L) %in% c("(Inte", ".tree"))] <- 0
+      data$.ranef <- suppressWarnings(suppressMessages(predict(glme, newdata = data, type = "link", newparams = list(beta = b))))
     } else {
+      ## estimate only a partial glmer model using the .tree fitted
+      ## values as an offset
       glme <- glmer(rf, data = data, family = family, offset = .tree)
       data$.ranef <- predict(glme, newdata = data, type = "link")
     }

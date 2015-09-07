@@ -573,11 +573,11 @@ hrs <- fitted(lm(HRSDt1 ~ HRSDt0, data = metadata))
 ## lmtree_app <- lmtree(HRSDt1 ~ Tx_group | Age + Gender + education + ComorbidAnxietyDisorder + HRSDt0,
 ##   data = metadata, offset = hrs)
 lmtree_app <- lmertree(HRSDt1 ~ Tx_group | HRSDt0 | Age + Gender + education + ComorbidAnxietyDisorder + HRSDt0,
-  data = metadata, ranefstart = hrs, joint = FALSE)
+  data = metadata, ranefstart = hrs)
 
 ## GLMM tree (estimated with joint = FALSE because fixed effect HRSDt0 is included in random formula)
 lmertree_app <- lmertree(HRSDt1 ~ Tx_group | (1 | studyid) + HRSDt0 | Age + Gender + education + ComorbidAnxietyDisorder + HRSDt0,
-  data = metadata, ranefstart = hrs, joint = FALSE)
+  data = metadata, ranefstart = hrs)
 @
 
 \subsection{Results}
