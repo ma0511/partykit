@@ -362,23 +362,11 @@ For every dataset, correlation coefficients for each algorithm were calculated, 
 
 \subsection{Software}
 
-\verb|R| \cite{R14} was used for generation and analysis of all datasets. Two additional R packages were used: \verb|partykit| (version 1.0-2; \citeNP{HothyZeil15}) for the estimation of GLM trees, and \verb|lme4| (version 1.1-7; \citeNP{BateyMeac12}) for the estimation of random-effects coefficients. 
+R \cite{R14} was used for generation and analysis of all datasets. The \verb|partykit| package (version 1.0-2; \citeNP{HothyZeil15}) was employed for estimating GLM trees using the \verb|lmtree| function for normal linear regressions and \verb|glmtree| would be available for GLM trees with other response distributions. For estimation of GLMMs the \verb|lmer| (or \verb|glmer|, respectively) from the \verb|lme4| package (version 1.1-7; \citeNP{BateyMeac12}) was employed using restricted maximum likelihood (REML) estimation.
 
+For the estimation of GLMM trees the former two packages were combined in a new package \verb|glmertree| (version 0.1-0; \citeNP{FokkyZeil15}; available from R-Forge). This provides functions \verb|lmertree| and \verb|glmertree| that iterate between estimation of the \verb|lmtree|/\verb|glmtree| model and the \verb|lmer|/\verb|glmer| model.
 
-\subsubsection{Estimation of GLM trees}
-
-For estimating GLM trees, the \verb|lmtree| function from the \verb|partykit| package was used. The \verb|lmtree| function builds a linear model tree: a GLM-based recursive partition (Equation~\ref{eq:fixedeffects_MOB}) for a real-valued response variable with normally distributed errors. Models in the nodes of the tree are estimated with ordinary least squares (OLS). The $\alpha$-level for assessing parameter instability was set to .05, a Bonferroni correction for multiple testing was applied, and the minimum number of observations in a node was set to 20. Maximum tree depth was set to four (i.e., maximum of eight terminal nodes), as this yields a model tree which is easy to interpret. 
-
-
-\subsubsection{Estimation of GLMM trees}  
-
-For estimating GLMM trees, we implemented the GLMM tree algorithm in a function that iterates between (1) estimation of a generalized linear model tree using the \verb|lmtree| function, and (2) estimation of the random-effects coefficients $b_m$ using the \verb|lmer| function. Convergence of \verb|glmmtree| is monitored using the log-likelihood value of the generalized linear mixed-effects model estimated in step (2) of the algorithm. When the difference in the log-likelihoods of two consecutive iterations is less than a prespecified value (.001 by default), \verb|glmmtree| has converged. 
-
-For building the GLM trees in step (1) of the GLMM tree algorithm, the same settings as described above were used. That is, models in the nodes of the tree were estimated with OLS, the $\alpha$-level for assessing parameter instability was set to .05, the Bonferroni correction for multiple testing was applied, the minimum number of observations in a node was set to 20, and maximum tree depth was set to four.
-
-For estimating the $b_m$ values in step (2), the \verb|lmer| function from the \verb|lme4| package was used. This function estimates a linear mixed-effects model using maximum likelihood (ML) or restricted ML (REML). In the current paper, REML estimation was used.
-
-
+In all applications, the significance level $\alpha$ for the parameter instability tests in the trees was set to .05 with a Bonferroni correction applied for multiple testing. The minimum number of observations per node in the tree was set to 20 and the maximum tree depth was set to four, thus limiting the number of potential subgroups to eight. The iteration in the GLMM tree algorithm was repeated until the log-likelihood changes between two subsequent iterations fell below .001.
 
 \subsection{Results}
 
