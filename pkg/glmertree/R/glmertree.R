@@ -21,6 +21,7 @@ lmertree <- function(formula, data,
     rf <- update(rf, . ~ .tree / .)
     rf <- formula(Formula::as.Formula(rf, formula(ff, lhs = 0L, rhs = 2L)),
       lhs = 1L, rhs = c(1L, 2L), collapse = TRUE)
+    rf0 <- formula(ff, lhs = 1L, rhs = c(1L, 2L), collapse = TRUE)
   } else {
     rf <- formula(ff, lhs = 1L, rhs = 2L)
   }
@@ -52,9 +53,15 @@ lmertree <- function(formula, data,
     if(joint) {
       ## estimate full lmer model but force all coefficients from the
       ## .tree (and the overall intercept) to zero for the prediction
-      lme <- lmer(rf, data = data)
-      b <- structure(lme@beta, .Names = names(coef(lme)[[1L]]))
-      b[substr(names(b), 1L, 5L) %in% c("(Inte", ".tree")] <- 0
+      if(length(levels(data$.tree)) > 1L) {
+        lme <- lmer(rf, data = data)
+        b <- structure(lme@beta, .Names = names(coef(lme)[[1L]]))
+        b[substr(names(b), 1L, 5L) %in% c("(Inte", ".tree")] <- 0
+      } else {
+        lme <- lmer(rf0, data = data)
+        b <- structure(lme@beta, .Names = names(coef(lme)[[1L]]))
+        b[seq_along(coef(tree))] <- 0
+      }
       data$.ranef <- suppressWarnings(suppressMessages(predict(lme, newdata = data, newparams = list(beta = b))))
     } else {
       ## estimate only a partial lmer model using the .tree fitted
@@ -116,6 +123,7 @@ glmertree <- function(formula, data, family = "binomial",
     rf <- update(rf, . ~ .tree / .)
     rf <- formula(Formula::as.Formula(rf, formula(ff, lhs = 0L, rhs = 2L)),
       lhs = 1L, rhs = c(1L, 2L), collapse = TRUE)
+    rf0 <- formula(ff, lhs = 1L, rhs = c(1L, 2L), collapse = TRUE)
   } else {
     rf <- formula(ff, lhs = 1L, rhs = 2L)
   }
@@ -147,9 +155,15 @@ glmertree <- function(formula, data, family = "binomial",
     if(joint) {
       ## estimate full glmer model but force all coefficients from the
       ## .tree (and the overall intercept) to zero for the prediction
-      glme <- glmer(rf, data = data, family = family)
-      b <- structure(glme@beta, .Names = names(coef(glme)[[1L]]))
-      b[substr(names(b), 1L, 5L) %in% c("(Inte", ".tree")] <- 0
+      if(length(levels(data$.tree)) > 1L) {
+        glme <- glmer(rf, data = data, family = family)
+        b <- structure(glme@beta, .Names = names(coef(glme)[[1L]]))
+        b[substr(names(b), 1L, 5L) %in% c("(Inte", ".tree")] <- 0
+      } else {
+        glme <- glmer(rf0, data = data, family = family)
+        b <- structure(glme@beta, .Names = names(coef(glme)[[1L]]))
+        b[seq_along(coef(tree))] <- 0
+      }
       data$.ranef <- suppressWarnings(suppressMessages(predict(glme, newdata = data, type = "link", newparams = list(beta = b))))
     } else {
       ## estimate only a partial glmer model using the .tree fitted
