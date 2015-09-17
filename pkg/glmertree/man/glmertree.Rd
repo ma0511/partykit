@@ -98,7 +98,7 @@ glmertree(formula, data, family = "binomial",
 
 \value{
 The function returns a list with the following objects:
-  \item{tree}{The final \code{lmtree}/code{glmtree}.}
+  \item{tree}{The final \code{lmtree}/\code{glmtree}.}
   \item{lmer}{The final \code{lmer} random-effects model.}
   \item{ranef}{The corresponding random effects of \code{lmer}.} 
   \item{varcorr}{The corresponding \code{VarCorr(lmer)}.}
@@ -119,6 +119,8 @@ The function returns a list with the following objects:
     \code{lmtree()}, as specified with \dots.}
   \item{lmer.control}{A list containing control parameters passed to
     \code{lmer()}, as specified in the \code{lmer.control} argument.}
+  \item{joint}{Whether the fixed effects from the tree were (re-)estimated jointly along 
+    with the random effects, specified with the \code{joint} argument.}  
 }
 
 \references{
