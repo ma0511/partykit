@@ -215,13 +215,13 @@ print.lmertree <- function(x, title = "Linear mixed model tree", ...) {
   print(x$tree, title = title, ...)
   cat("\nRandom effects:\n")
   print(x$ranef)
-  if(x$joint & length(fixef(x$lmer)[-grep(".tree", names(fixef(x$lmer)))])>0L) {
+  if(x$joint & length(fixef(x$lmer)[-grep(".tree", names(fixef(x$lmer)))])>1L) {
     cat("\nLinear fixed effects (from lmer model):\n")
     print(fixef(x$lmer)[-c(1L, grep(".tree", names(fixef(x$lmer))))])
   }
   if(!x$joint & length(fixef(x$lmer))>1L) {
     cat("\nLinear fixed effects (from lmer model):\n")
-    print(fixef(x$lmer)[-1])  
+    print(fixef(x$lmer)[-1L])  
   }  
   invisible(x)
 }
@@ -230,13 +230,13 @@ print.glmertree <- function(x, title = "Generalized linear mixed model tree", ..
   print(x$tree, title = title, ...)
   cat("\nRandom effects:\n")
   print(x$ranef)
-  if(x$joint & length(fixef(x$lmer)[-grep(".tree", names(fixef(x$lmer)))])>0L) {
-    cat("\nLinear fixed effects (from lmer model):\n")
-    print(fixef(x$lmer)[-c(1L, grep(".tree", names(fixef(x$lmer))))])
+  if(x$joint & length(fixef(x$glmer)[-grep(".tree", names(fixef(x$glmer)))]) > 1L) {
+    cat("\nLinear fixed effects (from glmer model):\n")
+    print(fixef(x$glmer)[-c(1L, grep(".tree", names(fixef(x$glmer))))])
   }
-  if(!x$joint & length(fixef(x$lmer))>1L) {
-    cat("\nLinear fixed effects (from lmer model):\n")
-    print(fixef(x$lmer)[-1])  
+  if(!x$joint & length(fixef(x$glmer)) > 1L) {
+    cat("\nLinear fixed effects (from glmer model):\n")
+    print(fixef(x$glmer)[-1L])  
   }  
   invisible(x)
 }
