@@ -10,6 +10,7 @@
 	  is called also in the former case.}
     \item{The \code{as.simpleparty()} method now preserves p-values from
           \code{constparty} objects (if any).}
+    \item{Added a \code{getCall()} method for \code{"party"} objects.}
   }
 }
 
