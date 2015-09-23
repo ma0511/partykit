@@ -240,3 +240,43 @@ print.glmertree <- function(x, title = "Generalized linear mixed model tree", ..
   }  
   invisible(x)
 }
+
+predict.lmertree <- function(object, newdata = NULL, type = "response", ...) { 
+  if(is.null(newdata)) {
+    newdata <- object$data
+  }
+  if(type == "node") {
+    predict(object$tree, newdata = newdata, type = "node")
+  } else {
+    if(object$joint) {
+      newdata$.tree <- predict(object$tree, newdata = newdata, type = "node")
+      newdata$.tree <- factor(newdata$.tree,
+                              labels = levels(object$data$.tree))
+      predict(object$lmer, newdata = newdata, type = type, ...)
+    } else {
+      predict(object$tree, newdata = newdata, type = type) + 
+        predict(object$lmer, newdata = newdata, type = type, ...)
+    }
+  }
+}
+
+predict.glmertree <- function(object, newdata = NULL, type = "response", ...) { 
+  if(is.null(newdata)) {
+    newdata <- object$data
+  }
+  if(type == "node") {
+    predict(object$tree, newdata = newdata, type = "node")
+  } else {
+    if(object$joint) {
+      newdata$.tree <- predict(object$tree, newdata = newdata, type = "node")
+      newdata$.tree <- factor(newdata$.tree,
+                              labels = levels(object$data$.tree))
+      predict(object$glmer, newdata = newdata, type = type, ...)
+    } else {
+      eta <- predict(object$tree, newdata = newdata, type = "link") + 
+        predict(object$glmer, newdata = newdata, type = "link", ...)  
+      if(type == "link") {print(eta)}
+      if(type == "response") {1 / (1 + exp(-eta))}
+    }
+  }
+}

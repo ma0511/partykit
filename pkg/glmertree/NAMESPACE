@@ -21,3 +21,6 @@ S3method("ranef", "lmertree")
 S3method("ranef", "glmertree")
 S3method("logLik", "lmertree")
 S3method("logLik", "glmertree")
+S3method("predict", "lmertree")
+S3method("predict", "glmertree")
+

@@ -11,6 +11,8 @@
 \alias{coef.glmertree}
 \alias{ranef.glmertree}
 \alias{logLik.glmertree}
+\alias{predict.glmertree}
+\alias{predict.lmertree}
 
 \encoding{latin1}
 
@@ -146,6 +148,7 @@ print(lt)
 plot(lt)
 coef(lt)
 ranef(lt)
+predict(lt, type = "response") # default behavior, type may also be "node" 
 
 \donttest{
 ## fit logistic regression GLMM tree for binary outcome
@@ -155,6 +158,7 @@ print(gt)
 plot(gt)
 coef(gt)
 ranef(gt)
+predict(gt, type = "response") # default behavior, type may also be "node", or "link"
 }
 }
 
