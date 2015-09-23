@@ -571,7 +571,7 @@ In conclusion, GLMM tree provided highly accurate recovery of treatment-subgroup
 
 \section*{Acknowledgments}
 
-The authors would like to thank Prof.~Pim Cuijpers, Prof.~Jeanne Miranda, Dr.~Boadie Dunlop, Prof.~Rob DeRubeis, Prof.~Zindel Segal, Dr.~Sona Dimidjian, Prof.~Steve Hollon and Erica Weitz,~MA, for granting access to the dataset for the application. The work for this paper was partially done while MF, AZ and TH were visiting the Institute for Mathematical Sciences, National University of Singapore in 2014. The visit was supported by the Institute.
+The authors would like to thank Prof.~Pim Cuijpers, Prof.~Jeanne Miranda, Dr.~Boadie Dunlop, Prof.~Rob DeRubeis, Prof.~Zindel Segal, Dr.~Sona Dimidjian, Prof.~Steve Hollon and Erica Weitz,~MA, for granting access to the dataset for the application. The authors would like to thank Dr. Elise Dusseldorp for providing helpful comments on an earlier version of the manuscript. The work for this paper was partially done while MF, AZ and TH were visiting the Institute for Mathematical Sciences, National University of Singapore in 2014. The visit was supported by the Institute.
 
 \bibliography{ref}
 
