@@ -183,6 +183,7 @@ mob_partynode <- function(Y, X, Z, weights = NULL, offset = NULL, cluster = NULL
       attr(sx, "xlevels")   <- attr(x, "xlevels")
       attr(sx, "formula")   <- attr(x, "formula")
       attr(sx, "terms")     <- attr(x, "terms")
+      attr(sx, "offset")    <- attr(x, "offset")
       sx
     }
   } else {
@@ -828,6 +829,7 @@ refit.modelparty <- function(object, node = NULL, drop = TRUE, ...)
   if(!is.null(X)) {
     attr(X, "formula") <- formula(object$info$Formula, rhs = 1L)
     attr(X, "terms") <- object$info$terms$response
+    attr(X, "offset") <- object$info$call$offset
   }
 
   suby <- function(y, index) {
@@ -840,6 +842,7 @@ refit.modelparty <- function(object, node = NULL, drop = TRUE, ...)
       attr(sx, "xlevels")   <- attr(x, "xlevels")
       attr(sx, "formula")   <- attr(x, "formula")
       attr(sx, "terms")     <- attr(x, "terms")
+      attr(sx, "offset")    <- attr(x, "offset")
       sx
     }
   } else {
