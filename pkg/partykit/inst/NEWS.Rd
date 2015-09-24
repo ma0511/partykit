@@ -11,6 +11,9 @@
     \item{The \code{as.simpleparty()} method now preserves p-values from
           \code{constparty} objects (if any).}
     \item{Added a \code{getCall()} method for \code{"party"} objects.}
+    \item{In the \code{predict()} method for \code{"lmtree"} and \code{"glmtree"}
+          objects the \code{offset} (if any) was sometimes ignored. It is
+	  now always used in the prediction.}
   }
 }
 
