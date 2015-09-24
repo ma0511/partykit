@@ -82,6 +82,7 @@ mob <- function(formula, data, subset, na.action, weights, offset, cluster,
   if(xreg) {
     attr(X, "formula") <- formula(formula, rhs = 1L)
     attr(X, "terms") <- mtY
+    attr(X, "offset") <- cl$offset
   }
   Z <- Formula::model.part(formula, mf, rhs = 2L)
   n <- nrow(Z)
