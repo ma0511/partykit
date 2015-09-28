@@ -276,7 +276,7 @@ predict.glmertree <- function(object, newdata = NULL, type = "response", ...) {
       eta <- predict(object$tree, newdata = newdata, type = "link") + 
         predict(object$glmer, newdata = newdata, type = "link", ...)  
       if(type == "link") {print(eta)}
-      if(type == "response") {1 / (1 + exp(-eta))}
+      if(type == "response") {object$tree$node$info$object$family$linkinv(eta)}
     }
   }
 }
