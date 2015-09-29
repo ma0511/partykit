@@ -573,6 +573,8 @@ node_barplot <- function(obj,
 	              gp = gpar(col = col[i], fill = fill[i]))
 	  }
 	}
+	grid.rect(gp = gpar(fill = "transparent"))
+
 	
         upViewport(2)
     }
