@@ -527,32 +527,28 @@ node_barplot <- function(obj,
         plot <- viewport(layout.pos.col=2, layout.pos.row=2,
                          xscale=xscale, yscale=yscale,
 			 name = paste0("node_barplot", node$nodeID, "plot"),
-			 clip = TRUE)
+			 clip = FALSE)
 
         pushViewport(plot)
 	
 	if(beside) {
   	  xcenter <- cumsum(widths+gap) - widths/2
+          if(length(xcenter) > 1) grid.xaxis(at = xcenter, label = FALSE)
+	  grid.text(ylevels, x = xcenter, y = unit(-1, "lines"), 
+                    just = c("center", "top"),
+	            default.units = "native", check.overlap = TRUE)
+          grid.yaxis()
+          grid.rect(gp = gpar(fill = "transparent"))
+	  grid.clip()
 	  for (i in 1:np) {
             grid.rect(x = xcenter[i], y = 0, height = pred[i], 
                       width = widths[i],
 	              just = c("center", "bottom"), default.units = "native",
 	              gp = gpar(col = col[i], fill = fill[i]))
 	  }
-          if(length(xcenter) > 1) grid.xaxis(at = xcenter, label = FALSE)
-	  grid.text(ylevels, x = xcenter, y = unit(-1, "lines"), 
-                    just = c("center", "top"),
-	            default.units = "native", check.overlap = TRUE)
-          grid.yaxis()
 	} else {
   	  ycenter <- cumsum(pred) - pred
 
-	  for (i in 1:np) {
-            grid.rect(x = xscale[2]/2, y = ycenter[i], height = min(pred[i], ymax - ycenter[i]), 
-                      width = widths[1],
-	              just = c("center", "bottom"), default.units = "native",
-	              gp = gpar(col = col[i], fill = fill[i]))
-	  }
           if(np > 1) {
 	    grid.text(ylevels[1], x = unit(-1, "lines"), y = 0,
                       just = c("left", "center"), rot = 90,
@@ -567,9 +563,17 @@ node_barplot <- function(obj,
 	              default.units = "native", check.overlap = TRUE)
 	  }
           grid.yaxis(main = FALSE)	
+
+          grid.clip()
+          grid.rect(gp = gpar(fill = "transparent"))
+	  for (i in 1:np) {
+            grid.rect(x = xscale[2]/2, y = ycenter[i], height = min(pred[i], ymax - ycenter[i]), 
+                      width = widths[1],
+	              just = c("center", "bottom"), default.units = "native",
+	              gp = gpar(col = col[i], fill = fill[i]))
+	  }
 	}
 	
-        grid.rect(gp = gpar(fill = "transparent"))
         upViewport(2)
     }
     
@@ -638,10 +642,14 @@ node_boxplot <- function(obj,
         plot <- viewport(layout.pos.col = 2, layout.pos.row = 2,
                          xscale = c(0, 1), yscale = yscale,
 			 name = paste0("node_boxplot", nid, "plot"),
-			 clip = TRUE)
+			 clip = FALSE)
 
         pushViewport(plot)
 	
+        grid.yaxis()
+        grid.rect(gp = gpar(fill = "transparent"))
+	grid.clip()
+
 	xl <- 0.5 - width/4
 	xr <- 0.5 + width/4
 
@@ -671,8 +679,6 @@ node_boxplot <- function(obj,
                             size = unit(cex, "char"), gp = gpar(col = col))
         }
 	
-        grid.yaxis()
-        grid.rect(gp = gpar(fill = "transparent"))
         upViewport(2)
     }
     
@@ -772,13 +778,14 @@ node_surv <- function(obj, col = "black", ylines = 2,
         plot <- viewport(layout.pos.col=2, layout.pos.row=2,
                          xscale=xscale, yscale=yscale,
 			 name = paste0("node_surv", nid, "plot"),
-			 clip = TRUE)
+			 clip = FALSE)
 
         pushViewport(plot)
-        grid.lines(a$x/max(a$x), a$y, gp = gpar(col = col))
         grid.xaxis()
         grid.yaxis()
         grid.rect(gp = gpar(fill = "transparent"))
+	grid.clip()
+        grid.lines(a$x/max(a$x), a$y, gp = gpar(col = col))
         upViewport(2)
     }
 
@@ -877,13 +884,14 @@ node_ecdf <- function(obj, col = "black", ylines = 2,
         plot <- viewport(layout.pos.col=2, layout.pos.row=2,
                          xscale=xscale, yscale=yscale,
 			 name = paste0("node_surv", nid, "plot"),
-			 clip = TRUE)
+			 clip = FALSE)
 
         pushViewport(plot)
-        grid.lines(a$x, a$y, gp = gpar(col = col))
         grid.xaxis()
         grid.yaxis()
         grid.rect(gp = gpar(fill = "transparent"))
+	grid.clip()
+        grid.lines(a$x, a$y, gp = gpar(col = col))
         upViewport(2)
     }
 

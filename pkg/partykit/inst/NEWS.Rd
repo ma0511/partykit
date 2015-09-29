@@ -2,8 +2,11 @@
 \name{NEWS}
 \title{NEWS file for the partykit package}
 
-\section{Changes in Version 1.0-4 (2015-MM-DD)}{
+\section{Changes in Version 1.0-4 (2015-09-29)}{
   \itemize{
+    \item{Bug fix in \code{plot()} method for \code{constparty} objects.
+          In the previous partykit version clipping was accidentally 
+	  also applied to the axes labels.}
     \item{For \code{constparty} objects \code{plot(..., type = "simple")}
           did not work correctly whereas \code{plot(as.simpleparty(...))}
 	  yielded the desired visualization. Now internally \code{as.simpleparty()}
