@@ -4,10 +4,10 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Authors</title>
+    <title>Version 1.0-4</title>
     <meta name="viewport" content="width=device-width">
     <meta name="description" content="">
-    <link rel="canonical" href="http://partykit.r-forge.r-project.org/partykit/authors/">
+    <link rel="canonical" href="http://partykit.r-forge.r-project.org/partykit/2015/09/29/1.0-4/">
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="http://partykit.r-forge.r-project.org/partykit/css/main.css">
@@ -64,41 +64,26 @@ hljs.initHighlightingOnLoad();
       <div class="post">
 
   <header class="post-header">
-    <h1>Authors</h1>
+    <h1>Version 1.0-4</h1>
+    <p class="meta">Sep 29, 2015</p>
   </header>
 
   <article class="post-content">
-  <div class="home">
-
-Package partykit is maintained by 
-
-Torsten Hothorn (Email: Torsten.Hothorn_@_R-project.org) 
-
-please send questions, suggestions, corrections to the maintainer only.
-
-<p>
-
-
-  <div class="image">
-    
-    
-      <img src="/img/torsten_hothorn.jpg" alt="Homepage" height="100px">
-    
-    
-    <div class="desc">Torsten Hothorn</div>
-  </div>
-
-  <div class="image">
-    
-    
-      <img src="/img/achim_zeileis.jpg" alt="Homepage" height="100px">
-    
-    
-    <div class="desc">Achim Zeileis</div>
-  </div>
-
-
-</div>
+  <ul>
+<li> Bug fix in plot() method for constparty objects.  In the previous
+partykit version clipping was accidentally also applied to the axes
+labels. </li>
+<li> For constparty objects plot(..., type = "simple") did not work
+correctly whereas plot(as.simpleparty(...)) yielded the desired
+visualization. Now internally as.simpleparty() is called also in
+the former case. </li>
+<li> The as.simpleparty() method now preserves p-values from constparty
+objects (if any). </li>
+<li> Added a getCall() method for "party" objects. </li>
+<li> In the predict() method for "lmtree" and "glmtree" objects the
+offset (if any) was sometimes ignored. It is now always used in the
+prediction. </li>
+</ul>
 
   </article>
 
