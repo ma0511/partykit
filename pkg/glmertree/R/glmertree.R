@@ -254,8 +254,8 @@ predict.lmertree <- function(object, newdata = NULL, type = "response", ...) {
                               labels = levels(object$data$.tree))
       predict(object$lmer, newdata = newdata, type = type, ...)
     } else {
-      predict(object$tree, newdata = newdata, type = type) + 
-        predict(object$lmer, newdata = newdata, type = type, ...)
+      newdata$.ranef <- predict(object$lmer, newdata = newdata, ...)
+      predict(object$tree, newdata = newdata, type = type)
     }
   }
 }
@@ -273,10 +273,8 @@ predict.glmertree <- function(object, newdata = NULL, type = "response", ...) {
                               labels = levels(object$data$.tree))
       predict(object$glmer, newdata = newdata, type = type, ...)
     } else {
-      eta <- predict(object$tree, newdata = newdata, type = "link") + 
-        predict(object$glmer, newdata = newdata, type = "link", ...)  
-      if(type == "link") {print(eta)}
-      if(type == "response") {object$tree$node$info$object$family$linkinv(eta)}
+      newdata$.ranef <- predict(object$glmer, newdata = newdata, type = "link", ...)
+      predict(object$tree, newdata = newdata, type = type)
     }
   }
 }
