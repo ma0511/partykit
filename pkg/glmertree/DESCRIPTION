@@ -6,7 +6,7 @@ Authors@R: c(person(given = "Marjolein", family = "Fokkema", role = "aut", email
              person(given = "Achim", family = "Zeileis", role = c("aut", "cre"), email = "Achim.Zeileis@R-project.org"))
 Description: Recursive partitioning based on (generalized) linear mixed models (GLMMs)
   using lmer()/glmer() from lme4 and lmtree()/glmtree() from partykit.
-Depends: R (>= 3.1.0), lme4, partykit (>= 1.0-2)
+Depends: R (>= 3.1.0), lme4, partykit (>= 1.0-4)
 Imports: Formula, graphics, stats, utils
 Suggests: vcd
 LazyData: yes
