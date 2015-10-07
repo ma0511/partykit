@@ -16,7 +16,8 @@ cforest(formula, data, weights, subset, na.action = na.pass,
                                 testtype = "Univ", mincriterion = 0, ...), 
         ytrafo = NULL, scores = NULL, ntree = 500L, 
         perturb = list(replace = FALSE, fraction = 0.632), 
-        mtry = ceiling(sqrt(nvar)), applyfun = NULL, cores = NULL, ...)
+        mtry = ceiling(sqrt(nvar)), applyfun = NULL, cores = NULL, 
+        trace = FALSE, ...)
 \method{predict}{cforest}(object, newdata = NULL, 
         type = c("response", "prob", "weights", "node"),
         OOB = FALSE, FUN = NULL, simplify = TRUE, ...)
@@ -75,6 +76,8 @@ cforest(formula, data, weights, subset, na.action = na.pass,
   \item{cores}{numeric. If set to an integer the \code{applyfun} is set to
                \code{\link[parallel]{mclapply}} with the desired number of \code{cores}.}
 
+  \item{trace}{a logical indicating if a progress bar shall be printed while
+          the forest grows.}
   \item{object}{
     An object as returned by \code{cforest}}
   \item{newdata}{
