@@ -2,6 +2,12 @@
 \name{NEWS}
 \title{NEWS file for the partykit package}
 
+\section{Changes in Version 1.0-5 (20yy-mm-dd)}{
+  \itemize{
+    \item{Added support for setting background in panel functions.}
+  }
+}
+
 \section{Changes in Version 1.0-4 (2015-09-29)}{
   \itemize{
     \item{Bug fix in \code{plot()} method for \code{constparty} objects.
