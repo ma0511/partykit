@@ -1,6 +1,6 @@
 Package: partykit
 Title: A Toolkit for Recursive Partytioning
-Date: 2015-12-02
+Date: 2015-12-29
 Version: 1.0-5
 Authors@R: c(person(given = "Torsten", family = "Hothorn", role = c("aut", "cre"), email = "Torsten.Hothorn@R-project.org"),
              person(given = "Achim", family = "Zeileis", role = "aut", email = "Achim.Zeileis@R-project.org"))
