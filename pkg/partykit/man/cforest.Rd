@@ -186,6 +186,10 @@ Hothorn T, Hornik K, Zeileis A (2006b).
   Unbiased Recursive Partitioning: A Conditional Inference Framework.
   \emph{Journal of Computational and Graphical Statistics}, \bold{15}(3), 651--674.
 
+Hothorn T, Zeileis A (2015).
+  partykit: A Modular Toolkit for Recursive Partytioning in R.
+  \emph{Journal of Machine Learning Research}, \bold{16}, 3905--3909.
+
 Meinshausen N (2006).
   Quantile Regression Forests. 
   \emph{Journal of Machine Learning Research}, \bold{7}, 983--999.
