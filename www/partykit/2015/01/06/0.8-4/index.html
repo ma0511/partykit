@@ -70,30 +70,30 @@ hljs.initHighlightingOnLoad();
 
   <article class="post-content">
   <ul>
-<li> Extended mob() interface by a cluster argument. This can be a
-vector (numeric, integer, factor) with cluster IDs that are then
-passed on to the 'fit' function (if supported) and used for
-clustering the covariance matrix in the parameter stability tests.
-lmtree() and glmtree() hence both gained a cluster argument which
-is used only for cluster covariances but not for the model
-estimation (i.e., corresponding to a working independence model). </li>
+<li> Extended mob() interface by a cluster argument. This can be a vector
+ (numeric, integer, factor) with cluster IDs that are then passed on
+ to the 'fit' function (if supported) and used for clustering the
+ covariance matrix in the parameter stability tests. lmtree() and
+ glmtree() hence both gained a cluster argument which is used only
+ for cluster covariances but not for the model estimation (i.e.,
+ corresponding to a working independence model). </li>
 <li> Optionally, the parameters' variance-covariance matrix in mob() can
-now be estimated by the sandwich matrix instead of the default
-outer-product-of-gradients (OPG) matrix or the information matrix. </li>
+ now be estimated by the sandwich matrix instead of the default
+ outer-product-of-gradients (OPG) matrix or the information matrix. </li>
 <li> Reimplementation of cforest() available with extended prediction
-facilities. Both the internal representation and the user interface
-are still under development are likely to change in future
-versions. </li>
+ facilities. Both the internal representation and the user interface
+ are still under development are likely to change in future
+ versions. </li>
 <li> Added multicore support to mob(), ctree(), and cforest().  If
-control argument cores is specified (e.g., cores = 4) then the
-search for the best variable or split point (often involving
-numerous model fits in mob() or resampling in ctree()) is carried
-out using parallel::mclapply() rathern than sequential for() or
-sapply(). Additionally, other applyfuns can be provided, e.g.,
-using networks of workstations etc. </li>
+ control argument cores is specified (e.g., cores = 4) then the
+ search for the best variable or split point (often involving
+ numerous model fits in mob() or resampling in ctree()) is carried
+ out using parallel::mclapply() rathern than sequential for() or
+ sapply(). Additionally, other applyfuns can be provided, e.g.,
+ using networks of workstations etc. </li>
 <li> Bug fix in mob() that occurred when regressor variables and
-partitioning variables overlapped and were not sorted in the
-underlying model frame. </li>
+ partitioning variables overlapped and were not sorted in the
+ underlying model frame. </li>
 </ul>
 
   </article>
@@ -115,7 +115,7 @@ underlying model frame. </li>
 
     <A class="page-link" HREF=http://CRAN.R-project.org/web/packages/partykit/partykit.pdf>Manual</A>
     
-    <A class="page-link" HREF=http://CRAN.R-project.org/src/contrib/partykit_1.0-4.tar.gz>Source</A>
+    <A class="page-link" HREF=http://CRAN.R-project.org/src/contrib/partykit_1.0-5.tar.gz>Source</A>
 
     <A class="page-link" HREF=https://r-forge.r-project.org/projects/partykit>Development</A>
 
