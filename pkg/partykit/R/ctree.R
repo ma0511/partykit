@@ -192,7 +192,11 @@
                 break()
             }
         } else {
-            sp <- .Call("R_split", x, response, weights, mb)
+            if (is.null(ctrl$splitfun)) {
+                sp <- .Call("R_split", x, response, weights, mb)
+            } else {
+                sp <- ctrl$splitfun(x, response, weights, mb)
+            }
             if (!any(is.na(sp))) {
                 if (length(sp) == 1) {
                     thissplit <- partysplit(as.integer(isel), breaks = sp)
