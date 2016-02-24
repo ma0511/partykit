@@ -2,6 +2,13 @@
 \name{NEWS}
 \title{NEWS file for the partykit package}
 
+\section{Changes in Version 1.0-6 (2016-02-24)}{
+  \itemize{
+    \item{Splits in ordinal variables are now represented correctly 
+          in the (still internal) \code{list.rule} method.}
+  }
+}
+
 \section{Changes in Version 1.0-5 (2016-02-05)}{
   \itemize{
     \item{The \pkg{partykit} package has now been published in
