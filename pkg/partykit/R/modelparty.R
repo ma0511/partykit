@@ -792,10 +792,10 @@ weights.modelparty <- function(object, ...) {
 
 ## methods concerning model/parameters/loglik/etc.
 
-coef.modelparty <- function(object, node = NULL, ...) {
+coef.modelparty <- function(object, node = NULL, drop = TRUE, ...) {
   if(is.null(node)) node <- nodeids(object, terminal = TRUE)
-  drop(do.call("rbind",
-    nodeapply(object, ids = node, FUN = function(n) info_node(n)$coefficients)))
+  cf <- do.call("rbind", nodeapply(object, ids = node, FUN = function(n) info_node(n)$coefficients))
+  if(drop) drop(cf) else cf
 }
 
 refit.modelparty <- function(object, node = NULL, drop = TRUE, ...)
