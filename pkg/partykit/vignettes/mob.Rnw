@@ -1452,7 +1452,7 @@ system.time(bt1 <- mob(preference ~ 1 | gender + age + q1 + q2 + q3,
 An alternative way to fit the exact same tree somewhat more quickly would be to
 employ the extended interface described in Section~\ref{sec:fit}:
 %
-<<btfit2, echo=FALSE, results=hide>>=
+<<btfit2>>=
 btfit2 <- function(y, x = NULL, start = NULL, weights = NULL,
   offset = NULL, ..., estfun = FALSE, object = FALSE) {
   rval <- btReg.fit(y, ..., estfun = estfun, vcov = object)
@@ -1467,8 +1467,8 @@ btfit2 <- function(y, x = NULL, start = NULL, weights = NULL,
 %
 Still \code{btReg.fit()} is employed for fitting the model but the quantities
 \code{estfun} and \code{vcov} are only computed if they are really required. This
-saves some computation time (about 20\% on the authors' machine) when computing
-the tree:
+may save some computation time -- about 20\% on the authors' machine at the time of
+writing -- when computing the tree:
 %
 <<bt2>>=
 system.time(bt2 <- mob(preference ~ 1 | gender + age + q1 + q2 + q3,
