@@ -13,7 +13,7 @@ Description: A toolkit with infrastructure for representing, summarizing, and
   recursive partitioning (mob()) from the `party' package are provided based
   on the new infrastructure.
 Depends: R (>= 3.1.0), graphics, grid
-Imports: stats, utils, survival, Formula (>= 1.2-1)
+Imports: grDevices, stats, utils, survival, Formula (>= 1.2-1)
 Suggests: XML, pmml, rJava, rpart, mvtnorm, sandwich, strucchange, vcd,
   AER, mlbench, TH.data (>= 1.0-3), coin (>= 1.1-0), RWeka (>= 0.4-19), datasets,
   parallel, psychotools, psychotree
