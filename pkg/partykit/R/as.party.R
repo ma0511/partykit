@@ -43,22 +43,31 @@ as.party.rpart <- function(obj, ...) {
 
     rpart_onesplit <- function(j) {
         if (j < 1) return(NULL)
+
+	idj <- which(rownames(obj$split)[j] == names(mf))
         ### numeric
         if (abs(obj$split[j, "ncat"]) == 1) {
-            ret <- partysplit(varid = which(rownames(obj$split)[j] == names(mf)),
+            ret <- partysplit(varid = idj,
                       breaks = as.double(obj$split[j, "index"]),
                       right = FALSE,
-                      index = if(obj$split[j, "ncat"] > 0) 2:1)
+                      index = if(obj$split[j, "ncat"] > 0) 2L:1L)
         } else {
             index <- obj$csplit[obj$split[j, "index"],]
+	    mfj <- mf[, rownames(obj$split)[j]]
+	    print(obj$split[j,])
             ### csplit has columns 1L:max(nlevels) for all factors
             ### index <- index[1L:obj$split[j, "ncat"]] ??? safer ???
-            index <- index[1L:nlevels(mf[, rownames(obj$split)[j]])]
+            index <- index[1L:nlevels(mfj)]
             index[index == 2L] <- NA ### level not present in split
             index[index == 3L] <- 2L  ### 1..left, 3..right
-            ret <- partysplit(varid = which(rownames(obj$split)[j] == names(mf)),
-                      index = as.integer(index))
-        }
+	    print(index)
+	    if(inherits(mfj, "ordered")) {
+                ret <- partysplit(varid = idj, breaks = which(diff(index) != 0L) + 1L,
+		  right = FALSE, index = unique(index))
+	    } else {
+                ret <- partysplit(varid = idj, index = as.integer(index))
+            }
+	}
         ret
     }
                       
