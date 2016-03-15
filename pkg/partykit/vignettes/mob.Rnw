@@ -384,7 +384,7 @@ following inputs:
 \end{Code}
 The meaning of all arguments is the same as above. However, in this case
 \code{fit} needs to return a classed model object for which methods to
-\code{coef()}, \code{logLik()}, and \code{estfun()} \citep[see][]{sandwich}
+\code{coef()}, \code{logLik()}, and \code{estfun()} \citep[see][and the \pkg{sandwich} package]{sandwich}
 are available for extracting the parameter estimates, the maximized log-likelihood,
 and associated empirical estimating functions (or score contributions), respectively.
 Internally, a function of type (1) is set up by \code{mob()} in case a function
