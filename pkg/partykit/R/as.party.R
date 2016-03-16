@@ -60,7 +60,6 @@ as.party.rpart <- function(obj, ...) {
             index <- index[1L:nlevels(mfj)]
             index[index == 2L] <- NA ### level not present in split
             index[index == 3L] <- 2L  ### 1..left, 3..right
-	    print(index)
 	    if(inherits(mfj, "ordered")) {
                 ret <- partysplit(varid = idj, breaks = which(diff(index) != 0L) + 1L,
 		  right = FALSE, index = unique(index))
