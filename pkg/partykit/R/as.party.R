@@ -54,7 +54,6 @@ as.party.rpart <- function(obj, ...) {
         } else {
             index <- obj$csplit[obj$split[j, "index"],]
 	    mfj <- mf[, rownames(obj$split)[j]]
-	    print(obj$split[j,])
             ### csplit has columns 1L:max(nlevels) for all factors
             ### index <- index[1L:obj$split[j, "ncat"]] ??? safer ???
             index <- index[1L:nlevels(mfj)]
