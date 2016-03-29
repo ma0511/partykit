@@ -67,7 +67,7 @@ cforest <- function(formula, data, weights, subset, na.action = na.pass,
     mf$formula <- formula
     mf$drop.unused.levels <- FALSE
     mf$na.action <- na.action
-    mf[[1]] <- as.name("model.frame")
+    mf[[1]] <- quote(stats::model.frame)
     mf <- eval(mf, parent.frame())
 
     response <- names(Formula::model.part(formula, mf, lhs = 1))

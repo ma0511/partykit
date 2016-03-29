@@ -51,7 +51,7 @@ mixforest <- function(formula, data, na.action, weights, subset,
   mf$drop.unused.levels <- TRUE
   
   ## call model.frame()
-  mf[[1]] <- as.name("model.frame")
+  mf[[1]] <- quote(stats::model.frame)
   mf <- eval(mf, parent.frame())
   n <- nrow(mf)
   

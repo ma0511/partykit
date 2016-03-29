@@ -6,6 +6,7 @@
   \itemize{
     \item{Splits in ordinal variables are now represented correctly 
           in the (still internal) \code{list.rule} method.}
+    \item{Use \code{quote(stats::model.frame)} instead \code{as.name("model.frame")}.}
   }
 }
 

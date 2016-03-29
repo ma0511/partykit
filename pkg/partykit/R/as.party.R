@@ -109,7 +109,7 @@ model.frame.rpart <- function(formula, ...) {
   mf <- mf[c(1L, match(c("formula", "data", "subset", "na.action", "weights"), names(mf), 0L))]
   if (is.null(mf$na.action)) mf$na.action <- rpart::na.rpart
   # mf$drop.unused.levels <- TRUE
-  mf[[1L]] <- as.name("model.frame")
+  mf[[1L]] <- quote(stats::model.frame)
   
   ## use terms instead of formula in call
   mf$formula <- formula$terms
