@@ -1,0 +1,20 @@
+import("partykit")
+import("gamlss.dist")
+importFrom("stats",
+  "optim"
+)
+
+export(
+  ## core distribution fitting function
+  "distfit"
+)
+
+## methods
+S3method("bread", "distfit")
+S3method("coef", "distfit")
+S3method("confint", "distfit")
+S3method("estfun", "distfit")
+S3method("logLik", "distfit")
+S3method("nobs", "distfit")
+S3method("vcov", "distfit")
+
