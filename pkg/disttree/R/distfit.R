@@ -150,7 +150,9 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     
     # initial parameter
     if(is.null(start)){
-      mu.init <- mean(eval(family$mu.initial)) 
+      mu <- NULL
+      eval(family$mu.initial)
+      mu.init <- mean(mu) 
       rm(mu)
     }
     
@@ -207,7 +209,9 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     
     # initial parameter
     if(is.null(start)){
-      sigma.init <- mean(eval(family$sigma.initial)) 
+      sigma <- NULL
+      eval(family$sigma.initial)
+      sigma.init <- mean(sigma) 
       rm(sigma)
     }
     
