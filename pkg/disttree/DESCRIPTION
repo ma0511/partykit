@@ -4,10 +4,11 @@ Date: 2016-04-18
 Version: 0.1-0
 Authors@R: c(person(given = "Lisa", family = "Schlosser", role = c("aut", "cre"), email = "Lisa.Schlosser@uibk.ac.at"),
              person(given = "Achim", family = "Zeileis", role = "aut", email = "Achim.Zeileis@R-project.org"))
-Description: FIXME
+Description: Infrastructure for fitting distributional regression trees and forests
+  based on gamlss.dist families.
 Depends: R (>= 3.1.0), partykit (>= 1.0-4), gamlss.dist
-Imports: stats
-Suggests: lmtest, sandwich
+Imports: stats, sandwich
+Suggests: lmtest
 LazyData: yes
 License: GPL-2 | GPL-3
 

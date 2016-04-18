@@ -10,7 +10,6 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
   ny <- length(y)
   
   ## weights
-  weights <- model.weights(cl)
   if(is.null(weights)) weights <- 1
   if(length(weights) == 1L) weights <- rep.int(weights, ny)
   weights <- as.vector(weights)

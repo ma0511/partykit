@@ -1,7 +1,13 @@
 import("partykit")
 import("gamlss.dist")
 importFrom("stats",
-  "optim"
+  "nobs",
+  "optim",
+  "qnorm"
+)
+importFrom("sandwich",
+  "bread",
+  "estfun"
 )
 
 export(
