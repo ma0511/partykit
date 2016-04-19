@@ -798,7 +798,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     
     hess <- array(dim = dim(d2ldpar2.array))
     for(i in 1:ny){
-      hess[,,i]] <- weights[i] * (t(d2ldpar2.array[,,i] * dpardeta.vec) * dpardeta.vec + diag(np) * as.vector(dldpar.mat[i,]) * d2pardeta2.vec)
+      hess[,,i] <- weights[i] * (t(d2ldpar2.array[,,i] * dpardeta.vec) * dpardeta.vec + diag(np) * as.vector(dldpar.mat[i,]) * d2pardeta2.vec)
     }
     
 
