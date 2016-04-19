@@ -1,9 +1,10 @@
-distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfun = TRUE)
+distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfun = TRUE, ...)
 {
   ## match call
   cl <- match.call()
   
   ## number of distribution parameters (mu, sigma, nu, tau)
+  if(is.function(family)) family <- family()
   np <- family$nopar
   
   ## number of observations
@@ -15,11 +16,12 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
   weights <- as.vector(weights)
   
   ## store y and select observations with weight > 0 
-  y.store <- y          
-  y <- y[weights > 0] 
+  #FIXME# y.store <- y          
+  #FIXME# y <- y[weights > 0]
   
-  ## number of observations with weight >0 0
-  nobs <- sum(weights > 0)
+  ## number of observations = sum of weights (i.e., case weights)
+  ## FIXME ## also need proportionality weights, i.e., weights = sum(weights > 0) ?
+  nobs <- sum(weights)
   
   ## notation:
   # par ... distribution parameters (mu, sigma, nu, tau)
@@ -504,7 +506,12 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
   if(np == 1L){
     
     # define function for the calculation of initial values
-    if(is.null(start)) initialize <- function() return(family$mu.linkfun(mu.init))
+    ## FIXME ## use weights?
+    initialize <- function(y) {
+      mu <- NULL
+      eval(family$mu.initial)
+      family$mu.linkfun(mean(mu))
+    }
     
     # define function to get distribution parameters
     distpar <- function(eta){
@@ -554,7 +561,12 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
   if(np == 2L){
     
     # define function for the calculation of initial values
-    if(is.null(start)) initialize <- function() return(family$mu.linkfun(mu.init), family$sigma.linkfun(sigma.init))
+    initialize <- function(y) {
+      mu <- sigma <- NULL
+      eval(family$mu.initial)
+      eval(family$sigma.initial)
+      c(family$mu.linkfun(mean(mu)), family$sigma.linkfun(mean(sigma)))
+    }
     
     # define function to get distribution parameters
     distpar <- function(eta){
@@ -750,7 +762,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     
     # G.dev.incr ... global deviance function = -2*logLik
     nloglik <- do.call(family$G.dev.incr, input)
-    nloglik <- sum(nloglik)/2
+    nloglik <- sum(weights * nloglik/2)
     return(nloglik)
   }
     
@@ -759,7 +771,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
   grad <- function(eta, sum = TRUE) {
     par <- distpar(eta)                       # get distribution parameters
     gr.out <- dldpar(y, par)                  # outer derivatives
-    gr <- -t(t(gr.out) * dpardeta(eta))       # multiplied with the inner derivatives (componentwise)
+    gr <- -weights * t(t(gr.out) * dpardeta(eta))       # multiplied with the inner derivatives (componentwise)
     # gr <- as.matrix(gr)                     # for 1 parameter
     if(sum) gr <- colSums(gr)     # *1/nobs ? scale, doesn't influence optimization
     return(gr)
@@ -786,7 +798,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     
     hess <- array(dim = dim(d2ldpar2.array))
     for(i in 1:ny){
-      hess[,,i] <- t(d2ldpar2.array[,,i] * dpardeta.vec) * dpardeta.vec + diag(np) * as.vector(dldpar.mat[i,]) * d2pardeta2.vec
+      hess[,,i]] <- weights[i] * (t(d2ldpar2.array[,,i] * dpardeta.vec) * dpardeta.vec + diag(np) * as.vector(dldpar.mat[i,]) * d2pardeta2.vec)
     }
     
 
@@ -803,7 +815,9 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
 
   ## calculate initial values if necessary or otherwise transform initial values for the distribution parameters to initial values for the intercepts
   if(is.null(start)){
-    starteta <- initialize(y)
+    ## FIXME ## (1) initialization currently doesn't work
+    ## FIXME ## (2) initialization with weights? E.g. rep.int(y, round(weights)) ?
+    starteta <- initialize(y = rep.int(y, round(weights)))
     startpar <- distpar(starteta)
   } else {
     startpar <- start
@@ -812,7 +826,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
   
   
   ## optimize log-likelihood
-  opt <- optim(par = starteta, fn = nll, gr = grad, method = "BFGS", hessian = vcov.) 
+  opt <- optim(par = starteta, fn = nll, gr = grad, method = "BFGS", hessian = vcov., control = list(...))
 
   ## extract parameters
   eta <- opt$par
@@ -820,8 +834,12 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
 
 
   ## variance-covariance matrix estimate
-  vc <- if(vcov.) solve(hess(eta)) else NULL             
-  colnames(vc) <- rownames(vc) <- paste(names(par), ".par", sep="")
+  if(vcov.) {
+    vc <- solve(hess(eta))
+    colnames(vc) <- rownames(vc) <- paste0(names(par), ".par")
+  } else {
+    vc <- NULL
+  }
   
   ## estfun
   # each column represents one distribution parameter (1.col -> dldm * dmdpar = "dldmu.par", 2.col -> dldd * dddpar = "dldsigma.par", ...)
