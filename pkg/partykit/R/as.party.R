@@ -1,7 +1,7 @@
 as.party <- function(obj, ...)
     UseMethod("as.party")
 
-as.party.rpart <- function(obj, ...) {
+as.party.rpart <- function(obj, data = TRUE, ...) {
 
     ff <- obj$frame
     n  <- nrow(ff)
@@ -94,8 +94,8 @@ as.party.rpart <- function(obj, ...) {
 
     node <- rpart_node(1)
 
-    rval <- party(node = node, data = mf[0L,], fitted = fitted,
-      terms = obj$terms, info = list(method = "rpart"))
+    rval <- party(node = node, data = if(data) mf else mf[0L,],
+      fitted = fitted, terms = obj$terms, info = list(method = "rpart"))
     class(rval) <- c("constparty", class(rval))
     return(rval)
 }
@@ -120,7 +120,7 @@ model.frame.rpart <- function(formula, ...) {
   return(mf)
 }
 
-as.party.Weka_tree <- function(obj, ...) {
+as.party.Weka_tree <- function(obj, data = TRUE, ...) {
 
   ## needs RWeka and rJava
   stopifnot(requireNamespace("RWeka"))
@@ -192,7 +192,7 @@ as.party.Weka_tree <- function(obj, ...) {
   if(j48) {
     pty <- party(
       node = node,
-      data = mf[0L,],
+      data = if(data) mf else mf[0L,],
       fitted = data.frame("(fitted)" = fitted_node(node, mf),
         		  "(response)" = model.response(mf),
         		  check.names = FALSE),

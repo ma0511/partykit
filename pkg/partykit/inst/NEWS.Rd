@@ -2,11 +2,16 @@
 \name{NEWS}
 \title{NEWS file for the partykit package}
 
-\section{Changes in Version 1.0-6 (2016-02-24)}{
+\section{Changes in Version 1.0-6 (2016-04-27)}{
   \itemize{
     \item{Splits in ordinal variables are now represented correctly 
           in the (still internal) \code{list.rule} method.}
-    \item{Use \code{quote(stats::model.frame)} instead \code{as.name("model.frame")}.}
+    \item{Use \code{quote(stats::model.frame)} instead of
+      \code{as.name("model.frame")}.}
+    \item{The \code{as.party} methods for \code{rpart} and
+      \code{Weka_tree} now have a \code{data = TRUE} argument
+      so that by default the data is preserved in the \code{party}
+      object (instead of an empty model frame).}
   }
 }
 
