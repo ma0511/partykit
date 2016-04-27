@@ -540,6 +540,28 @@ getCall.party <- function(x, ...) {
   x$info$call
 }
 
+formula.party <- function(x, ...) {
+  x <- terms(x)
+  NextMethod()
+}
+
+model.frame.party <- function(formula, ...)
+{
+  mf <- formula$data
+  if(nrow(mf) > 0L) return(mf)
+
+  dots <- list(...)
+  nargs <- dots[match(c("data", "na.action", "subset"), names(dots), 0L)]
+  mf <- getCall(formula)
+  mf <- mf[c(1L, match(c("formula", "data", "subset", "na.action"), names(mf), 0L))]
+  mf$drop.unused.levels <- TRUE
+  mf[[1L]] <- quote(stats::model.frame)
+  mf[names(nargs)] <- nargs
+  if(is.null(env <- environment(terms(formula)))) env <- parent.frame()
+  eval(mf, env)
+}
+
+
 nodeprune <- function(x, ids, ...)
     UseMethod("nodeprune")
 
