@@ -5,7 +5,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
   
   ## number of distribution parameters (mu, sigma, nu, tau)
   if(is.function(family)) family <- family()
-  np <- family$nopar
+  np <- sum(family$parameter == TRUE)
   
   ## number of observations
   ny <- length(y)
@@ -96,7 +96,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
       # in this case the functions return only a single value -> create vector by replicating this value ny times (necessary for the matrix (using sum and *1/ny)) 
       
       # 4 Parameter
-      if(length(arguments)==4L) par.id <- c(1,2,3,4)           # f(mu=m, sigma=s, nu=v, tau=t)
+      if(length(arguments)==4L) par.id <- c(1,2,3,4)          # f(mu=m, sigma=s, nu=v, tau=t)
       
       # 3 Parameter
       if(length(arguments)==3L){
@@ -150,14 +150,6 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
   
   if(np > 0L){
     
-    # initial parameter
-    if(is.null(start)){
-      mu <- NULL
-      eval(family$mu.initial)
-      mu.init <- mean(mu) 
-      rm(mu)
-    }
-    
     # inner derivative functions (dmdeta, d2mdeta2)
     dmdeta <- function(eta) return(family$mu.dr(eta[1]))
     if(family$mu.link=="identity") d2mdeta2 <- function(eta) return(0)
@@ -168,9 +160,9 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     par.id.dldm <- getpar(family$dldm)
     if(par.id.dldm[1] == 0L) {
       if(length(par.id.dldm) == 1L){
-        dldm <- function(y, par) return(family$dldm(y))
+        dldm <- function(par) return(family$dldm(y))
       } else {
-        dldm <- function(y, par) {
+        dldm <- function(par) {
           input <- list()
           input[[1]] <- y
           for (i in 2:length(par.id.dldm)) input[[i]] <- rep.int(par[par.id.dldm[i]], length(y))
@@ -178,7 +170,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         }
       }
     } else {
-      dldm <- function(y, par) {
+      dldm <- function(par) {
         input <- list()
         for (i in 1:length(par.id.dldm)) input[[i]] <- par[par.id.dldm[i]]
         return(rep.int(do.call(family$dldm, input), length(y)))
@@ -188,9 +180,9 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     par.id.d2ldm2 <- getpar(family$d2ldm2)
     if(par.id.d2ldm2[1] == 0L){
       if(length(par.id.d2ldm2) == 1L){
-        d2ldm2 <- function(y, par) return(family$d2ldm2(y))
+        d2ldm2 <- function(par) return(family$d2ldm2(y))
       } else {
-        d2ldm2 <- function(y, par) {
+        d2ldm2 <- function(par) {
           input <- list()
           input[[1]] <- y
           for (i in 2:length(par.id.d2ldm2)) input[[i]] <- rep.int(par[par.id.d2ldm2[i]], length(y))
@@ -198,7 +190,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         }
       }
     } else {
-      d2ldm2 <- function(y, par) {
+      d2ldm2 <- function(par) {
         input <- list()
         for (i in 1:length(par.id.d2ldm2)) input[[i]] <- par[par.id.d2ldm2[i]]
         return(rep.int(do.call(family$d2ldm2, input), length(y)))
@@ -208,14 +200,6 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
   
   
   if(np > 1L){
-    
-    # initial parameter
-    if(is.null(start)){
-      sigma <- NULL
-      eval(family$sigma.initial)
-      sigma.init <- mean(sigma) 
-      rm(sigma)
-    }
     
     # inner derivative functions (dddeta, d2ddeta2)     
     dddeta <- function(eta) return(family$sigma.dr(eta[2]))
@@ -227,9 +211,9 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     par.id.dldd <- getpar(family$dldd)
     if(par.id.dldd[1] == 0L){
       if(length(par.id.dldd) == 1L){
-        dldd <- function(y, par) return(family$dldd(y))
+        dldd <- function(par) return(family$dldd(y))
       } else {
-        dldd <- function(y, par) {
+        dldd <- function(par) {
           input <- list()
           input[[1]] <- y
           for (i in 2:length(par.id.dldd)) input[[i]] <- rep.int(par[par.id.dldd[i]], length(y))
@@ -237,7 +221,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         }
       }
     } else {
-      dldd <- function(y, par) {
+      dldd <- function(par) {
         input <- list()
         for (i in 1:length(par.id.dldd)) input[[i]] <- par[par.id.dldd[i]]
         return(rep.int(do.call(family$dldd, input), length(y)))
@@ -247,9 +231,9 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     par.id.d2ldd2 <- getpar(family$d2ldd2)
     if(par.id.d2ldd2[1] == 0L){
       if(length(par.id.d2ldd2) == 1L){
-        d2ldd2 <- function(y, par) return(family$d2ldd2(y))
+        d2ldd2 <- function(par) return(family$d2ldd2(y))
       } else {
-        d2ldd2 <- function(y, par) {
+        d2ldd2 <- function(par) {
           input <- list()
           input[[1]] <- y
           for (i in 2:length(par.id.d2ldd2)) input[[i]] <- rep.int(par[par.id.d2ldd2[i]], length(y))
@@ -257,7 +241,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         }
       }
     } else {
-      d2ldd2 <- function(y, par) {
+      d2ldd2 <- function(par) {
         input <- list()
         for (i in 1:length(par.id.d2ldd2)) input[[i]] <- par[par.id.d2ldd2[i]]
         return(rep.int(do.call(family$d2ldd2, input), length(y)))
@@ -267,9 +251,9 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     par.id.d2ldmdd <- getpar(family$d2ldmdd)
     if(par.id.d2ldmdd[1] == 0L){
       if(length(par.id.d2ldmdd) == 1L){
-        d2ldmdd <- function(y, par) return(family$d2ldmdd(y))
+        d2ldmdd <- function(par) return(family$d2ldmdd(y))
       } else {
-        d2ldmdd <- function(y, par) {
+        d2ldmdd <- function(par) {
           input <- list()
           input[[1]] <- y
           for (i in 2:length(par.id.d2ldmdd)) input[[i]] <- rep.int(par[par.id.d2ldmdd[i]], length(y))
@@ -277,7 +261,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         }
       }
     } else {
-      d2ldmdd <- function(y, par) {
+      d2ldmdd <- function(par) {
         input <- list()
         for (i in 1:length(par.id.d2ldmdd)) input[[i]] <- par[par.id.d2ldmdd[i]]
         return(rep.int(do.call(family$d2ldmdd, input), length(y)))
@@ -287,12 +271,6 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
   
   
   if(np > 2L){
-    
-    # initial parameter
-    if(is.null(start)){
-      nu.init <- mean(eval(family$nu.initial))     
-      rm(nu)
-    }
     
     # inner derivative functions (dvdeta, d2vdeta2)
     dvdeta <- function(eta) return(family$nu.dr(eta[3]))
@@ -304,9 +282,9 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     par.id.dldv <- getpar(family$dldv)
     if(par.id.dldv[1] == 0L){
       if(length(par.id.dldv) == 1L){
-        dldv <- function(y, par) return(family$dldv(y))
+        dldv <- function(par) return(family$dldv(y))
       } else {
-        dldv <- function(y, par) {
+        dldv <- function(par) {
           input <- list()
           input[[1]] <- y
           for (i in 2:length(par.id.dldv)) input[[i]] <- rep.int(par[par.id.dldv[i]], length(y))
@@ -314,7 +292,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         }
       }
     } else {
-      dldv <- function(y, par) {
+      dldv <- function(par) {
         input <- list()
         for (i in 1:length(par.id.dldv)) input[[i]] <- par[par.id.dldv[i]]
         return(rep.int(do.call(family$dldv, input), length(y)))
@@ -324,9 +302,9 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     par.id.d2ldv2 <- getpar(family$d2ldv2)
     if(par.id.d2ldv2[1] == 0L){
       if(length(par.id.d2ldv2) == 1L){
-        d2ldv2 <- function(y, par) return(family$d2ldv2(y))
+        d2ldv2 <- function(par) return(family$d2ldv2(y))
       } else {
-        d2ldv2 <- function(y, par) {
+        d2ldv2 <- function(par) {
           input <- list()
           input[[1]] <- y
           for (i in 2:length(par.id.d2ldv2)) input[[i]] <- rep.int(par[par.id.d2ldv2[i]], length(y))
@@ -334,7 +312,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         }
       }
     } else {
-      d2ldv2 <- function(y, par) {
+      d2ldv2 <- function(par) {
         input <- list()
         for (i in 1:length(par.id.d2ldv2)) input[[i]] <- par[par.id.d2ldv2[i]]
         return(rep.int(do.call(family$d2ldv2, input), length(y)))
@@ -344,9 +322,9 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     par.id.d2ldmdv <- getpar(family$d2ldmdv)
     if(par.id.d2ldmdv[1] == 0L) { 
       if(length(par.id.d2ldmdv) == 1L){
-        d2ldmdv <- function(y, par) return(family$d2ldmdv(y))
+        d2ldmdv <- function(par) return(family$d2ldmdv(y))
       } else {
-        d2ldmdv <- function(y, par) {
+        d2ldmdv <- function(par) {
           input <- list()
           input[[1]] <- y
           for (i in 2:length(par.id.d2ldmdv)) input[[i]] <- rep.int(par[par.id.d2ldmdv[i]], length(y))
@@ -354,7 +332,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         }
       }
     } else {
-      d2ldmdv <- function(y, par) {
+      d2ldmdv <- function(par) {
         input <- list()
         for (i in 1:length(par.id.d2ldmdv)) input[[i]] <- par[par.id.d2ldmdv[i]]
         return(rep.int(do.call(family$d2ldmdv, input), length(y)))
@@ -364,9 +342,9 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     par.id.d2ldddv <- getpar(family$d2ldddv)
     if(par.id.d2ldddv[1] == 0L) { 
       if(length(par.id.d2ldddv) == 1L){
-        d2ldddv <- function(y, par) return(family$d2ldddv(y))
+        d2ldddv <- function(par) return(family$d2ldddv(y))
       } else {
-        d2ldddv <- function(y, par) {
+        d2ldddv <- function(par) {
           input <- list()
           input[[1]] <- y
           for (i in 2:length(par.id.d2ldddv)) input[[i]] <- rep.int(par[par.id.d2ldddv[i]], length(y))
@@ -374,7 +352,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         }
       }
     } else {
-      d2ldddv <- function(y, par) {
+      d2ldddv <- function(par) {
         input <- list()
         for (i in 1:length(par.id.d2ldddv)) input[[i]] <- par[par.id.d2ldddv[i]]
         return(rep.int(do.call(family$d2ldddv, input), length(y)))
@@ -384,12 +362,6 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
   
   
   if(np > 3L){
-    
-    # initial parameter
-    if(is.null(start)){
-      tau.init <- mean(eval(family$tau.init))
-      rm(tau)
-    }
     
     # inner derivatives (dtdeta, d2tdeta2)    
     dtdeta <- function(eta) return(family$tau.dr(eta[4]))
@@ -401,9 +373,9 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     par.id.dldt <- getpar(family$dldt)
     if(par.id.dldt[1] == 0L){
       if(length(par.id.dldt) == 1L){
-        dldt <- function(y, par) return(family$dldt(y))
+        dldt <- function(par) return(family$dldt(y))
       } else {
-        dldt <- function(y, par) {
+        dldt <- function(par) {
           input <- list()
           input[[1]] <- y
           for (i in 2:length(par.id.dldt)) input[[i]] <- rep.int(par[par.id.dldt[i]], length(y))
@@ -411,7 +383,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         }
       }
     } else {
-      dldt <- function(y, par) {
+      dldt <- function(par) {
         input <- list()
         for (i in 1:length(par.id.dldt)) input[[i]] <- par[par.id.dldt[i]]
         return(rep.int(do.call(family$dldt, input), length(y)))
@@ -421,9 +393,9 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     par.id.d2ldt2 <- getpar(family$d2ldt2)
     if(par.id.d2ldt2[1] == 0L){
       if(length(par.id.d2ldt2) == 1L){
-        d2ldt2 <- function(y, par) return(family$d2ldt2(y))
+        d2ldt2 <- function(par) return(family$d2ldt2(y))
       } else {
-        d2ldt2 <- function(y, par) {
+        d2ldt2 <- function(par) {
           input <- list()
           input[[1]] <- y
           for (i in 2:length(par.id.d2ldt2)) input[[i]] <- rep.int(par[par.id.d2ldt2[i]], length(y))
@@ -431,7 +403,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         }
       }
     } else {
-      d2ldt2 <- function(y, par) {
+      d2ldt2 <- function(par) {
         input <- list()
         for (i in 1:length(par.id.d2ldt2)) input[[i]] <- par[par.id.d2ldt2[i]]
         return(rep.int(do.call(family$d2ldt2, input), length(y)))
@@ -441,9 +413,9 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     par.id.d2ldmdt <- getpar(family$d2ldmdt)
     if(par.id.d2ldmdt[1] == 0L) { 
       if(length(par.id.d2ldmdt) == 1L){
-        d2ldmdt <- function(y, par) return(family$d2ldmdt(y))
+        d2ldmdt <- function(par) return(family$d2ldmdt(y))
       } else {
-        d2ldmdt <- function(y, par) {
+        d2ldmdt <- function(par) {
           input <- list()
           input[[1]] <- y
           for (i in 2:length(par.id.d2ldmdt)) input[[i]] <- rep.int(par[par.id.d2ldmdt[i]], length(y))
@@ -451,7 +423,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         }
       }
     } else {
-      d2ldmdt <- function(y, par) {
+      d2ldmdt <- function(par) {
         input <- list()
         for (i in 1:length(par.id.d2ldmdt)) input[[i]] <- par[par.id.d2ldmdt[i]]
         return(rep.int(do.call(family$d2ldmdt, input), length(y)))
@@ -461,9 +433,9 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     par.id.d2ldddt <- getpar(family$d2ldddt)
     if(par.id.d2ldddt[1] == 0L) { 
       if(length(par.id.d2ldddt) == 1L){
-        d2ldddt <- function(y, par) return(family$d2ldddt(y))
+        d2ldddt <- function(par) return(family$d2ldddt(y))
       } else {
-        d2ldddt <- function(y, par) {
+        d2ldddt <- function(par) {
           d2ldddt <- list()
           input[[1]] <- y
           for (i in 2:length(par.id.d2ldddt)) input[[i]] <- rep.int(par[par.id.d2ldddt[i]], length(y))
@@ -471,7 +443,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         }
       }
     } else {
-      d2ldddt <- function(y, par) {
+      d2ldddt <- function(par) {
         input <- list()
         for (i in 1:length(par.id.d2ldddt)) input[[i]] <- par[par.id.d2ldddt[i]]
         return(rep.int(do.call(family$d2ldddt, input), length(y)))
@@ -481,9 +453,9 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     par.id.d2ldvdt <- getpar(family$d2ldvdt)
     if(par.id.d2ldvdt[1] == 0L) { 
       if(length(par.id.d2ldvdt) == 1L){
-        d2ldvdt <- function(y, par) return(family$d2ldvdt(y))
+        d2ldvdt <- function(par) return(family$d2ldvdt(y))
       } else {
-        d2ldvdt <- function(y, par) {
+        d2ldvdt <- function(par) {
           input <- list()
           input[[1]] <- y
           for (i in 2:length(par.id.d2ldvdt)) input[[i]] <- rep.int(par[par.id.d2ldvdt[i]], length(y))
@@ -491,7 +463,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         }
       }
     } else {
-      d2ldvdt <- function(y, par) {
+      d2ldvdt <- function(par) {
         input <- list()
         for (i in 1:length(par.id.d2ldvdt)) input[[i]] <- par[par.id.d2ldvdt[i]]
         return(rep.int(do.call(family$d2ldvdt, input), length(y)))
@@ -512,6 +484,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
       eval(family$mu.initial)
       family$mu.linkfun(mean(mu))
     }
+
     
     # define function to get distribution parameters
     distpar <- function(eta){
@@ -530,30 +503,27 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     }
     
     
-    # define functions that return outer derivatives as matrix / array:
-    dldpar <- function(y, par){
-      dmatrix <- cbind(dldm(y, par))
+    # define functions that return outer derivatives as matrix / lsit of matrices:
+    dldpar <- function(par){
+      dmatrix <- cbind(dldm(par))
       return(dmatrix)
     }
     
-    d2ldpar2 <- function(y, par){
+    d2ldpar2 <- function(par){
       
-      d2matrix <- rbind(cbind(d2ldm2(y, par)))
+      d2matrix <- rbind(cbind(d2ldm2(par)))
       
       # d2matrix is of size (1*ny x 1) 
-      # transform to an array of dim (1,1,ny)
-      # for each observation a matrix of size (1x1) is stored in the array
+      # transform to a list of matrices (length of the list equals the number of observations ny)
+      # for each observation a matrix of size (1x1) is stored in d2list
       
-      d2array <- array(dim = c(np, np, ny))
+      d2list <- list()
+      length(d2list) <- ny
       for(i in 1:ny){
-        d2array[,,i] <- d2matrix[c(i),]
+        d2list[[i]] <- d2matrix[c(i),]
       }
       
-      # d2array <- array(dim = c(np, np, ny))
-      # d2array[1,1,] <- d2ldm2(y, par)
-      
-      # return(d2matrix, d2array)
-      return(d2array)
+      return(d2list)
     }
   }
   
@@ -585,33 +555,28 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     }
     
     
-    # define functions that return outer derivatives as matrix / array:
-    dldpar <- function(y, par){
-      dmatrix <- cbind(dldm(y, par), dldd(y, par))
+    # define functions that return outer derivatives as matrix / list of matrices:
+    dldpar <- function(par){
+      dmatrix <- cbind(dldm(par), dldd(par))
       return(dmatrix)
     }
     
-    d2ldpar2 <- function(y, par){
+    d2ldpar2 <- function(par){
       
-      d2matrix <- rbind(cbind(d2ldm2(y, par), d2ldmdd(y, par)),
-                        cbind(d2ldmdd(y, par), d2ldd2(y, par)))
+      d2matrix <- rbind(cbind(d2ldm2(par), d2ldmdd(par)),
+                        cbind(d2ldmdd(par), d2ldd2(par)))
       
       # d2matrix is of size (2*ny x 2) 
-      # transform to an array of dim (2,2,ny)
-      # for each observation a matrix of size (2x2) is stored in the array
+      # transform to a list of matrices (length of the list equals the number of observations ny)
+      # for each observation a matrix of size (2x2) is stored in d2list
       
-      d2array <- array(dim = c(np, np, ny))
+      d2list <- list()
+      length(d2list) <- ny
       for(i in 1:ny){
-        d2array[,,i] <- d2matrix[c(i, ny+i),]
-      }
-      
-      # d2array <- array(dim = c(np, np, ny))
-      # d2array[1,1,] <- d2ldm2(y, par)
-      # d2array[2,2,] <- d2ldd2(y, par)
-      # d2array[1,2,] <- d2array[2,1,] <- d2ldmdd(y, par)
-      
-      # return(d2matrix, d2array)
-      return(d2array)
+        d2list[[i]] <- d2matrix[c(i, ny+i),]
+        }
+
+      return(d2list)
     }
   }
   
@@ -619,7 +584,13 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
   if(np == 3L){
     
     # define function for the calculation of initial values
-    if(is.null(start)) initialize <- function() return(family$mu.linkfun(mu.init), family$sigma.linkfun(sigma.init), family$nu.linkfun(nu.init))
+    initialize <- function(y) {
+      mu <- sigma <- nu <-  NULL
+      eval(family$mu.initial)
+      eval(family$sigma.initial)
+      eval(family$nu.initial)
+      c(family$mu.linkfun(mean(mu)), family$sigma.linkfun(mean(sigma)), family$nu.linkfun(mean(nu)))
+    }
     
     # define function to get distribution parameters
     distpar <- function(eta){
@@ -638,38 +609,29 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     }
     
     
-    # define functions that return outer derivatives as matrix / array:
-    dldpar <- function(y, par){
-      dmatrix <- cbind(dldm(y, par), dldd(y, par), dldv(y, par))
+    # define functions that return outer derivatives as matrix / list:
+    dldpar <- function(par){
+      dmatrix <- cbind(dldm(par), dldd(par), dldv(par))
       return(dmatrix)
     }
     
-    d2ldpar2 <- function(y, par){
+    d2ldpar2 <- function(par){
       
-      d2matrix <- rbind(cbind(d2ldm2(y, par), d2ldmdd(y, par), d2ldmdv(y, par)),
-                        cbind(d2ldmdd(y, par), d2ldd2(y, par), d2ldddv(y, par)),
-                        cbind(d2ldmdv(y, par), d2ldddv(y, par), d2ldv2(y, par)))
+      d2matrix <- rbind(cbind(d2ldm2(par), d2ldmdd(par), d2ldmdv(par)),
+                        cbind(d2ldmdd(par), d2ldd2(par), d2ldddv(par)),
+                        cbind(d2ldmdv(par), d2ldddv(par), d2ldv2(par)))
       
       # d2matrix is of size (3*ny x 3) 
-      # transform to an array of dim (3,3,ny)
-      # for each observation a matrix of size (3x3) is stored in the array
+      # transform to a list of matrices (length of the list equals the number of observations ny)
+      # for each observation a matrix of size (3x3) is stored in d2list
       
-      d2array <- array(dim = c(np, np, ny))
+      d2list <- list()
+      length(d2list) <- ny
       for(i in 1:ny){
-        d2array[,,i] <- d2matrix[c(i, ny+i, 2*ny+i),]
+        d2list[[i]] <- d2matrix[c(i, ny+i, 2*ny+i),]
       }
-      
-      # d2array <- array(dim = c(np, np, ny))
-      # d2array[1,1,] <- d2ldm2(y, par)
-      # d2array[2,2,] <- d2ldd2(y, par)
-      # d2array[3,3,] <- d2ldv2(y, par)
-      # d2array[1,2,] <- d2array[2,1,] <- d2ldmdd(y, par)
-      # d2array[1,3,] <- d2array[3,1,] <- d2ldmdv(y, par)
-      # d2array[2,3,] <- d2array[3,2,] <- d2ldddv(y, par)
-      
-      
-      # return(d2matrix, d2array)
-      return(d2array)
+
+      return(d2list)
     }
   }
   
@@ -677,8 +639,15 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
   if(np == 4L){
     
     # define function for the calculation of initial values
-    if(is.null(start)) initialize <- function() return(family$mu.linkfun(mu.init), family$sigma.linkfun(sigma.init), family$nu.linkfun(nu.init), family$tau.linkfun(tau.init))
-    
+    initialize <- function(y) {
+      mu <- sigma <- nu <- tau <- NULL
+      eval(family$mu.initial)
+      eval(family$sigma.initial)
+      eval(family$nu.initial)
+      eval(family$tau.initial)
+      c(family$mu.linkfun(mean(mu)), family$sigma.linkfun(mean(sigma)), family$nu.linkfun(mean(nu)), family$tau.linkfun(mean(tau)))
+    }
+
     # define function to get distribution parameters
     distpar <- function(eta){
       par <- c(family$mu.linkinv(eta[1]), family$sigma.linkinv(eta[2]), family$nu.linkinv(eta[3]), family$tau.linkinv(eta[4]))
@@ -696,42 +665,30 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     }
     
     
-    # define functions that return outer derivatives as matrix / array :
-    dldpar <- function(y, par){
-      dmatrix <- cbind(dldm(y, par), dldd(y, par), dldv(y, par), dldt(y, par))
+    # define functions that return outer derivatives as matrix / list :
+    dldpar <- function(par){
+      dmatrix <- cbind(dldm(par), dldd(par), dldv(par), dldt(par))
       return(dmatrix)
     }
     
-    d2ldpar2 <- function(y, par){
+    d2ldpar2 <- function(par){
       
-      d2matrix <- rbind(cbind(d2ldm2(y, par), d2ldmdd(y, par), d2ldmdv(y, par), d2ldmdt(y, par)),
-                        cbind(d2ldmdd(y, par), d2ldd2(y, par), d2ldddv(y, par), d2ldddt(y, par)),
-                        cbind(d2ldmdv(y, par), d2ldddv(y, par), d2ldv2(y, par), d2ldvdt(y, par)),
-                        cbind(d2ldmdt(y, par), d2ldddt(y, par), d2ldvdt(y, par), d2ldt2(y, par)))
+      d2matrix <- rbind(cbind(d2ldm2(par), d2ldmdd(par), d2ldmdv(par), d2ldmdt(par)),
+                        cbind(d2ldmdd(par), d2ldd2(par), d2ldddv(par), d2ldddt(par)),
+                        cbind(d2ldmdv(par), d2ldddv(par), d2ldv2(par), d2ldvdt(par)),
+                        cbind(d2ldmdt(par), d2ldddt(par), d2ldvdt(par), d2ldt2(par)))
       
       # d2matrix is of size (4*ny x 4) 
-      # transform to an array of dim (4,4,ny)
-      # for each observation a matrix of size (4x4) is stored in the array
+      # transform to a list of matrices (length of the list equals the number of observations ny)
+      # for each observation a matrix of size (4x4) is stored in d2list
       
-      d2array <- array(dim = c(np, np, ny))
+      d2list <- list()
+      length(d2list) <- ny
       for(i in 1:ny){
-        d2array[,,i] <- d2matrix[c(i, ny+i, 2*ny+i, 3*ny+i),]
+        d2list[[i]] <- d2matrix[c(i, ny+i, 2*ny+i, 3*ny+i),]
       }
       
-      # d2array <- array(dim = c(np, np, ny))
-      # d2array[1,1,] <- d2ldm2(y, par)
-      # d2array[2,2,] <- d2ldd2(y, par)
-      # d2array[3,3,] <- d2ldv2(y, par)
-      # d2array[4,4,] <- d2ldt2(y, par)
-      # d2array[1,2,] <- d2array[2,1,] <- d2ldmdd(y, par)
-      # d2array[1,3,] <- d2array[3,1,] <- d2ldmdv(y, par)
-      # d2array[1,4,] <- d2array[4,1,] <- d2ldmdt(y, par)
-      # d2array[2,3,] <- d2array[3,2,] <- d2ldddv(y, par)
-      # d2array[2,4,] <- d2array[4,2,] <- d2ldddt(y, par)
-      # d2array[3,4,] <- d2array[4,3,] <- d2ldvdt(y, par)
-      
-      # return(d2matrix, d2array)
-      return(d2array)
+      return(d2list)
     }
   }
     
@@ -769,10 +726,10 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
   
   ## set up gradient/scores 
   grad <- function(eta, sum = TRUE) {
-    par <- distpar(eta)                       # get distribution parameters
-    gr.out <- dldpar(y, par)                  # outer derivatives
-    gr <- -weights * t(t(gr.out) * dpardeta(eta))       # multiplied with the inner derivatives (componentwise)
-    # gr <- as.matrix(gr)                     # for 1 parameter
+    par <- distpar(eta)                                  # get distribution parameters
+    gr.out <- dldpar(par)                                # outer derivatives
+    gr <- -weights * t(t(gr.out) * dpardeta(eta))        # multiplied with the inner derivatives (componentwise)
+    # gr <- as.matrix(gr)                                # for 1 parameter
     if(sum) gr <- colSums(gr)     # *1/nobs ? scale, doesn't influence optimization
     return(gr)
   }
@@ -786,9 +743,9 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     ## get distribution parameter
     par <- distpar(eta)
     
-    ## calculate derivative vectors / matrices / arrays
-    d2ldpar2.array <- d2ldpar2(y, par)
-    dldpar.mat <- dldpar(y, par)
+    ## calculate derivative vectors / matrices / lists
+    d2ldpar2.list <- d2ldpar2(par)
+    dldpar.mat <- dldpar(par)
     
     dpardeta.vec <- dpardeta(eta)
     d2pardeta2.vec <- d2pardeta2(eta)
@@ -796,15 +753,16 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     ## calculation is split up in 2 parts: 
     # 2nd outer derivatives times first inner derivatives and a diagonal matrix with the first outer and the second inner derivatives
     
-    hess <- array(dim = dim(d2ldpar2.array))
+    hess <- list()
+    length(hess) <- length(d2ldpar2.list)
     for(i in 1:ny){
-      hess[,,i] <- weights[i] * (t(d2ldpar2.array[,,i] * dpardeta.vec) * dpardeta.vec + diag(np) * as.vector(dldpar.mat[i,]) * d2pardeta2.vec)
+      hess[[i]] <- weights[i] * (t(d2ldpar2.list[[i]] * dpardeta.vec) * dpardeta.vec + diag(np) * as.vector(dldpar.mat[i,]) * d2pardeta2.vec)
     }
     
 
-    ## calculate the sum over all matrices in the array (each for one observation)  
+    ## calculate the sum over all matrices in the list (each for one observation)  
     
-    sumhess <- apply(hess, MARGIN = c(1,2), sum)
+    sumhess <- Reduce('+', hess)
     
     return(-sumhess)   # negative because the optimized function is the neg. logLik (nll) but the derivatives are of the (positive) logLik => *(-1)
     # the entries of sumhes are the sums of the entries of the hessian matrix evaluated at the observations stored in y and the input parameters
