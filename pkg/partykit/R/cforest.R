@@ -188,7 +188,7 @@ predict.cforest <- function(object, newdata = NULL, type = c("response", "prob",
         tw <- rw[[b]]
         if (OOB) tw <- as.integer(tw == 0)
         pw <- sapply(ids, function(i) tw * (fdata == i))
-        return(pw[, match(fnewdata, ids)])
+        return(pw[, match(fnewdata, ids), drop = FALSE])
     })
 
     w <- Reduce("+", bw)

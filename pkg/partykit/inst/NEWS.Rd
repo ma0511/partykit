@@ -12,6 +12,8 @@
       \code{Weka_tree} now have a \code{data = TRUE} argument
       so that by default the data is preserved in the \code{party}
       object (instead of an empty model frame).}
+    \item{The \code{predict} method for \code{cforest} objects
+      did not work for one-row data frames, fixed now.}
   }
 }
 
