@@ -10,10 +10,9 @@
 \usepackage{eurosym,bbding}
 \usepackage{verbatim}
 \usepackage{ctable}
-\usepackage{multirow}
 \usepackage{rotating}
 \usepackage{lineno}
-\usepackage{afterpage}
+\usepackage{placeins}
 \linespread{1.2}
 \usepackage{tabto}
 
@@ -51,7 +50,7 @@ Identification of subgroups of patients for which treatment A is more effective 
 
 In research on the efficacy of treatments for somatic and psychological disorders, the one-size-fits-all paradigm is slowly losing ground, and stratified (or personalized) medicine is becoming increasingly important. Stratified medicine presents the challenge of finding which patients respond best to which treatments. This can be referred to as the detection of treatment-subgroup interactions \cite<e.g., >{DoovyDuss14}. Often, treatment-subgroup interactions are studied using linear models, such as factorial analysis of variance techniques, in which potential moderators have to be specified a-priori, have to be checked one at a time, and continuous moderator variables have to be discretized. This may hamper identification of which treatment works best for whom, especially when there are no a-priori hypotheses about treatment-subgroup interactions. As noted by \citeA{KreayFran06}, there is a need for methods that generate instead of test such hypotheses.
 
-Tree-based methods are such hypothesis-generating methods, as they can automatically detect subgroups which differ in the expected outcomes for one or more treatments. Due to their flexibility, tree-based methods are preeminently suited to the detection of treatment-subgroup interactions: they can handle many potential predictor variables at once and can automatically detect (higher order) interactions between predictor variables \cite{StroyMall09}. Several tree-based algorithms for the detection of treatment-subgroup interactions have been developed (\citeNP{DussyMech14, DussyMeul04, SuyTsai09, FostyTayl11, LipkyDmit11, ZeilyHoth08}, see \citeNP{DoovyDuss14} for an overview). Also, \citeA{ZhanyTsia12Bio,ZhanyTsia12Stat} have developed a flexible method for estimating so-called optimal treatment regimes, which allows users to select from a range of statistical methods, including trees, to derive the optimal regimes. As such, the \citeA{ZhanyTsiaStat} method also provides a tree-based method for treatment-subgroup interaction detection. 
+Tree-based methods are such hypothesis-generating methods, as they can automatically detect subgroups which differ in the expected outcomes for one or more treatments. Due to their flexibility, tree-based methods are preeminently suited to the detection of treatment-subgroup interactions: they can handle many potential predictor variables at once and can automatically detect (higher order) interactions between predictor variables \cite{StroyMall09}. Several tree-based algorithms for the detection of treatment-subgroup interactions have been developed (\citeNP{DussyMech14, DussyMeul04, SuyTsai09, FostyTayl11, LipkyDmit11, ZeilyHoth08}, see \citeNP{DoovyDuss14} for an overview). Also, \citeA{ZhanyTsia12Bio,ZhanyTsia12Stat} have developed a flexible method for estimating so-called optimal treatment regimes, which allows users to select from a range of statistical methods, including trees, to derive the optimal regimes. As such, the \citeA{ZhanyTsia12Stat} method also provides a tree-based method for treatment-subgroup interaction detection. 
 
 Often, researchers may want to detect treatment-subgroup interactions in a generalized linear mixed-effects (GLMM) type model. For example, in individual-level patient data meta-analysis, where datasets of multiple clinical trials on the same treatments are pooled \cite<e.g., >{KoopyHeij07}. In such analyses, the nested or clustered structure of the dataset should be taken into account by including study-specific random effects in the model, prompting the need for a mixed-effects model \cite<e.g., >{CoopyPatt09,HiggyWhit01}. In linear models, ignoring the clustered structure may lead, for example, to biased inference due to underestimated standard errors in linear models \cite<e.g., >{BrykyRaud92,NooryOpde05}. In tree-based methods, ignoring the clustered structure has been found to result in the detection of spurious subgroups and inaccurate predictor variable selection \cite<e.g., >{SelaySimo12, Mart15}. However, none of the purely tree-based methods for treatment-subgroup interaction detection, while also taking account the clustered structure of a dataset. Therefore, in the current paper, we present a tree-based algorithm which can be used for the detection of (treatment-subgroup) interactions and non-linearities in GLMM type models.
 
@@ -521,6 +520,16 @@ lmertree_app <- lmertree(HRSDt1 ~ Tx_group | (1 | studyid) + offset(HRSDfit) | A
 
 Both tree-growing algorithms were applied to the dataset; the resulting GLM tree is presented in Figure~\ref{fig:lmtree_C&W} and Table~\ref{tab:lmtree_C&W} and the resulting GLMM tree is presented in Figure~\ref{fig:lmertree_C&W} and Table~\ref{tab:lmertree_C&W}. 
 
+The GLM tree (Figure~\ref{fig:lmtree_C&W}) selected level of education as the first partitioning variable, and presence of a comorbid anxiety disorder as a second partitioning variable, for observations with a higher level of education. Node 2 of Figure~\ref{fig:lmtree_C&W} indicates that for patients with a low level of education, antidepressant medication provides the greatest reduction in HAM-D scores. Table~\ref{tab:lmtree_C&W} shows that the treatment effect difference in Node 2 amounts to a small to medium effect size (Cohen's $d = 0.39$). Node 4 indicates that for patients with a higher level of education, and no comorbid anxiety disorder, the reduction in HAM-D scores is about the same for CBT and PHA. Node 5 indicates, that for patients with a higher level of education and a comorbid anxiety disorder, the reduction in HAM-D scores is greatest for PHA. In Node 5, a small to medium effect size was also observed (Cohen's $d = 0.40$; Table~\ref{tab:lmtree_C&W}).
+
+By taking into account study-specific intercepts, the final GLMM tree (Figure~\ref{fig:lmertree_C&W}) suggests that the first split made by GLM tree is a spurious split. The GLMM tree selected presence of a comorbid anxiety disorder as the only partitioning variable. The estimated intraclass correlation coefficient for GLMM tree was .05.  
+
+The terminal nodes of Figure~\ref{fig:lmertree_C&W} show only a single treatment-subgroup interaction: for patients without a comorbid anxiety disorder, CBT and PHA provide more or less the same reduction in HAM-D scores (Cohen's $d = 0.05$; Table~\ref{tab:lmertree_C&W}). However, for patients with a comorbid anxiety disorder, PHA provides a greater reduction in HAM-D scores (Cohen's $d = 0.39$; Table~\ref{tab:lmertree_C&W}). 
+
+Assessment of predictive accuracy by means of 50-fold cross validation showed that the GLMM tree had higher predictive accuracy than the GLM tree. The correlation between true and predicted posttreatment HAM-D total scores, averaged over the 50 folds, was .28 ($\mathit{var}=.067$) for GLMM tree, and .19 ($\mathit{var}=.084$) for GLM tree. This indicates that GLMM tree provided higher predictive accuracy, on average, and also somewhat lower variability of predictive accuracy than GLM tree. 
+
+\clearpage
+
 \begin{figure}[t!]
 \setkeys{Gin}{width=0.75\textwidth}
 <<depression-glmtree, fig=TRUE, height=6, width=8>>=
@@ -530,8 +539,7 @@ plot(lmtree_app)
 \label{fig:lmtree_C&W}
 \end{figure}
 
-
-\begin{table}[]
+\begin{table}[!b]
 	\caption{Node specific summary statistics and effect sizes of HAM-D scores for GLM tree}
 	\begin{tabular}{lcccc}
 		\thickline
@@ -547,9 +555,9 @@ plot(lmtree_app)
 		\multicolumn{5}{l}{\small treatment HAM-D scores.}\\ 
 	\end{tabular}
 	\label{tab:lmtree_C&W}
-\end{table}
+\end{table}	
 
-	
+
 \begin{figure}[t!]
 \setkeys{Gin}{width=0.6\textwidth}
 <<depression-glmmtree, fig=TRUE, height=4, width=4.7>>=
@@ -559,11 +567,11 @@ plot(lmertree_app)
 \label{fig:lmertree_C&W}
 \end{figure}
 
-\begin{table}[]
+\begin{table}[!b]
 	\caption{Node specific summary statistics and effect size for GLMM tree}
 	\label{tab:lmertree_C&W}
 	\begin{tabular}{lcccc}
-	\thickline
+		\thickline
 		Node	&	$\hat{\mu}_{CBT}$	& $\hat{\mu}_{PHA}$	& pooled SD	& Cohen's $d$	\\
 		\hline
 		2		&	8.27		& 7.99		& 5.86		& 0.05			\\
@@ -577,14 +585,7 @@ plot(lmertree_app)
 \end{table}
 
 
-By taking into account study-specific intercepts, the final GLMM tree (Figure~\ref{fig:lmertree_C&W}) suggests that the first split made by GLM tree is a spurious split. The GLMM tree selected presence of a comorbid anxiety disorder as the only partitioning variable. The estimated intraclass correlation coefficient for GLMM tree was .05.  
-
-The terminal nodes of Figure~\ref{fig:lmertree_C&W} show only a single treatment-subgroup interaction: for patients without a comorbid anxiety disorder, CBT and PHA provide more or less the same reduction in HAM-D scores (Cohen's $d = 0.05$; Table~\ref{tab:lmertree_C&W}). However, for patients with a comorbid anxiety disorder, PHA provides a greater reduction in HAM-D scores (Cohen's $d = 0.39$; Table~\ref{tab:lmertree_C&W}). 
-
-Assessment of predictive accuracy by means of 50-fold cross validation showed that the GLMM tree had higher predictive accuracy than the GLM tree. The correlation between true and predicted posttreatment HAM-D total scores, averaged over the 50 folds, was .28 ($\mathit{var}=.067$) for GLMM tree, and .19 ($\mathit{var}=.084$) for GLM tree. This indicates that GLMM tree provided higher predictive accuracy, on average, and also somewhat lower variability of predictive accuracy than GLM tree. 
-
-
-
+\FloatBarrier
 \section{Discussion}
 
 In the current paper, we presented the GLMM tree algorithm, which allows for the estimation of a GLM-based recursive partition, as well as the estimation of random-effects parameters. Therefore, the GLMM tree algorithm seems well suited for the detection of treatment-subgroup interactions in clustered datasets. This was confirmed by our simulation study, in which we compared the performance of GLMM trees with that of GLM trees without random effects. GLMM tree performed very well in recovering treatment-subgroup interactions, accurately recovering the interactions in 90\% of the simulated datasets with treatment-subgroup interactions. In contrast, GLM tree accurately recovered the interactions in only 61\% of the datasets with treatment-subgroup interactions. In the absence of treatment-subgroup interactions, GLMM tree erroneously detected subgroups in only 4\% of the datasets, whereas GLM tree erroneously detected subgroups in 33\% of those datasets. In other words, the Type I error rate of GLMM tree very closely approximated the $\alpha$ level used for evaluating significance of parameter instability, whereas the Type I error rate of GLM tree clearly exceeded this value. 
@@ -599,7 +600,9 @@ Not surprisingly, for both algorithms, accuracy of predicted treatment differenc
 
 In the application, we applied GLM and GLMM tree to an existing dataset of a patient-level dataset of a meta-analysis on the effects of psycho- and pharmacotherapy for depression. This showed that GLMM tree provides results that are easily interpretable, and also more accurate than a GLM tree without random effects. We have shown how node-specific means and variances can be used to calculate effect sizes, to judge clinical relevance of the findings, as would often be done in RCTs or meta-analysis. We have limited ourselves to calculating Cohen's $d$. Although equivalent values of the success rate difference or the number needed to treat can be calculated, it would involve additional distributional assumptions \cite{KraeyKupf06}. The node-specific effect sizes can also be used to prune the tree, when a researcher prefers to have a final tree which is not only based on statistical, but also on clinical relevance. A topic for further research would be the development of splitting procedures based on effect sizes, as this would allow for taking into account clinical significant in the tree-growing process, but this is currently not possible.
 
-These findings are encouraging for the use of GLMM tree in the detection of treatment-subgroup interactions in datasets with clustered structures. However, it should be noted that the simulations show that GLMM tree performs very well, if the model is correctly specified. That is, if there are subgroups with respect to the partitioning variables, so that there are different parameters of the GLM in each of these subgroups, then GLMM tree will accurately recover those subgroups. However, misspecification of the model can reduce performance. One source of misspecification would be the omission of relevant variables in the GLM, or as potential partitioning variables. For example, if there are actual subgroups, but the variables describing them are not entered as partitioning variables, the algorithm can only approximate the subgroups using variables that are available for partitioning. Another source of misspecification would be the inclusion of irrelevant variables, either in the linear predictor of the GLM or as partitioning variables, which may reduce the power to detect the actual subgroups. It should be noted, however, that the number of partitioning variables did not substantially influence performance of the algorithm(s) in our simulations. 
+These findings are encouraging for the use of GLMM tree in the detection of treatment-subgroup interactions in datasets with clustered structures. However, it should be noted that the simulations show that GLMM tree performs very well, if the model is correctly specified. That is, if there are subgroups with respect to the partitioning variables, so that there are different parameters of the GLM in each of these subgroups, then GLMM tree will accurately recover those subgroups. However, misspecification of the model can reduce performance. One source of misspecification would be the omission of relevant variables in the GLM, or as potential partitioning variables. For example, if there are actual subgroups, but the variables describing them are not entered as partitioning variables, the algorithm can only approximate the subgroups using variables that are available for partitioning. Another source of misspecification would be the inclusion of irrelevant variables, either in the linear predictor of the GLM or as partitioning variables, which may reduce the power to detect the actual subgroups. However, the number of partitioning variables did not substantially influence performance of the algorithm(s) in our simulations. 
+
+As discussed in the Introduction, treatment-subgroup interactions have gained interest from several areas, and several different tree-based methods for their detection have been developed. In the current study, we have limited our comparison to the performance of GLM and GLMM-based MOB. Obviously, further research on what the different methods for treatment-subgroup interaction detection have in common and what sets them apart is needed.   
 
 In conclusion, GLMM tree provided highly accurate recovery of treatment-subgroup interactions and predictions of treatment effect differences, both in the presence and absence of cluster-specific random effects. Therefore, GLMM tree is a promising algorithm for the detection of treatment-subgroup interactions in datasets with a clustered structure, like for example in multi-center trials or individual-level patient data meta-analyses.
 
