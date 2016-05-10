@@ -12,7 +12,10 @@ importFrom("sandwich",
 
 export(
   ## core distribution fitting function
-  "distfit"
+  "distfit",
+
+  ## distributional tree
+  "disttree"
 )
 
 ## methods
@@ -24,3 +27,4 @@ S3method("logLik", "distfit")
 S3method("nobs", "distfit")
 S3method("vcov", "distfit")
 
+S3method("print", "disttree")

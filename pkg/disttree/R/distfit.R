@@ -801,9 +801,13 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
   
   ## estfun
   # each column represents one distribution parameter (1.col -> dldm * dmdpar = "dldmu.par", 2.col -> dldd * dddpar = "dldsigma.par", ...)
-  ef <- if(estfun) -grad(eta, sum = FALSE) else NULL                    
-  ef <- as.matrix(ef)                                   # FIX: in case ef is a vector (for np=1)
-  colnames(ef) <- paste("dld", names(par),".par", sep = "")
+  if(estfun) {
+    ef <- -grad(eta, sum = FALSE)
+    ef <- as.matrix(ef)                                   # FIX: in case ef is a vector (for np=1)
+    colnames(ef) <- paste("dld", names(par),".par", sep = "")
+  } else {
+    ef <- NULL                    
+  }
 
   ## density function
   #ddist <- get(paste("d",family$family[1], sep = ""))
