@@ -28,14 +28,14 @@ lm_o <- lmtree(HRSDt1 ~ Tx_group | Age + Gender +
 #                   data = metadata, ranefstart = metadata$HRSDfit)
 lmer_f <- lmertree(HRSDt1 ~ Tx_group | (1 | studyid) + offset(HRSDfit) |
                      Age + Gender + education + ComorbidAnxietyDisorder + HRSDt0,
-                   data = metadata, ranefstart = metadata$HRSDfit, joint = F)
+                   data = metadata, ranefstart = metadata$HRSDfit)
 plot(lm_f); print(lm_f)
 plot(lm_o); print(lm_o)
 plot(lmer_f); print(lmer_f)
 
 ## calculate predictions
 metadata$lmtreepred <- predict(lm_f, newdata = metadata)
-metadata$lmertreepred <- predict(lmer_f$tree, newdata = metadata) + predict(lmer_f$lmer, newdata = metadata)
+metadata$lmertreepred <- predict(lmer_f, newdata = metadata) 
 mean(metadata$HRSDt1); hist(metadata$HRSDt1)
 mean(metadata$lmtreepred); hist(metadata$lmtreepred)
 mean(metadata$lmertreepred); hist(metadata$lmertreepred)
@@ -49,10 +49,28 @@ var(metadata$HRSDt1) # total variance
 lmer_f$varcor[[1]][[1]] / var(metadata$HRSDt1) # variance explained by random effects
 var(metadata$lmertreepred) / var(metadata$HRSDt1) # Total variance explained by lmertree
 var(metadata$lmtreepred) / var(metadata$HRSDt1) # variance explained by the lmtree
-var(metadata$hrs) / var(metadata$HRSDt1) # variance explained by HRSDt0
+var(metadata$HRSDt0) / var(metadata$HRSDt1) # variance explained by HRSDt0
 cor(metadata$HRSDt1, metadata$lmertreepred)^2 # lmertree explains 11% of variance in outcome variable
 cor(metadata$HRSDt1, metadata$lmtreepred)^2 # lmtree explains 9% of variance outcome variable
 
+
+## Calculate effect sizes: Cohen's d = x1 - x2 / pooled_sd
+mu_mu <- predict(lm(HRSDt1 ~ HRSDt0, data = metadata), newdata = list(HRSDt0 = mean(metadata$HRSDt0)))
+mean(metadata$HRSDt0)
+
+lmer_es <- cbind(aggregate(metadata$HRSDt1, by = list(predict(lmer_f, type = "node")), FUN = sd), 
+      m1 = coef(lmer_f)[,1] + mu_mu, m2 = coef(lmer_f)[,1] + coef(lmer_f)[,2] + mu_mu, 
+      m1minm2 = coef(lmer_f)[,2])
+lmer_es$cohensd <- (lmer_es$m1minm2)/lmer_es$x
+lmer_es
+aggregate(metadata$HRSDt1, by = list(metadata$Tx_group, predict(lmer_f, type = "node")), FUN = length)
+
+lm_es <- cbind(aggregate(metadata$HRSDt1, by = list(predict(lm_o, type = "node")), FUN = sd), 
+               m1 = coef(lm_o)[,1] + mu_mu, m2 = coef(lm_o)[,1] + coef(lm_o)[,2] + mu_mu, 
+               m1minm2 = coef(lm_o)[,2])
+lm_es$cohensd <- lm_es$m1minm2/lm_es$x
+lm_es
+aggregate(metadata$HRSDt1, by = list(metadata$Tx_group, predict(lm_o, type = "node")), FUN = length)
 
 
 ## 50 fold CV
@@ -83,7 +101,7 @@ for (i in 1:50) {
   ## grow lmertree
   lmertrees[[i]] <- lmertree(HRSDt1 ~ Tx_group | (1 | studyid) + offset(HRSDfit) | 
                               Age + Gender + education + ComorbidAnxietyDisorder + HRSDt0,
-                            data = traindata[[i]], ranefstart = traindata[[i]]$HRSDfit, joint = F)
+                            data = traindata[[i]], ranefstart = traindata[[i]]$HRSDfit)
  
   # calculate lmertree predictions
   testdata[[i]]$lmertreepreds <- predict(lmertrees[[i]]$tree, newdata = testdata[[i]]) + 
