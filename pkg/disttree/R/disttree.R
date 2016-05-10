@@ -18,7 +18,7 @@ disttree <- function(formula, data, na.action, cluster, family = NO,
       vcov. = object, estfun = estfun, ...)
     rval <- list(
       coefficients = rval$par,
-      objfun = -rval$opt$value,
+      objfun = rval$opt$value,
       estfun = if(estfun) rval$estfun else NULL,
       object = if(object) rval else NULL
     )
