@@ -77,7 +77,11 @@ palmtree <- function(formula, data, weights = NULL, family = NULL,
       }
     }
     b <- palm$coefficients
-    palm$coefficients[substr(names(b), 1L, 5L) %in% c(if(intercept) "(Inte" else NULL, ".tree")] <- 0
+    if(length(levels(data$.tree)) > 1L) {
+      palm$coefficients[substr(names(b), 1L, 5L) %in% c(if(intercept) "(Inte" else NULL, ".tree")] <- 0
+    } else {
+      palm$coefficients[names(coef(tree))] <- 0
+    }
     data$.lm <- predict(palm, newdata = data)
     palm$coefficients <- b
 
