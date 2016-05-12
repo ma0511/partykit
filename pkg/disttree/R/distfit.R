@@ -1,11 +1,26 @@
-distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfun = TRUE, ...)
+distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfun = TRUE, bd = 1, fixed = NULL, fixed.values = NULL, ...)
 {
   ## match call
   cl <- match.call()
   
+  ## list of families which require an additional parameter bd (binomial denominator)
+  # by default bd is set to 1
+  .distfit.bi.list<-c("BI", "Binomial", "BB", "Beta Binomial", "ZIBI", "ZIBB", "ZABI", "ZABB") # binomial denominators
+  # if(any(family$family%in%.distfit.bi.list)) 
+  
   ## number of distribution parameters (mu, sigma, nu, tau)
   if(is.function(family)) family <- family()
   np <- sum(family$parameter == TRUE)
+  
+  
+  # FIXME:
+  # the input argument fixed can be a character string or a list of character strings with the name(s) of the parameter(s) which are fixed
+  # in this case their values must be set in the argument fixed.values
+  
+  # 2 families include fixed parameter(s): LNO() ... nu is fixed
+  #                                        NET() ... nu and tau are fixed
+  # any(family$parameters == FALSE)
+  
   
   ## number of observations
   ny <- length(y)
@@ -39,6 +54,16 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
   # get parameters of a function f, return vector with the indices of the necessary input parameters 
   getpar <- function(f){
     arguments <- names(formals(f))
+    
+    ## remove "bd" from the list of parameters in case it is included
+    arg.bd <- FALSE
+    if(any(family$family%in%.distfit.bi.list)){
+      if(arguments[length(arguments)] == "bd"){ 
+        arg.bd <- TRUE
+        arguments <- arguments[1:(length(arguments)-1)]
+      }
+    }
+    
     
     ## 2 cases: with or without y as input
     
@@ -141,6 +166,9 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
       if(length(arguments)==0L)  par.id <- NULL       ## fix: possible case? of which class is f when the derivative is a constant?
     }
     
+    ## attach index for the binomial denominator parameter bd if it has been removed earlier
+    if(arg.bd) par.id <- c(par.id,5)
+    
     return(par.id)
   }
   
@@ -165,14 +193,24 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         dldm <- function(par) {
           input <- list()
           input[[1]] <- y
-          for (i in 2:length(par.id.dldm)) input[[i]] <- rep.int(par[par.id.dldm[i]], length(y))
+          if(5%in%par.id.dldm){
+            for (i in 2:(length(par.id.dldm)-1)) input[[i]] <- rep.int(par[par.id.dldm[i]], length(y))
+            input[[length(par.id.dldm)]] <- rep.int(bd, length(y))
+          } else {
+            for (i in 2:length(par.id.dldm)) input[[i]] <- rep.int(par[par.id.dldm[i]], length(y))
+          }
           return(do.call(family$dldm, input))
         }
       }
     } else {
       dldm <- function(par) {
         input <- list()
-        for (i in 1:length(par.id.dldm)) input[[i]] <- par[par.id.dldm[i]]
+        if(5%in%par.id.dldm){
+          for (i in 1:(length(par.id.dldm)-1)) input[[i]] <- par[par.id.dldm[i]]
+          input[[length(par.id.dldm)]] <- bd
+        } else {
+          for (i in 1:length(par.id.dldm)) input[[i]] <- par[par.id.dldm[i]]
+        }
         return(rep.int(do.call(family$dldm, input), length(y)))
       }
     }
@@ -185,14 +223,24 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         d2ldm2 <- function(par) {
           input <- list()
           input[[1]] <- y
-          for (i in 2:length(par.id.d2ldm2)) input[[i]] <- rep.int(par[par.id.d2ldm2[i]], length(y))
+          if(5%in%par.id.d2ldm2){
+            for (i in 2:(length(par.id.d2ldm2)-1)) input[[i]] <- rep.int(par[par.id.d2ldm2[i]], length(y))
+            input[[length(par.id.d2ldm2)]] <- rep.int(bd, length(y))
+          } else {
+            for (i in 2:length(par.id.d2ldm2)) input[[i]] <- rep.int(par[par.id.d2ldm2[i]], length(y))
+          }
           return(do.call(family$d2ldm2, input))
         }
       }
     } else {
       d2ldm2 <- function(par) {
         input <- list()
-        for (i in 1:length(par.id.d2ldm2)) input[[i]] <- par[par.id.d2ldm2[i]]
+        if(5%in%par.id.d2ldm2){
+          for (i in 1:(length(par.id.d2ldm2)-1)) input[[i]] <- par[par.id.d2ldm2[i]]
+          input[[length(par.id.d2ldm2)]] <- bd
+        } else {
+          for (i in 1:length(par.id.d2ldm2)) input[[i]] <- par[par.id.d2ldm2[i]]
+        }
         return(rep.int(do.call(family$d2ldm2, input), length(y)))
       }
     }
@@ -216,14 +264,24 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         dldd <- function(par) {
           input <- list()
           input[[1]] <- y
-          for (i in 2:length(par.id.dldd)) input[[i]] <- rep.int(par[par.id.dldd[i]], length(y))
+          if(5%in%par.id.dldd){
+            for (i in 2:(length(par.id.dldd)-1)) input[[i]] <- rep.int(par[par.id.dldd[i]], length(y))
+            input[[length(par.id.dldd)]] <- rep.int(bd, length(y))
+          } else {
+            for (i in 2:length(par.id.dldd)) input[[i]] <- rep.int(par[par.id.dldd[i]], length(y))
+          }
           return(do.call(family$dldd, input))
         }
       }
     } else {
       dldd <- function(par) {
         input <- list()
-        for (i in 1:length(par.id.dldd)) input[[i]] <- par[par.id.dldd[i]]
+        if(5%in%par.id.dldd){
+          for (i in 1:(length(par.id.dldd)-1)) input[[i]] <- par[par.id.dldd[i]]
+          input[[length(par.id.dldd)]] <- bd
+        } else {
+          for (i in 1:length(par.id.dldd)) input[[i]] <- par[par.id.dldd[i]]
+        }
         return(rep.int(do.call(family$dldd, input), length(y)))
       }
     }
@@ -236,14 +294,24 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         d2ldd2 <- function(par) {
           input <- list()
           input[[1]] <- y
-          for (i in 2:length(par.id.d2ldd2)) input[[i]] <- rep.int(par[par.id.d2ldd2[i]], length(y))
+          if(5%in%par.id.d2ldd2){
+            for (i in 2:(length(par.id.d2ldd2)-1)) input[[i]] <- rep.int(par[par.id.d2ldd2[i]], length(y))
+            input[[length(par.id.d2ldd2)]] <- rep.int(bd, length(y))
+          } else {
+            for (i in 2:length(par.id.d2ldd2)) input[[i]] <- rep.int(par[par.id.d2ldd2[i]], length(y))
+          }
           return(do.call(family$d2ldd2, input))
         }
       }
     } else {
       d2ldd2 <- function(par) {
         input <- list()
-        for (i in 1:length(par.id.d2ldd2)) input[[i]] <- par[par.id.d2ldd2[i]]
+        if(5%in%par.id.d2ldd2){
+          for (i in 1:(length(par.id.d2ldd2)-1)) input[[i]] <- par[par.id.d2ldd2[i]]
+          input[[length(par.id.d2ldd2)]] <- bd
+        } else {
+          for (i in 1:length(par.id.d2ldd2)) input[[i]] <- par[par.id.d2ldd2[i]]
+        }
         return(rep.int(do.call(family$d2ldd2, input), length(y)))
       }
     }
@@ -256,14 +324,24 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         d2ldmdd <- function(par) {
           input <- list()
           input[[1]] <- y
-          for (i in 2:length(par.id.d2ldmdd)) input[[i]] <- rep.int(par[par.id.d2ldmdd[i]], length(y))
+          if(5%in%par.id.d2ldmdd){
+            for (i in 2:(length(par.id.d2ldmdd)-1)) input[[i]] <- rep.int(par[par.id.d2ldmdd[i]], length(y))
+            input[[length(par.id.d2ldmdd)]] <- rep.int(bd, length(y))
+          } else {
+            for (i in 2:length(par.id.d2ldmdd)) input[[i]] <- rep.int(par[par.id.d2ldmdd[i]], length(y))
+          }
           return(do.call(family$d2ldmdd, input))
         }
       }
     } else {
       d2ldmdd <- function(par) {
         input <- list()
-        for (i in 1:length(par.id.d2ldmdd)) input[[i]] <- par[par.id.d2ldmdd[i]]
+        if(5%in%par.id.d2ldmdd){
+          for (i in 1:(length(par.id.d2ldmdd)-1)) input[[i]] <- par[par.id.d2ldmdd[i]]
+          input[[length(par.id.d2ldmdd)]] <- bd
+        } else {
+          for (i in 1:length(par.id.d2ldmdd)) input[[i]] <- par[par.id.d2ldmdd[i]]
+        }
         return(rep.int(do.call(family$d2ldmdd, input), length(y)))
       }
     }
@@ -287,14 +365,24 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         dldv <- function(par) {
           input <- list()
           input[[1]] <- y
-          for (i in 2:length(par.id.dldv)) input[[i]] <- rep.int(par[par.id.dldv[i]], length(y))
+          if(5%in%par.id.dldv){
+            for (i in 2:(length(par.id.dldv)-1)) input[[i]] <- rep.int(par[par.id.dldv[i]], length(y))
+            input[[length(par.id.dldv)]] <- rep.int(bd, length(y))
+          } else {
+            for (i in 2:length(par.id.dldv)) input[[i]] <- rep.int(par[par.id.dldv[i]], length(y))
+          }
           return(do.call(family$dldv, input))
         }
       }
     } else {
       dldv <- function(par) {
         input <- list()
-        for (i in 1:length(par.id.dldv)) input[[i]] <- par[par.id.dldv[i]]
+        if(5%in%par.id.dldv){
+          for (i in 1:(length(par.id.dldv)-1)) input[[i]] <- par[par.id.dldv[i]]
+          input[[length(par.id.dldv)]] <- bd
+        } else {
+          for (i in 1:length(par.id.dldv)) input[[i]] <- par[par.id.dldv[i]]
+        }
         return(rep.int(do.call(family$dldv, input), length(y)))
       }
     }
@@ -307,14 +395,24 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         d2ldv2 <- function(par) {
           input <- list()
           input[[1]] <- y
-          for (i in 2:length(par.id.d2ldv2)) input[[i]] <- rep.int(par[par.id.d2ldv2[i]], length(y))
+          if(5%in%par.id.d2ldv2){
+            for (i in 2:(length(par.id.d2ldv2)-1)) input[[i]] <- rep.int(par[par.id.d2ldv2[i]], length(y))
+            input[[length(par.id.d2ldv2)]] <- rep.int(bd, length(y))
+          } else {
+            for (i in 2:length(par.id.d2ldv2)) input[[i]] <- rep.int(par[par.id.d2ldv2[i]], length(y))
+          }
           return(do.call(family$d2ldv2, input))
         }
       }
     } else {
       d2ldv2 <- function(par) {
         input <- list()
-        for (i in 1:length(par.id.d2ldv2)) input[[i]] <- par[par.id.d2ldv2[i]]
+        if(5%in%par.id.d2ldv2){
+          for (i in 1:(length(par.id.d2ldv2)-1)) input[[i]] <- par[par.id.d2ldv2[i]]
+          input[[length(par.id.d2ldv2)]] <- bd
+        } else {
+          for (i in 1:length(par.id.d2ldv2)) input[[i]] <- par[par.id.d2ldv2[i]]
+        }
         return(rep.int(do.call(family$d2ldv2, input), length(y)))
       }
     }
@@ -327,14 +425,24 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         d2ldmdv <- function(par) {
           input <- list()
           input[[1]] <- y
-          for (i in 2:length(par.id.d2ldmdv)) input[[i]] <- rep.int(par[par.id.d2ldmdv[i]], length(y))
+          if(5%in%par.id.d2ldmdv){
+            for (i in 2:(length(par.id.d2ldmdv)-1)) input[[i]] <- rep.int(par[par.id.d2ldmdv[i]], length(y))
+            input[[length(par.id.d2ldmdv)]] <- rep.int(bd, length(y))
+          } else {
+            for (i in 2:length(par.id.d2ldmdv)) input[[i]] <- rep.int(par[par.id.d2ldmdv[i]], length(y))
+          }
           return(do.call(family$d2ldmdv, input))
         }
       }
     } else {
       d2ldmdv <- function(par) {
         input <- list()
-        for (i in 1:length(par.id.d2ldmdv)) input[[i]] <- par[par.id.d2ldmdv[i]]
+        if(5%in%par.id.d2ldmdv){
+          for (i in 1:(length(par.id.d2ldmdv)-1)) input[[i]] <- par[par.id.d2ldmdv[i]]
+          input[[length(par.id.d2ldmdv)]] <- bd
+        } else {
+          for (i in 1:length(par.id.d2ldmdv)) input[[i]] <- par[par.id.d2ldmdv[i]]
+        }
         return(rep.int(do.call(family$d2ldmdv, input), length(y)))
       }
     }
@@ -347,14 +455,24 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         d2ldddv <- function(par) {
           input <- list()
           input[[1]] <- y
-          for (i in 2:length(par.id.d2ldddv)) input[[i]] <- rep.int(par[par.id.d2ldddv[i]], length(y))
+          if(5%in%par.id.d2ldddv){
+            for (i in 2:(length(par.id.d2ldddv)-1)) input[[i]] <- rep.int(par[par.id.d2ldddv[i]], length(y))
+            input[[length(par.id.d2ldddv)]] <- rep.int(bd, length(y))
+          } else {
+            for (i in 2:length(par.id.d2ldddv)) input[[i]] <- rep.int(par[par.id.d2ldddv[i]], length(y))
+          }
           return(do.call(family$d2ldddv, input))
         }
       }
     } else {
       d2ldddv <- function(par) {
         input <- list()
-        for (i in 1:length(par.id.d2ldddv)) input[[i]] <- par[par.id.d2ldddv[i]]
+        if(5%in%par.id.d2ldddv){
+          for (i in 1:(length(par.id.d2ldddv)-1)) input[[i]] <- par[par.id.d2ldddv[i]]
+          input[[length(par.id.d2ldddv)]] <- bd
+        } else {
+          for (i in 1:length(par.id.d2ldddv)) input[[i]] <- par[par.id.d2ldddv[i]]
+        }
         return(rep.int(do.call(family$d2ldddv, input), length(y)))
       }
     }
@@ -362,6 +480,8 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
   
   
   if(np > 3L){
+    
+    # note: in this case/section no adaption for families of the list .distfit.bi.list since none of them includes the 4th parameter tau
     
     # inner derivatives (dtdeta, d2tdeta2)    
     dtdeta <- function(eta) return(family$tau.dr(eta[4]))
@@ -715,8 +835,8 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     par <- distpar(eta)
     input <- list()
     input[[1]] <- y
-    for(i in 2:(length(par)+1)) input[[i]] <- par[i-1]         # <- rep.int(par[i-1], length(y)   (FIX?)
-    
+    for(i in 2:(length(par)+1)) input[[i]] <- par[i-1]                           # <- rep.int(par[i-1], length(y)   (FIX?)
+    if(any(family$family%in%.distfit.bi.list)) input[[length(par)+2]] <- bd      # additional parameter bd (binomial denominator for families in .distfit.bi.list)
     # G.dev.incr ... global deviance function = -2*logLik
     nloglik <- do.call(family$G.dev.incr, input)
     nloglik <- sum(weights * nloglik/2)
@@ -811,46 +931,87 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
 
   ## density function
   #ddist <- get(paste("d",family$family[1], sep = ""))
-  ddist <- function(x, log = FALSE){
-    if(np == 1L) fy <- get(paste("d",family$family[1], sep = ""))(x, mu = par[1], log = FALSE)
-    if(np == 2L) fy <- get(paste("d",family$family[1], sep = ""))(x, mu = par[1], sigma = par[2], log = FALSE)
-    if(np == 3L) fy <- get(paste("d",family$family[1], sep = ""))(x, mu = par[1], sigma = par[2], nu = par[3], log = FALSE)
-    if(np == 4L) fy <- get(paste("d",family$family[1], sep = ""))(x, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], log = FALSE)
-    fy
+  if(any(family$family%in%.distfit.bi.list)){
+    ddist <- function(x, log = FALSE){
+      if(np == 1L) fy <- get(paste("d",family$family[1], sep = ""))(x, mu = par[1], bd = bd, log = FALSE)
+      if(np == 2L) fy <- get(paste("d",family$family[1], sep = ""))(x, mu = par[1], sigma = par[2], bd = bd, log = FALSE)
+      if(np == 3L) fy <- get(paste("d",family$family[1], sep = ""))(x, mu = par[1], sigma = par[2], nu = par[3], bd = bd, log = FALSE)
+      if(np == 4L) fy <- get(paste("d",family$family[1], sep = ""))(x, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], bd = bd, log = FALSE)
+      fy
+    }
+  } else {
+    ddist <- function(x, log = FALSE){
+      if(np == 1L) fy <- get(paste("d",family$family[1], sep = ""))(x, mu = par[1], log = FALSE)
+      if(np == 2L) fy <- get(paste("d",family$family[1], sep = ""))(x, mu = par[1], sigma = par[2], log = FALSE)
+      if(np == 3L) fy <- get(paste("d",family$family[1], sep = ""))(x, mu = par[1], sigma = par[2], nu = par[3], log = FALSE)
+      if(np == 4L) fy <- get(paste("d",family$family[1], sep = ""))(x, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], log = FALSE)
+      fy
+    }
   }
   
   ## cumulative distribution function
   #pdist <- get(paste("p",family$family[1], sep = ""))
-  pdist <- function(q, log.p = FALSE){
-    if(np == 1L) cdf <- get(paste("p",family$family[1], sep = ""))(q, mu = par[1], log.p = FALSE)
-    if(np == 2L) cdf <- get(paste("p",family$family[1], sep = ""))(q, mu = par[1], sigma = par[2], log.p = FALSE)
-    if(np == 3L) cdf <- get(paste("p",family$family[1], sep = ""))(q, mu = par[1], sigma = par[2], nu = par[3], log.p = FALSE)
-    if(np == 4L) cdf <- get(paste("p",family$family[1], sep = ""))(q, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], log.p = FALSE)
-    cdf
+  if(any(family$family%in%.distfit.bi.list)){
+    pdist <- function(q, log.p = FALSE){
+      if(np == 1L) cdf <- get(paste("p",family$family[1], sep = ""))(q, mu = par[1], bd = bd, log.p = FALSE)
+      if(np == 2L) cdf <- get(paste("p",family$family[1], sep = ""))(q, mu = par[1], sigma = par[2], bd = bd, log.p = FALSE)
+      if(np == 3L) cdf <- get(paste("p",family$family[1], sep = ""))(q, mu = par[1], sigma = par[2], nu = par[3], bd = bd, log.p = FALSE)
+      if(np == 4L) cdf <- get(paste("p",family$family[1], sep = ""))(q, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], bd = bd, log.p = FALSE)
+      cdf
+    }
+  } else {
+    pdist <- function(q, log.p = FALSE){
+      if(np == 1L) cdf <- get(paste("p",family$family[1], sep = ""))(q, mu = par[1], log.p = FALSE)
+      if(np == 2L) cdf <- get(paste("p",family$family[1], sep = ""))(q, mu = par[1], sigma = par[2], log.p = FALSE)
+      if(np == 3L) cdf <- get(paste("p",family$family[1], sep = ""))(q, mu = par[1], sigma = par[2], nu = par[3], log.p = FALSE)
+      if(np == 4L) cdf <- get(paste("p",family$family[1], sep = ""))(q, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], log.p = FALSE)
+      cdf
+    }
   }
   
   ## quantile function
   #qdist <- get(paste("q",family$family[1], sep = ""))
-  qdist <- function(p, log.p = FALSE){
-    if(np == 1L) q <- get(paste("q",family$family[1], sep = ""))(p, mu = par[1], log.p = FALSE)
-    if(np == 2L) q <- get(paste("q",family$family[1], sep = ""))(p, mu = par[1], sigma = par[2], log.p = FALSE)
-    if(np == 3L) q <- get(paste("q",family$family[1], sep = ""))(p, mu = par[1], sigma = par[2], nu = par[3], log.p = FALSE)
-    if(np == 4L) q <- get(paste("q",family$family[1], sep = ""))(p, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], log.p = FALSE)
-    q
+  if(any(family$family%in%.distfit.bi.list)){
+    qdist <- function(p, log.p = FALSE){
+      if(np == 1L) q <- get(paste("q",family$family[1], sep = ""))(p, mu = par[1], bd = bd, log.p = FALSE)
+      if(np == 2L) q <- get(paste("q",family$family[1], sep = ""))(p, mu = par[1], sigma = par[2], bd = bd, log.p = FALSE)
+      if(np == 3L) q <- get(paste("q",family$family[1], sep = ""))(p, mu = par[1], sigma = par[2], nu = par[3], bd = bd, log.p = FALSE)
+      if(np == 4L) q <- get(paste("q",family$family[1], sep = ""))(p, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], bd = bd, log.p = FALSE)
+      q
+    }
+  } else {
+    qdist <- function(p, log.p = FALSE){
+      if(np == 1L) q <- get(paste("q",family$family[1], sep = ""))(p, mu = par[1], log.p = FALSE)
+      if(np == 2L) q <- get(paste("q",family$family[1], sep = ""))(p, mu = par[1], sigma = par[2], log.p = FALSE)
+      if(np == 3L) q <- get(paste("q",family$family[1], sep = ""))(p, mu = par[1], sigma = par[2], nu = par[3], log.p = FALSE)
+      if(np == 4L) q <- get(paste("q",family$family[1], sep = ""))(p, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], log.p = FALSE)
+      q
+    }
   }
   
   ## random function
   #rdist <- get(paste("r",family$family[1], sep = ""))
-  rdist <- function(n){
-    if(np == 1L) r <- get(paste("r",family$family[1], sep = ""))(n, mu = par[1])
-    if(np == 2L) r <- get(paste("r",family$family[1], sep = ""))(n, mu = par[1], sigma = par[2])
-    if(np == 3L) r <- get(paste("r",family$family[1], sep = ""))(n, mu = par[1], sigma = par[2], nu = par[3])
-    if(np == 4L) r <- get(paste("r",family$family[1], sep = ""))(n, mu = par[1], sigma = par[2], nu = par[3], tau = par[4])
-    r
+  if(any(family$family%in%.distfit.bi.list)){
+    rdist <- function(n){
+      if(np == 1L) r <- get(paste("r",family$family[1], sep = ""))(n, mu = par[1], bd = bd)
+      if(np == 2L) r <- get(paste("r",family$family[1], sep = ""))(n, mu = par[1], sigma = par[2], bd = bd)
+      if(np == 3L) r <- get(paste("r",family$family[1], sep = ""))(n, mu = par[1], sigma = par[2], nu = par[3], bd = bd)
+      if(np == 4L) r <- get(paste("r",family$family[1], sep = ""))(n, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], bd = bd)
+      r
+    }
+  } else {
+    rdist <- function(n){
+      if(np == 1L) r <- get(paste("r",family$family[1], sep = ""))(n, mu = par[1])
+      if(np == 2L) r <- get(paste("r",family$family[1], sep = ""))(n, mu = par[1], sigma = par[2])
+      if(np == 3L) r <- get(paste("r",family$family[1], sep = ""))(n, mu = par[1], sigma = par[2], nu = par[3])
+      if(np == 4L) r <- get(paste("r",family$family[1], sep = ""))(n, mu = par[1], sigma = par[2], nu = par[3], tau = par[4])
+      r
+    }
   }
   
   
   ## return value 
+  # FIX: return bd?
   rval <- list(
     y = y,
     weights = weights,
@@ -871,6 +1032,9 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     qdist = qdist,
     rdist = rdist
   )
+  
+  if(any(family$family%in%.distfit.bi.list)) rval <- c(rval, bd = bd)
+  
   class(rval) <- "distfit"
   return(rval)
 }
@@ -937,3 +1101,12 @@ confint.distfit <- function(object, ...) {
 }
 
 
+
+
+family <- ZABI()
+y <- rZABI(1000, bd = 10, mu = 0.5, sigma = 0.2)
+start <- c(0.8, 0.1)
+weights <- rbinom(length(y), 1, 0.75)
+
+df <- distfit(y, family, weights = weights, start = start, bd = 10)
+df2 <- distfit(y, family, bd = 10)
