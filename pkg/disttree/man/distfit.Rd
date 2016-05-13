@@ -110,6 +110,23 @@ if(require("lmtest")) {
   coeftest(df)
   coeftest(df2)
 }
+
+## censored logistic example
+if(require("crch") & require("gamlss.cens")) {
+library("crch")
+data("RainIbk", package = "crch")
+m1 <- crch(rain ~ 1, data = RainIbk, left = 0, dist = "logistic")
+
+library("gamlss.cens")
+gen.cens(LO, type = "left")
+RainIbk$rains <- Surv(RainIbk$rain, RainIbk$rain > 0, type = "left")
+m2 <- distfit(RainIbk$rains, family = LOlc)
+
+coef(m1)
+coef(m2)
+logLik(m1)
+logLik(m2)
+}
 }
 
 \keyword{distribution}

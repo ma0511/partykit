@@ -23,7 +23,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
   
   
   ## number of observations
-  ny <- length(y)
+  ny <- NROW(y)
   
   ## weights
   if(is.null(weights)) weights <- 1
@@ -194,10 +194,10 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
           input <- list()
           input[[1]] <- y
           if(5%in%par.id.dldm){
-            for (i in 2:(length(par.id.dldm)-1)) input[[i]] <- rep.int(par[par.id.dldm[i]], length(y))
-            input[[length(par.id.dldm)]] <- rep.int(bd, length(y))
+            for (i in 2:(length(par.id.dldm)-1)) input[[i]] <- rep.int(par[par.id.dldm[i]], ny)
+            input[[length(par.id.dldm)]] <- rep.int(bd, ny)
           } else {
-            for (i in 2:length(par.id.dldm)) input[[i]] <- rep.int(par[par.id.dldm[i]], length(y))
+            for (i in 2:length(par.id.dldm)) input[[i]] <- rep.int(par[par.id.dldm[i]], ny)
           }
           return(do.call(family$dldm, input))
         }
@@ -211,7 +211,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         } else {
           for (i in 1:length(par.id.dldm)) input[[i]] <- par[par.id.dldm[i]]
         }
-        return(rep.int(do.call(family$dldm, input), length(y)))
+        return(rep.int(do.call(family$dldm, input), ny))
       }
     }
     
@@ -224,10 +224,10 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
           input <- list()
           input[[1]] <- y
           if(5%in%par.id.d2ldm2){
-            for (i in 2:(length(par.id.d2ldm2)-1)) input[[i]] <- rep.int(par[par.id.d2ldm2[i]], length(y))
-            input[[length(par.id.d2ldm2)]] <- rep.int(bd, length(y))
+            for (i in 2:(length(par.id.d2ldm2)-1)) input[[i]] <- rep.int(par[par.id.d2ldm2[i]], ny)
+            input[[length(par.id.d2ldm2)]] <- rep.int(bd, ny)
           } else {
-            for (i in 2:length(par.id.d2ldm2)) input[[i]] <- rep.int(par[par.id.d2ldm2[i]], length(y))
+            for (i in 2:length(par.id.d2ldm2)) input[[i]] <- rep.int(par[par.id.d2ldm2[i]], ny)
           }
           return(do.call(family$d2ldm2, input))
         }
@@ -241,7 +241,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         } else {
           for (i in 1:length(par.id.d2ldm2)) input[[i]] <- par[par.id.d2ldm2[i]]
         }
-        return(rep.int(do.call(family$d2ldm2, input), length(y)))
+        return(rep.int(do.call(family$d2ldm2, input), ny))
       }
     }
   }
@@ -265,10 +265,10 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
           input <- list()
           input[[1]] <- y
           if(5%in%par.id.dldd){
-            for (i in 2:(length(par.id.dldd)-1)) input[[i]] <- rep.int(par[par.id.dldd[i]], length(y))
-            input[[length(par.id.dldd)]] <- rep.int(bd, length(y))
+            for (i in 2:(length(par.id.dldd)-1)) input[[i]] <- rep.int(par[par.id.dldd[i]], ny)
+            input[[length(par.id.dldd)]] <- rep.int(bd, ny)
           } else {
-            for (i in 2:length(par.id.dldd)) input[[i]] <- rep.int(par[par.id.dldd[i]], length(y))
+            for (i in 2:length(par.id.dldd)) input[[i]] <- rep.int(par[par.id.dldd[i]], ny)
           }
           return(do.call(family$dldd, input))
         }
@@ -282,7 +282,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         } else {
           for (i in 1:length(par.id.dldd)) input[[i]] <- par[par.id.dldd[i]]
         }
-        return(rep.int(do.call(family$dldd, input), length(y)))
+        return(rep.int(do.call(family$dldd, input), ny))
       }
     }
     
@@ -295,10 +295,10 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
           input <- list()
           input[[1]] <- y
           if(5%in%par.id.d2ldd2){
-            for (i in 2:(length(par.id.d2ldd2)-1)) input[[i]] <- rep.int(par[par.id.d2ldd2[i]], length(y))
-            input[[length(par.id.d2ldd2)]] <- rep.int(bd, length(y))
+            for (i in 2:(length(par.id.d2ldd2)-1)) input[[i]] <- rep.int(par[par.id.d2ldd2[i]], ny)
+            input[[length(par.id.d2ldd2)]] <- rep.int(bd, ny)
           } else {
-            for (i in 2:length(par.id.d2ldd2)) input[[i]] <- rep.int(par[par.id.d2ldd2[i]], length(y))
+            for (i in 2:length(par.id.d2ldd2)) input[[i]] <- rep.int(par[par.id.d2ldd2[i]], ny)
           }
           return(do.call(family$d2ldd2, input))
         }
@@ -312,7 +312,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         } else {
           for (i in 1:length(par.id.d2ldd2)) input[[i]] <- par[par.id.d2ldd2[i]]
         }
-        return(rep.int(do.call(family$d2ldd2, input), length(y)))
+        return(rep.int(do.call(family$d2ldd2, input), ny))
       }
     }
     
@@ -325,10 +325,10 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
           input <- list()
           input[[1]] <- y
           if(5%in%par.id.d2ldmdd){
-            for (i in 2:(length(par.id.d2ldmdd)-1)) input[[i]] <- rep.int(par[par.id.d2ldmdd[i]], length(y))
-            input[[length(par.id.d2ldmdd)]] <- rep.int(bd, length(y))
+            for (i in 2:(length(par.id.d2ldmdd)-1)) input[[i]] <- rep.int(par[par.id.d2ldmdd[i]], ny)
+            input[[length(par.id.d2ldmdd)]] <- rep.int(bd, ny)
           } else {
-            for (i in 2:length(par.id.d2ldmdd)) input[[i]] <- rep.int(par[par.id.d2ldmdd[i]], length(y))
+            for (i in 2:length(par.id.d2ldmdd)) input[[i]] <- rep.int(par[par.id.d2ldmdd[i]], ny)
           }
           return(do.call(family$d2ldmdd, input))
         }
@@ -342,7 +342,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         } else {
           for (i in 1:length(par.id.d2ldmdd)) input[[i]] <- par[par.id.d2ldmdd[i]]
         }
-        return(rep.int(do.call(family$d2ldmdd, input), length(y)))
+        return(rep.int(do.call(family$d2ldmdd, input), ny))
       }
     }
   }
@@ -366,10 +366,10 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
           input <- list()
           input[[1]] <- y
           if(5%in%par.id.dldv){
-            for (i in 2:(length(par.id.dldv)-1)) input[[i]] <- rep.int(par[par.id.dldv[i]], length(y))
-            input[[length(par.id.dldv)]] <- rep.int(bd, length(y))
+            for (i in 2:(length(par.id.dldv)-1)) input[[i]] <- rep.int(par[par.id.dldv[i]], ny)
+            input[[length(par.id.dldv)]] <- rep.int(bd, ny)
           } else {
-            for (i in 2:length(par.id.dldv)) input[[i]] <- rep.int(par[par.id.dldv[i]], length(y))
+            for (i in 2:length(par.id.dldv)) input[[i]] <- rep.int(par[par.id.dldv[i]], ny)
           }
           return(do.call(family$dldv, input))
         }
@@ -383,7 +383,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         } else {
           for (i in 1:length(par.id.dldv)) input[[i]] <- par[par.id.dldv[i]]
         }
-        return(rep.int(do.call(family$dldv, input), length(y)))
+        return(rep.int(do.call(family$dldv, input), ny))
       }
     }
     
@@ -396,10 +396,10 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
           input <- list()
           input[[1]] <- y
           if(5%in%par.id.d2ldv2){
-            for (i in 2:(length(par.id.d2ldv2)-1)) input[[i]] <- rep.int(par[par.id.d2ldv2[i]], length(y))
-            input[[length(par.id.d2ldv2)]] <- rep.int(bd, length(y))
+            for (i in 2:(length(par.id.d2ldv2)-1)) input[[i]] <- rep.int(par[par.id.d2ldv2[i]], ny)
+            input[[length(par.id.d2ldv2)]] <- rep.int(bd, ny)
           } else {
-            for (i in 2:length(par.id.d2ldv2)) input[[i]] <- rep.int(par[par.id.d2ldv2[i]], length(y))
+            for (i in 2:length(par.id.d2ldv2)) input[[i]] <- rep.int(par[par.id.d2ldv2[i]], ny)
           }
           return(do.call(family$d2ldv2, input))
         }
@@ -413,7 +413,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         } else {
           for (i in 1:length(par.id.d2ldv2)) input[[i]] <- par[par.id.d2ldv2[i]]
         }
-        return(rep.int(do.call(family$d2ldv2, input), length(y)))
+        return(rep.int(do.call(family$d2ldv2, input), ny))
       }
     }
     
@@ -426,10 +426,10 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
           input <- list()
           input[[1]] <- y
           if(5%in%par.id.d2ldmdv){
-            for (i in 2:(length(par.id.d2ldmdv)-1)) input[[i]] <- rep.int(par[par.id.d2ldmdv[i]], length(y))
-            input[[length(par.id.d2ldmdv)]] <- rep.int(bd, length(y))
+            for (i in 2:(length(par.id.d2ldmdv)-1)) input[[i]] <- rep.int(par[par.id.d2ldmdv[i]], ny)
+            input[[length(par.id.d2ldmdv)]] <- rep.int(bd, ny)
           } else {
-            for (i in 2:length(par.id.d2ldmdv)) input[[i]] <- rep.int(par[par.id.d2ldmdv[i]], length(y))
+            for (i in 2:length(par.id.d2ldmdv)) input[[i]] <- rep.int(par[par.id.d2ldmdv[i]], ny)
           }
           return(do.call(family$d2ldmdv, input))
         }
@@ -443,7 +443,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         } else {
           for (i in 1:length(par.id.d2ldmdv)) input[[i]] <- par[par.id.d2ldmdv[i]]
         }
-        return(rep.int(do.call(family$d2ldmdv, input), length(y)))
+        return(rep.int(do.call(family$d2ldmdv, input), ny))
       }
     }
     
@@ -456,10 +456,10 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
           input <- list()
           input[[1]] <- y
           if(5%in%par.id.d2ldddv){
-            for (i in 2:(length(par.id.d2ldddv)-1)) input[[i]] <- rep.int(par[par.id.d2ldddv[i]], length(y))
-            input[[length(par.id.d2ldddv)]] <- rep.int(bd, length(y))
+            for (i in 2:(length(par.id.d2ldddv)-1)) input[[i]] <- rep.int(par[par.id.d2ldddv[i]], ny)
+            input[[length(par.id.d2ldddv)]] <- rep.int(bd, ny)
           } else {
-            for (i in 2:length(par.id.d2ldddv)) input[[i]] <- rep.int(par[par.id.d2ldddv[i]], length(y))
+            for (i in 2:length(par.id.d2ldddv)) input[[i]] <- rep.int(par[par.id.d2ldddv[i]], ny)
           }
           return(do.call(family$d2ldddv, input))
         }
@@ -473,7 +473,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         } else {
           for (i in 1:length(par.id.d2ldddv)) input[[i]] <- par[par.id.d2ldddv[i]]
         }
-        return(rep.int(do.call(family$d2ldddv, input), length(y)))
+        return(rep.int(do.call(family$d2ldddv, input), ny))
       }
     }
   }
@@ -498,7 +498,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         dldt <- function(par) {
           input <- list()
           input[[1]] <- y
-          for (i in 2:length(par.id.dldt)) input[[i]] <- rep.int(par[par.id.dldt[i]], length(y))
+          for (i in 2:length(par.id.dldt)) input[[i]] <- rep.int(par[par.id.dldt[i]], ny)
           return(do.call(family$dldt, input))
         }
       }
@@ -506,7 +506,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
       dldt <- function(par) {
         input <- list()
         for (i in 1:length(par.id.dldt)) input[[i]] <- par[par.id.dldt[i]]
-        return(rep.int(do.call(family$dldt, input), length(y)))
+        return(rep.int(do.call(family$dldt, input), ny))
       }
     }
     
@@ -518,7 +518,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         d2ldt2 <- function(par) {
           input <- list()
           input[[1]] <- y
-          for (i in 2:length(par.id.d2ldt2)) input[[i]] <- rep.int(par[par.id.d2ldt2[i]], length(y))
+          for (i in 2:length(par.id.d2ldt2)) input[[i]] <- rep.int(par[par.id.d2ldt2[i]], ny)
           return(do.call(family$d2ldt2, input))
         }
       }
@@ -526,7 +526,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
       d2ldt2 <- function(par) {
         input <- list()
         for (i in 1:length(par.id.d2ldt2)) input[[i]] <- par[par.id.d2ldt2[i]]
-        return(rep.int(do.call(family$d2ldt2, input), length(y)))
+        return(rep.int(do.call(family$d2ldt2, input), ny))
       }
     }
     
@@ -538,7 +538,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         d2ldmdt <- function(par) {
           input <- list()
           input[[1]] <- y
-          for (i in 2:length(par.id.d2ldmdt)) input[[i]] <- rep.int(par[par.id.d2ldmdt[i]], length(y))
+          for (i in 2:length(par.id.d2ldmdt)) input[[i]] <- rep.int(par[par.id.d2ldmdt[i]], ny)
           return(do.call(family$d2ldmdt, input))
         }
       }
@@ -546,7 +546,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
       d2ldmdt <- function(par) {
         input <- list()
         for (i in 1:length(par.id.d2ldmdt)) input[[i]] <- par[par.id.d2ldmdt[i]]
-        return(rep.int(do.call(family$d2ldmdt, input), length(y)))
+        return(rep.int(do.call(family$d2ldmdt, input), ny))
       }
     } 
     
@@ -558,7 +558,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         d2ldddt <- function(par) {
           d2ldddt <- list()
           input[[1]] <- y
-          for (i in 2:length(par.id.d2ldddt)) input[[i]] <- rep.int(par[par.id.d2ldddt[i]], length(y))
+          for (i in 2:length(par.id.d2ldddt)) input[[i]] <- rep.int(par[par.id.d2ldddt[i]], ny)
           return(do.call(family$d2ldddt, input))
         }
       }
@@ -566,7 +566,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
       d2ldddt <- function(par) {
         input <- list()
         for (i in 1:length(par.id.d2ldddt)) input[[i]] <- par[par.id.d2ldddt[i]]
-        return(rep.int(do.call(family$d2ldddt, input), length(y)))
+        return(rep.int(do.call(family$d2ldddt, input), ny))
       }
     }
     
@@ -578,7 +578,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
         d2ldvdt <- function(par) {
           input <- list()
           input[[1]] <- y
-          for (i in 2:length(par.id.d2ldvdt)) input[[i]] <- rep.int(par[par.id.d2ldvdt[i]], length(y))
+          for (i in 2:length(par.id.d2ldvdt)) input[[i]] <- rep.int(par[par.id.d2ldvdt[i]], ny)
           return(do.call(family$d2ldvdt, input))
         }
       }
@@ -586,7 +586,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
       d2ldvdt <- function(par) {
         input <- list()
         for (i in 1:length(par.id.d2ldvdt)) input[[i]] <- par[par.id.d2ldvdt[i]]
-        return(rep.int(do.call(family$d2ldvdt, input), length(y)))
+        return(rep.int(do.call(family$d2ldvdt, input), ny))
       }
     }
   }
@@ -835,7 +835,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     par <- distpar(eta)
     input <- list()
     input[[1]] <- y
-    for(i in 2:(length(par)+1)) input[[i]] <- par[i-1]                           # <- rep.int(par[i-1], length(y)   (FIX?)
+    for(i in 2:(length(par)+1)) input[[i]] <- par[i-1]                           # <- rep.int(par[i-1], ny)   (FIX?)
     if(any(family$family%in%.distfit.bi.list)) input[[length(par)+2]] <- bd      # additional parameter bd (binomial denominator for families in .distfit.bi.list)
     # G.dev.incr ... global deviance function = -2*logLik
     nloglik <- do.call(family$G.dev.incr, input)
@@ -893,9 +893,7 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
 
   ## calculate initial values if necessary or otherwise transform initial values for the distribution parameters to initial values for the intercepts
   if(is.null(start)){
-    ## FIXME ## (1) initialization currently doesn't work
-    ## FIXME ## (2) initialization with weights? E.g. rep.int(y, round(weights)) ?
-    starteta <- initialize(y = rep.int(y, round(weights)))
+    starteta <- initialize(y = rep(y, round(weights)))
     startpar <- distpar(starteta)
   } else {
     startpar <- start
@@ -1101,12 +1099,14 @@ confint.distfit <- function(object, ...) {
 }
 
 
-
+if(FALSE) {
 
 family <- ZABI()
 y <- rZABI(1000, bd = 10, mu = 0.5, sigma = 0.2)
 start <- c(0.8, 0.1)
-weights <- rbinom(length(y), 1, 0.75)
+weights <- rbinom(ny, 1, 0.75)
 
 df <- distfit(y, family, weights = weights, start = start, bd = 10)
 df2 <- distfit(y, family, bd = 10)
+
+}
