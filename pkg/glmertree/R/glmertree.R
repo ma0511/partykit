@@ -256,8 +256,8 @@ predict.lmertree <- function(object, newdata = NULL, type = "response", ...) {
   } else {
     if(object$joint) {
       newdata$.tree <- predict(object$tree, newdata = newdata, type = "node")
-      newdata$.tree <- factor(newdata$.tree,
-                              labels = levels(object$data$.tree))
+      newdata$.tree <- factor(newdata$.tree)
+      levels(newdata$.tree) <- levels(object$data$.tree)
       predict(object$lmer, newdata = newdata, type = type, ...)
     } else {
       newdata$.ranef <- predict(object$lmer, newdata = newdata, ...)
@@ -275,8 +275,8 @@ predict.glmertree <- function(object, newdata = NULL, type = "response", ...) {
   } else {
     if(object$joint) {
       newdata$.tree <- predict(object$tree, newdata = newdata, type = "node")
-      newdata$.tree <- factor(newdata$.tree,
-                              labels = levels(object$data$.tree))
+      newdata$.tree <- factor(newdata$.tree)
+      levels(newdata$.tree) <- levels(object$data$.tree)
       predict(object$glmer, newdata = newdata, type = type, ...)
     } else {
       newdata$.ranef <- predict(object$glmer, newdata = newdata, type = "link", ...)
