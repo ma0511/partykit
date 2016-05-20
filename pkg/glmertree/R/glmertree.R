@@ -55,7 +55,14 @@ lmertree <- function(formula, data, weights = NULL,
     if(joint) {
       ## estimate full lmer model but force all coefficients from the
       ## .tree (and the overall intercept) to zero for the prediction
-      lme <- lmer(rf, data = data, weights = .weights)
+      if (length(tree) == 1L) {
+        rf.alt <- formula(Formula::as.Formula(formula(ff, lhs = 1L, rhs = 1L), 
+                                              formula(ff, lhs = 0L, rhs = 2L)), 
+                          lhs = 1L, rhs = c(1L, 2L), collapse = TRUE)
+        lme <- lmer(rf.alt, data = data, weights = .weights)
+      } else {
+        lme <- lmer(rf, data = data, weights = .weights)
+      }
       b <- structure(lme@beta, .Names = names(coef(lme)[[1L]]))
       b[substr(names(b), 1L, 5L) %in% c("(Inte", ".tree")] <- 0
       data$.ranef <- suppressWarnings(suppressMessages(predict(lme, newdata = data, newparams = list(beta = b))))
@@ -154,7 +161,14 @@ glmertree <- function(formula, data, family = "binomial", weights = NULL,
     if(joint) {
       ## estimate full glmer model but force all coefficients from the
       ## .tree (and the overall intercept) to zero for the prediction
-      glme <- glmer(rf, data = data, family = family, weights = .weights)
+      if (length(tree) == 1L) {
+        rf.alt <- formula(Formula::as.Formula(formula(ff, lhs = 1L, rhs = 1L), 
+                                              formula(ff, lhs = 0L, rhs = 2L)), 
+                          lhs = 1L, rhs = c(1L, 2L), collapse = TRUE)
+        glme <- glmer(rf.alt, data = data, family = family, weights = .weights)
+      } else {
+        glme <- glmer(rf, data = data, family = family, weights = .weights)
+      }
       b <- structure(glme@beta, .Names = names(coef(glme)[[1L]]))
       b[substr(names(b), 1L, 5L) %in% c("(Inte", ".tree")] <- 0
       data$.ranef <- suppressWarnings(suppressMessages(predict(glme, newdata = data, type = "link", newparams = list(beta = b))))
