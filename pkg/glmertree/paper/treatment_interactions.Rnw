@@ -9,6 +9,7 @@
 \usepackage{fancyhdr}
 \usepackage{eurosym,bbding}
 \usepackage{verbatim}
+\usepackage{bigfoot}
 \usepackage{ctable}
 \usepackage{rotating}
 \usepackage{lineno}
@@ -96,11 +97,8 @@ true_eff <- round(9 + beta1*node1t1 - beta1*node1t2 + beta2*node2t1 - beta2*node
 outcome <- round(9 + beta1*node1t1 - beta1*node1t2 + beta2*node2t1 - beta2*node2t2 + beta3*node3t1 - beta3*node3t2 + 
                       + .4*treatment + true_error + rand_int)
 outcome[outcome<0] <- 1
-example <- data.frame(treatment,outcome,duration,anxiety,cluster, true_eff)
-example$treatment <- factor(example$treatment,labels=c("Treatment 1","Treatment 2"))
-#cor(outcome,rand_int)^2
-#cor(outcome, true_eff)^2
-#truetree <- lmtree(true_eff ~ treatment | age + duration + anxiety, data=example)
+example <- data.frame(treatment, outcome, duration, anxiety, cluster, age)
+example$treatment <- factor(example$treatment, labels = c("Treatment 1", "Treatment 2"))
 @
 
 We created a simulated dataset of 150 observations, which were randomly assigned to Treatment~1 or Treatment~2. Every observation has a value for the response variable, with which the effect of treatment is assessed: the posttreatment total score on a depression inventory. Further, all observations have values for three covariates: duration of depressive symptoms prior to treatment in months (range 0--15); age in years (range 18--75); anxiety inventory total score (range 3--18). 
@@ -108,6 +106,8 @@ We created a simulated dataset of 150 observations, which were randomly assigned
 The simulated dataset has 3 subgroups with different treatment effectiveness. The first subgroup consists of observations with duration $\leq 6$ and anxiety $\leq 10$. In this subgroup, Treatment~1 is more effective than Treatment~2: the mean of the response variable is 7 for Treatment~1, and 11 for Treatment~2. The second subgroup consists of observations with duration $\leq 6$ and anxiety $> 10$. In this subgroup, both therapies are equally effective: the mean value of the response variable is 9 for Treatment~1, and 9 for Treatment~2. The third subgroup consists of observations with duration $>6$. In this subgroup, Treatment~2 is more effective than Treatment~1: the mean value of the response variable is 12 for Treatment~1, and 7 for Treatment~2. 
 
 Observations were drawn from one of ten clusters, each with a different, cluster-specific (i.e., random) intercept. Data was generated such that covariates and cluster-specific intercepts were uncorrelated. Also, 43\% of variance in posttreatment depression scores was due to treatment-subgroup interactions, and 8\% of variance was due to cluster-specific variation. 
+
+The \verb|R| code for running the illustrative examples is provided in the Appendix.
 
 
 
@@ -218,7 +218,7 @@ For estimating GLMM trees, we take the MERT approach a step further: by using a 
 
   \item[Step 1:] Set $r = r+1$. Estimate GLM tree ($x_{i}^{\top}\hat{\beta}_{j(r)}$), with $z_{i}^{\top}\hat{b}_{(r-1)}$ as an offset.
 
-  \item[Step 2:] Estimate random effects in the mixed effects model $x_{i}^{\top}\hat{\beta}_{j(r)} + z_{i}^{\top}\hat{b}_{(r)}$ with subgroups $j(r)$ from the GLM tree.
+  \item[Step 2:] Estimate random effects in the mixed-effects model $x_{i}^{\top}\hat{\beta}_{j(r)} + z_{i}^{\top}\hat{b}_{(r)}$ with subgroups $j(r)$ from the GLM tree.
   % Estimate random effects $z_{i}^{\top}\hat{b}_{(r)}$, with $x_{i}^{\top}\hat{\beta}_{j(r)}$ as an offset.
 
   \item[Step 3:] Repeat Steps~1 and~2 until convergence.
@@ -359,9 +359,9 @@ For every dataset, correlation coefficients for each algorithm were calculated, 
 
 \subsection{Software}
 
-R \cite{R14} was used for generation and analysis of all datasets. The \verb|partykit| package (version 1.0-2; \citeNP{HothyZeil15}) was employed for estimating GLM trees using the \verb|lmtree| function for normal linear regressions. For other response distributions, the \verb|glmtree| function would be available. For estimation of GLMMs the \verb|lmer| (or \verb|glmer|, respectively) from the \verb|lme4| package (version 1.1-7; \citeNP{BateyMeac12}) was employed, using restricted maximum likelihood (REML) estimation.
+R \cite{R14} was used for generation and analysis of all datasets. The \verb|partykit| package (version 1.0-2; \citeNP{HothyZeil15}) was employed for estimating GLM trees, using the \verb|lmtree| function for normal linear regressions. For other response distributions, the \verb|glmtree| function would be available. For estimation of GLMMs the \verb|lmer| (or \verb|glmer|, respectively) from the \verb|lme4| package (version 1.1-7; \citeNP{BateyMeac12}) was employed, using restricted maximum likelihood (REML) estimation.
 
-For the estimation of GLMM trees the former two packages were combined in a new package \verb|glmertree| (version 0.1-0; \citeNP{FokkyZeil15}; available from R-Forge). This provides functions \verb|lmertree| and \verb|glmertree| that iterate between estimation of the \verb|lmtree|/\verb|glmtree| model and the \verb|lmer|/\verb|glmer| model.
+For the estimation of GLMM trees the former two packages were combined in a new package \verb|glmertree| (version 0.1-0; \citeNP{FokkyZeil15}; available from R-Forge. This provides functions \verb|lmertree| and \verb|glmertree| that iterate between estimation of the \verb|lmtree|/\verb|glmtree| model and the \verb|lmer|/\verb|glmer| model.
 
 In all applications, the significance level $\alpha$ for the parameter instability tests in the trees was set to .05, with a Bonferroni correction applied for multiple testing. The minimum number of observations per node in the tree was set to 20 and the maximum tree depth was set to four, thus limiting the number of potential subgroups to eight. Iterations of the GLMM tree algorithm were repeated until the log-likelihood changes between two subsequent iterations fell below .001.
 
@@ -610,6 +610,8 @@ In conclusion, GLMM tree provided highly accurate recovery of treatment-subgroup
 \bibliographystyle{apacite}
 \bibliography{bib}
 
+
+\newpage
 \section{Appendix: Notation}
 
 \NumTabs{12}
@@ -631,5 +633,7 @@ $x_i$ 			\tab\tab\tab{column vector of fixed-effects predictor variable values f
 $y_i$ 			\tab\tab\tab{treatment outcome for observation $i$}\\
 $z_i$ 			\tab\tab\tab{column vector of random-effects predictor variable values for }\\
 			\tab\tab\tab\tab{observation $i$}\\
+
+
 
 \end{document}
