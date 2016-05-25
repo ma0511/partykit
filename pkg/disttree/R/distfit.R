@@ -1,4 +1,4 @@
-distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfun = TRUE, bd = 1, fixed = NULL, fixed.values = NULL, ...)
+distfit <- function(y, family, weights = NULL, start = NULL, vcov.num = FALSE, vcov.an = TRUE, estfun = TRUE, bd = 1, fixed = NULL, fixed.values = NULL, ...)
 {
   ## match call
   cl <- match.call()
@@ -902,20 +902,42 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
   
   
   ## optimize log-likelihood
-  opt <- optim(par = starteta, fn = nll, gr = grad, method = "BFGS", hessian = vcov., control = list(...))
+  opt <- optim(par = starteta, fn = nll, gr = grad, method = "BFGS", hessian = vcov.num, control = list(...))
 
   ## extract parameters
   eta <- opt$par
   par <- distpar(eta)
+  names(eta) <- paste("eta.", names(par), sep = "")
 
 
-  ## variance-covariance matrix estimate
-  if(vcov.) {
-    vc <- solve(hess(eta))
-    colnames(vc) <- rownames(vc) <- paste0(names(par), ".par")
+  ## variance-covariance matrix estimate using the analytical hessian matrix
+  if(vcov.an) {
+    vc.an <- solve(hess(eta))
+    colnames(vc.an) <- rownames(vc.an) <- paste0(names(par), ".par")
   } else {
-    vc <- NULL
+    vc.an <- NULL
   }
+  
+  ## variance-covariance matrix estimate using the numerical hessian matrix
+  if(vcov.num) {
+    vc.num <- solve(opt$hessian)
+    colnames(vc.num) <- rownames(vc.num) <- paste0(names(par), ".par")
+  } else {
+    vc.num <- NULL
+  }
+  
+  ## choose one vcov matrix estimate as the 'standard' one
+  ## FIXME: always the analytical if both are available?
+  vc <- NULL
+  if(vcov.num && vcov.an){
+    vc <- vc.an
+  } else {
+    if(vcov.num && (vcov.an == FALSE)) vc <- vc.num
+    if(vcov.an && (vcov.num == FALSE)) vc <- vc.an
+  }
+    
+    
+    
   
   ## estfun
   # each column represents one distribution parameter (1.col -> dldm * dmdpar = "dldmu.par", 2.col -> dldd * dddpar = "dldsigma.par", ...)
@@ -1009,8 +1031,10 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
   
   
   ## return value 
-  # FIX: return bd?
+  # FIX: return bd? df = np?
   rval <- list(
+    npar = np,
+    df = np,
     y = y,
     weights = weights,
     family = family,
@@ -1024,6 +1048,8 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov. = TRUE, estfu
     ny = ny,        
     nobs = nobs,    
     vcov = vc,
+    vcov.num = vc.num,
+    vcov.an = vc.an,
     estfun = ef,
     ddist = ddist,
     pdist = pdist,
@@ -1050,13 +1076,26 @@ nobs.distfit <- function(object, ...) {
   object$nobs
 }
 
-coef.distfit <- function(object, ...) {
-  object$opt$par
-  # object$eta
+coef.distfit <- function(object, par = TRUE, eta = TRUE , ...) {
+  if(par && eta){
+    coefm <- matrix(nrow = 2, ncol = object$npar)
+    coefm[1,] <- object$par
+    coefm[2,] <- object$eta
+    rownames(coefm) <- c("distribution parameters", "coef. of linear predictor")
+    colnames(coefm) <- names(object$par)
+    return(coefm)
+  }
+  if(par && (eta==FALSE)) return(object$par)
+  if(eta && (par==FALSE)) return(object$eta)  ##FIXME: else, warning
 }
 
-vcov.distfit <- function(object, ...) {
-  object$vcov
+vcov.distfit <- function(object, vcov.num = FALSE, vcov.an = TRUE, ...) {
+  if(vcov.num && vcov.an){
+    return(list(object$vcov.an, object$vcov.num))
+  } else {
+    if(vcov.num && (vcov.an == FALSE)) return(object$vcov.num)
+    if(vcov.an && (vcov.num == FALSE)) return(object$vcov.an)
+  }
 }
 
 estfun.distfit <- function(object, ...) {                         
@@ -1067,13 +1106,24 @@ logLik.distfit <- function(object, ...) {
   structure(-object$opt$value, df = length(object$opt$par), class = "logLik")
 }
 
-bread.distfit <- function(object, ...) {
-  object$vcov * object$nobs
+# use.vcov decides about whether the vcov matrix estimate based on the numerical or the analytical hessian matrix should be used
+# use.vcov can be set to "any, "analytical" or "numerical
+bread.distfit <- function(object, use.vcov = "any", ...) {
+  if(use.vcov == "any") u.vcov <- object$vcov
+  if(use.vcov == "analytical") u.vcov <- object$vcov.an
+  if(use.vcov == "numverical") u.vcov <- object$vcov.num
+  if(is.matrix(u.vcov) == FALSE) print("selected type of vcov matrix estimate is not available")   ## FIXME: should the other one be used automatically in case it is available?
+  return(u.vcov * object$nobs)
 }
 
-
-confint.distfit <- function(object, ...) {
-  vcov <- object$vcov
+# use.vcov decides about whether the vcov matrix estimate based on the numerical or the analytical hessian matrix should be used
+# use.vcov can be set to "any, "analytical" or "numerical
+confint.distfit <- function(object, use.vcov = "any", ...) {
+  if(use.vcov == "any") u.vcov <- object$vcov
+  if(use.vcov == "analytical") u.vcov <- object$vcov.an
+  if(use.vcov == "numverical") u.vcov <- object$vcov.num
+  if(is.matrix(u.vcov) == FALSE) print("selected type of vcov matrix estimate is not available")    ## FIXME: should the other one be used automatically in case it is available?
+  vcov <- u.vcov
   eta <- object$eta
   par <- object$par
   np <- length(par)
@@ -1099,10 +1149,39 @@ confint.distfit <- function(object, ...) {
 }
 
 
+## FIXME: summary
+# to do: 2 options: summary for distribution paramaters and/or for intercepts/coefficient of the linear predictor
+# use.vcov decides about whether the vcov matrix estimate based on the numerical or the analytical hessian matrix should be used
+# use.vcov can be set to "any, "analytical" or "numerical 
+summary.distfit <- function (object, use.vcov = "any", ...)
+{
+  if(use.vcov == "any") u.vcov <- object$vcov
+  if(use.vcov == "analytical") u.vcov <- object$vcov.an
+  if(use.vcov == "numverical") u.vcov <- object$vcov.num
+  if(is.matrix(u.vcov) == FALSE) print("selected type of vcov matrix estimate is not available")    ## FIXME: should the other one be used automatically in case it is available?
+  vcov <- u.vcov
+  
+  se <- sqrt(diag(object$vcov))
+  tval <- coef(object, eta = TRUE, par = FALSE) / se
+  TAB <- cbind(Estimate = coef(object, eta = TRUE, par = FALSE),
+               StdErr = se,
+               t.value = tval,
+               p.value = 2*pt(-abs(tval), df=object$df))
+  ans <- list(call=object$call,
+              coefficients=TAB)
+  class(ans) <- "summary.distfit"
+  return(ans) 
+}
+
+
+# print.summary.distfit <- function(){}
+
+
 if(FALSE) {
 
 family <- ZABI()
 y <- rZABI(1000, bd = 10, mu = 0.5, sigma = 0.2)
+ny <- length(y)
 start <- c(0.8, 0.1)
 weights <- rbinom(ny, 1, 0.75)
 
