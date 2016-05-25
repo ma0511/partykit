@@ -1,7 +1,6 @@
 R/asymptote.R
 R/meanvartree.R
 R/mtree.R
-R/palmtree.R
 src/party*
 vignettes/mob.Rout.save
 inst/pmml/auto.pmml

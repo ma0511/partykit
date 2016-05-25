@@ -1,4 +1,4 @@
-utils::globalVariables(c(".tree", ".lm"))
+utils::globalVariables(c(".tree", ".lm", ".weights"))
 
 palmtree <- function(formula, data, weights = NULL, family = NULL,
   lmstart = NULL, abstol = 0.001, maxit = 100, 
