@@ -74,29 +74,28 @@ palmtree(formula, data, weights = NULL, family = NULL,
 
 \value{
 The function returns a list with the following objects:
+  \item{formula}{The formula as specified with the \code{formula} argument.}
+  \item{call}{the matched call.}
   \item{tree}{The final \code{lmtree}/\code{glmtree}.}
-  \item{lmer}{The final \code{lmer} random-effects model.}
-  \item{ranef}{The corresponding random effects of \code{lmer}.} 
-  \item{varcorr}{The corresponding \code{VarCorr(lmer)}.}
-  \item{variance}{The corresponding \code{attr(VarCorr(lmer), "sc")^2}.}
+  \item{palm}{The final \code{lm}/\code{glm} model.}
   \item{data}{The dataset specified with the \code{data} argument
     including added auxiliary variables \code{.ranef} and \code{.treeresponse}
     from the last iteration.}
+  \item{nobs}{Number of observations.}
   \item{loglik}{The log-likelihood value of the last iteration.}
-  \item{iterations}{The number of iterations used to estimate the \code{lmertree}.} 
+  \item{df}{Degrees of freedom.}
+  \item{dfsplit}{degrees of freedom per selected split as specified with the \code{dfsplit}
+    argument.}
+  \item{iterations}{The number of iterations used to estimate the \code{palmtree}.} 
   \item{maxit}{The maximum number of iterations specified with the \code{maxit} argument.}
-  \item{ranefstart}{The random effects used as an offset, as specified with
-    the \code{ranefstart} argument.}
-  \item{formula}{The formula as specified with the \code{formula} argument.}
-  \item{randomformula}{The formula as specified with the \code{randomformula} argument.}
+  \item{lmstart}{Offset in estimation of the first tree as specified in the \code{lmstart} 
+    argument.}
   \item{abstol}{The prespecified value for the change in log-likelihood to evaluate
     convergence, as specified with the \code{abstol} argument.} 
+  \item{intercept}{Logical specifying if an intercept was computed.}
+  \item{family}{The \code{family} object used.}
   \item{mob.control}{A list containing control parameters passed to
     \code{lmtree()}, as specified with \dots.}
-  \item{lmer.control}{A list containing control parameters passed to
-    \code{lmer()}, as specified in the \code{lmer.control} argument.}
-  \item{joint}{Whether the fixed effects from the tree were (re-)estimated jointly along 
-    with the random effects, specified with the \code{joint} argument.}  
 }
 
 \seealso{\code{\link[stats]{lm}}, \code{\link[stats]{glm}},
