@@ -192,6 +192,7 @@ predict.cforest <- function(object, newdata = NULL, type = c("response", "prob",
     })
 
     w <- Reduce("+", bw)
+    if (!is.matrix(w)) w <- matrix(w, ncol = 1)
 
     if (type == "weights") {
         ret <- w

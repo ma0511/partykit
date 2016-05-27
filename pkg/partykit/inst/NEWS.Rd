@@ -2,7 +2,14 @@
 \name{NEWS}
 \title{NEWS file for the partykit package}
 
-\section{Changes in Version 1.0-6 (2016-04-27)}{
+\section{Changes in Version 1.0-7 (2016-mm-dd)}{
+  \itemize{
+    \item{Allow computing of predictions for single observations for \code{predict.cforest},
+          fixing \code{http://stackoverflow.com/a/36941020/6268127}.}
+  }
+}
+
+\section{Changes in Version 1.0-6 (2016-02-24)}{
   \itemize{
     \item{Splits in ordinal variables are now represented correctly 
           in the (still internal) \code{list.rule} method.}
