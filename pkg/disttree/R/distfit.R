@@ -1,4 +1,4 @@
-distfit <- function(y, family, weights = NULL, start = NULL, vcov.num = FALSE, vcov.an = TRUE, estfun = TRUE, bd = 1, fixed = NULL, fixed.values = NULL, ...)
+distfit <- function(y, family, weights = NULL, start = NULL, vcov = TRUE, type.hessian = "analytic", estfun = TRUE, bd = 1, fixed = NULL, fixed.values = NULL, ...)
 {
   ## match call
   cl <- match.call()
@@ -902,129 +902,110 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov.num = FALSE, v
   
   
   ## optimize log-likelihood
-  opt <- optim(par = starteta, fn = nll, gr = grad, method = "BFGS", hessian = vcov.num, control = list(...))
+  opt <- optim(par = starteta, fn = nll, gr = grad, method = "BFGS",
+               hessian = (vcov && (type.hessian == "numeric")), control = list(...))
 
   ## extract parameters
   eta <- opt$par
   par <- distpar(eta)
-  names(eta) <- paste("eta.", names(par), sep = "")
+  names(eta) <- paste0("eta.", names(par))
 
 
-  ## variance-covariance matrix estimate using the analytical hessian matrix
-  if(vcov.an) {
-    vc.an <- solve(hess(eta))
-    colnames(vc.an) <- rownames(vc.an) <- paste0(names(par), ".par")
+  ## variance-covariance matrix estimate 
+  if((vcov) && ((type.hessian == "analytic") || (type.hessian == "numeric"))){
+    if(type.hessian == "analytic") vc <- solve(hess(eta)) else vc <- solve(opt$hessian)
+    colnames(vc) <- rownames(vc) <- paste0("eta.", names(par))
   } else {
-    vc.an <- NULL
+    vc <- NULL
   }
-  
-  ## variance-covariance matrix estimate using the numerical hessian matrix
-  if(vcov.num) {
-    vc.num <- solve(opt$hessian)
-    colnames(vc.num) <- rownames(vc.num) <- paste0(names(par), ".par")
-  } else {
-    vc.num <- NULL
-  }
-  
-  ## choose one vcov matrix estimate as the 'standard' one
-  ## FIXME: always the analytical if both are available?
-  vc <- NULL
-  if(vcov.num && vcov.an){
-    vc <- vc.an
-  } else {
-    if(vcov.num && (vcov.an == FALSE)) vc <- vc.num
-    if(vcov.an && (vcov.num == FALSE)) vc <- vc.an
-  }
-    
-    
     
   
   ## estfun
-  # each column represents one distribution parameter (1.col -> dldm * dmdpar = "dldmu.par", 2.col -> dldd * dddpar = "dldsigma.par", ...)
+  # each column represents one distribution parameter (1.col -> dldm * dmdpar = "dldeta.mu", 2.col -> dldd * dddpar = "dldeta.sigma", ...)
   if(estfun) {
     ef <- -grad(eta, sum = FALSE)
     ef <- as.matrix(ef)                                   # FIX: in case ef is a vector (for np=1)
-    colnames(ef) <- paste("dld", names(par),".par", sep = "")
+    colnames(ef) <- paste0("dld", "eta.",names(par))
   } else {
     ef <- NULL                    
   }
 
   ## density function
-  #ddist <- get(paste("d",family$family[1], sep = ""))
+  #ddist <- get(paste0("d",family$family[1]))
   if(any(family$family%in%.distfit.bi.list)){
     ddist <- function(x, log = FALSE){
-      if(np == 1L) fy <- get(paste("d",family$family[1], sep = ""))(x, mu = par[1], bd = bd, log = FALSE)
-      if(np == 2L) fy <- get(paste("d",family$family[1], sep = ""))(x, mu = par[1], sigma = par[2], bd = bd, log = FALSE)
-      if(np == 3L) fy <- get(paste("d",family$family[1], sep = ""))(x, mu = par[1], sigma = par[2], nu = par[3], bd = bd, log = FALSE)
-      if(np == 4L) fy <- get(paste("d",family$family[1], sep = ""))(x, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], bd = bd, log = FALSE)
+      if(np == 1L) fy <- get(paste0("d",family$family[1]))(x, mu = par[1], bd = bd, log = FALSE)
+      if(np == 2L) fy <- get(paste0("d",family$family[1]))(x, mu = par[1], sigma = par[2], bd = bd, log = FALSE)
+      if(np == 3L) fy <- get(paste0("d",family$family[1]))(x, mu = par[1], sigma = par[2], nu = par[3], bd = bd, log = FALSE)
+      if(np == 4L) fy <- get(paste0("d",family$family[1]))(x, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], bd = bd, log = FALSE)
       fy
     }
   } else {
     ddist <- function(x, log = FALSE){
-      if(np == 1L) fy <- get(paste("d",family$family[1], sep = ""))(x, mu = par[1], log = FALSE)
-      if(np == 2L) fy <- get(paste("d",family$family[1], sep = ""))(x, mu = par[1], sigma = par[2], log = FALSE)
-      if(np == 3L) fy <- get(paste("d",family$family[1], sep = ""))(x, mu = par[1], sigma = par[2], nu = par[3], log = FALSE)
-      if(np == 4L) fy <- get(paste("d",family$family[1], sep = ""))(x, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], log = FALSE)
+      if(np == 1L) fy <- get(paste0("d",family$family[1]))(x, mu = par[1], log = FALSE)
+      if(np == 2L) fy <- get(paste0("d",family$family[1]))(x, mu = par[1], sigma = par[2], log = FALSE)
+      if(np == 3L) fy <- get(paste0("d",family$family[1]))(x, mu = par[1], sigma = par[2], nu = par[3], log = FALSE)
+      if(np == 4L) fy <- get(paste0("d",family$family[1]))(x, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], log = FALSE)
       fy
     }
   }
   
   ## cumulative distribution function
-  #pdist <- get(paste("p",family$family[1], sep = ""))
+  #pdist <- get(paste0("p",family$family[1]))
   if(any(family$family%in%.distfit.bi.list)){
     pdist <- function(q, log.p = FALSE){
-      if(np == 1L) cdf <- get(paste("p",family$family[1], sep = ""))(q, mu = par[1], bd = bd, log.p = FALSE)
-      if(np == 2L) cdf <- get(paste("p",family$family[1], sep = ""))(q, mu = par[1], sigma = par[2], bd = bd, log.p = FALSE)
-      if(np == 3L) cdf <- get(paste("p",family$family[1], sep = ""))(q, mu = par[1], sigma = par[2], nu = par[3], bd = bd, log.p = FALSE)
-      if(np == 4L) cdf <- get(paste("p",family$family[1], sep = ""))(q, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], bd = bd, log.p = FALSE)
+      if(np == 1L) cdf <- get(paste0("p",family$family[1]))(q, mu = par[1], bd = bd, log.p = FALSE)
+      if(np == 2L) cdf <- get(paste0("p",family$family[1]))(q, mu = par[1], sigma = par[2], bd = bd, log.p = FALSE)
+      if(np == 3L) cdf <- get(paste0("p",family$family[1]))(q, mu = par[1], sigma = par[2], nu = par[3], bd = bd, log.p = FALSE)
+      if(np == 4L) cdf <- get(paste0("p",family$family[1]))(q, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], bd = bd, log.p = FALSE)
       cdf
     }
   } else {
     pdist <- function(q, log.p = FALSE){
-      if(np == 1L) cdf <- get(paste("p",family$family[1], sep = ""))(q, mu = par[1], log.p = FALSE)
-      if(np == 2L) cdf <- get(paste("p",family$family[1], sep = ""))(q, mu = par[1], sigma = par[2], log.p = FALSE)
-      if(np == 3L) cdf <- get(paste("p",family$family[1], sep = ""))(q, mu = par[1], sigma = par[2], nu = par[3], log.p = FALSE)
-      if(np == 4L) cdf <- get(paste("p",family$family[1], sep = ""))(q, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], log.p = FALSE)
+      if(np == 1L) cdf <- get(paste0("p",family$family[1]))(q, mu = par[1], log.p = FALSE)
+      if(np == 2L) cdf <- get(paste0("p",family$family[1]))(q, mu = par[1], sigma = par[2], log.p = FALSE)
+      if(np == 3L) cdf <- get(paste0("p",family$family[1]))(q, mu = par[1], sigma = par[2], nu = par[3], log.p = FALSE)
+      if(np == 4L) cdf <- get(paste0("p",family$family[1]))(q, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], log.p = FALSE)
       cdf
     }
   }
   
   ## quantile function
-  #qdist <- get(paste("q",family$family[1], sep = ""))
+  #qdist <- get(paste0("q",family$family[1]))
   if(any(family$family%in%.distfit.bi.list)){
     qdist <- function(p, log.p = FALSE){
-      if(np == 1L) q <- get(paste("q",family$family[1], sep = ""))(p, mu = par[1], bd = bd, log.p = FALSE)
-      if(np == 2L) q <- get(paste("q",family$family[1], sep = ""))(p, mu = par[1], sigma = par[2], bd = bd, log.p = FALSE)
-      if(np == 3L) q <- get(paste("q",family$family[1], sep = ""))(p, mu = par[1], sigma = par[2], nu = par[3], bd = bd, log.p = FALSE)
-      if(np == 4L) q <- get(paste("q",family$family[1], sep = ""))(p, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], bd = bd, log.p = FALSE)
+      if(np == 1L) q <- get(paste0("q",family$family[1]))(p, mu = par[1], bd = bd, log.p = FALSE)
+      if(np == 2L) q <- get(paste0("q",family$family[1]))(p, mu = par[1], sigma = par[2], bd = bd, log.p = FALSE)
+      if(np == 3L) q <- get(paste0("q",family$family[1]))(p, mu = par[1], sigma = par[2], nu = par[3], bd = bd, log.p = FALSE)
+      if(np == 4L) q <- get(paste0("q",family$family[1]))(p, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], bd = bd, log.p = FALSE)
       q
     }
   } else {
     qdist <- function(p, log.p = FALSE){
-      if(np == 1L) q <- get(paste("q",family$family[1], sep = ""))(p, mu = par[1], log.p = FALSE)
-      if(np == 2L) q <- get(paste("q",family$family[1], sep = ""))(p, mu = par[1], sigma = par[2], log.p = FALSE)
-      if(np == 3L) q <- get(paste("q",family$family[1], sep = ""))(p, mu = par[1], sigma = par[2], nu = par[3], log.p = FALSE)
-      if(np == 4L) q <- get(paste("q",family$family[1], sep = ""))(p, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], log.p = FALSE)
+      if(np == 1L) q <- get(paste0("q",family$family[1]))(p, mu = par[1], log.p = FALSE)
+      if(np == 2L) q <- get(paste0("q",family$family[1]))(p, mu = par[1], sigma = par[2], log.p = FALSE)
+      if(np == 3L) q <- get(paste0("q",family$family[1]))(p, mu = par[1], sigma = par[2], nu = par[3], log.p = FALSE)
+      if(np == 4L) q <- get(paste0("q",family$family[1]))(p, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], log.p = FALSE)
       q
     }
   }
   
   ## random function
-  #rdist <- get(paste("r",family$family[1], sep = ""))
+  #rdist <- get(paste0("r",family$family[1]))
   if(any(family$family%in%.distfit.bi.list)){
     rdist <- function(n){
-      if(np == 1L) r <- get(paste("r",family$family[1], sep = ""))(n, mu = par[1], bd = bd)
-      if(np == 2L) r <- get(paste("r",family$family[1], sep = ""))(n, mu = par[1], sigma = par[2], bd = bd)
-      if(np == 3L) r <- get(paste("r",family$family[1], sep = ""))(n, mu = par[1], sigma = par[2], nu = par[3], bd = bd)
-      if(np == 4L) r <- get(paste("r",family$family[1], sep = ""))(n, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], bd = bd)
+      if(np == 1L) r <- get(paste0("r",family$family[1]))(n, mu = par[1], bd = bd)
+      if(np == 2L) r <- get(paste0("r",family$family[1]))(n, mu = par[1], sigma = par[2], bd = bd)
+      if(np == 3L) r <- get(paste0("r",family$family[1]))(n, mu = par[1], sigma = par[2], nu = par[3], bd = bd)
+      if(np == 4L) r <- get(paste0("r",family$family[1]))(n, mu = par[1], sigma = par[2], nu = par[3], tau = par[4], bd = bd)
       r
     }
   } else {
     rdist <- function(n){
-      if(np == 1L) r <- get(paste("r",family$family[1], sep = ""))(n, mu = par[1])
-      if(np == 2L) r <- get(paste("r",family$family[1], sep = ""))(n, mu = par[1], sigma = par[2])
-      if(np == 3L) r <- get(paste("r",family$family[1], sep = ""))(n, mu = par[1], sigma = par[2], nu = par[3])
-      if(np == 4L) r <- get(paste("r",family$family[1], sep = ""))(n, mu = par[1], sigma = par[2], nu = par[3], tau = par[4])
+      if(np == 1L) r <- get(paste0("r",family$family[1]))(n, mu = par[1])
+      if(np == 2L) r <- get(paste0("r",family$family[1]))(n, mu = par[1], sigma = par[2])
+      if(np == 3L) r <- get(paste0("r",family$family[1]))(n, mu = par[1], sigma = par[2], nu = par[3])
+      if(np == 4L) r <- get(paste0("r",family$family[1]))(n, mu = par[1], sigma = par[2], nu = par[3], tau = par[4])
       r
     }
   }
@@ -1048,8 +1029,6 @@ distfit <- function(y, family, weights = NULL, start = NULL, vcov.num = FALSE, v
     ny = ny,        
     nobs = nobs,    
     vcov = vc,
-    vcov.num = vc.num,
-    vcov.an = vc.an,
     estfun = ef,
     ddist = ddist,
     pdist = pdist,
@@ -1076,25 +1055,23 @@ nobs.distfit <- function(object, ...) {
   object$nobs
 }
 
-coef.distfit <- function(object, par = TRUE, eta = TRUE , ...) {
-  if(par && eta){
-    coefm <- matrix(nrow = 2, ncol = object$npar)
-    coefm[1,] <- object$par
-    coefm[2,] <- object$eta
-    rownames(coefm) <- c("distribution parameters", "coef. of linear predictor")
-    colnames(coefm) <- names(object$par)
-    return(coefm)
-  }
-  if(par && (eta==FALSE)) return(object$par)
-  if(eta && (par==FALSE)) return(object$eta)  ##FIXME: else, warning
+coef.distfit <- function(object, type = "link" , ...) {
+  if(type == "link") return(object$eta)
+  if(type == "parameter") return(object$par)
+  ## FIXME: else, warning
 }
 
-vcov.distfit <- function(object, vcov.num = FALSE, vcov.an = TRUE, ...) {
-  if(vcov.num && vcov.an){
-    return(list(object$vcov.an, object$vcov.num))
-  } else {
-    if(vcov.num && (vcov.an == FALSE)) return(object$vcov.num)
-    if(vcov.an && (vcov.num == FALSE)) return(object$vcov.an)
+vcov.distfit <- function(object, type = "link", ...) {
+  if(type == "link") return(object$vcov)
+  if(type == "parameter"){
+    # delta method
+    delta.m <- diag(object$npar)
+    delta.m[1,1] <- object$family$mu.dr(object$eta[1])
+    if(object$npar > 1L) delta.m[2,2] <- object$family$sigma.dr(object$eta[2])
+    if(object$npar > 2L) delta.m[3,3] <- object$family$nu.dr(object$eta[3])
+    if(object$npar > 3L) delta.m[4,4] <- object$family$tau.dr(object$eta[4])
+    colnames(delta.m) <- rownames(delta.m) <- names(object$par)
+    return(delta.m %*% object$vcov %*% delta.m)
   }
 }
 
@@ -1103,74 +1080,101 @@ estfun.distfit <- function(object, ...) {
 }
 
 logLik.distfit <- function(object, ...) {
-  structure(-object$opt$value, df = length(object$opt$par), class = "logLik")
+  structure(-object$opt$value, df = object$npar, class = "logLik")
 }
 
-# use.vcov decides about whether the vcov matrix estimate based on the numerical or the analytical hessian matrix should be used
-# use.vcov can be set to "any, "analytical" or "numerical
-bread.distfit <- function(object, use.vcov = "any", ...) {
-  if(use.vcov == "any") u.vcov <- object$vcov
-  if(use.vcov == "analytical") u.vcov <- object$vcov.an
-  if(use.vcov == "numverical") u.vcov <- object$vcov.num
-  if(is.matrix(u.vcov) == FALSE) print("selected type of vcov matrix estimate is not available")   ## FIXME: should the other one be used automatically in case it is available?
-  return(u.vcov * object$nobs)
+bread.distfit <- function(object, type = "link", ...) {
+  if(type == "link") return(object$vcov * object$nobs)
+  if(type == "parameter"){
+    return(vcov(object,"parameter")*object$nobs)
+    ## delta method
+    #delta.m <- diag(object$npar)
+    #delta.m[1,1] <- object$family$mu.dr(object$eta[1])
+    #if(object$npar > 1L) delta.m[2,2] <- object$family$sigma.dr(object$eta[2])
+    #if(object$npar > 2L) delta.m[3,3] <- object$family$nu.dr(object$eta[3])
+    #if(object$npar > 3L) delta.m[4,4] <- object$family$tau.dr(object$eta[4])
+    #colnames(delta.m) <- rownames(delta.m) <- names(object$par)
+    #return((delta.m %*% object$vcov %*% delta.m)*object$nobs)
+  }
 }
 
-# use.vcov decides about whether the vcov matrix estimate based on the numerical or the analytical hessian matrix should be used
-# use.vcov can be set to "any, "analytical" or "numerical
-confint.distfit <- function(object, use.vcov = "any", ...) {
-  if(use.vcov == "any") u.vcov <- object$vcov
-  if(use.vcov == "analytical") u.vcov <- object$vcov.an
-  if(use.vcov == "numverical") u.vcov <- object$vcov.num
-  if(is.matrix(u.vcov) == FALSE) print("selected type of vcov matrix estimate is not available")    ## FIXME: should the other one be used automatically in case it is available?
-  vcov <- u.vcov
-  eta <- object$eta
-  par <- object$par
-  np <- length(par)
-  if(np > 0){
-    mupar.confint <- c(eta[1] + qnorm(0.025) * sqrt(vcov[1,1]), eta[1] + qnorm(0.975) * sqrt(vcov[1,1]))
-    confint <- rbind(mupar.confint)
+confint.distfit <- function(object, parm, level = 0.95, type = "link", ...) {
+  np <- object$npar
+  if(type == "link"){ 
+    vcov <- object$vcov
+    coef <- object$eta
   }
-  if(np > 1){
-    sigmapar.confint <- c(eta[2] + qnorm(0.025) * sqrt(vcov[2,2]), eta[2] + qnorm(0.975) * sqrt(vcov[2,2]))
-    confint <- rbind(confint, sigmapar.confint)
+  if(type == "parameter"){ 
+    vcov <- vcov(object, "parameter")
+    coef <- object$par
   }
-  if(np > 2){
-    nupar.confint <- c(eta[3] + qnorm(0.025) * sqrt(vcov[3,3]), eta[3] + qnorm(0.975) * sqrt(vcov[3,3]))
-    confint <- rbind(confint, nupar.confint)
+  
+  left <- (1-level)/2
+  right <- 1-left
+  
+  if(missing(parm)){
+    use.parm <- rep(TRUE,length=np)
+  } else {
+    use.parm <- logical(length=np)
+    if(("mu" %in% parm)    || ("eta.mu" %in% parm)    || 1 %in% parm) use.parm[1] <- TRUE
+    if(("sigma" %in% parm) || ("eta.sigma" %in% parm) || 2 %in% parm) use.parm[2] <- TRUE
+    if(("nu" %in% parm)    || ("eta.nu" %in% parm)    || 3 %in% parm) use.parm[3] <- TRUE
+    if(("tau" %in% parm)   || ("eta.tau" %in% parm)   || 4 %in% parm) use.parm[4] <- TRUE
   }
-  if(np > 3){ 
-    taupar.confint <- c(eta[4] + qnorm(0.025) * sqrt(vcov[4,4]), eta[4] + qnorm(0.975) * sqrt(vcov[4,4]))
-    confint <- rbind(confint, taupar.confint)
+  
+  confint <- NULL
+  if((np > 0L) && use.parm[1]){
+    confint1 <- c(coef[1] + qnorm(left) * sqrt(vcov[1,1]), coef[1] + qnorm(right) * sqrt(vcov[1,1]))
+    confint <- rbind(confint, confint1)
+  } 
+  if((np > 1L) && use.parm[2]){
+    confint2 <- c(coef[2] + qnorm(left) * sqrt(vcov[2,2]), coef[2] + qnorm(right) * sqrt(vcov[2,2]))
+    confint <- rbind(confint, confint2)
   }
-  colnames(confint) <- c("2.5 %", "97.5 %")
-  rownames(confint) <- paste(names(par),".par",sep="")
+  if((np > 2L) && use.parm[3]){
+    confint3 <- c(coef[3] + qnorm(left) * sqrt(vcov[3,3]), coef[3] + qnorm(right) * sqrt(vcov[3,3]))
+    confint <- rbind(confint, confint3)
+  }
+  if((np > 3L) && use.parm[4]){ 
+    confint4 <- c(coef[4] + qnorm(left) * sqrt(vcov[4,4]), coef[4] + qnorm(right) * sqrt(vcov[4,4]))
+    confint <- rbind(confint, confint4)
+  }
+  
+  colnames(confint) <- c(paste0(left," %"), paste0(right," %"))
+  rownames(confint) <- names(coef[use.parm])
+  
   confint
 }
 
 
-## FIXME: summary
-# to do: 2 options: summary for distribution paramaters and/or for intercepts/coefficient of the linear predictor
-# use.vcov decides about whether the vcov matrix estimate based on the numerical or the analytical hessian matrix should be used
-# use.vcov can be set to "any, "analytical" or "numerical 
-summary.distfit <- function (object, use.vcov = "any", ...)
-{
-  if(use.vcov == "any") u.vcov <- object$vcov
-  if(use.vcov == "analytical") u.vcov <- object$vcov.an
-  if(use.vcov == "numverical") u.vcov <- object$vcov.num
-  if(is.matrix(u.vcov) == FALSE) print("selected type of vcov matrix estimate is not available")    ## FIXME: should the other one be used automatically in case it is available?
-  vcov <- u.vcov
-  
+## FIXME: summary further information)
+summary.distfit <- function (object, type = "link", ...){
+  if(type == "link"){ 
+    coef <- object$eta
+    vcov <- object$vcov
+  }
+  if(type == "parameter"){ 
+    coef <- object$par
+    vcov <- vcov(object, type = "parameter")
+  }
+
   se <- sqrt(diag(object$vcov))
-  tval <- coef(object, eta = TRUE, par = FALSE) / se
-  TAB <- cbind(Estimate = coef(object, eta = TRUE, par = FALSE),
+  tval <- coef / se
+  TAB <- cbind(Estimate = coef,
                StdErr = se,
                t.value = tval,
                p.value = 2*pt(-abs(tval), df=object$df))
-  ans <- list(call=object$call,
-              coefficients=TAB)
-  class(ans) <- "summary.distfit"
-  return(ans) 
+  
+  
+  
+  sumlist <- list(Call = object$call,
+                  Family = object$family,
+                  Coefficients = TAB,
+                  Estimated_covariance_matrix = vcov,
+                  LogLikelihood = logLik(object)
+                  )
+  class(sumlist) <- "summary.distfit"
+  sumlist 
 }
 
 
