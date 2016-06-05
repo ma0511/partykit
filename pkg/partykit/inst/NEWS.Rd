@@ -2,17 +2,19 @@
 \name{NEWS}
 \title{NEWS file for the partykit package}
 
-\section{Changes in Version 1.0-7 (2016-mm-dd)}{
+\section{Changes in Version 1.1-0 (2016-06-05)}{
   \itemize{
-    \item{Allow computing of predictions for single observations for \code{predict.cforest},
-          fixing \code{http://stackoverflow.com/a/36941020/6268127}.}
-  }
-}
-
-\section{Changes in Version 1.0-6 (2016-02-24)}{
-  \itemize{
+    \item{Added a new function \code{palmtree} that fits partially
+      additive (generalized) linear model trees. These employ
+      model-based recursive partitioning (\code{mob}) based on (generalized)
+      linear models with some local (i.e., leaf-specific) and
+      some global (i.e., constant throughout the tree) regression
+      coefficients.}
     \item{Splits in ordinal variables are now represented correctly 
-          in the (still internal) \code{list.rule} method.}
+      in the (still internal) \code{list.rule} method.}
+    \item{Kaplan-Meier curves in \code{"constparty"} trees were
+      plotted incorrectly due to use a wrong scaling of the
+      x-axis. Spotted by Peter Calhoun <calhoun.peter@gmail.com>.}
     \item{Use \code{quote(stats::model.frame)} instead of
       \code{as.name("model.frame")}.}
     \item{The \code{as.party} methods for \code{rpart} and

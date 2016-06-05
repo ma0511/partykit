@@ -790,7 +790,7 @@ node_surv <- function(obj, col = "black", bg = "white", ylines = 2,
         grid.yaxis()
         grid.rect(gp = gpar(fill = "transparent"))
 	grid.clip()
-        grid.lines(a$x/max(a$x), a$y, gp = gpar(col = col))
+        grid.lines(unit(a$x, "native"), unit(a$y, "native"), gp = gpar(col = col))
         upViewport(2)
     }
 
