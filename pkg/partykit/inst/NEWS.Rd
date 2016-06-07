@@ -23,6 +23,9 @@
       object (instead of an empty model frame).}
     \item{The \code{predict} method for \code{cforest} objects
       did not work for one-row data frames, fixed now.}
+    \item{Added \code{rot} and \code{just} arguments to \code{node_barplot}
+      for more fine control of x-axis labeling (e.g., with 45 degree
+      rotation).}
   }
 }
 

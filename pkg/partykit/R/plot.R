@@ -427,6 +427,8 @@ node_barplot <- function(obj,
 		         widths = 1,
 		         gap = NULL,
 			 reverse = NULL,
+			 rot = 0,
+			 just = c("center", "top"),
 		         id = TRUE,
                          mainlab = NULL,
 			 gp = gpar())
@@ -537,7 +539,7 @@ node_barplot <- function(obj,
   	  xcenter <- cumsum(widths+gap) - widths/2
           if(length(xcenter) > 1) grid.xaxis(at = xcenter, label = FALSE)
 	  grid.text(ylevels, x = xcenter, y = unit(-1, "lines"), 
-                    just = c("center", "top"),
+                    just = just, rot = rot,
 	            default.units = "native", check.overlap = TRUE)
           grid.yaxis()
           grid.rect(gp = gpar(fill = "transparent"))
